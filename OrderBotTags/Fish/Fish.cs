@@ -462,7 +462,7 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit)
-                        && !(FishingManager.State == FishingState.None || FishingManager.State == FishingState.Quit),
+                        && FishingManager.State == FishingState.Waitin,
                         new Action(
                             r =>
                                 {

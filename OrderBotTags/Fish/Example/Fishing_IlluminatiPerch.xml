@@ -11,32 +11,32 @@
           <UseTransport Name="Goodly Adventurer" InteractDistance="3.0" NpcId="1015570" XYZ="63.45142, 207.29, -2.773367" />
       </If>
       <!-- Suggested Bait to use: Goblin Jig or Stonefly Nymph -->
+      <!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
       <Fish Mooch="1" MinFish="25" MaxFish="35" Collect="True" CollectabilityValue="826" Patience="Patience" ShuffleFishSpots="True"
-      ConfirmKey="Return" MoveCursorRightKey="Right" Bait="Goblin Jig">
+            ConfirmKey="Return" MoveCursorRightKey="Right"
+            Bait="Goblin Jig">
         <Keepers>
           <Keeper Name="Illuminati Perch"/>
           <Keeper Name="Sweetfish"/>
           <Keeper Name="Hinterlands Perch" OnlyHq="True"/>
         </Keepers>
         <FishSpots>
-            <FishSpot XYZ="-185.5242, 100.6105, -197.245" Heading="5.632733" Sit="True" />
-            <FishSpot XYZ="-172.9355, 100.4537, -181.7547" Heading="5.81726" />
-            <FishSpot XYZ="-153.7468, 100.5181, -186.1125" Heading="6.030931" />
-            <FishSpot XYZ="-150.4037, 100.5628, -165.1706" Heading="5.077335" />
-            <FishSpot XYZ="-141.443, 100.5589, -141.2495" Heading="4.676731" Sit="True" />
+            <FishSpot XYZ="-185.5212, 100.3405, -197.545" Heading="5.632733" />
+            <FishSpot XYZ="-172.9355, 100.4537, -181.7347" Heading="5.81726" />
+            <FishSpot XYZ="-150.4037, 100.5628, -165.1706" Heading="5.077335" Sit="True"  />
+            <FishSpot XYZ="-141.433, 100.5589, -141.2495" Heading="4.676731"/>
             <FishSpot XYZ="-131.7577, 100.3345, -122.3618" Heading="5.53486" />
-            <FishSpot XYZ="-98.90372, 100.2721, -105.0528" Heading="5.680829" />
-            <FishSpot XYZ="-74.69653, 100.519, -108.4487" Heading="0.9674973" />
-            <FishSpot XYZ="-66.886, 100.4898, -122.7905" Heading="1.441207" Sit="True" />
-            <FishSpot XYZ="-45.49608, 100.5305, -140.3073" Heading="0.9610033" />
-            <FishSpot XYZ="-26.02276, 100.7127, -143.123" Heading="6.126011" />
-            <FishSpot XYZ="6.77495, 100.941, -146.2605" Heading="0.7599502" Sit="True" />
+            <FishSpot XYZ="-74.69653, 100.519, -108.4487" Heading="0.9674973" Sit="True" />
+            <FishSpot XYZ="-66.846, 100.4848, -122.7405" Heading="1.441207" />
+            <FishSpot XYZ="-45.43608, 100.5335, -140.3373" Heading="0.9610033" />
+            <FishSpot XYZ="6.77405, 100.901, -146.2005" Heading="0.7509502" Sit="True" />
             <FishSpot XYZ="14.19854, 100.7758, -169.178" Heading="1.602485" />
-            <FishSpot XYZ="15.31666, 100.8542, -189.3516" Heading="1.156314" />
+
         </FishSpots>
       </Fish>
     </Order>
     <CodeChunks>
+      <!-- Change gearset to your characters gear set number -->
       <CodeChunk Name="Gear">
         <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 35");]]>
       </CodeChunk>

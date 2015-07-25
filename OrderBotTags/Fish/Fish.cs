@@ -140,6 +140,7 @@ namespace ExBuddy.OrderBotTags
             GamelogManager.MessageRecevied += ReceiveMessage;
             FishSpots.IsCyclic = true;
             isFishing = false;
+            isSitting = false;
             ShuffleFishSpots();
 
             if (IsBaitWindowOpen && CanDoAbility(Abilities.Bait))
@@ -158,6 +159,7 @@ namespace ExBuddy.OrderBotTags
             Thread.Sleep(6000);
             DoAbility(Abilities.Quit);
             isFishing = false;
+            isSitting = false;
             CharacterSettings.Instance.UseMount = true;
         }
 
@@ -167,6 +169,7 @@ namespace ExBuddy.OrderBotTags
             spotinit = false;
             fishcount = 0;
             isFishing = false;
+            isSitting = false;
         }
 
         protected override Composite CreateBehavior()
@@ -214,11 +217,11 @@ namespace ExBuddy.OrderBotTags
 
         private static bool isFishing;
 
-        protected static Regex fishRegex = new Regex(
-            @"You land an{0,1} (.+) measuring \d{1,4}\.\d ilms!",
+        protected static Regex FishRegex = new Regex(
+            @"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        protected static Regex baitRegex = new Regex(
+        protected static Regex BaitRegex = new Regex(
             @"You apply an{0,1} (.+) to your line.",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -368,7 +371,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 4);
+                return new Version(3, 0, 5);
             }
         }
 
@@ -455,13 +458,18 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Decorator(ret => !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit), new Action(
-                    r =>
-                        {
-                            isSitting = true;
-                            Log("Sitting " + FishSpots.CurrentOrDefault);
-                            ChatManager.SendChat("/sit");
-                        }));
+                return
+                    new Decorator(
+                        ret =>
+                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit)
+                        && !(FishingManager.State == FishingState.None || FishingManager.State == FishingState.Quit),
+                        new Action(
+                            r =>
+                                {
+                                    isSitting = true;
+                                    Log("Sitting " + FishSpots.CurrentOrDefault);
+                                    ChatManager.SendChat("/sit");
+                                }));
             }
         }
 
@@ -906,6 +914,7 @@ namespace ExBuddy.OrderBotTags
             fishlimit = this.GetFishLimit();
             spotinit = false;
             isFishing = false;
+            isSitting = false;
         }
 
         protected virtual int GetFishLimit()
@@ -933,9 +942,9 @@ namespace ExBuddy.OrderBotTags
 
         protected static string GetCurrentBait(string message)
         {
-            if (baitRegex.IsMatch(message))
+            if (BaitRegex.IsMatch(message))
             {
-                var match = baitRegex.Match(message);
+                var match = BaitRegex.Match(message);
 
                 return match.Groups[1].Value;
             }
@@ -943,36 +952,26 @@ namespace ExBuddy.OrderBotTags
             return "Parse Error";
         }
 
-        protected static FishResult GetFishResult(string message)
+        protected static void SetFishResult(string message)
         {
-            var fish = new FishResult();
+            var fishResult = new FishResult();
 
-            fish.Name = ParseFishName(message);
-            fish.IsHighQuality = IsCatchHq(fish.Name);
+            var match = FishRegex.Match(message);
 
-            return fish;
-        }
-
-        protected static string ParseFishName(string message)
-        {
-            if (fishRegex.IsMatch(message))
+            if (match.Success)
             {
-                var match = fishRegex.Match(message);
+                fishResult.Name = match.Groups[1].Value;
+                float size;
+                float.TryParse(match.Groups[2].Value, out size);
+                fishResult.Size = size;
 
-                return match.Groups[1].Value;
+                if (fishResult.Name[fishResult.Name.Length - 2] == ' ')
+                {
+                    fishResult.IsHighQuality = true;
+                }
             }
 
-            return "Parse Error";
-        }
-
-        protected static bool IsCatchHq(string fishname)
-        {
-            if (fishname[fishname.Length - 2] == ' ')
-            {
-                return true;
-            }
-
-            return false;
+            FishResult = fishResult;
         }
 
         protected void ReceiveMessage(object sender, ChatEventArgs e)
@@ -987,7 +986,7 @@ namespace ExBuddy.OrderBotTags
 
             if (e.ChatLogEntry.MessageType == (MessageType)2115 && e.ChatLogEntry.Contents.StartsWith("You land"))
             {
-                FishResult = GetFishResult(e.ChatLogEntry.Contents);
+                SetFishResult(e.ChatLogEntry.Contents);
             }
 
             if (e.ChatLogEntry.MessageType == (MessageType)2115

@@ -8,6 +8,8 @@
 
         public string Name { get; set; }
 
+        public float Size { get; set; }
+
         public string FishName
         {
             get

@@ -398,7 +398,7 @@ namespace ExBuddy.OrderBotTags
                                 r =>
                                     {
                                         if (InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems)
-                                            <= 98)
+                                            > 98)
                                         {
                                             Log("Declining Collectible - Only 1 inventory space available", Colors.Red);
                                             return;
@@ -612,13 +612,13 @@ namespace ExBuddy.OrderBotTags
                                         || (CanDoAbility(Abilities.Mooch) && MoochLevel != 0))
                                         // Do not toss an HQ fish when mooch is active, even if the condition isn't met to currently mooch.
                                     {
-                                        if (ChumComposite.ExecuteCoroutine()
-                                            .ContinueWith(task => CastComposite.ExecuteCoroutine().Result)
-                                            .Result)
+                                        if (Chum && !HasChum && CanDoAbility(Abilities.Chum))
                                         {
-                                            // Run chum then cast
+                                            DoAbility(Abilities.Chum);
+                                            new Sleep(1, 2);
                                         }
 
+                                        FishingManager.Cast();
                                         return;
                                     }
 

@@ -104,6 +104,7 @@
                             s =>
                             new WeatherData
                                 {
+                                    Time = s.Time,
                                     ZoneId = zoneMap[s.Area],
                                     Html = s.Html,
                                     Weather = GetTitleFromHtmlImg(s.Html),
@@ -121,6 +122,7 @@
                         s =>
                         new WeatherData
                             {
+                                Time = s.Time,
                                 ZoneId = zoneMap[s.Area],
                                 Html = s.Html,
                                 Weather = GetTitleFromHtmlImg(s.Html),
@@ -141,23 +143,23 @@
                 HttpClient client = null;
                 try
                 {
-                    // TODO: Going to add more logic (Count(Time == 0 < 32)) bad update etc.
                     client = new HttpClient();
-                    var result =
+                    var response =
                         client.GetContentAsync<WeatherResponse>("http://en.ff14angler.com/skywatcher.php").Result;
-                    if (result.Interval > lastInterval)
+                    if (response.Interval > lastInterval)
                     {
-                        lastInterval = result.Interval;
-                        weatherResults = result.Data;
+                        // Ensure we at least have all of the entries for the current time.
+                        if (response.Data.Count(w => w.Time == 0) >= 32 || weatherResults == null)
+                        {
+                            lastInterval = response.Interval;
+                            weatherResults = response.Data;
+                        }
 
-                        RequestTimer.Change(
-                            TimeSpan.FromMilliseconds((int)SkywatcherPlugin.GetTimeTillNextInterval()),
-                            TimeSpan.FromSeconds(1400));
                     }
                     else
                     {
                         // New interval not posted, retry every 30 seconds
-                        RequestTimer.Change(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+                        RequestTimer.Change(TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds((int)SkywatcherPlugin.GetTimeTillNextInterval()));
                     }
                 }
                 catch (Exception ex)

@@ -2,6 +2,8 @@
 {
     public class WeatherData
     {
+        public int Time { get; set; }
+
         public uint ZoneId { get; set; }
 
         public uint WeatherId { get; set; }

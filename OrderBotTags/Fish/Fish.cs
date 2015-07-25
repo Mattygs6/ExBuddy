@@ -469,6 +469,7 @@ namespace ExBuddy.OrderBotTags
                                     isSitting = true;
                                     Log("Sitting " + FishSpots.CurrentOrDefault);
                                     ChatManager.SendChat("/sit");
+                                    new Sleep(1, 2);
                                 }));
             }
         }

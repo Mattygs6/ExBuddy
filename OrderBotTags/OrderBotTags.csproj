@@ -70,6 +70,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Fish\Example\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml" />
     <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
   </ItemGroup>

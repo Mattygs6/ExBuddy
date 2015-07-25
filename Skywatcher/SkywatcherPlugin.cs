@@ -1,12 +1,13 @@
-﻿namespace ExBuddy.Skywatcher
+﻿namespace ff14bot.Managers
 {
     using System;
     using System.Linq;
 
+    using ExBuddy.Skywatcher;
     using ExBuddy.Skywatcher.FF14Angler;
 
     using ff14bot.Interfaces;
-    using ff14bot.Managers;
+
 
     public class SkywatcherPlugin : IBotPlugin
     {
@@ -65,6 +66,54 @@
                 WeatherProvider.CurrentWeatherData.Any(
                     w =>
                     w.ZoneId == zoneId
+                    && weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
+        }
+
+        public static bool PredictWeatherInZone(int zoneId, TimeSpan timeSpan, params byte[] weatherIds)
+        {
+            int time;
+            var etTillNextInterval = GetEorzeaTimeTillNextInterval();
+
+            if (timeSpan > etTillNextInterval.Add(TimeSpan.FromHours(8)))
+            {
+                time = 2;
+            }
+            else if (timeSpan > etTillNextInterval)
+            {
+                time = 1;
+            }
+            else
+            {
+                time = 0;
+            }
+
+            return
+                WeatherProvider.WeatherData.Any(
+                    w => w.Time == time && w.ZoneId == zoneId && weatherIds.Any(wid => w.WeatherId == wid));
+        }
+
+        public static bool PredictWeatherInZone(int zoneId, TimeSpan timeSpan, params string[] weatherNames)
+        {
+            int time;
+            var etTillNextInterval = GetEorzeaTimeTillNextInterval();
+
+            if (timeSpan > etTillNextInterval.Add(TimeSpan.FromHours(8)))
+            {
+                time = 2;
+            }
+            else if (timeSpan > etTillNextInterval)
+            {
+                time = 1;
+            }
+            else
+            {
+                time = 0;
+            }
+
+            return
+                WeatherProvider.WeatherData.Any(
+                    w =>
+                    w.Time == time && w.ZoneId == zoneId
                     && weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
         }
 

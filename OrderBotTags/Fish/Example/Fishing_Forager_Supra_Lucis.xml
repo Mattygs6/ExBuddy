@@ -10,11 +10,10 @@
             <If Condition="not IsOnMap(137)">
               <TeleportTo Name="Costa Del Sol" AetheryteId="11" />
             </If>
-            <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 26) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 26) and HasAtLeast(2619, 1)"
+            <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 26) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 26) and HasAtLeast(2619, 1) and (IsTimeBetween(22,24) or IsTimeBetween(0,2))"
                   Mooch="1"
                   Bait="Heavy Steel Jig"
                   Patience="Patience"
-                  ShuffleFishSpots="True"
                   ConfirmKey="Return" MoveCursorRightKey="Right"
                   MinFish="15" MaxFish="25">
               <Keepers>

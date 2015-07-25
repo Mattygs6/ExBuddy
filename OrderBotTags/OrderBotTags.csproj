@@ -4,13 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F5F305C3-7C56-441E-8D33-C19BEC93ED24}</ProjectGuid>
+    <ProjectGuid>{ACC43719-0C5A-411C-B95A-C8C84CFDA457}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExBuddy.Skywatcher</RootNamespace>
-    <AssemblyName>ExBuddy.Skywatcher</AssemblyName>
+    <RootNamespace>ExBuddy.OrderBotTags</RootNamespace>
+    <AssemblyName>ExBuddy.OrderBotTags</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <BaseInstallFolder>Client</BaseInstallFolder>
+    <RBPluginsFolder>Plugins</RBPluginsFolder>
+    <RBProfilesFolder>Profiles</RBProfilesFolder>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -31,13 +34,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Clio.Localization">
+      <HintPath>..\Assembly\Clio.Localization.dll</HintPath>
+    </Reference>
+    <Reference Include="GreyMagic">
+      <HintPath>..\Assembly\GreyMagic.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RebornBuddy">
       <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,14 +53,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FF14AnglerWeatherProvider.cs" />
-    <Compile Include="HttpClientExtensions.cs" />
-    <Compile Include="IWeatherProvider.cs" />
-    <Compile Include="SkywatcherPlugin.cs" />
+    <Compile Include="Fish\Collectable.cs" />
+    <Compile Include="Fish\Extensions.cs" />
+    <Compile Include="Fish\Fish.cs">
+      <DependentUpon>Fish.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Fish\FishResult.cs" />
+    <Compile Include="Fish\FishSpot.cs" />
+    <Compile Include="Fish\Keeper.cs" />
+    <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WeatherData.cs" />
-    <Compile Include="WeatherResponse.cs" />
-    <Compile Include="WeatherResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Fish\Fish.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml" />
+    <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

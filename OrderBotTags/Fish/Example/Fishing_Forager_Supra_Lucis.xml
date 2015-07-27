@@ -10,10 +10,10 @@
             <If Condition="not IsOnMap(137)">
               <TeleportTo Name="Costa Del Sol" AetheryteId="11" />
             </If>
-            <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 26) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 26) and HasAtLeast(2619, 1) and (IsTimeBetween(22,24) or IsTimeBetween(0,2))"
+            <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and HasAtLeast(2619, 1) and (IsTimeBetween(22,24) or IsTimeBetween(0,2))"
                   Mooch="1"
                   Bait="Heavy Steel Jig"
-                  Patience="Patience"
+                  Patience="Patience2"
                   ConfirmKey="Return" MoveCursorRightKey="Right"
                   MinFish="15" MaxFish="25">
               <Keepers>
@@ -33,7 +33,7 @@
       </If>
       <!-- Olgoi Bait: Sand Leech -->
       <If Condition="not HasAtLeast(7930, 3) and not HqHasAtLeast(7930, 2)">
-        <If Condition="SkywatcherPlugin.IsWeatherInZone(146, 26) or SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 26)">
+        <If Condition="SkywatcherPlugin.IsWeatherInZone(146, 14) or SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14)">
           <If Condition="not IsOnMap(146)">
             <TeleportTo Name="Forgotten Springs" AetheryteId="20" />
           </If>
@@ -42,10 +42,10 @@
             <NoCombatMoveTo Name="Merchant &amp; Mender" XYZ="-279.1685, 8.091489, 381.3083" />
             <BuyItem ItemId="2600" ItemCount="198" DialogOption="1" InteractDistance="3.0" NpcId="1004430" XYZ="-279.1685, 8.091489, 381.3083" />
           </If>
-          <Fish Condition="WorldManager.CurrentWeatherId == 26"
+          <Fish Condition="WorldManager.CurrentWeatherId == 14"
                 Mooch="2"
                 Bait="Sand Leech"
-                Patience="Patience"
+                Patience="Patience2"
                 ConfirmKey="Return" MoveCursorRightKey="Right"
                 MinFish="15" MaxFish="25">
             <Keepers>
@@ -75,9 +75,9 @@
           <If Condition="not IsOnMap(135)">
             <TeleportTo Name="Moraby Drydocks" AetheryteId="10" />
           </If>
-          <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 26) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 26) and not IsTimeBetween(22,24) and not IsTimeBetween(0,2) and HasAtLeast(2628, 1)"
+          <Fish Condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and not IsTimeBetween(22,24) and not IsTimeBetween(0,2) and HasAtLeast(2628, 1)"
                 Bait="Yumizuno"
-                Chum="True"
+                Patience="Patience2"
                 ShuffleFishSpots="True"
                 ConfirmKey="Return" MoveCursorRightKey="Right"
                 MinFish="15" MaxFish="25">

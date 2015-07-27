@@ -66,7 +66,7 @@ namespace ExBuddy.OrderBotTags
 
             PrecisionHookset = 4179,
 
-            Patience2 = 9001 // Need to Check this value when i get skill
+            Patience2 = 4106
         }
 
         private const uint WM_KEYDOWN = 0x100;

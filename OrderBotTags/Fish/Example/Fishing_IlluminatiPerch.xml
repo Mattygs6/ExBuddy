@@ -18,7 +18,7 @@
         <Keepers>
           <Keeper Name="Illuminati Perch"/>
           <Keeper Name="Sweetfish"/>
-          <Keeper Name="Hinterlands Perch" OnlyHq="True"/>
+          <Keeper Name="Hinterlands Perch" HqOnly="True"/>
         </Keepers>
         <FishSpots>
             <FishSpot XYZ="-185.5212, 100.3405, -197.545" Heading="5.632733" />

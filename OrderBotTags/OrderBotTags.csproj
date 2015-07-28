@@ -72,7 +72,11 @@
   <ItemGroup>
     <Content Include="Fish\Example\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml" />
+    <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
     <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Craft\Resolver\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

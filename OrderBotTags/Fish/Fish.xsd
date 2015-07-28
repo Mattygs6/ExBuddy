@@ -10,7 +10,7 @@
               <xs:element name="Keeper" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:attribute name="Name" type="xs:string"></xs:attribute>
-                  <xs:attribute name="OnlyHq" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="HqOnly" type="xs:boolean"></xs:attribute>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>

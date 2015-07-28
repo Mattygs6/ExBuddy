@@ -446,13 +446,10 @@ namespace ExBuddy.OrderBotTags
                         fishcount >= fishlimit && CanDoAbility(Abilities.Quit) && !HasPatience
                         && FishingManager.State == FishingState.PoleReady && !SelectYesNoItem.IsOpen,
                         new Sequence(
-                            new Sleep(1, 1),
-                            new Action(
-                                r =>
-                                    {
-                                        DoAbility(Abilities.Quit);
-                                        ChangeFishSpot();
-                                    })));
+                            new Sleep(2, 3),
+                            new Action(r => { DoAbility(Abilities.Quit); }),
+                            new Sleep(2, 3),
+                            new Action(r => { ChangeFishSpot(); })));
 
             }
         }
@@ -464,16 +461,17 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit)
-                        && FishingManager.State == FishingState.PoleOut,
-                        new Action(
-                            r =>
-                                {
-                                    isSitting = true;
-                                    Log("Sitting " + FishSpots.CurrentOrDefault);
-                                    ChatManager.SendChat("/sit");
-                                    new Sleep(1, 2);
-                                }));
+                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit) && FishingManager.State == (FishingState)9,
+                        // this is when you have already cast and are waiting for a bite.
+                        new Sequence(
+                            new Sleep(1, 1),
+                            new Action(
+                                r =>
+                                    {
+                                        isSitting = true;
+                                        Log("Sitting " + FishSpots.CurrentOrDefault);
+                                        ChatManager.SendChat("/sit");
+                                    })));
             }
         }
 

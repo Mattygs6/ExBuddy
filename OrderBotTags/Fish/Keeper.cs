@@ -12,7 +12,7 @@ namespace ExBuddy.OrderBotTags
         [Clio.XmlEngine.XmlAttribute("Name")]
         public string Name { get; set; }
 
-        [Clio.XmlEngine.XmlAttribute("OnlyHq")]
-        public bool OnlyHq { get; set; }
+        [Clio.XmlEngine.XmlAttribute("HqOnly")]
+        public bool HqOnly { get; set; }
     }
 }

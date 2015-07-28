@@ -154,7 +154,14 @@
                             lastInterval = response.Interval;
                             weatherResults = response.Data;
                         }
-
+                            // If there are 32 or more weather forecasts, shift all weather down an interval.
+                        else if (weatherResults.Count(w => w.Time == 1) >= 32)
+                        {
+                            foreach (var w in weatherResults)
+                            {
+                                w.Time--;
+                            }
+                        }
                     }
                     else
                     {

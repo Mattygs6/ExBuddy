@@ -303,7 +303,7 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("Bait")]
         public string Bait { get; set; }
 
-        [DefaultValue(1)]
+        [DefaultValue(500)]
         [XmlAttribute("BaitDelay")]
         public int BaitDelay { get; set; }
 
@@ -444,13 +444,16 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         fishcount >= fishlimit && CanDoAbility(Abilities.Quit) && !HasPatience
-                        && !SelectYesNoItem.IsOpen,
-                        new Action(
-                            r =>
-                                {
-                                    DoAbility(Abilities.Quit);
-                                    ChangeFishSpot();
-                                }));
+                        && FishingManager.State == FishingState.PoleReady && !SelectYesNoItem.IsOpen,
+                        new Sequence(
+                            new Sleep(1, 1),
+                            new Action(
+                                r =>
+                                    {
+                                        DoAbility(Abilities.Quit);
+                                        ChangeFishSpot();
+                                    })));
+
             }
         }
 
@@ -462,7 +465,7 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit)
-                        && FishingManager.State == FishingState.Waitin,
+                        && FishingManager.State == FishingState.PoleOut,
                         new Action(
                             r =>
                                 {
@@ -705,7 +708,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Decorator(
-                    ret => amissfish > FishSpots.Count,
+                    ret => amissfish > Math.Min(FishSpots.Count, 4),
                     new Action(
                         r =>
                             {
@@ -813,7 +816,7 @@ namespace ExBuddy.OrderBotTags
                                         this.isDone = true;
                                     }
                                 }),
-                        new Sleep(1, 2)));
+                        new Sleep(this.BaitDelay)));
             }
         }
 

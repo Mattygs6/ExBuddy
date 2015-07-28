@@ -636,7 +636,7 @@ namespace ExBuddy.OrderBotTags
 
                                     // Release the fish
                                     DoAbility(Abilities.Release);
-
+                                    new Sleep(1, 2);
                                     ResetMooch();
                                 }));
             }
@@ -657,7 +657,7 @@ namespace ExBuddy.OrderBotTags
                                     ResetMooch();
                                 }));
             }
-        }
+        }re
 
         protected Composite HookComposite
         {

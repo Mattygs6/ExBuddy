@@ -404,6 +404,7 @@ namespace ExBuddy.OrderBotTags
                                             > 98)
                                         {
                                             Log("Declining Collectible - Only 1 inventory space available", Colors.Red);
+                                            SelectYesNoItem.No();
                                             return;
                                         }
 

@@ -227,7 +227,7 @@ namespace ExBuddy.OrderBotTags
 
         protected static FishResult FishResult = new FishResult();
 
-        private static string currentBait;
+        private string currentBait;
 
         private int baitCount = InventoryManager.FilledSlots.Count(bs => bs.Item.Affinity == 19);
 
@@ -657,7 +657,7 @@ namespace ExBuddy.OrderBotTags
                                     ResetMooch();
                                 }));
             }
-        }re
+        }
 
         protected Composite HookComposite
         {
@@ -982,7 +982,7 @@ namespace ExBuddy.OrderBotTags
                 && e.ChatLogEntry.Contents.StartsWith("You apply"))
             {
                 currentBait = GetCurrentBait(e.ChatLogEntry.Contents);
-                this.baitCount--;
+                baitCount--;
                 Log("Applied Bait -> " + currentBait);
             }
 

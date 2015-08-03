@@ -156,7 +156,16 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnDone()
         {
-            Thread.Sleep(6000);
+            try
+            {
+                GamelogManager.MessageRecevied -= this.ReceiveMessage;
+            }
+            catch (Exception ex)
+            {
+                Log(ex.Message);
+            }
+
+            Thread.Sleep(5000);
             DoAbility(Abilities.Quit);
             isFishing = false;
             isSitting = false;

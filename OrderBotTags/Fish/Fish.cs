@@ -189,7 +189,7 @@ namespace ExBuddy.OrderBotTags
                 Conditional,
                 Blacklist,
                 InventoryFull,
-                // TODO: GetBait
+                // TODO: GetBait... OR we can just let Orderbot handle it. and put the bait requirements in the condition
                 OpenBait,
                 ApplyBait,
                 CheckStealth,
@@ -198,7 +198,7 @@ namespace ExBuddy.OrderBotTags
                 GoFish(
                     DismountComposite,
                     StopMovingComposite,
-                    CheckWeatherComposite,
+                    CheckWeatherComposite, // Waits up to 10 hours, might want to rethink this one.
                     InitFishSpotComposite,
                     CollectablesComposite,
                     MoochComposite,
@@ -243,6 +243,8 @@ namespace ExBuddy.OrderBotTags
         private bool isSitting;
 
         private bool isDone;
+
+        private bool isFishIdentified;
 
         private int minfish = 20;
 
@@ -405,7 +407,7 @@ namespace ExBuddy.OrderBotTags
                         ret =>
                         Collect && SelectYesNoItem.IsOpen,
                         new Sequence(
-                            new Sleep(2, 3),
+                            new Sleep(1, 2),
                             new Action(
                                 r =>
                                     {
@@ -418,6 +420,7 @@ namespace ExBuddy.OrderBotTags
                                         }
 
                                         uint value = 0;
+
                                         value = SelectYesNoItem.CollectabilityValue;
 
                                         if (value < 10)
@@ -442,7 +445,7 @@ namespace ExBuddy.OrderBotTags
                                             SelectYesNoItem.No();
                                         }
                                     }),
-                            new Sleep(2, 3)));
+                            new Sleep(1, 2)));
             }
         }
 
@@ -581,7 +584,7 @@ namespace ExBuddy.OrderBotTags
                                             Log("Mooching, this will be the only mooch.");
                                         }
                                     }),
-                            new Sleep(2, 3)));
+                            new Sleep(2, 2)));
             }
         }
 
@@ -624,31 +627,37 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret => FishingManager.State == FishingState.PoleReady && CanDoAbility(Abilities.Release),
-                        new Action(
-                            r =>
-                                {
-                                    // Keep the fish
-                                    if (this.Keepers.Count == 0 || this.Keepers.Any(FishResult.IsKeeper)
-                                        || (CanDoAbility(Abilities.Mooch) && MoochLevel != 0))
-                                        // Do not toss an HQ fish when mooch is active, even if the condition isn't met to currently mooch.
-                                    {
-                                        if (Chum && !HasChum && CanDoAbility(Abilities.Chum))
+                        new Sequence(
+                            new Wait(
+                                2,
+                                ret => this.isFishIdentified,
+                                new Action(
+                                    r =>
                                         {
-                                            DoAbility(Abilities.Chum);
-                                            new Sleep(1, 2);
-                                        }
+                                            // Keep the fish
+                                            if (this.Keepers.Count == 0 || this.Keepers.Any(FishResult.IsKeeper)
+                                                || (CanDoAbility(Abilities.Mooch) && MoochLevel != 0))
+                                                // Do not toss an HQ fish when mooch is active, even if the condition isn't met to currently mooch.
+                                            {
+                                                if (Chum && !HasChum && CanDoAbility(Abilities.Chum))
+                                                {
+                                                    DoAbility(Abilities.Chum);
+                                                    new Sleep(1, 2);
+                                                }
 
-                                        FishingManager.Cast();
-                                        return;
-                                    }
+                                                this.Cast();
 
-                                    Log("Released " + FishResult.FishName);
+                                                return;
+                                            }
 
-                                    // Release the fish
-                                    DoAbility(Abilities.Release);
-                                    new Sleep(1, 2);
-                                    ResetMooch();
-                                }));
+                                            Log("Released " + FishResult.FishName);
+
+                                            // Release the fish
+                                            this.isFishIdentified = false;
+                                            DoAbility(Abilities.Release);
+                                            ResetMooch();
+                                        })),
+                            new Wait(2, ret => !CanDoAbility(Abilities.Release), new ActionAlwaysSucceed())));
             }
         }
 
@@ -660,12 +669,7 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady,
-                        new Action(
-                            r =>
-                                {
-                                    FishingManager.Cast();
-                                    ResetMooch();
-                                }));
+                        new Action(r => this.Cast()));
             }
         }
 
@@ -900,6 +904,13 @@ namespace ExBuddy.OrderBotTags
             return moochConditional();
         }
 
+        protected virtual void Cast()
+        {
+            this.isFishIdentified = false;
+            FishingManager.Cast();
+            this.ResetMooch();
+        }
+
         protected virtual void FaceFishSpot()
         {
             var i = MathEx.Random(0, 25);
@@ -952,7 +963,7 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
-        protected static string GetCurrentBait(string message)
+        protected string GetCurrentBait(string message)
         {
             if (BaitRegex.IsMatch(message))
             {
@@ -964,7 +975,7 @@ namespace ExBuddy.OrderBotTags
             return "Parse Error";
         }
 
-        protected static void SetFishResult(string message)
+        protected void SetFishResult(string message)
         {
             var fishResult = new FishResult();
 
@@ -984,6 +995,7 @@ namespace ExBuddy.OrderBotTags
             }
 
             FishResult = fishResult;
+            this.isFishIdentified = true;
         }
 
         protected void ReceiveMessage(object sender, ChatEventArgs e)

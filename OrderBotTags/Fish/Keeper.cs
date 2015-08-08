@@ -1,6 +1,7 @@
 namespace ExBuddy.OrderBotTags
 {
     using System;
+    using System.ComponentModel;
     using System.Xml.Serialization;
 
     [XmlRoot(IsNullable = true, Namespace = "")]
@@ -12,7 +13,8 @@ namespace ExBuddy.OrderBotTags
         [Clio.XmlEngine.XmlAttribute("Name")]
         public string Name { get; set; }
 
-        [Clio.XmlEngine.XmlAttribute("HqOnly")]
-        public bool HqOnly { get; set; }
+        [DefaultValue(KeeperAction.KeepAll)]
+        [Clio.XmlEngine.XmlAttribute("Action")]
+        public KeeperAction Action { get; set; }
     }
 }

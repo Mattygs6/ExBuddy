@@ -166,7 +166,12 @@ namespace ExBuddy.OrderBotTags
             }
 
             Thread.Sleep(5000);
-            DoAbility(Abilities.Quit);
+
+            if (CanDoAbility(Abilities.Quit))
+            {
+                DoAbility(Abilities.Quit);
+            }
+
             isFishing = false;
             isSitting = false;
             CharacterSettings.Instance.UseMount = true;
@@ -188,7 +193,6 @@ namespace ExBuddy.OrderBotTags
             return new PrioritySelector(
                 Conditional,
                 Blacklist,
-                InventoryFull,
                 // TODO: GetBait... OR we can just let Orderbot handle it. and put the bait requirements in the condition
                 OpenBait,
                 ApplyBait,
@@ -201,9 +205,10 @@ namespace ExBuddy.OrderBotTags
                     CheckWeatherComposite, // Waits up to 10 hours, might want to rethink this one.
                     InitFishSpotComposite,
                     CollectablesComposite,
-                    MoochComposite,
                     ReleaseComposite,
+                    MoochComposite,
                     FishCountLimitComposite,
+                    InventoryFullComposite,
                     SitComposite,
                     CollectorsGloveComposite,
                     SnaggingComposite,
@@ -239,6 +244,8 @@ namespace ExBuddy.OrderBotTags
         private string currentBait;
 
         private int baitCount = InventoryManager.FilledSlots.Count(bs => bs.Item.Affinity == 19);
+
+        private bool checkRelease;
 
         private bool isSitting;
 
@@ -626,7 +633,7 @@ namespace ExBuddy.OrderBotTags
             {
                 return
                     new Decorator(
-                        ret => FishingManager.State == FishingState.PoleReady && CanDoAbility(Abilities.Release),
+                        ret => this.checkRelease && FishingManager.State == FishingState.PoleReady && CanDoAbility(Abilities.Release) && this.Keepers.Count != 0,
                         new Sequence(
                             new Wait(
                                 2,
@@ -634,28 +641,14 @@ namespace ExBuddy.OrderBotTags
                                 new Action(
                                     r =>
                                         {
-                                            // Keep the fish
-                                            if (this.Keepers.Count == 0 || this.Keepers.Any(FishResult.IsKeeper)
-                                                || (CanDoAbility(Abilities.Mooch) && MoochLevel != 0))
-                                                // Do not toss an HQ fish when mooch is active, even if the condition isn't met to currently mooch.
+                                            // If its not a keeper AND we aren't mooching or we can't mooch, then release
+                                            if (!this.Keepers.Any(FishResult.IsKeeper) && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
                                             {
-                                                if (Chum && !HasChum && CanDoAbility(Abilities.Chum))
-                                                {
-                                                    DoAbility(Abilities.Chum);
-                                                    new Sleep(1, 2);
-                                                }
-
-                                                this.Cast();
-
-                                                return;
+                                                DoAbility(Abilities.Release);
+                                                Log("Released " + FishResult.FishName);
                                             }
 
-                                            Log("Released " + FishResult.FishName);
-
-                                            // Release the fish
-                                            this.isFishIdentified = false;
-                                            DoAbility(Abilities.Release);
-                                            ResetMooch();
+                                            this.checkRelease = false;
                                         })),
                             new Wait(2, ret => !CanDoAbility(Abilities.Release), new ActionAlwaysSucceed())));
             }
@@ -670,6 +663,17 @@ namespace ExBuddy.OrderBotTags
                         ret =>
                         FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady,
                         new Action(r => this.Cast()));
+            }
+        }
+
+        protected Composite InventoryFullComposite
+        {
+            get
+            {
+                return
+                    new Decorator(
+                        ret => InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) >= 100,
+                        new Action(r => { this.isDone = true; }));
             }
         }
 
@@ -729,17 +733,6 @@ namespace ExBuddy.OrderBotTags
                                     "This zone has been blacklisted, please fish somewhere else and then restart the profile.");
                                 this.isDone = true;
                             }));
-            }
-        }
-
-        protected Composite InventoryFull
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret => InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) >= 100,
-                        new Action(r => { this.isDone = true; }));
             }
         }
 
@@ -907,6 +900,7 @@ namespace ExBuddy.OrderBotTags
         protected virtual void Cast()
         {
             this.isFishIdentified = false;
+            this.checkRelease = true;
             FishingManager.Cast();
             this.ResetMooch();
         }
@@ -1019,7 +1013,12 @@ namespace ExBuddy.OrderBotTags
                     StringComparison.InvariantCultureIgnoreCase))
             {
                 Log("You do not sense any fish here, trying next location.");
-                DoAbility(Abilities.Quit);
+
+                if (CanDoAbility(Abilities.Quit))
+                {
+                    DoAbility(Abilities.Quit);
+                }
+
                 ChangeFishSpot();
             }
 
@@ -1029,7 +1028,12 @@ namespace ExBuddy.OrderBotTags
             {
                 Log("The fish sense something amiss!");
                 amissfish++;
-                DoAbility(Abilities.Quit);
+
+                if (CanDoAbility(Abilities.Quit))
+                {
+                    DoAbility(Abilities.Quit);    
+                }
+                
                 ChangeFishSpot();
             }
         }

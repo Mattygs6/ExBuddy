@@ -25,8 +25,22 @@
 
         public bool IsKeeper(Keeper keeper)
         {
-            return string.Equals(keeper.Name, this.FishName, StringComparison.InvariantCultureIgnoreCase)
-                   && (this.IsHighQuality || !keeper.HqOnly);
+            if (!string.Equals(keeper.Name, this.FishName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            if ((!keeper.Action.HasFlag(KeeperAction.KeepHq) && this.IsHighQuality))
+            {
+                return false;
+            }
+
+            if ((!keeper.Action.HasFlag(KeeperAction.KeepNq) && !this.IsHighQuality))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

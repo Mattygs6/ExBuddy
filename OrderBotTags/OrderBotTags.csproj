@@ -46,6 +46,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Craft\Collect.cs" />
     <Compile Include="Fish\Collectable.cs" />
     <Compile Include="Fish\Extensions.cs" />
     <Compile Include="Fish\Fish.cs">
@@ -61,11 +64,15 @@
     <Compile Include="Fish\FishResult.cs" />
     <Compile Include="Fish\FishSpot.cs" />
     <Compile Include="Fish\Keeper.cs" />
+    <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Fish\Fish.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Schema\OrderBot.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>

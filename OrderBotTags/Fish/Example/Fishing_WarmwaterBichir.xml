@@ -10,7 +10,7 @@
       <!-- Suggested Bait to use: Purse Web Spider -->
       <!-- MinFish/MaxFish optional -->
       <!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
-      <Fish Mooch="1" MoochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" MinFish="25" MaxFish="35" Collect="True" CollectabilityValue="683" Patience="Patience"
+      <Fish Mooch="1" MoochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" MinFish="25" MaxFish="35" Collect="true" CollectabilityValue="683" Patience="Patience"
             ConfirmKey="Return" MoveCursorRightKey="Right"
             Bait="Purse Web Spider">
         <FishSpots>
@@ -24,7 +24,7 @@
     <CodeChunks>
       <!-- Change gearset to your characters gear set number -->
       <CodeChunk Name="Gear">
-        <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 35");]]>
+        <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
       </CodeChunk>
     </CodeChunks>
 </Profile>

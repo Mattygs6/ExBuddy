@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skywatcher", "Skywatcher\Sk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBotTags", "OrderBotTags\OrderBotTags.csproj", "{ACC43719-0C5A-411C-B95A-C8C84CFDA457}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skywatcher.Test", "Skywatcher.Test\Skywatcher.Test.csproj", "{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

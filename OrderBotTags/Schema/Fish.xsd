@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:include schemaLocation="..\..\ZmslBuddy\Profiles\Schema\Order.xsd"/>
+  <xs:redefine schemaLocation="..\..\ZmslBuddy\Profiles\Schema\Order.xsd">
+    <xs:complexType name="CompositeProfileBehavior">
+      <xs:complexContent>
+        <xs:extension base="CompositeProfileBehavior">
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="Fish"/>
+          </xs:choice>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+  <xs:element name="Fish">
+    <xs:complexType>
+      <xs:all>
+        <xs:element minOccurs="0" name="Keepers">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Keeper" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+                  <xs:attribute name="action" type="KeeperAction"></xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="FishSpots">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="FishSpot" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="xyz" type="Coordinate" use="required"></xs:attribute>
+                  <xs:attribute name="heading" type="xs:float"></xs:attribute>
+                  <xs:attribute name="sit" type="xs:boolean"></xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="condition" type="Condition"></xs:attribute>
+      <xs:attribute name="weather" type="xs:string"></xs:attribute>
+      <xs:attribute name="mooch" type="xs:int"></xs:attribute>
+      <xs:attribute name="moochCondition" type="Condition"></xs:attribute>
+      <xs:attribute name="minFish" type="xs:int"></xs:attribute>
+      <xs:attribute name="maxFish" type="xs:int"></xs:attribute>
+      <xs:attribute name="confirmKey" type="VirtualKeys"></xs:attribute>
+      <xs:attribute name="moveCursorRightKey" type="VirtualKeys"></xs:attribute>
+      <xs:attribute name="bait" type="xs:string"></xs:attribute>
+      <xs:attribute name="baitDelay" type="xs:int"></xs:attribute>
+      <xs:attribute name="shuffleFishSpots" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="stealth" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="snagging" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="chum" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="patience" type="Abilities"></xs:attribute>
+      <xs:attribute name="hookset" type="Abilities"></xs:attribute>
+      <xs:attribute name="collect" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="collectabilityValue" type="xs:int"></xs:attribute>
+      <xs:attribute name="sit" type="xs:boolean"></xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:simpleType name="Abilities">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Sprint" />
+      <xs:enumeration value="Bait" />
+      <xs:enumeration value="Cast" />
+      <xs:enumeration value="Hook" />
+      <xs:enumeration value="Mooch" />
+      <xs:enumeration value="Stealth" />
+      <xs:enumeration value="Quit" />
+      <xs:enumeration value="Release" />
+      <xs:enumeration value="CastLight" />
+      <xs:enumeration value="Snagging" />
+      <xs:enumeration value="CollectorsGlove" />
+      <xs:enumeration value="Patience" />
+      <xs:enumeration value="PowerfulHookset" />
+      <xs:enumeration value="Chum" />
+      <xs:enumeration value="FishEyes" />
+      <xs:enumeration value="PrecisionHookset" />
+      <xs:enumeration value="Patience2" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="VirtualKeys">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LeftButton" />
+      <xs:enumeration value="RightButton" />
+      <xs:enumeration value="Cancel" />
+      <xs:enumeration value="MiddleButton" />
+      <xs:enumeration value="ExtraButton1" />
+      <xs:enumeration value="ExtraButton2" />
+      <xs:enumeration value="Back" />
+      <xs:enumeration value="Tab" />
+      <xs:enumeration value="Clear" />
+      <xs:enumeration value="Return" />
+      <xs:enumeration value="Shift" />
+      <xs:enumeration value="Control" />
+      <xs:enumeration value="Menu" />
+      <xs:enumeration value="Pause" />
+      <xs:enumeration value="CapsLock" />
+      <xs:enumeration value="Kana" />
+      <xs:enumeration value="Hangeul" />
+      <xs:enumeration value="Hangul" />
+      <xs:enumeration value="Junja" />
+      <xs:enumeration value="Final" />
+      <xs:enumeration value="Hanja" />
+      <xs:enumeration value="Kanji" />
+      <xs:enumeration value="Escape" />
+      <xs:enumeration value="Convert" />
+      <xs:enumeration value="NonConvert" />
+      <xs:enumeration value="Accept" />
+      <xs:enumeration value="ModeChange" />
+      <xs:enumeration value="Space" />
+      <xs:enumeration value="Prior" />
+      <xs:enumeration value="Next" />
+      <xs:enumeration value="End" />
+      <xs:enumeration value="Home" />
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Up" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Down" />
+      <xs:enumeration value="Select" />
+      <xs:enumeration value="Print" />
+      <xs:enumeration value="Execute" />
+      <xs:enumeration value="Snapshot" />
+      <xs:enumeration value="Insert" />
+      <xs:enumeration value="Delete" />
+      <xs:enumeration value="Help" />
+      <xs:enumeration value="N0" />
+      <xs:enumeration value="N1" />
+      <xs:enumeration value="N2" />
+      <xs:enumeration value="N3" />
+      <xs:enumeration value="N4" />
+      <xs:enumeration value="N5" />
+      <xs:enumeration value="N6" />
+      <xs:enumeration value="N7" />
+      <xs:enumeration value="N8" />
+      <xs:enumeration value="N9" />
+      <xs:enumeration value="A" />
+      <xs:enumeration value="B" />
+      <xs:enumeration value="C" />
+      <xs:enumeration value="D" />
+      <xs:enumeration value="E" />
+      <xs:enumeration value="F" />
+      <xs:enumeration value="G" />
+      <xs:enumeration value="H" />
+      <xs:enumeration value="I" />
+      <xs:enumeration value="J" />
+      <xs:enumeration value="K" />
+      <xs:enumeration value="L" />
+      <xs:enumeration value="M" />
+      <xs:enumeration value="N" />
+      <xs:enumeration value="O" />
+      <xs:enumeration value="P" />
+      <xs:enumeration value="Q" />
+      <xs:enumeration value="R" />
+      <xs:enumeration value="S" />
+      <xs:enumeration value="T" />
+      <xs:enumeration value="U" />
+      <xs:enumeration value="V" />
+      <xs:enumeration value="W" />
+      <xs:enumeration value="X" />
+      <xs:enumeration value="Y" />
+      <xs:enumeration value="Z" />
+      <xs:enumeration value="LeftWindows" />
+      <xs:enumeration value="RightWindows" />
+      <xs:enumeration value="Application" />
+      <xs:enumeration value="Sleep" />
+      <xs:enumeration value="Numpad0" />
+      <xs:enumeration value="Numpad1" />
+      <xs:enumeration value="Numpad2" />
+      <xs:enumeration value="Numpad3" />
+      <xs:enumeration value="Numpad4" />
+      <xs:enumeration value="Numpad5" />
+      <xs:enumeration value="Numpad6" />
+      <xs:enumeration value="Numpad7" />
+      <xs:enumeration value="Numpad8" />
+      <xs:enumeration value="Numpad9" />
+      <xs:enumeration value="Multiply" />
+      <xs:enumeration value="Add" />
+      <xs:enumeration value="Separator" />
+      <xs:enumeration value="Subtract" />
+      <xs:enumeration value="Decimal" />
+      <xs:enumeration value="Divide" />
+      <xs:enumeration value="F1" />
+      <xs:enumeration value="F2" />
+      <xs:enumeration value="F3" />
+      <xs:enumeration value="F4" />
+      <xs:enumeration value="F5" />
+      <xs:enumeration value="F6" />
+      <xs:enumeration value="F7" />
+      <xs:enumeration value="F8" />
+      <xs:enumeration value="F9" />
+      <xs:enumeration value="F10" />
+      <xs:enumeration value="F11" />
+      <xs:enumeration value="F12" />
+      <xs:enumeration value="F13" />
+      <xs:enumeration value="F14" />
+      <xs:enumeration value="F15" />
+      <xs:enumeration value="F16" />
+      <xs:enumeration value="F17" />
+      <xs:enumeration value="F18" />
+      <xs:enumeration value="F19" />
+      <xs:enumeration value="F20" />
+      <xs:enumeration value="F21" />
+      <xs:enumeration value="F22" />
+      <xs:enumeration value="F23" />
+      <xs:enumeration value="F24" />
+      <xs:enumeration value="NumLock" />
+      <xs:enumeration value="ScrollLock" />
+      <xs:enumeration value="NEC_Equal" />
+      <xs:enumeration value="Fujitsu_Jisho" />
+      <xs:enumeration value="Fujitsu_Masshou" />
+      <xs:enumeration value="Fujitsu_Touroku" />
+      <xs:enumeration value="Fujitsu_Loya" />
+      <xs:enumeration value="Fujitsu_Roya" />
+      <xs:enumeration value="LeftShift" />
+      <xs:enumeration value="RightShift" />
+      <xs:enumeration value="LeftControl" />
+      <xs:enumeration value="RightControl" />
+      <xs:enumeration value="LeftMenu" />
+      <xs:enumeration value="RightMenu" />
+      <xs:enumeration value="BrowserBack" />
+      <xs:enumeration value="BrowserForward" />
+      <xs:enumeration value="BrowserRefresh" />
+      <xs:enumeration value="BrowserStop" />
+      <xs:enumeration value="BrowserSearch" />
+      <xs:enumeration value="BrowserFavorites" />
+      <xs:enumeration value="BrowserHome" />
+      <xs:enumeration value="VolumeMute" />
+      <xs:enumeration value="VolumeDown" />
+      <xs:enumeration value="VolumeUp" />
+      <xs:enumeration value="MediaNextTrack" />
+      <xs:enumeration value="MediaPrevTrack" />
+      <xs:enumeration value="MediaStop" />
+      <xs:enumeration value="MediaPlayPause" />
+      <xs:enumeration value="LaunchMail" />
+      <xs:enumeration value="LaunchMediaSelect" />
+      <xs:enumeration value="LaunchApplication1" />
+      <xs:enumeration value="LaunchApplication2" />
+      <xs:enumeration value="OEM1" />
+      <xs:enumeration value="OEMPlus" />
+      <xs:enumeration value="OEMComma" />
+      <xs:enumeration value="OEMMinus" />
+      <xs:enumeration value="OEMPeriod" />
+      <xs:enumeration value="OEM2" />
+      <xs:enumeration value="OEM3" />
+      <xs:enumeration value="OEM4" />
+      <xs:enumeration value="OEM5" />
+      <xs:enumeration value="OEM6" />
+      <xs:enumeration value="OEM7" />
+      <xs:enumeration value="OEM8" />
+      <xs:enumeration value="OEMAX" />
+      <xs:enumeration value="OEM102" />
+      <xs:enumeration value="ICOHelp" />
+      <xs:enumeration value="ICO00" />
+      <xs:enumeration value="ProcessKey" />
+      <xs:enumeration value="ICOClear" />
+      <xs:enumeration value="Packet" />
+      <xs:enumeration value="OEMReset" />
+      <xs:enumeration value="OEMJump" />
+      <xs:enumeration value="OEMPA1" />
+      <xs:enumeration value="OEMPA2" />
+      <xs:enumeration value="OEMPA3" />
+      <xs:enumeration value="OEMWSCtrl" />
+      <xs:enumeration value="OEMCUSel" />
+      <xs:enumeration value="OEMATTN" />
+      <xs:enumeration value="OEMFinish" />
+      <xs:enumeration value="OEMCopy" />
+      <xs:enumeration value="OEMAuto" />
+      <xs:enumeration value="OEMENLW" />
+      <xs:enumeration value="OEMBackTab" />
+      <xs:enumeration value="ATTN" />
+      <xs:enumeration value="CRSel" />
+      <xs:enumeration value="EXSel" />
+      <xs:enumeration value="EREOF" />
+      <xs:enumeration value="Play" />
+      <xs:enumeration value="Zoom" />
+      <xs:enumeration value="Noname" />
+      <xs:enumeration value="PA1" />
+      <xs:enumeration value="OEMClear" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="KeeperAction">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="KeepNq"/>
+      <xs:enumeration value="KeepHq"/>
+      <xs:enumeration value="KeepAll"/>
+      <xs:enumeration value="Mooch"/>
+      <xs:enumeration value="MoochKeepNq"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

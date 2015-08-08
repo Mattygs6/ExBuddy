@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,9 +59,7 @@
     <Compile Include="Craft\Collect.cs" />
     <Compile Include="Fish\Collectable.cs" />
     <Compile Include="Fish\Extensions.cs" />
-    <Compile Include="Fish\Fish.cs">
-      <DependentUpon>Fish.xsd</DependentUpon>
-    </Compile>
+    <Compile Include="Fish\Fish.cs" />
     <Compile Include="Fish\FishResult.cs" />
     <Compile Include="Fish\FishSpot.cs" />
     <Compile Include="Fish\Keeper.cs" />
@@ -69,16 +68,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fish\Fish.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Schema\OrderBot.xsd">
+    <None Include="Schema\Fish.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Fish\Example\Fishing_Forager_Supra_Lucis.xml" />
-    <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml" />
+    <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
     <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
   </ItemGroup>

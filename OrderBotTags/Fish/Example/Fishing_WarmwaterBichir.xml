@@ -1,30 +1,30 @@
 <Profile>
     <Name>Fishing: Warmwater Bichir</Name>
     <KillRadius>50</KillRadius>
+    <CodeChunks>
+      <!-- Change gearset to your characters gear set number -->
+      <CodeChunk name="Gear">
+        <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
+      </CodeChunk>
+    </CodeChunks>
     <Order>
-      <RunCode Name="Gear"/>
-      <WaitTimer WaitTime="3"/>
-      <If Condition="not IsOnMap(398)">
-        <TeleportTo Name="Anyx Trine" AetheryteId="77" />
+      <RunCode name="Gear"/>
+      <WaitTimer waitTime="3"/>
+      <If condition="not IsOnMap(398)">
+        <TeleportTo name="Anyx Trine" aetheryteId="77" />
       </If>
       <!-- Suggested Bait to use: Purse Web Spider -->
       <!-- MinFish/MaxFish optional -->
       <!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
-      <Fish Mooch="1" MoochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" MinFish="25" MaxFish="35" Collect="true" CollectabilityValue="683" Patience="Patience"
-            ConfirmKey="Return" MoveCursorRightKey="Right"
-            Bait="Purse Web Spider">
+      <Fish mooch="1" moochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" minFish="25" maxFish="35" collect="true" collectabilityValue="683" patience="Patience"
+            confirmKey="Return" moveCursorRightKey="Right"
+            bait="Purse Web Spider">
         <FishSpots>
-            <FishSpot XYZ="-14.78379, -120.2278, 475.5101" Heading="1.038874" />
-            <FishSpot XYZ="-1.21394, -133.5867, 528.3554" Heading="4.874345" />
-            <FishSpot XYZ="-22.95019, -132.913, 572.4873" Heading="1.78024" />
-            <FishSpot XYZ="-16.89699, -128.5408, 503.4377" Heading="1.409534" />
+            <FishSpot xyz="-14.78379, -120.2278, 475.5101" heading="1.038874" />
+            <FishSpot xyz="-1.21394, -133.5867, 528.3554" heading="4.874345" />
+            <FishSpot xyz="-22.95019, -132.913, 572.4873" heading="1.78024" />
+            <FishSpot xyz="-16.89699, -128.5408, 503.4377" heading="1.409534" />
         </FishSpots>
       </Fish>
     </Order>
-    <CodeChunks>
-      <!-- Change gearset to your characters gear set number -->
-      <CodeChunk Name="Gear">
-        <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
-      </CodeChunk>
-    </CodeChunks>
 </Profile>

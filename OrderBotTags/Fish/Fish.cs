@@ -328,11 +328,11 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("Chum")]
         public bool Chum { get; set; }
 
-        [DefaultValue(VirtualKeys.N0)]
+        [DefaultValue(VirtualKeys.Numpad0)]
         [XmlAttribute("ConfirmKey")]
         public VirtualKeys ConfirmKey { get; set; }
 
-        [DefaultValue(VirtualKeys.N6)]
+        [DefaultValue(VirtualKeys.Numpad6)]
         [XmlAttribute("MoveCursorRightKey")]
         public VirtualKeys MoveCursorRightKey { get; set; }
 

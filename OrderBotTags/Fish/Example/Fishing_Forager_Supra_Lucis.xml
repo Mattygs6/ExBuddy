@@ -8,7 +8,10 @@
     </CodeChunk>
   </CodeChunks>
   <Order>
-    <While condition="true">
+    <RunCode name="Gear"/>
+    <WaitTimer waitTime="3"/>
+    <!-- Condition: Has at least a heavy steel jig or a yumizuno AND -->
+    <While condition="(HasAtLeast(2619, 1) or HasAtLeast(2628, 1)) and not (HqHasAtLeast(10123, 30) and (HqHasAtLeast(7930, 2) or HasAtLeast(7930, 3)) and HqHasAtLeast(7690, 20))">
       <!-- Gigant Clams: Heavy Steel Jig  -->
       <If condition="IsTimeBetween(22,24) or IsTimeBetween(0,2)">
         <If condition="not HqHasAtLeast(10123, 30)">
@@ -76,7 +79,7 @@
         </If>
       </If>
       <!-- Silver Sovereign bait: Yumizuno -->
-      <If condition="not HasAtLeast(7690, 20)">
+      <If condition="not HqHasAtLeast(7690, 20)">
         <If condition="HasAtLeast(2628, 1)">
           <If condition="not IsOnMap(135)">
             <TeleportTo name="Moraby Drydocks" aetheryteId="10" />
@@ -107,7 +110,7 @@
         </If>
       </If>
       <If condition="HqHasAtLeast(10123, 30) and (HasAtLeast(7930, 3) or HqHasAtLeast(7930, 2))">
-        <If condition="not HasAtLeast(7690, 20)">
+        <If condition="not HqHasAtLeast(7690, 20)">
           <If condition="HasAtLeast(2628, 1)">
             <If condition="not IsOnMap(135)">
               <TeleportTo name="Moraby Drydocks" aetheryteId="10" />
@@ -139,5 +142,6 @@
         </If>
       </If>
     </While>
+    <!-- Todo: add if conditions here to output what the user should do if the profile isn't running -->
   </Order>
 </Profile>

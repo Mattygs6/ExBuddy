@@ -190,6 +190,7 @@ namespace ExBuddy.OrderBotTags
         {
             fishlimit = GetFishLimit();
             baitCount = GetBaitCount();
+            baitAttempts = 0;
 
             return new PrioritySelector(
                 Conditional,
@@ -250,6 +251,8 @@ namespace ExBuddy.OrderBotTags
 
         private bool baitChanged;
 
+        private int baitAttempts;
+
         private bool checkRelease;
 
         private bool isSitting;
@@ -257,10 +260,6 @@ namespace ExBuddy.OrderBotTags
         private bool isDone;
 
         private bool isFishIdentified;
-
-        private int minfish = 20;
-
-        private int maxfish = 30;
 
         private int mooch;
 
@@ -295,33 +294,11 @@ namespace ExBuddy.OrderBotTags
 
         [DefaultValue(20)]
         [XmlAttribute("MinFish")]
-        public int MinimumFishPerSpot
-        {
-            get
-            {
-                return this.minfish;
-            }
-
-            set
-            {
-                this.minfish = value;
-            }
-        }
+        public int MinimumFishPerSpot { get; set; }
 
         [DefaultValue(30)]
         [XmlAttribute("MaxFish")]
-        public int MaximumFishPerSpot
-        {
-            get
-            {
-                return this.maxfish;
-            }
-
-            set
-            {
-                this.maxfish = value;
-            }
-        }
+        public int MaximumFishPerSpot { get; set; }
 
         [XmlAttribute("Bait")]
         public string Bait { get; set; }
@@ -801,7 +778,7 @@ namespace ExBuddy.OrderBotTags
                                 {
                                     DoAbility(Abilities.Bait);
                                 }),
-                            new Wait(2, ret => IsBaitWindowOpen, new Action(r => { PostKeyPress(this.MoveCursorRightKey); }))));
+                            new Wait(3, ret => IsBaitWindowOpen, new ActionAlwaysSucceed())));
             }
         }
 
@@ -822,21 +799,21 @@ namespace ExBuddy.OrderBotTags
                                         }),
                                 IsDoneAction)),
                         new Sequence(
-                            new Action(
-                                r =>
-                                    {
-                                        PostKeyPress(this.MoveCursorRightKey);
-                                        Thread.Sleep(200);
-                                        PostKeyPress(this.ConfirmKey);
-                                    }),
-                            new WaitContinue(
-                                TimeSpan.FromMilliseconds(this.BaitDelay),
-                                ret => IsCorrectBaitSelected,
+                            new Wait(
+                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
+                                new Action(r => PostKeyPress(this.MoveCursorRightKey))),
+                            new Wait(
+                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
                                 new Action(
                                     r =>
                                         {
-                                            Log("Correct Bait Selected -> " + this.Bait);
+                                            PostKeyPress(this.ConfirmKey);
+                                            baitCount++;
                                         })),
+                            new WaitContinue(
+                                TimeSpan.FromMilliseconds(this.BaitDelay),
+                                ret => IsCorrectBaitSelected,
+                                new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })),
                             new PrioritySelector(
                                 new Decorator(
                                     ret => baitChanged,
@@ -853,20 +830,23 @@ namespace ExBuddy.OrderBotTags
                                                 currentBait = this.Bait;
                                                 Log("Correct Bait Selected -> " + this.Bait);
                                             })),
-                                new Sequence(
-                                    new Action(
-                                        r =>
-                                            {
-                                                Log("Lost focus on the bait window, please manually select your bait.");
-                                                Log("Attempting to re-apply bait in 30 seconds.");
+                                new Decorator(
+                                    ret => baitAttempts > 2,
+                                    new Sequence(
+                                        new Action(
+                                            r =>
+                                                {
+                                                    Log("Lost focus on the bait window, select bait manually.");
+                                                    Log("Attempting to re-apply bait in 30 seconds.");
 
-                                                // reset bait count
-                                                baitCount = this.GetBaitCount();
-                                            }),
-                                    new Wait(
-                                        30,
-                                        ret => IsCorrectBaitSelected,
-                                        new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))))));
+                                                    // reset bait count
+                                                    baitCount = this.GetBaitCount();
+                                                }),
+                                        new WaitContinue(
+                                            30,
+                                            ret => IsCorrectBaitSelected,
+                                            new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))),
+                                new ActionAlwaysSucceed()))));
             }
         }
 

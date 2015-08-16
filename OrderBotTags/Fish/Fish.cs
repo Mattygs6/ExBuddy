@@ -165,13 +165,6 @@ namespace ExBuddy.OrderBotTags
                 Log(ex.Message);
             }
 
-            Thread.Sleep(5000);
-
-            if (CanDoAbility(Abilities.Quit))
-            {
-                DoAbility(Abilities.Quit);
-            }
-
             isFishing = false;
             isSitting = false;
             CharacterSettings.Instance.UseMount = true;
@@ -184,6 +177,7 @@ namespace ExBuddy.OrderBotTags
             fishcount = 0;
             isFishing = false;
             isSitting = false;
+            CharacterSettings.Instance.UseMount = true;
         }
 
         protected override Composite CreateBehavior()
@@ -313,6 +307,10 @@ namespace ExBuddy.OrderBotTags
         [DefaultValue(VirtualKeys.Numpad0)]
         [XmlAttribute("ConfirmKey")]
         public VirtualKeys ConfirmKey { get; set; }
+
+        [DefaultValue(10)]
+        [XmlAttribute("LastFishTimeout")]
+        public int LastFishTimeout { get; set; }
 
         [DefaultValue(VirtualKeys.Numpad6)]
         [XmlAttribute("MoveCursorRightKey")]
@@ -445,7 +443,7 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        fishcount >= fishlimit && CanDoAbility(Abilities.Quit) && !HasPatience
+                        fishcount >= fishlimit && !HasPatience && CanDoAbility(Abilities.Quit)
                         && FishingManager.State == FishingState.PoleReady && !SelectYesNoItem.IsOpen,
                         new Sequence(
                             new Sleep(2, 3),
@@ -912,7 +910,9 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Action(r => { this.isDone = true; });
+                return new Sequence(
+                    new WaitContinue(this.LastFishTimeout, ret => (FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady) && CanDoAbility(Abilities.Quit), new Action(r => DoAbility(Abilities.Quit))),
+                    new Action(r => { this.isDone = true; }));
             }
         }
 

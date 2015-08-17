@@ -4,8 +4,6 @@
     using System.ComponentModel;
     using System.Windows.Media;
 
-    using Buddy.Coroutines;
-
     using Clio.XmlEngine;
 
     using ff14bot.Helpers;
@@ -81,6 +79,8 @@
                                             Log("Declining Collectible -> Value: " + value, Colors.Red);
                                             SelectYesNoItem.No();
                                         }
+
+                                        isDone = true;
                                     }))));
         }
 

@@ -41,11 +41,6 @@
             }
         }
 
-        protected override void OnStart()
-        {
-            Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
-        }
-
         protected override void OnResetCachedDone()
         {
             this.isDone = false;
@@ -55,7 +50,7 @@
         {
             return
                 new PrioritySelector(
-                    new Decorator(
+                    new WaitContinue(10,
                         ret => SelectYesNoItem.IsOpen,
                         new Sequence(
                             new Sleep(2, 3),

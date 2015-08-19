@@ -6,7 +6,6 @@ namespace ExBuddy.OrderBotTags
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
-    using System.Threading;
     using System.Windows.Media;
 
     using Clio.Common;
@@ -189,19 +188,18 @@ namespace ExBuddy.OrderBotTags
             return new PrioritySelector(
                 Conditional,
                 Blacklist,
-                // TODO: GetBait... OR we can just let Orderbot handle it. and put the bait requirements in the condition
-                EnsureBait,
-                OpenBait,
-                ApplyBait,
-                CloseBait,
-                CheckStealth,
-                StateTransitionAlwaysSucceed,
                 MoveToFishSpot,
                 GoFish(
-                    DismountComposite,
                     StopMovingComposite,
+                    DismountComposite,
+                    CheckStealthComposite,
                     CheckWeatherComposite, // Waits up to 10 hours, might want to rethink this one.
+                    EnsureBait,
+                    OpenBait,
+                    ApplyBait,
+                    CloseBait,
                     InitFishSpotComposite,
+                    StateTransitionAlwaysSucceedComposite,
                     CollectablesComposite,
                     ReleaseComposite,
                     MoochComposite,
@@ -481,7 +479,7 @@ namespace ExBuddy.OrderBotTags
             {
                 return new Decorator(
                     ret => MovementManager.IsMoving,
-                    new Action(r => { MovementManager.MoveForwardStop(); }));
+                    CommonBehaviors.MoveStop());
             }
         }
 
@@ -657,6 +655,19 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
+        protected Composite StateTransitionAlwaysSucceedComposite
+        {
+            get
+            {
+                return
+                    new Decorator(
+                        ret =>
+                        FishingManager.State == FishingState.Reelin || FishingManager.State == FishingState.Quit
+                        || FishingManager.State == FishingState.PullPoleIn,
+                        new ActionAlwaysSucceed());
+            }
+        }
+
         protected Composite HookComposite
         {
             get
@@ -684,6 +695,23 @@ namespace ExBuddy.OrderBotTags
 
                             Log("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
                         }));
+            }
+        }
+
+        protected Composite CheckStealthComposite
+        {
+            get
+            {
+                return new Decorator(
+                    ret => this.Stealth && !Core.Player.HasAura(47),
+                    new Sequence(
+                        new Action(
+                            r =>
+                            {
+                                CharacterSettings.Instance.UseMount = false;
+                                DoAbility(Abilities.Stealth);
+                            }),
+                        new Sleep(2, 3)));
             }
         }
 
@@ -863,36 +891,6 @@ namespace ExBuddy.OrderBotTags
                                         DoAbility(Abilities.Bait);
                                     }),
                             new Wait(5, ret => !IsBaitWindowOpen, new ActionAlwaysSucceed())));
-            }
-        }
-
-        protected Composite CheckStealth
-        {
-            get
-            {
-                return new Decorator(
-                    ret => this.Stealth && !Core.Player.HasAura(47),
-                    new Sequence(
-                        new Action(
-                            r =>
-                            {
-                                CharacterSettings.Instance.UseMount = false;
-                                DoAbility(Abilities.Stealth);
-                            }),
-                        new Sleep(2, 3)));
-            }
-        }
-
-        protected Composite StateTransitionAlwaysSucceed
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret =>
-                        FishingManager.State == FishingState.Reelin || FishingManager.State == FishingState.Quit
-                        || FishingManager.State == FishingState.PullPoleIn,
-                        new ActionAlwaysSucceed());
             }
         }
 

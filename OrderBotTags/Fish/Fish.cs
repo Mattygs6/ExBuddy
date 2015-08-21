@@ -325,7 +325,7 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("ConfirmKey")]
         public VirtualKeys ConfirmKey { get; set; }
 
-        [DefaultValue(10)]
+        [DefaultValue(30)]
         [XmlAttribute("LastFishTimeout")]
         public int LastFishTimeout { get; set; }
 
@@ -916,7 +916,7 @@ namespace ExBuddy.OrderBotTags
                             ret =>
                             (FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady)
                             && CanDoAbility(Abilities.Quit),
-                            new Action(r => DoAbility(Abilities.Quit))),
+                            new Sequence(new Sleep(2, 3), new Action(r => DoAbility(Abilities.Quit)), new Sleep(2, 3))),
                         new Action(r => { this.isDone = true; }));
             }
         }

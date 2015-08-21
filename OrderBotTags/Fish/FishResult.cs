@@ -42,5 +42,15 @@
 
             return true;
         }
+
+        public bool ShouldMooch(Keeper keeper)
+        {
+            if (!keeper.Action.HasFlag((KeeperAction)0x04))
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

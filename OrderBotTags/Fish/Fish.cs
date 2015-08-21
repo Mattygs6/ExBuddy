@@ -76,7 +76,8 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return Core.Player.HasAura("Gathering Fortune Up");
+                // Gathering Fortune Up (Fishing)
+                return Core.Player.HasAura(850);
             }
         }
 
@@ -84,7 +85,8 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return Core.Player.HasAura("Snagging");
+                // Snagging
+                return Core.Player.HasAura(761);
             }
         }
 
@@ -92,7 +94,8 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return Core.Player.HasAura("Collector's Glove");
+                // Collector's Glove
+                return Core.Player.HasAura(805);
             }
         }
 
@@ -100,7 +103,8 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return Core.Player.HasAura("Chum");
+                // Chum
+                return Core.Player.HasAura(763);
             }
         }
 
@@ -566,7 +570,8 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        CanDoAbility(Abilities.Mooch) && MoochLevel != 0 && mooch < MoochLevel && MoochConditionCheck(),
+                        CanDoAbility(Abilities.Mooch) && MoochLevel != 0 && mooch < MoochLevel && MoochConditionCheck() &&
+                        (this.Keepers.Count == 0 || this.Keepers.Any(k => string.Equals(k.Name, FishResult.FishName, StringComparison.InvariantCultureIgnoreCase) && FishResult.ShouldMooch(k))),
                         new Sequence(
                             new Action(
                                 r =>

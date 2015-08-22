@@ -204,6 +204,7 @@ namespace ExBuddy.OrderBotTags
             baitAttempts = 0;
 
             return new PrioritySelector(
+                StateTransitionAlwaysSucceed,
                 Conditional,
                 Blacklist,
                 MoveToFishSpot,
@@ -213,12 +214,11 @@ namespace ExBuddy.OrderBotTags
                     CheckStealthComposite,
                     CheckWeatherComposite,
                     // Waits up to 10 hours, might want to rethink this one.
-                    EnsureBait,
-                    OpenBait,
-                    ApplyBait,
-                    CloseBait,
+                    EnsureBaitComposite,
+                    OpenBaitComposite,
+                    ApplyBaitComposite,
+                    CloseBaitComposite,
                     InitFishSpotComposite,
-                    StateTransitionAlwaysSucceedComposite,
                     CollectablesComposite,
                     ReleaseComposite,
                     MoochComposite,
@@ -391,6 +391,44 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Version(3, 0, 5);
+            }
+        }
+
+        #endregion
+
+        #region Private Properties
+
+        private bool HasSpecifiedBait
+        {
+            get
+            {
+                return
+                    InventoryManager.FilledSlots.Any(
+                        i => string.Equals(i.Name, this.Bait, StringComparison.InvariantCultureIgnoreCase));
+            }
+        }
+
+        private bool IsBaitWindowOpen
+        {
+            get
+            {
+                return RaptureAtkUnitManager.Controls.Any(c => c.Name == "Bait" && c.IsValid);
+            }
+        }
+
+        private bool IsBaitSpecified
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(this.Bait);
+            }
+        }
+
+        private bool IsCorrectBaitSelected
+        {
+            get
+            {
+                return string.Equals(currentBait, this.Bait, StringComparison.InvariantCultureIgnoreCase);
             }
         }
 
@@ -677,19 +715,6 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
-        protected Composite StateTransitionAlwaysSucceedComposite
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret =>
-                        FishingManager.State == FishingState.Reelin || FishingManager.State == FishingState.Quit
-                        || FishingManager.State == FishingState.PullPoleIn,
-                        new ActionAlwaysSucceed());
-            }
-        }
-
         protected Composite HookComposite
         {
             get
@@ -737,6 +762,105 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
+        protected Composite EnsureBaitComposite
+        {
+            get
+            {
+                return new Decorator(
+                    ret => IsBaitSpecified && !HasSpecifiedBait,
+                    new Sequence(
+                        new Action(r => { Log("You do not have the specified bait: " + this.Bait); }),
+                        IsDoneAction));
+            }
+        }
+
+        protected Composite OpenBaitComposite
+        {
+            get
+            {
+                return
+                    new Decorator(
+                        ret =>
+                        IsBaitSpecified && !IsBaitWindowOpen && !IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
+                        new Sequence(
+                            new Action(r => { DoAbility(Abilities.Bait); }),
+                            new Wait(3, ret => IsBaitWindowOpen, new ActionAlwaysSucceed())));
+            }
+        }
+
+        protected Composite ApplyBaitComposite
+        {
+            get
+            {
+                return new Decorator(
+                    ret => IsBaitSpecified && IsBaitWindowOpen && !IsCorrectBaitSelected,
+                    new PrioritySelector(
+                        new Decorator(
+                            ret => baitCount < 0,
+                            new Sequence(
+                                new Action(
+                                    r => { Log("Unable to find specified bait -> " + this.Bait + ", ending profile"); }),
+                                IsDoneAction)),
+                        new Sequence(
+                            new Wait(
+                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
+                                new Action(r => PostKeyPress(this.MoveCursorRightKey))),
+                            new Wait(
+                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
+                                new Action(
+                                    r =>
+                                    {
+                                        PostKeyPress(this.ConfirmKey);
+                                        baitCount++;
+                                    })),
+                            new WaitContinue(
+                                TimeSpan.FromMilliseconds(this.BaitDelay),
+                                ret => IsCorrectBaitSelected,
+                                new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })),
+                            new PrioritySelector(
+                                new Decorator(ret => baitChanged, new Action(r => { baitChanged = false; })),
+                                new Decorator(
+                                    ret => baitCount == 1 && HasSpecifiedBait,
+                                    new Action(
+                                        r =>
+                                        {
+                                            currentBait = this.Bait;
+                                            Log("Correct Bait Selected -> " + this.Bait);
+                                        })),
+                                new Decorator(
+                                    ret => baitAttempts > 2,
+                                    new Sequence(
+                                        new Action(
+                                            r =>
+                                            {
+                                                Log("Lost focus on the bait window, select bait manually.");
+                                                Log("Attempting to re-apply bait in 30 seconds.");
+
+                                                // reset bait count
+                                                baitCount = this.GetBaitCount();
+                                            }),
+                                        new WaitContinue(
+                                            30,
+                                            ret => IsCorrectBaitSelected,
+                                            new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))),
+                                new ActionAlwaysSucceed()))));
+            }
+        }
+
+        protected Composite CloseBaitComposite
+        {
+            get
+            {
+                return
+                    new Decorator(
+                        ret =>
+                        IsBaitSpecified && IsBaitWindowOpen && IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
+                        new Sequence(
+                            new Action(r => { DoAbility(Abilities.Bait); }),
+                            new Wait(5, ret => !IsBaitWindowOpen, new ActionAlwaysSucceed())));
+            }
+        }
+
         #endregion
 
         #region Composites
@@ -767,138 +891,19 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
-        private bool HasSpecifiedBait
-        {
-            get
-            {
-                return
-                    InventoryManager.FilledSlots.Any(
-                        i => string.Equals(i.Name, this.Bait, StringComparison.InvariantCultureIgnoreCase));
-            }
-        }
-
-        private bool IsBaitWindowOpen
-        {
-            get
-            {
-                return RaptureAtkUnitManager.Controls.Any(c => c.Name == "Bait" && c.IsValid);
-            }
-        }
-
-        private bool IsBaitSpecified
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(this.Bait);
-            }
-        }
-
-        private bool IsCorrectBaitSelected
-        {
-            get
-            {
-                return string.Equals(currentBait, this.Bait, StringComparison.InvariantCultureIgnoreCase);
-            }
-        }
-
-        protected Composite EnsureBait
-        {
-            get
-            {
-                return new Decorator(
-                    ret => IsBaitSpecified && !HasSpecifiedBait,
-                    new Sequence(
-                        new Action(r => { Log("You do not have the specified bait: " + this.Bait); }),
-                        IsDoneAction));
-            }
-        }
-
-        protected Composite OpenBait
+        protected Composite StateTransitionAlwaysSucceed
         {
             get
             {
                 return
                     new Decorator(
                         ret =>
-                        IsBaitSpecified && !IsBaitWindowOpen && !IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
-                        new Sequence(
-                            new Action(r => { DoAbility(Abilities.Bait); }),
-                            new Wait(3, ret => IsBaitWindowOpen, new ActionAlwaysSucceed())));
+                        FishingManager.State == FishingState.Reelin || FishingManager.State == FishingState.Quit
+                        || FishingManager.State == FishingState.PullPoleIn,
+                        new ActionAlwaysSucceed());
             }
         }
 
-        protected Composite ApplyBait
-        {
-            get
-            {
-                return new Decorator(
-                    ret => IsBaitSpecified && IsBaitWindowOpen && !IsCorrectBaitSelected,
-                    new PrioritySelector(
-                        new Decorator(
-                            ret => baitCount < 0,
-                            new Sequence(
-                                new Action(
-                                    r => { Log("Unable to find specified bait -> " + this.Bait + ", ending profile"); }),
-                                IsDoneAction)),
-                        new Sequence(
-                            new Wait(
-                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
-                                new Action(r => PostKeyPress(this.MoveCursorRightKey))),
-                            new Wait(
-                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
-                                new Action(
-                                    r =>
-                                        {
-                                            PostKeyPress(this.ConfirmKey);
-                                            baitCount++;
-                                        })),
-                            new WaitContinue(
-                                TimeSpan.FromMilliseconds(this.BaitDelay),
-                                ret => IsCorrectBaitSelected,
-                                new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })),
-                            new PrioritySelector(
-                                new Decorator(ret => baitChanged, new Action(r => { baitChanged = false; })),
-                                new Decorator(
-                                    ret => baitCount == 1 && HasSpecifiedBait,
-                                    new Action(
-                                        r =>
-                                            {
-                                                currentBait = this.Bait;
-                                                Log("Correct Bait Selected -> " + this.Bait);
-                                            })),
-                                new Decorator(
-                                    ret => baitAttempts > 2,
-                                    new Sequence(
-                                        new Action(
-                                            r =>
-                                                {
-                                                    Log("Lost focus on the bait window, select bait manually.");
-                                                    Log("Attempting to re-apply bait in 30 seconds.");
-
-                                                    // reset bait count
-                                                    baitCount = this.GetBaitCount();
-                                                }),
-                                        new WaitContinue(
-                                            30,
-                                            ret => IsCorrectBaitSelected,
-                                            new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))),
-                                new ActionAlwaysSucceed()))));
-            }
-        }
-
-        protected Composite CloseBait
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret =>
-                        IsBaitSpecified && IsBaitWindowOpen && IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
-                        new Sequence(
-                            new Action(r => { DoAbility(Abilities.Bait); }),
-                            new Wait(5, ret => !IsBaitWindowOpen, new ActionAlwaysSucceed())));
-            }
-        }
 
         protected Composite MoveToFishSpot
         {

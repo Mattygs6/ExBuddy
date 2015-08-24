@@ -168,6 +168,7 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnDone()
         {
+
             TreeRoot.OnStop -= cleanup;
             this.DoCleanup();
         }
@@ -213,7 +214,7 @@ namespace ExBuddy.OrderBotTags
                     DismountComposite,
                     CheckStealthComposite,
                     CheckWeatherComposite,
-                    // Waits up to 10 hours, might want to rethink this one.
+                // Waits up to 10 hours, might want to rethink this one.
                     EnsureBaitComposite,
                     OpenBaitComposite,
                     ApplyBaitComposite,
@@ -454,40 +455,40 @@ namespace ExBuddy.OrderBotTags
                         new Sleep(1, 2),
                         new Action(
                             r =>
+                            {
+                                if (InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) > 98)
                                 {
-                                    if (InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) > 98)
-                                    {
-                                        Log("Declining Collectible - Only 1 inventory space available", Colors.Red);
-                                        SelectYesNoItem.No();
-                                        return;
-                                    }
+                                    Log("Declining Collectible - Only 1 inventory space available", Colors.Red);
+                                    SelectYesNoItem.No();
+                                    return;
+                                }
 
-                                    uint value = 0;
+                                uint value = 0;
 
-                                    value = SelectYesNoItem.CollectabilityValue;
+                                value = SelectYesNoItem.CollectabilityValue;
 
-                                    if (value < 10)
-                                    {
-                                        new Sleep(2, 3);
-                                    }
+                                if (value < 10)
+                                {
+                                    new Sleep(2, 3);
+                                }
 
-                                    value = SelectYesNoItem.CollectabilityValue;
-                                    Log(
-                                        string.Format(
-                                            "Collectible caught with value: {0} required: {1}",
-                                            value.ToString(),
-                                            CollectabilityValue));
-                                    if (value >= CollectabilityValue || value < 10)
-                                    {
-                                        Log("Collecting Collectible -> Value: " + value, Colors.Green);
-                                        SelectYesNoItem.Yes();
-                                    }
-                                    else
-                                    {
-                                        Log("Declining Collectible -> Value: " + value, Colors.Red);
-                                        SelectYesNoItem.No();
-                                    }
-                                }),
+                                value = SelectYesNoItem.CollectabilityValue;
+                                Log(
+                                    string.Format(
+                                        "Collectible caught with value: {0} required: {1}",
+                                        value.ToString(),
+                                        CollectabilityValue));
+                                if (value >= CollectabilityValue || value < 10)
+                                {
+                                    Log("Collecting Collectible -> Value: " + value, Colors.Green);
+                                    SelectYesNoItem.Yes();
+                                }
+                                else
+                                {
+                                    Log("Declining Collectible -> Value: " + value, Colors.Red);
+                                    SelectYesNoItem.No();
+                                }
+                            }),
                         new Sleep(1, 2)));
             }
         }
@@ -517,16 +518,16 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit) && FishingManager.State == (FishingState)9,
-                        // this is when you have already cast and are waiting for a bite.
+                    // this is when you have already cast and are waiting for a bite.
                         new Sequence(
                             new Sleep(1, 1),
                             new Action(
                                 r =>
-                                    {
-                                        isSitting = true;
-                                        Log("Sitting " + FishSpots.CurrentOrDefault);
-                                        ChatManager.SendChat("/sit");
-                                    })));
+                                {
+                                    isSitting = true;
+                                    Log("Sitting " + FishSpots.CurrentOrDefault);
+                                    ChatManager.SendChat("/sit");
+                                })));
             }
         }
 
@@ -546,12 +547,12 @@ namespace ExBuddy.OrderBotTags
                     ret => !spotinit,
                     new Action(
                         r =>
-                            {
-                                FaceFishSpot();
-                                isFishing = true;
-                                Log("Will fish for " + fishlimit + " fish before moving again.");
-                                spotinit = true;
-                            }));
+                        {
+                            FaceFishSpot();
+                            isFishing = true;
+                            Log("Will fish for " + fishlimit + " fish before moving again.");
+                            spotinit = true;
+                        }));
             }
         }
 
@@ -576,10 +577,10 @@ namespace ExBuddy.OrderBotTags
                     new Sequence(
                         new Action(
                             r =>
-                                {
-                                    Log("Casting Collector's Glove");
-                                    DoAbility(Abilities.CollectorsGlove);
-                                }),
+                            {
+                                Log("Casting Collector's Glove");
+                                DoAbility(Abilities.CollectorsGlove);
+                            }),
                         new Sleep(2, 3)));
             }
         }
@@ -593,10 +594,10 @@ namespace ExBuddy.OrderBotTags
                     new Sequence(
                         new Action(
                             r =>
-                                {
-                                    Log("Toggle Snagging");
-                                    DoAbility(Abilities.Snagging);
-                                }),
+                            {
+                                Log("Toggle Snagging");
+                                DoAbility(Abilities.Snagging);
+                            }),
                         new Sleep(2, 3)));
             }
         }
@@ -613,19 +614,19 @@ namespace ExBuddy.OrderBotTags
                         new Sequence(
                             new Action(
                                 r =>
+                                {
+                                    // TODO: check keepers for mooch
+                                    FishingManager.Mooch();
+                                    mooch++;
+                                    if (MoochLevel > 1)
                                     {
-                                        // TODO: check keepers for mooch
-                                        FishingManager.Mooch();
-                                        mooch++;
-                                        if (MoochLevel > 1)
-                                        {
-                                            Log("Mooching, this is mooch " + mooch + " of " + MoochLevel + " mooches.");
-                                        }
-                                        else
-                                        {
-                                            Log("Mooching, this will be the only mooch.");
-                                        }
-                                    }),
+                                        Log("Mooching, this is mooch " + mooch + " of " + MoochLevel + " mooches.");
+                                    }
+                                    else
+                                    {
+                                        Log("Mooching, this will be the only mooch.");
+                                    }
+                                }),
                             new Sleep(2, 2)));
             }
         }
@@ -654,10 +655,10 @@ namespace ExBuddy.OrderBotTags
                         new Sequence(
                             new Action(
                                 r =>
-                                    {
-                                        DoAbility(Patience);
-                                        Log("Patience activated");
-                                    }),
+                                {
+                                    DoAbility(Patience);
+                                    Log("Patience activated");
+                                }),
                             new Sleep(1, 2)));
             }
         }
@@ -677,17 +678,17 @@ namespace ExBuddy.OrderBotTags
                                 ret => this.isFishIdentified,
                                 new Action(
                                     r =>
+                                    {
+                                        // If its not a keeper AND we aren't mooching or we can't mooch, then release
+                                        if (!this.Keepers.Any(FishResult.IsKeeper)
+                                            && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
                                         {
-                                            // If its not a keeper AND we aren't mooching or we can't mooch, then release
-                                            if (!this.Keepers.Any(FishResult.IsKeeper)
-                                                && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
-                                            {
-                                                DoAbility(Abilities.Release);
-                                                Log("Released " + FishResult.FishName);
-                                            }
+                                            DoAbility(Abilities.Release);
+                                            Log("Released " + FishResult.Name);
+                                        }
 
-                                            this.checkRelease = false;
-                                        })),
+                                        this.checkRelease = false;
+                                    })),
                             new Wait(2, ret => !CanDoAbility(Abilities.Release), new ActionAlwaysSucceed())));
             }
         }
@@ -723,25 +724,25 @@ namespace ExBuddy.OrderBotTags
                     ret => FishingManager.CanHook && FishingManager.State == FishingState.Bite,
                     new Action(
                         r =>
+                        {
+                            if (HasPatience && CanDoAbility(Hookset))
                             {
-                                if (HasPatience && CanDoAbility(Hookset))
-                                {
-                                    DoAbility(Hookset);
-                                    Log("Using (" + Hookset + ")");
-                                }
-                                else
-                                {
-                                    FishingManager.Hook();
-                                }
+                                DoAbility(Hookset);
+                                Log("Using (" + Hookset + ")");
+                            }
+                            else
+                            {
+                                FishingManager.Hook();
+                            }
 
-                                amissfish = 0;
-                                if (mooch == 0)
-                                {
-                                    fishcount++;
-                                }
+                            amissfish = 0;
+                            if (mooch == 0)
+                            {
+                                fishcount++;
+                            }
 
-                                Log("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
-                            }));
+                            Log("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
+                        }));
             }
         }
 
@@ -754,10 +755,10 @@ namespace ExBuddy.OrderBotTags
                     new Sequence(
                         new Action(
                             r =>
-                                {
-                                    CharacterSettings.Instance.UseMount = false;
-                                    DoAbility(Abilities.Stealth);
-                                }),
+                            {
+                                CharacterSettings.Instance.UseMount = false;
+                                DoAbility(Abilities.Stealth);
+                            }),
                         new Sleep(2, 3)));
             }
         }
@@ -869,7 +870,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Decorator(ret => !ConditionCheck(), IsDoneAction);
+                return new Decorator(ret => FishingManager.State < FishingState.Bite && !ConditionCheck(), IsDoneAction);
             }
         }
 
@@ -882,11 +883,11 @@ namespace ExBuddy.OrderBotTags
                     new Sequence(
                         new Action(
                             r =>
-                                {
-                                    Log("The fish are amiss at all of the FishSpots.");
-                                    Log(
-                                        "This zone has been blacklisted, please fish somewhere else and then restart the profile.");
-                                }),
+                            {
+                                Log("The fish are amiss at all of the FishSpots.");
+                                Log(
+                                    "This zone has been blacklisted, please fish somewhere else and then restart the profile.");
+                            }),
                         IsDoneAction));
             }
         }
@@ -923,11 +924,13 @@ namespace ExBuddy.OrderBotTags
                     new Sequence(
                         new WaitContinue(
                             this.LastFishTimeout,
-                            ret =>
-                            (FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady)
-                            && CanDoAbility(Abilities.Quit),
-                            new Sequence(new Sleep(2, 3), new Action(r => DoAbility(Abilities.Quit)), new Sleep(2, 3))),
-                        new Action(r => { this.isDone = true; }));
+                            ret => FishingManager.State < FishingState.Bite,
+                            new Sequence(
+                                new PrioritySelector(CollectablesComposite, ReleaseComposite, new ActionAlwaysSucceed()),
+                                new Sleep(2, 3),
+                                new Action(r => DoAbility(Abilities.Quit)),
+                                new Sleep(2, 3),
+                                new Action(r => { this.isDone = true; }))));
             }
         }
 

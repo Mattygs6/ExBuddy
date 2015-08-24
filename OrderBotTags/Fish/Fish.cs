@@ -610,7 +610,7 @@ namespace ExBuddy.OrderBotTags
                     new Decorator(
                         ret =>
                         CanDoAbility(Abilities.Mooch) && MoochLevel != 0 && mooch < MoochLevel && MoochConditionCheck() &&
-                        (this.Keepers.Count == 0 || this.Keepers.Any(k => string.Equals(k.Name, FishResult.FishName, StringComparison.InvariantCultureIgnoreCase) && FishResult.ShouldMooch(k))),
+                        (this.Keepers.Count == 0 || this.Keepers.All(k => !string.Equals(k.Name, FishResult.FishName, StringComparison.InvariantCulture)) || this.Keepers.Any(k => string.Equals(k.Name, FishResult.FishName, StringComparison.InvariantCultureIgnoreCase) && FishResult.ShouldMooch(k))),
                         new Sequence(
                             new Action(
                                 r =>

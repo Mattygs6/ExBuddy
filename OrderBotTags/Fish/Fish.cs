@@ -391,7 +391,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 5);
+                return new Version(3, 0, 5, 20150824);
             }
         }
 
@@ -451,45 +451,32 @@ namespace ExBuddy.OrderBotTags
             {
                 return new Decorator(
                     ret => Collect && SelectYesNoItem.IsOpen,
-                    new Sequence(
-                        new Sleep(1, 2),
-                        new Action(
-                            r =>
-                            {
-                                if (InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) > 98)
-                                {
-                                    Log("Declining Collectible - Only 1 inventory space available", Colors.Red);
-                                    SelectYesNoItem.No();
-                                    return;
-                                }
+                    new Wait(
+                        10,
+                        ret => SelectYesNoItem.CollectabilityValue > 20,
+                        new Sequence(
+                            new Action(
+                                r =>
+                                    {
+                                        var value = SelectYesNoItem.CollectabilityValue;
+                                        Log(
+                                            string.Format(
+                                                "Collectible caught with value: {0} required: {1}",
+                                                value.ToString(),
+                                                CollectabilityValue));
 
-                                uint value = 0;
-
-                                value = SelectYesNoItem.CollectabilityValue;
-
-                                if (value < 10)
-                                {
-                                    new Sleep(2, 3);
-                                }
-
-                                value = SelectYesNoItem.CollectabilityValue;
-                                Log(
-                                    string.Format(
-                                        "Collectible caught with value: {0} required: {1}",
-                                        value.ToString(),
-                                        CollectabilityValue));
-                                if (value >= CollectabilityValue || value < 10)
-                                {
-                                    Log("Collecting Collectible -> Value: " + value, Colors.Green);
-                                    SelectYesNoItem.Yes();
-                                }
-                                else
-                                {
-                                    Log("Declining Collectible -> Value: " + value, Colors.Red);
-                                    SelectYesNoItem.No();
-                                }
-                            }),
-                        new Sleep(1, 2)));
+                                        if (value >= CollectabilityValue)
+                                        {
+                                            Log("Collecting Collectible -> Value: " + value, Colors.Green);
+                                            SelectYesNoItem.Yes();
+                                        }
+                                        else
+                                        {
+                                            Log("Declining Collectible -> Value: " + value, Colors.Red);
+                                            SelectYesNoItem.No();
+                                        }
+                                    }),
+                            new Sleep(1111))));
             }
         }
 
@@ -615,7 +602,6 @@ namespace ExBuddy.OrderBotTags
                             new Action(
                                 r =>
                                 {
-                                    // TODO: check keepers for mooch
                                     FishingManager.Mooch();
                                     mooch++;
                                     if (MoochLevel > 1)

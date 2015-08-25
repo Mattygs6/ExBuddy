@@ -61,6 +61,8 @@
       <xs:attribute name="collect" type="xs:boolean"></xs:attribute>
       <xs:attribute name="collectabilityValue" type="xs:int"></xs:attribute>
       <xs:attribute name="sit" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="sitRate" type="xs:float"></xs:attribute>
+      <xs:attribute name="fishEyes" type="xs:boolean"></xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:simpleType name="Abilities">
@@ -287,6 +289,7 @@
   </xs:simpleType>
   <xs:simpleType name="KeeperAction">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="DontKeep"/>
       <xs:enumeration value="KeepNq"/>
       <xs:enumeration value="KeepHq"/>
       <xs:enumeration value="KeepAll"/>

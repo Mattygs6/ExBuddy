@@ -108,6 +108,15 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
+        protected bool HasFishEyes
+        {
+            get
+            {
+                // Fish Eyes
+                return Core.Player.HasAura(762);
+            }
+        }
+
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll")]
         protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
@@ -229,6 +238,7 @@ namespace ExBuddy.OrderBotTags
                     CollectorsGloveComposite,
                     SnaggingComposite,
                     PatienceComposite,
+                    FishEyesComposite,
                     ChumComposite,
                     CastComposite,
                     HookComposite));
@@ -246,6 +256,8 @@ namespace ExBuddy.OrderBotTags
         #region Fields
 
         private static bool isFishing;
+
+        protected static Random SitRNG = new Random();
 
         protected static Regex FishRegex = new Regex(
             @"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
@@ -348,6 +360,9 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("ShuffleFishSpots")]
         public bool Shuffle { get; set; }
 
+        [XmlAttribute("SitRate")]
+        public float SitRate { get; set; }
+
         [XmlAttribute("Sit")]
         public bool Sit { get; set; }
 
@@ -372,6 +387,9 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("Patience")]
         public Abilities Patience { get; set; }
 
+        [XmlAttribute("FishEyes")]
+        public bool FishEyes { get; set; }
+
         [XmlAttribute("Snagging")]
         public bool Snagging { get; set; }
 
@@ -391,7 +409,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 5, 20150824);
+                return new Version(3, 0, 7, 201508251);
             }
         }
 
@@ -453,7 +471,7 @@ namespace ExBuddy.OrderBotTags
                     ret => Collect && SelectYesNoItem.IsOpen,
                     new Wait(
                         10,
-                        ret => SelectYesNoItem.CollectabilityValue > 20,
+                        ret => SelectYesNoItem.CollectabilityValue > Math.Max(20, CollectabilityValue/6),
                         new Sequence(
                             new Action(
                                 r =>
@@ -504,7 +522,7 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit) && FishingManager.State == (FishingState)9,
+                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit || SitRNG.NextDouble() > SitRate) && FishingManager.State == (FishingState)9,
                     // this is when you have already cast and are waiting for a bite.
                         new Sequence(
                             new Sleep(1, 1),
@@ -646,6 +664,16 @@ namespace ExBuddy.OrderBotTags
                                     Log("Patience activated");
                                 }),
                             new Sleep(1, 2)));
+            }
+        }
+
+        protected Composite FishEyesComposite
+        {
+            get
+            {
+                return new Decorator(
+                    ret => FishEyes && !HasFishEyes && CanDoAbility(Abilities.FishEyes),
+                    new Sequence(new Action(r => DoAbility(Abilities.FishEyes)), new Sleep(1, 2)));
             }
         }
 

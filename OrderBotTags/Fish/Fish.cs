@@ -409,7 +409,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 7, 201508251);
+                return new Version(3, 0, 7, 201508252);
             }
         }
 
@@ -522,7 +522,7 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit || SitRNG.NextDouble() > SitRate) && FishingManager.State == (FishingState)9,
+                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit || SitRNG.NextDouble() < SitRate) && FishingManager.State == (FishingState)9,
                     // this is when you have already cast and are waiting for a bite.
                         new Sequence(
                             new Sleep(1, 1),

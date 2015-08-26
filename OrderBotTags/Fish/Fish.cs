@@ -156,6 +156,8 @@ namespace ExBuddy.OrderBotTags
             initialMountSetting = CharacterSettings.Instance.UseMount;
             ShuffleFishSpots();
 
+            sitRoll = SitRng.NextDouble();
+
             if (IsBaitWindowOpen && CanDoAbility(Abilities.Bait))
             {
                 DoAbility(Abilities.Bait);
@@ -204,6 +206,7 @@ namespace ExBuddy.OrderBotTags
             baitCount = GetBaitCount();
             isDone = false;
             mooch = 0;
+            sitRoll = 1.0;
             spotinit = false;
             fishcount = 0;
             amissfish = 0;
@@ -267,7 +270,7 @@ namespace ExBuddy.OrderBotTags
 
         private static bool isFishing;
 
-        protected static Random SitRNG = new Random();
+        protected static readonly Random SitRng = new Random();
 
         protected static Regex FishRegex = new Regex(
             @"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
@@ -306,6 +309,8 @@ namespace ExBuddy.OrderBotTags
         private int amissfish;
 
         private int fishlimit;
+
+        private double sitRoll = 1.0;
 
         private bool spotinit;
 
@@ -419,7 +424,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 7, 201508253);
+                return new Version(3, 0, 7, 201508254);
             }
         }
 
@@ -532,7 +537,7 @@ namespace ExBuddy.OrderBotTags
                 return
                     new Decorator(
                         ret =>
-                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit || SitRNG.NextDouble() < SitRate) && FishingManager.State == (FishingState)9,
+                        !isSitting && (Sit || FishSpots.CurrentOrDefault.Sit || sitRoll < SitRate) && FishingManager.State == (FishingState)9,
                     // this is when you have already cast and are waiting for a bite.
                         new Sequence(
                             new Sleep(1, 1),
@@ -1023,6 +1028,7 @@ namespace ExBuddy.OrderBotTags
             fishcount = 0;
             Log("Resetting fish count...");
             fishlimit = this.GetFishLimit();
+            sitRoll = SitRng.NextDouble();
             spotinit = false;
             isFishing = false;
             isSitting = false;

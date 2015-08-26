@@ -282,6 +282,9 @@ namespace ExBuddy.OrderBotTags
 
         protected static FishResult FishResult = new FishResult();
 
+        private Func<bool> conditionFunc;
+        private Func<bool> moochConditionFunc;
+
         private bool initialMountSetting;
 
         private BotEvent cleanup;
@@ -984,16 +987,22 @@ namespace ExBuddy.OrderBotTags
 
         protected virtual bool ConditionCheck()
         {
-            var conditional = ScriptManager.GetCondition(Condition);
+            if (conditionFunc == null)
+            {
+                conditionFunc = ScriptManager.GetCondition(Condition);
+            }
 
-            return conditional();
+            return conditionFunc();
         }
 
         protected virtual bool MoochConditionCheck()
         {
-            var moochConditional = ScriptManager.GetCondition(MoochCondition);
+            if (moochConditionFunc == null)
+            {
+                moochConditionFunc = ScriptManager.GetCondition(MoochCondition);
+            }
 
-            return moochConditional();
+            return moochConditionFunc();
         }
 
         protected virtual void Cast()

@@ -199,11 +199,21 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnResetCachedDone()
         {
+            baitAttempts = 0;
+            baitChanged = false;
+            baitCount = GetBaitCount();
             isDone = false;
+            mooch = 0;
             spotinit = false;
             fishcount = 0;
+            amissfish = 0;
             isFishing = false;
             isSitting = false;
+            isFishIdentified = false;
+            fishlimit = GetFishLimit();
+            currentBait = string.Empty;
+            checkRelease = false;
+
             CharacterSettings.Instance.UseMount = initialMountSetting;
         }
 
@@ -409,7 +419,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 7, 201508252);
+                return new Version(3, 0, 7, 201508253);
             }
         }
 
@@ -471,29 +481,29 @@ namespace ExBuddy.OrderBotTags
                     ret => Collect && SelectYesNoItem.IsOpen,
                     new Wait(
                         10,
-                        ret => SelectYesNoItem.CollectabilityValue > Math.Max(20, CollectabilityValue/6),
+                        ret => SelectYesNoItem.CollectabilityValue > Math.Max(20, CollectabilityValue / 6),
                         new Sequence(
                             new Action(
                                 r =>
-                                    {
-                                        var value = SelectYesNoItem.CollectabilityValue;
-                                        Log(
-                                            string.Format(
-                                                "Collectible caught with value: {0} required: {1}",
-                                                value.ToString(),
-                                                CollectabilityValue));
+                                {
+                                    var value = SelectYesNoItem.CollectabilityValue;
+                                    Log(
+                                        string.Format(
+                                            "Collectible caught with value: {0} required: {1}",
+                                            value.ToString(),
+                                            CollectabilityValue));
 
-                                        if (value >= CollectabilityValue)
-                                        {
-                                            Log("Collecting Collectible -> Value: " + value, Colors.Green);
-                                            SelectYesNoItem.Yes();
-                                        }
-                                        else
-                                        {
-                                            Log("Declining Collectible -> Value: " + value, Colors.Red);
-                                            SelectYesNoItem.No();
-                                        }
-                                    }),
+                                    if (value >= CollectabilityValue)
+                                    {
+                                        Log("Collecting Collectible -> Value: " + value, Colors.Green);
+                                        SelectYesNoItem.Yes();
+                                    }
+                                    else
+                                    {
+                                        Log("Declining Collectible -> Value: " + value, Colors.Red);
+                                        SelectYesNoItem.No();
+                                    }
+                                }),
                             new Sleep(1111))));
             }
         }
@@ -620,6 +630,7 @@ namespace ExBuddy.OrderBotTags
                             new Action(
                                 r =>
                                 {
+                                    this.checkRelease = true;
                                     FishingManager.Mooch();
                                     mooch++;
                                     if (MoochLevel > 1)

@@ -27,7 +27,7 @@
 			<TeleportTo Name="Helix" AetheryteId="74" />
 			<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
 		</If>
-		<FlightPathTo XYZ="58.34298, 8.077177, -834.636" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="30.0" DismountAtDestination="false" />
+		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
 		<While condition="True">
 			<SafeCollectAdamantite/>
 		</While>

@@ -84,7 +84,7 @@
             MovementManager.SetFacing2D(node.Location);
             var safeSpot = GetSafeSpot(Core.Player.Heading);
 
-            var fp = new FlightPathTo { Target = safeSpot.Item1, Radius = 3.0f, NavHeight = 10.0f, MountId = 45, Smoothing = 0.2f, DismountAtDestination = true, LogWaypoints = true };
+            var fp = new FlightPathTo { Target = safeSpot.Item1, Radius = 3.0f, NavHeight = 5.0f, MountId = 45, Smoothing = 0.2f, DismountAtDestination = true, LogWaypoints = true };
             fp.Start();
             await fp.Fly();
             await Coroutine.Wait(Timeout.Infinite, () => fp.IsDone);
@@ -194,7 +194,9 @@
                         return result == MoveResult.Done || result == MoveResult.ReachedDestination;
                     });
 
-                fp = new FlightPathTo { Target = initialLocation, Radius = 3.0f, NavHeight = 25.0f, MountId = 45, Smoothing = 0.2f, DismountAtDestination = false, LogWaypoints = true };
+                MovementManager.SetFacing2D(initialLocation);
+
+                fp = new FlightPathTo { Target = initialLocation, Radius = 3.0f, NavHeight = 5.0f, MountId = 45, Smoothing = 0.2f, DismountAtDestination = false, LogWaypoints = true };
                 fp.Start();
                 await fp.Fly();
                 await Coroutine.Wait(Timeout.Infinite, () => fp.IsDone);

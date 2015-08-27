@@ -42,7 +42,8 @@
       <HintPath>..\Assembly\GreyMagic.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
-    <Reference Include="RebornBuddy">
+    <Reference Include="RebornBuddy, Version=1.0.302.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -65,6 +66,11 @@
     <Compile Include="Fish\Keeper.cs" />
     <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
+    <Compile Include="Gather\CordialType.cs" />
+    <Compile Include="Gather\GatherCollectable.cs" />
+    <Compile Include="Gather\GatherStrategy.cs" />
+    <Compile Include="Gather\SafeCollectAdamantite.cs" />
+    <Compile Include="Imported\FlightPathTo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

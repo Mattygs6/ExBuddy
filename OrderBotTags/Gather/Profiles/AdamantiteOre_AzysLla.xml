@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Collectable: Adamantite Ore</Name>
+	<KillRadius>50</KillRadius>
+	<BehaviorDirectory>./Custom</BehaviorDirectory>
+	<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 21");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+			]]>
+		</CodeChunk>
+		<CodeChunk name="ToM">
+			<![CDATA[
+				if(!Core.Player.HasAura(222))
+				{
+				ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<RunCode name="Gear"/>
+		<RunCode name="ToM"/>
+		<If Condition="not IsOnMap(402)">
+			<TeleportTo Name="Helix" AetheryteId="74" />
+			<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
+		</If>
+		<FlightPathTo XYZ="58.34298, 8.077177, -834.636" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="30.0" DismountAtDestination="false" />
+		<While condition="True">
+			<SafeCollectAdamantite/>
+		</While>
+	</Order>
+</Profile>

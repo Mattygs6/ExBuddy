@@ -7,7 +7,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot;
     using ff14bot.Managers;
 
-    [GatheringRotation("Default", 0, 18)]
+    //Name, RequiredGp, RequiredTime
+    [GatheringRotation("Default", 0, 23)]
     public class DefaultGatheringRotation : IGatheringRotation
     {
         public virtual async Task<bool> Prepare(uint slot)

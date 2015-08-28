@@ -330,8 +330,16 @@
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             var realSecondsTillStartGathering = realSecondsTillDespawn - 25;
 
+            if (realSecondsTillStartGathering < 1)
+            {
+                Logging.Write("Not enough GP to gather");
+                isDone = true;
+                return true;
+            }
+
             if (Core.Player.CurrentGP < AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.BeforeGather))
             {
+
                 if (realSecondsTillStartGathering < cordialSpellData.AdjustedCooldown.Seconds)
                 {
                     return true;
@@ -355,6 +363,13 @@
                 realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
                 realSecondsTillStartGathering = realSecondsTillDespawn - 25;
 
+                if (realSecondsTillStartGathering < 1)
+                {
+                    Logging.Write("Not enough GP to gather");
+                    isDone = true;
+                    return true;
+                }
+
                 if (gp + 400 > AdjustedWaitForGp)
                 {
                     if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
@@ -368,6 +383,13 @@
             eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+
+            if (realSecondsTillStartGathering < 1)
+            {
+                Logging.Write("Not enough GP to gather");
+                isDone = true;
+                return true;
+            }
 
             await
                 Coroutine.Wait(
@@ -480,6 +502,11 @@
             {
                 await Coroutine.Wait(3000, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
+
+                //Wait till we can cast methodical again
+                await Coroutine.Wait(5000, () => Actionmanager.CanCast(4075, Core.Player));
+                //Wait for aura?
+                await Coroutine.Sleep(300);
             }
             else
             {

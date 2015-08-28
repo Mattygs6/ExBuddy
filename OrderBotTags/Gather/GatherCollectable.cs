@@ -178,7 +178,8 @@
         {
             get
             {
-                return Math.Min(Core.Player.MaxGP, WaitForGp);
+                // Return the lower of your MaxGP rounded down to the nearest 50.
+                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), WaitForGp);
             }
         }
 
@@ -354,7 +355,7 @@
                     // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
                     if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
                     {
-                        return true;
+                        await WaitForGpRegain();
                     }
                 }
 
@@ -374,15 +375,19 @@
                 {
                     if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
                     {
-                        return true;
+                        await WaitForGpRegain();
                     }
                 }
             }
 
-            // One last recalc; to wait for GP
-            eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
-            realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            realSecondsTillStartGathering = realSecondsTillDespawn - 30;
+            return await WaitForGpRegain();
+        }
+
+        private async Task<bool> WaitForGpRegain()
+        {            
+            var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - 30;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -392,10 +397,10 @@
             }
 
             await
-                Coroutine.Wait(
-                    TimeSpan.FromSeconds(realSecondsTillStartGathering),
-                    () => Core.Player.CurrentGP >= AdjustedWaitForGp);
-            
+            Coroutine.Wait(
+                TimeSpan.FromSeconds(realSecondsTillStartGathering),
+                () => Core.Player.CurrentGP >= AdjustedWaitForGp);
+
             return true;
         }
 

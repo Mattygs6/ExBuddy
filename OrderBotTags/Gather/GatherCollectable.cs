@@ -4,11 +4,16 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using Buddy.Coroutines;
 
     using Clio.XmlEngine;
+
+    using Exbuddy.OrderBotTags;
+
+    using ExBuddy.OrderBotTags.Gather.Rotations;
 
     using ff14bot;
     using ff14bot.Enums;
@@ -16,7 +21,6 @@
     using ff14bot.Managers;
     using ff14bot.NeoProfiles;
     using ff14bot.Objects;
-    using ff14bot.RemoteWindows;
 
     using TreeSharp;
 
@@ -25,146 +29,26 @@
     [XmlElement("GatherCollectable")]
     public class GatherCollectable : ProfileBehavior
     {
-        private static readonly Dictionary<ClassJobType, Dictionary<Abilities, uint>> AbilitiesMap =
-            new Dictionary<ClassJobType, Dictionary<Abilities, uint>>
-                {
-                    {
-                        ClassJobType.Botanist,
-                        new Dictionary<Abilities, uint>
-                            {
-                                {
-                                    Abilities
-                                    .Stealth,
-                                    212
-                                },
-                                {
-                                    Abilities
-                                    .IncreaseGatherChance5,
-                                    218
-                                },
-                                {
-                                    Abilities
-                                    .Truth,
-                                    221
-                                },
-                                {
-                                    Abilities
-                                    .CollectorsGlove,
-                                    4088
-                                },
-                                {
-                                    Abilities
-                                    .MethodicalAppraisal,
-                                    4089
-                                },
-                                {
-                                    Abilities
-                                    .ImpulsiveAppraisal,
-                                    4091
-                                },
-                                {
-                                    Abilities
-                                    .DiscerningEye,
-                                    4092
-                                },
-                                {
-                                    Abilities
-                                    .SingleMind,
-                                    4098
-                                }
-                            }
-                    },
-                    {
-                        ClassJobType.Miner,
-                        new Dictionary<Abilities, uint>
-                            {
-                                {
-                                    Abilities
-                                    .Stealth,
-                                    229
-                                },
-                                {
-                                    Abilities
-                                    .IncreaseGatherChance5,
-                                    235
-                                },
-                                {
-                                    Abilities
-                                    .Truth,
-                                    238
-                                },
-                                {
-                                    Abilities
-                                    .CollectorsGlove,
-                                    4074
-                                },
-                                {
-                                    Abilities
-                                    .MethodicalAppraisal,
-                                    4075
-                                },
-                                {
-                                    Abilities
-                                    .ImpulsiveAppraisal,
-                                    4077
-                                },
-                                {
-                                    Abilities
-                                    .DiscerningEye,
-                                    4078
-                                },
-                                {
-                                    Abilities
-                                    .SingleMind,
-                                    4084
-                                }
-                            }
-                    }
-                };
-
-        private enum Auras : short
-        {
-            None = -1,
-
-            Stealth = 47,
-
-            TruthOfForests = 221,
-
-            TruthOfMountains = 222,
-
-            DiscerningEye = 757,
-
-            CollectorsGlove = 805
-        }
-
-        private enum Abilities : byte
-        {
-            None,
-
-            Stealth, // = 229,212
-
-            IncreaseGatherChance5, // = 235,218
-
-            Truth, // = 238,221
-
-            CollectorsGlove, // = 4074,4088
-
-            MethodicalAppraisal, // = 4075,4089
-
-            ImpulsiveAppraisal, // = 4077,4091
-
-            DiscerningEye, // = 4078,4092
-
-            SingleMind, // = 4084,4098
-        }
+        private static readonly Dictionary<string, Type> Rotations;
 
         private readonly SpellData cordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         private bool isDone;
 
+        private IGatheringRotation gatherRotation;
+
+        private ushort gatherRotationGp;
+
+        private byte gatherRotationTime;
+
         private IGatherSpot gatherSpot;
 
         private GatheringPointObject node;
+
+        static GatherCollectable()
+        {
+            Rotations = LoadRotationTypes();
+        }
 
         public override bool IsDone
         {
@@ -179,7 +63,7 @@
             get
             {
                 // Return the lower of your MaxGP rounded down to the nearest 50.
-                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), WaitForGp);
+                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), gatherRotationGp);
             }
         }
 
@@ -190,9 +74,6 @@
         [DefaultValue(CordialType.Auto)]
         [XmlElement("CordialType")]
         public CordialType CordialType { get; set; }
-
-        [XmlElement("GatherSpots")]
-        public List<StealthApproachGatherSpot> GatherSpots { get; set; }
 
         [DefaultValue(45)]
         [XmlAttribute("MountId")]
@@ -206,8 +87,19 @@
         [XmlAttribute("Slot")]
         public int Slot { get; set; }
 
-        [XmlAttribute("GatherObject")]
-        public string GatherObject { get; set; }
+        [XmlElement("GatherObjects")]
+        public List<string> GatherObjects { get; set; }
+
+        [DefaultValue("Collect470")]
+        [XmlElement("GatherRotation")]
+        public string GatherRotation { get; set; }
+
+        [XmlElement("GatherSpots")]
+        public List<StealthApproachGatherSpot> GatherSpots { get; set; }
+
+        [DefaultValue(GatherStrategy.CollectOnce)]
+        [XmlElement("GatherStrategy")]
+        public GatherStrategy GatherStrategy { get; set; }
 
         [DefaultValue(3.0f)]
         [XmlAttribute("Distance")]
@@ -217,10 +109,6 @@
         [XmlAttribute("Radius")]
         public float Radius { get; set; }
 
-        [DefaultValue(600)]
-        [XmlAttribute("WaitForGp")]
-        public int WaitForGp { get; set; }
-
         [DefaultValue(5.0f)]
         [XmlAttribute("NavHeight")]
         public float NavHeight { get; set; }
@@ -229,14 +117,20 @@
         {
             isDone = false;
             gatherSpot = null;
+            gatherRotation = null;
+            gatherRotationGp = 0;
+            gatherRotationTime = 0;
             node = null;
-
         }
 
         protected override Composite CreateBehavior()
         {
+            // Had to add null check for node.
             return
                 new PrioritySelector(
+                    new Decorator(
+                        ret => gatherRotation == null,
+                        new ActionRunCoroutine(ctx => ResolveGatherRotation())),
                     new Decorator(
                         ret => node == null,
                         new Sequence(
@@ -251,7 +145,7 @@
                         new ActionRunCoroutine(ctx => MoveToGatherSpot())),
                     new Decorator(
                         ret =>
-                        node != null && gatherSpot != null && node.CanGather
+                        node != null && gatherSpot != null &&  node.CanGather
                         && node.Location.Distance3D(Core.Player.Location) <= Distance,
                         new Sequence(
                             new ActionRunCoroutine(ctx => BeforeGather()),
@@ -260,6 +154,60 @@
                     new Decorator(
                         ret => node != null && gatherSpot != null && !node.CanGather,
                         new ActionRunCoroutine(ctx => MoveFromGatherSpot())));
+        }
+
+        private static Dictionary<string, Type> LoadRotationTypes()
+        {
+            try
+            {
+                var types =
+                    Assembly.GetExecutingAssembly()
+                        .GetTypes()
+                        .Where(t => !t.IsAbstract && typeof(IGatheringRotation).IsAssignableFrom(t))
+                        .ToArray();
+
+                ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.RegisterTypes(types);
+
+                var dict =
+                    types.ToDictionary(
+                        k => k.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(attr => attr.Name, k.Name.Replace("GatheringRotation", string.Empty)), v => v);
+
+                return dict;
+            }
+            catch
+            {
+                Logging.Write("Unable to get types");
+            }
+
+            return LoadKnownRotationTypes();
+        }
+
+        private static Dictionary<string, Type> LoadKnownRotationTypes()
+        {
+            return new Dictionary<string, Type>
+                       {
+                           { "Default", typeof(DefaultGatheringRotation) },
+                           { "DefaultCollect", typeof(DefaultCollectGatheringRotation) },
+                           { "Collect470", typeof(Collect470GatheringRotation) },
+                           { "Collect450", typeof(Collect450GatheringRotation) }
+                       };
+        } 
+
+        private async Task<bool> ResolveGatherRotation()
+        {
+            Type rotationType;
+            if (Rotations.TryGetValue(GatherRotation, out rotationType))
+            {
+                gatherRotation = rotationType.CreateInstance<IGatheringRotation>();
+                Logging.Write("Using rotation: " + GatherRotation);
+                return true;
+            }
+
+            Logging.Write("Could not find rotation, using DefaultCollect instead.");
+
+            gatherRotation = new DefaultCollectGatheringRotation();
+
+            return true;
         }
 
         private async Task<bool> FindGatherSpot()
@@ -280,18 +228,19 @@
 
         private async Task<bool> FindNode()
         {
-            if (!string.IsNullOrWhiteSpace(GatherObject))
+            if (GatherObjects != null)
             {
                 node =
                     GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                        .OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
                         .FirstOrDefault(
-                            gpo =>
-                            string.Equals(gpo.EnglishName, GatherObject, StringComparison.InvariantCultureIgnoreCase)
+                            gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase)
                             && gpo.CanGather);
             }
             else
             {
-                node = GameObjectManager.GetObjectsOfType<GatheringPointObject>().FirstOrDefault(gpo => gpo.CanGather);
+                node = GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                    .FirstOrDefault(gpo => gpo.CanGather);
             }
 
             if (node == null)
@@ -305,9 +254,9 @@
         private async Task<bool> MoveToGatherSpot()
         {
             var result =
-                await
+                await 
                 gatherSpot.MoveToSpot(
-                    () => CastAura(Abilities.Stealth, Auras.Stealth),
+                    () => Actions.CastAura(Ability.Stealth, AbilityAura.Stealth),
                     node.Location,
                     (uint)MountId,
                     Radius,
@@ -329,7 +278,54 @@
         {
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - 30;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
+
+            if (realSecondsTillStartGathering < 1)
+            {
+                Logging.Write("Not enough time to gather");
+                isDone = true;
+                return true;
+            }
+
+            var ticksTillStartGathering = realSecondsTillStartGathering / 3;
+
+            var gp = Core.Player.CurrentGP + ticksTillStartGathering * 5;
+
+            if (CordialType <= CordialType.None)
+            {
+                Logging.Write("Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
+                if (gp >= AdjustedWaitForGp)
+                {
+                    return await WaitForGpRegain();
+                }
+
+                Logging.Write("Not enough time to gather");
+                isDone = true;
+                return true;
+            }
+
+            if (gp >= AdjustedWaitForGp || !CordialTime.HasFlag(CordialTime.BeforeGather))
+            {
+                return await WaitForGpRegain();
+            }
+            if (realSecondsTillStartGathering < cordialSpellData.AdjustedCooldown.Seconds)
+            {
+                return true;
+            }
+
+            if (gp + 300 >= AdjustedWaitForGp)
+            {
+                // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
+                if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
+                {
+                    return await WaitForGpRegain();
+                }
+            }
+
+            // Recalculate: could have no time left at this point
+            eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+            realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -338,45 +334,11 @@
                 return true;
             }
 
-            if (Core.Player.CurrentGP < AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.BeforeGather))
+            if (gp + 400 >= AdjustedWaitForGp)
             {
-
-                if (realSecondsTillStartGathering < cordialSpellData.AdjustedCooldown.Seconds)
+                if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
                 {
-                    return true;
-                }
-
-                var ticksTillStartGathering = realSecondsTillStartGathering / 3;
-
-                var gp = Core.Player.CurrentGP + ticksTillStartGathering * 5;
-
-                if (gp + 300 > AdjustedWaitForGp)
-                {
-                    // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
-                    if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
-                    {
-                        await WaitForGpRegain();
-                    }
-                }
-
-                // Recalculate: could have no time left at this point
-                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
-                realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-                realSecondsTillStartGathering = realSecondsTillDespawn - 30;
-
-                if (realSecondsTillStartGathering < 1)
-                {
-                    Logging.Write("Not enough GP to gather");
-                    isDone = true;
-                    return true;
-                }
-
-                if (gp + 400 > AdjustedWaitForGp)
-                {
-                    if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
-                    {
-                        await WaitForGpRegain();
-                    }
+                    return await WaitForGpRegain();
                 }
             }
 
@@ -387,7 +349,7 @@
         {            
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - 30;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -396,10 +358,16 @@
                 return true;
             }
 
-            await
-            Coroutine.Wait(
-                TimeSpan.FromSeconds(realSecondsTillStartGathering),
-                () => Core.Player.CurrentGP >= AdjustedWaitForGp);
+            if (Core.Player.CurrentGP < AdjustedWaitForGp)
+            {
+                Logging.Write(
+                    "Waiting for GP, Seconds Until Gathering: " + realSecondsTillStartGathering + ", Current GP: "
+                    + Core.Player.CurrentGP + ", WaitForGP: " + AdjustedWaitForGp);
+                await
+                Coroutine.Wait(
+                    TimeSpan.FromSeconds(realSecondsTillStartGathering),
+                    () => Core.Player.CurrentGP >= AdjustedWaitForGp);
+            }
 
             return true;
         }
@@ -424,11 +392,11 @@
 
                 if (cordial != null)
                 {
-                    Logging.Write("Using Cordial -> Waiting: " + maxTimeoutSeconds + " CurrentGP: " + Core.Player.CurrentGP);
+                    Logging.Write("Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Core.Player.CurrentGP);
                     if (await Coroutine.Wait(TimeSpan.FromSeconds(maxTimeoutSeconds), () => cordial.CanUse(Core.Player)))
                     {
                         cordial.UseItem(Core.Player);
-
+                        Logging.Write("Using Cordial: " + cordialType);
                         return true;
                     }
                 }
@@ -440,136 +408,29 @@
         private async Task<bool> Gather()
         {
             await
-                CastAura(
-                    Abilities.Truth,
-                    Core.Player.CurrentJob == ClassJobType.Miner ? Auras.TruthOfMountains : Auras.TruthOfForests);
-            await CastAura(Abilities.CollectorsGlove, Auras.CollectorsGlove);
+                Actions.CastAura(
+                    Ability.Truth,
+                    Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 
             Poi.Current = new Poi(node, PoiType.Gather);
             Poi.Current.Unit.Interact();
 
-            await Coroutine.Wait(10000, () => GatheringManager.WindowOpen);
+            if (!await Coroutine.Wait(6000, () => GatheringManager.WindowOpen))
+            {
+                Logging.Write("Gathering Window didn't open: Re-attempting to move into place.");
+                gatherSpot = new GatherSpot { NodeLocation = node.Location, UseMesh = true };
+                return false;
+            }
+
             await Coroutine.Sleep(2200);
 
-            var hits = 0;
-            GatheringItem item = null;
-            while (GatheringManager.WindowOpen && hits < 2)
-            {
-                await
-                    Coroutine.Wait(
-                        5000,
-                        () => (item = GatheringManager.GetGatheringItemByIndex((uint)this.Slot)) != null);
-                if (item != null)
-                {
-                    item.GatherItem();
-                    hits++;
-                    await Coroutine.Sleep(2200);
-                }
-            }
-
-            await GetValidMasterPieceWindow(5000);
-
-            await Cast(Abilities.DiscerningEye);
-
-            await AppraiseAndRebuff();
-            await AppraiseAndRebuff();
-
-            await Cast(Abilities.MethodicalAppraisal);
-
-            if (Core.Player.CurrentGP >= 50)
-            {
-                await Cast(Abilities.IncreaseGatherChance5);
-            }
-
-            while (GatheringManager.SwingsRemaining > 0)
-            {
-                var masterpieceWindow = await GetValidMasterPieceWindow(5000);
-                await Coroutine.Wait(5000, () => !SelectYesNoItem.IsOpen);
-                while (!SelectYesNoItem.IsOpen)
-                {
-                    masterpieceWindow.SendAction(1, 1, 0);
-                    await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
-                }
-
-                ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-                await Coroutine.Sleep(2200);
-            }
+            await gatherRotation.Prepare((uint)this.Slot);
+            await gatherRotation.ExecuteRotation();
+            await gatherRotation.Gather((uint)this.Slot);
 
             Poi.Clear("Gather Complete!");
 
             return true;
-        }
-
-        private async Task<bool> CastAura(uint spellId, int auraId = -1)
-        {
-            bool result;
-            if (auraId == -1 || !Core.Player.HasAura(auraId))
-            {
-                await Coroutine.Wait(3000, () => Actionmanager.CanCast(spellId, Core.Player));
-                result = Actionmanager.DoAction(spellId, Core.Player);
-
-                //Wait till we can cast again
-                await Coroutine.Wait(5000, () => Actionmanager.CanCast(spellId, Core.Player));
-                //Wait for aura?
-                await Coroutine.Sleep(300);
-            }
-            else
-            {
-                result = false;
-            }
-
-            return result;
-        }
-
-        private async Task<bool> CastAura(Abilities ability, Auras aura = Auras.None)
-        {
-
-            return await CastAura(AbilitiesMap[Core.Player.CurrentJob][ability], (int)aura);
-        }
-
-        private async Task<bool> Cast(uint id)
-        {
-            //Wait till we can cast the spell
-            await Coroutine.Wait(5000, () => Actionmanager.CanCast(id, Core.Player));
-            var result = Actionmanager.DoAction(id, Core.Player);
-            //Wait till we can cast again
-            await Coroutine.Wait(5000, () => Actionmanager.CanCast(id, Core.Player));
-            //Wait for aura?
-            await Coroutine.Sleep(300);
-            return result;
-        }
-
-        private async Task<bool> Cast(Abilities ability)
-        {
-            return await Cast(AbilitiesMap[Core.Player.CurrentJob][ability]);
-        }
-
-        private async Task AppraiseAndRebuff()
-        {
-            await Cast(Abilities.ImpulsiveAppraisal);
-
-            if (Core.Player.HasAura((int)Auras.DiscerningEye))
-            {
-                await Cast(Abilities.SingleMind);
-            }
-            else
-            {
-                await Cast(Abilities.DiscerningEye);
-            }
-        }
-
-        private async Task<AtkAddonControl> GetValidMasterPieceWindow(int timeoutMs)
-        {
-            AtkAddonControl atkControl = null;
-            await
-                Coroutine.Wait(
-                    timeoutMs,
-                    () =>
-                    (atkControl =
-                     RaptureAtkUnitManager.Controls.FirstOrDefault(c => c.Name == "GatheringMasterpiece" && c.IsValid))
-                    != null);
-
-            return atkControl;
         }
     }
 }

@@ -6,7 +6,7 @@
     /// <summary>
     ///     Extensions
     /// </summary>
-    public static class Extensions
+    public static partial class Extensions
     {
         public static void Shuffle<T>(this IList<T> list)
         {

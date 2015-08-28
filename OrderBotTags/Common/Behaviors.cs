@@ -38,7 +38,7 @@ namespace ExBuddy.OrderBotTags
                                  DismountAtDestination = true,
                                  LogWaypoints = logFlight
                              };
-                fp.Start();
+
                 await fp.Fly();
                 result = await Coroutine.Wait(timeout, () => fp.IsDone);
             }

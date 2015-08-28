@@ -2,16 +2,11 @@
 <Profile>
 	<Name>Collectable: Chysahl Greens</Name>
 	<KillRadius>50</KillRadius>
-	<BehaviorDirectory>./Custom</BehaviorDirectory>
 	<CodeChunks>
 		<CodeChunk name="Gear">
 			<![CDATA[
 				ff14bot.Managers.ChatManager.SendChat("/gs change 20");
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
-			]]>
-		</CodeChunk>
-		<CodeChunk name="ToF">
-			<![CDATA[
 				if(!Core.Player.HasAura(221))
 				{
 					if(Core.Player.IsMounted)
@@ -27,27 +22,21 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
-		<RunCode name="ToF"/>
 		<If condition="not IsOnMap(397)">
 			<TeleportTo name="Falcon's Nest" aetheryteId="71" />
 			<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
 		</If>
-		<FlightPathTo XYZ="-684.4172, 145.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
+		<RunCode name="Gear"/>
+		<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
 		<While condition="True">
-			<GatherCollectable NavHeight="-80">
-				<GatherSpots>
-					<StealthApproachGatherSpot 
-						stealthLocation="-672.4095, 99.7216, -595.6871"
-						condition="(Core.Player.Heading &gt; 0.4 or Core.Player.Heading == 0.4) and Core.Player.Heading &lt; 2.5"/>
-					<StealthApproachGatherSpot
-						stealthLocation="-708.3837, 103.3308, -626.0507"
-						condition="(Core.Player.Heading &gt; 2.5 or Core.Player.Heading == 2.5) and Core.Player.Heading &lt; 4.8"/>
-					<StealthApproachGatherSpot
-						stealthLocation="-686.4322, 99.76853, -591.241"/>
-				</GatherSpots>
+			<GatherCollectable>
+				<GatherObjects>
+					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+				</GatherObjects>
+				<GatherRotation>Default</GatherRotation>
+				<!--<GatherRotation>Collect470</GatherRotation>-->
 			</GatherCollectable>
-			<FlightPathTo XYZ="-684.4172, 145.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
+			<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="200" DismountAtDestination="false" />
 		</While>
 	</Order>
 </Profile>

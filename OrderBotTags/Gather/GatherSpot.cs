@@ -21,7 +21,7 @@
 
         Task<bool> MoveFromSpot();
 
-        Task<bool> MoveToSpot(Action stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true);
+        Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true);
     }
 
     [Clio.XmlEngine.XmlElement("GatherSpot")]
@@ -58,7 +58,7 @@
             return true;
         }
 
-        public async Task<bool> MoveToSpot(Action stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
+        public async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
         {
             if (NodeLocation == Vector3.Zero)
             {
@@ -69,7 +69,7 @@
 
             if (stealthAction != null)
             {
-                stealthAction();
+                await stealthAction();
             }
 
             return result;
@@ -119,7 +119,7 @@
             return true;
         }
 
-        public async Task<bool> MoveToSpot(Action stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
+        public async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
         {
             if (StealthLocation == Vector3.Zero)
             {
@@ -137,7 +137,7 @@
             {
                 if (stealthAction != null)
                 {
-                    stealthAction();
+                    await stealthAction();
                 }
 
                 result = await MoveToNodeLocation(radius, name);

@@ -743,7 +743,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return
-                    new Decorator(
+                    new Decorator(// TODO: Log reason for quit.
                         ret => InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) >= 100,
                         IsDoneAction);
             }

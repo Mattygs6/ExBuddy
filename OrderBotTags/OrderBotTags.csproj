@@ -57,6 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Abilities.cs" />
+    <Compile Include="Common\Actions.cs" />
+    <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Craft\Collect.cs" />
     <Compile Include="Fish\Collectable.cs" />
     <Compile Include="Fish\Extensions.cs" />
@@ -66,11 +70,18 @@
     <Compile Include="Fish\Keeper.cs" />
     <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
+    <Compile Include="Common\Behaviors.cs" />
+    <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect470GatheringRotation.cs" />
     <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />
+    <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\DefaultGatheringRotation.cs" />
+    <Compile Include="Gather\GatheringRotationAttribute.cs" />
     <Compile Include="Gather\GatherSpot.cs" />
     <Compile Include="Gather\GatherStrategy.cs" />
     <Compile Include="Gather\GatherCollectable.cs" />
+    <Compile Include="Gather\IGatheringRotation.cs" />
     <Compile Include="Gather\Prototype\SafeCollectAdamantite.cs" />
     <Compile Include="Imported\FlightPathTo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,16 +2,11 @@
 <Profile>
 	<Name>Collectable: Adamantite Ore</Name>
 	<KillRadius>50</KillRadius>
-	<BehaviorDirectory>./Custom</BehaviorDirectory>
 	<CodeChunks>
 		<CodeChunk name="Gear">
 			<![CDATA[
 				ff14bot.Managers.ChatManager.SendChat("/gs change 21");
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
-			]]>
-		</CodeChunk>
-		<CodeChunk name="ToM">
-			<![CDATA[
 				if(!Core.Player.HasAura(222))
 				{
 					if(Core.Player.IsMounted)
@@ -28,14 +23,18 @@
 	</CodeChunks>
 	<Order>
 		<RunCode name="Gear"/>
-		<RunCode name="ToM"/>
 		<If Condition="not IsOnMap(402)">
 			<TeleportTo Name="Helix" AetheryteId="74" />
 			<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
 		</If>
 		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
 		<While condition="True">
-			<GatherCollectable>
+			<GatherCollectable NavHeight="15.0">
+				<GatherObjects>
+					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
+				</GatherObjects>
+				<GatherRotation>Default</GatherRotation>
+				<!--<GatherRotation>Collect470</GatherRotation>-->
 				<GatherSpots>
 					<StealthApproachGatherSpot 
 						stealthLocation="70.86564, -0.4920825, -858.0936"

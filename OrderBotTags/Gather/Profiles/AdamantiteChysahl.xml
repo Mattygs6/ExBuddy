@@ -83,7 +83,6 @@
 							stealthLocation="-686.4322, 99.76853, -591.241"/>
 					</GatherSpots>
 				</GatherCollectable>
-				<FlightPathTo XYZ="-684.4172, 145.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
 				<LogMessage message="Waiting for now...until we find something better to do."/>
 				<WaitWhile condition ="IsTimeBetween(8,10) or IsTimeBetween(20,22)" />
 			</If>

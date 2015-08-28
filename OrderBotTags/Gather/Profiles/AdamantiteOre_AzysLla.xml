@@ -14,8 +14,14 @@
 			<![CDATA[
 				if(!Core.Player.HasAura(222))
 				{
-				ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
-				await Buddy.Coroutines.Coroutine.Sleep(2000);
+					if(Core.Player.IsMounted)
+					{
+						Actionmanager.Dismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
 				}
 			]]>
 		</CodeChunk>
@@ -29,7 +35,22 @@
 		</If>
 		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
 		<While condition="True">
-			<SafeCollectAdamantite/>
+			<GatherCollectable>
+				<GatherSpots>
+					<StealthApproachGatherSpot 
+						stealthLocation="70.86564, -0.4920825, -858.0936"
+						nodeLocation="71.80842, -0.29418, -856.2421"
+						condition="(Core.Player.Heading &gt; 1.5 or Core.Player.Heading == 1.5) and Core.Player.Heading &lt; 3.6"/>
+					<StealthApproachGatherSpot
+						stealthLocation="20.53567, -1.213719, -827.198"
+						nodeLocation="24.25113, -0.01400313, -832.7057"
+						condition="(Core.Player.Heading &gt; 3.6 or Core.Player.Heading == 3.6) and Core.Player.Heading &lt; 5.7"/>
+					<StealthApproachGatherSpot
+						stealthLocation="89.52304, -1.827069, -791.0764"
+						nodeLocation="79.85004, -0.2340581, -805.6276"/>
+				</GatherSpots>
+			</GatherCollectable>
+			<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="5.0" DismountAtDestination="false" />
 		</While>
 	</Order>
 </Profile>

@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Collectable: Adamantite Ore + Chysahl Greens</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<CodeChunk name="MIN">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 21");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+			]]>
+		</CodeChunk>
+		<CodeChunk name="BTN">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 20");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+			]]>
+		</CodeChunk>
+		<CodeChunk name="ToM">
+			<![CDATA[
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						Actionmanager.Dismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+		<CodeChunk name="ToF">
+			<![CDATA[
+				if(!Core.Player.HasAura(221))
+				{
+					var result = true;
+
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						Actionmanager.Dismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(221, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<While condition="True">
+			<If condition="IsTimeBetween(8,10) or IsTimeBetween(20,22)">
+			<!-- TODO: Be less lazy and go to tailfeather? -->
+				<If condition="not IsOnMap(397)">
+					<TeleportTo name="Falcon's Nest" aetheryteId="71" />
+					<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
+				</If>
+				<RunCode name="BTN"/>
+				<RunCode name="ToF"/>
+				<FlightPathTo XYZ="-684.4172, 105.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
+				<GatherCollectable NavHeight="-50">
+					<GatherSpots>
+						<StealthApproachGatherSpot 
+							stealthLocation="-672.4095, 99.7216, -595.6871"
+							condition="(Core.Player.Heading &gt; 0.4 or Core.Player.Heading == 0.4) and Core.Player.Heading &lt; 2.5"/>
+						<StealthApproachGatherSpot
+							stealthLocation="-708.3837, 103.3308, -626.0507"
+							condition="(Core.Player.Heading &gt; 2.5 or Core.Player.Heading == 2.5) and Core.Player.Heading &lt; 4.8"/>
+						<StealthApproachGatherSpot
+							stealthLocation="-686.4322, 99.76853, -591.241"/>
+					</GatherSpots>
+				</GatherCollectable>
+				<FlightPathTo XYZ="-684.4172, 105.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" />
+				<LogMessage message="Waiting for now...until we find something better to do."/>
+				<WaitWhile condition ="IsTimeBetween(8,10) or IsTimeBetween(20,22)" />
+			</If>
+			<!-- TODO: have to use cordial or wait for gp... -->
+			<If condition="IsTimeBetween(10,12) or IsTimeBetween(22,24)">
+				<If condition="not IsOnMap(402)">
+					<TeleportTo name="Helix" aetheryteId="74" />
+					<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
+				</If>
+				<RunCode name="MIN"/>
+				<RunCode name="ToM"/>
+				<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
+				<GatherCollectable>
+					<GatherSpots>
+						<StealthApproachGatherSpot 
+							stealthLocation="70.86564, -0.4920825, -858.0936"
+							nodeLocation="71.80842, -0.29418, -856.2421"
+							condition="(Core.Player.Heading &gt; 1.5 or Core.Player.Heading == 1.5) and Core.Player.Heading &lt; 3.6"/>
+						<StealthApproachGatherSpot
+							stealthLocation="20.53567, -1.213719, -827.198"
+							nodeLocation="24.25113, -0.01400313, -832.7057"
+							condition="(Core.Player.Heading &gt; 3.6 or Core.Player.Heading == 3.6) and Core.Player.Heading &lt; 5.7"/>
+						<StealthApproachGatherSpot
+							stealthLocation="89.52304, -1.827069, -791.0764"
+							nodeLocation="79.85004, -0.2340581, -805.6276"/>
+					</GatherSpots>
+				</GatherCollectable>
+				<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="5" DismountAtDestination="false" />
+				<LogMessage message="Waiting for now...until we find something better to do."/>
+				<WaitWhile condition ="IsTimeBetween(10,12) or IsTimeBetween(22,24)" />
+			</If>
+			<If condition="IsTimeBetween(0,8) or IsTimeBetween(12,20)">
+				<LogMessage message="Stop being so lazy!"/>
+				<WaitWhile condition="IsTimeBetween(0,8) or IsTimeBetween(12,20)"/>
+			</If>
+		</While>
+	</Order>
+</Profile>

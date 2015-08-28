@@ -66,10 +66,12 @@
     <Compile Include="Fish\Keeper.cs" />
     <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
+    <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />
-    <Compile Include="Gather\GatherCollectable.cs" />
+    <Compile Include="Gather\GatherSpot.cs" />
     <Compile Include="Gather\GatherStrategy.cs" />
-    <Compile Include="Gather\SafeCollectAdamantite.cs" />
+    <Compile Include="Gather\GatherCollectable.cs" />
+    <Compile Include="Gather\Prototype\SafeCollectAdamantite.cs" />
     <Compile Include="Imported\FlightPathTo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,6 +87,8 @@
     </Content>
     <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
     <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
+    <Content Include="Gather\Profiles\AdamantiteOre_AzysLla.xml" />
+    <Content Include="Gather\Prototype\Profiles\AdamantiteOre_AzysLla.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Craft\Resolver\" />

@@ -503,12 +503,12 @@ namespace ExBuddy.OrderBotTags
 
                                     if (value >= CollectabilityValue)
                                     {
-                                        Log("Collecting Collectible -> Value: " + value, Colors.Green);
+                                        Log("Collecting -> Value: " + value, Colors.Green);
                                         SelectYesNoItem.Yes();
                                     }
                                     else
                                     {
-                                        Log("Declining Collectible -> Value: " + value, Colors.Red);
+                                        Log("Declining -> Value: " + value, Colors.Red);
                                         SelectYesNoItem.No();
                                     }
                                 }),

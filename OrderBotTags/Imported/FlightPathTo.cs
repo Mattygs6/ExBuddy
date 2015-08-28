@@ -14,10 +14,12 @@ namespace ff14bot.NeoProfiles
 
     using System.Collections.Generic;
 
+    using ff14bot.Behavior;
+
     [XmlElement("FlightPathTo")]
     public class FlightPathTo : ProfileBehavior
     {
-        private bool isDone = false;
+        private bool isDone;
         private readonly IPlayerMover playerMover = new SlideMover();
         private List<Vector3> waypoints = new List<Vector3>();
 
@@ -149,12 +151,7 @@ namespace ff14bot.NeoProfiles
 
         public async Task<bool> TakeFlight()
         {
-            MovementManager.Jump();
-            await Coroutine.Sleep(200);
-            MovementManager.Jump();
-            await Coroutine.Sleep(200);
-
-            return true;
+            return await CommonTasks.TakeOff();
         }
 
         public async Task<bool> EnsureMounted()

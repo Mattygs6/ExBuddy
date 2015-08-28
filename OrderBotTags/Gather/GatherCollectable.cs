@@ -508,8 +508,8 @@
                 await Coroutine.Wait(3000, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
-                //Wait till we can cast methodical again
-                await Coroutine.Wait(5000, () => Actionmanager.CanCast(4075, Core.Player));
+                //Wait till we can cast again
+                await Coroutine.Wait(5000, () => Actionmanager.CanCast(spellId, Core.Player));
                 //Wait for aura?
                 await Coroutine.Sleep(300);
             }
@@ -532,8 +532,8 @@
             //Wait till we can cast the spell
             await Coroutine.Wait(5000, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
-            //Wait till we can cast methodical again
-            await Coroutine.Wait(5000, () => Actionmanager.CanCast(4075, Core.Player));
+            //Wait till we can cast again
+            await Coroutine.Wait(5000, () => Actionmanager.CanCast(id, Core.Player));
             //Wait for aura?
             await Coroutine.Sleep(300);
             return result;

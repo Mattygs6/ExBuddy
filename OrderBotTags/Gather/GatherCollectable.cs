@@ -328,7 +328,7 @@
         {
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - 30;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -361,7 +361,7 @@
                 // Recalculate: could have no time left at this point
                 eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
                 realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-                realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+                realSecondsTillStartGathering = realSecondsTillDespawn - 30;
 
                 if (realSecondsTillStartGathering < 1)
                 {
@@ -382,7 +382,7 @@
             // One last recalc; to wait for GP
             eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+            realSecondsTillStartGathering = realSecondsTillDespawn - 30;
 
             if (realSecondsTillStartGathering < 1)
             {

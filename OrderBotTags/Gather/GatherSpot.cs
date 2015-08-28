@@ -65,7 +65,7 @@
                 NodeLocation = fallbackLocation;
             }
 
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, mountId, radius, name, logFlight);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, mountId, radius, navHeight, name, logFlight);
 
             if (stealthAction != null)
             {

@@ -324,14 +324,14 @@
             return result;
         }
 
-        private async Task<bool>BeforeGather()
+        private async Task<bool> BeforeGather()
         {
+            var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+
             if (Core.Player.CurrentGP < AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.BeforeGather))
             {
-                var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
-                var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-                var realSecondsTillStartGathering = realSecondsTillDespawn - 25;
-
                 if (realSecondsTillStartGathering < cordialSpellData.AdjustedCooldown.Seconds)
                 {
                     return true;
@@ -363,6 +363,16 @@
                     }
                 }
             }
+
+            // One last recalc; to wait for GP
+            eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+            realSecondsTillStartGathering = realSecondsTillDespawn - 25;
+
+            await
+                Coroutine.Wait(
+                    TimeSpan.FromSeconds(realSecondsTillStartGathering),
+                    () => Core.Player.CurrentGP >= AdjustedWaitForGp);
             
             return true;
         }

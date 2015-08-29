@@ -24,6 +24,11 @@
                                 },
                                 {
                                     Ability
+                                    .IncreaseGatherChanceQuality100,
+                                    216
+                                },
+                                {
+                                    Ability
                                     .IncreaseGatherChance5,
                                     218
                                 },
@@ -108,6 +113,11 @@
                                     Ability
                                     .Toil,
                                     231
+                                },
+                                {
+                                    Ability
+                                    .IncreaseGatherChanceQuality100,
+                                    233
                                 },
                                 {
                                     Ability
@@ -207,6 +217,8 @@
         Stealth, // = 229,212
 
         Toil, // = 231,214
+
+        IncreaseGatherChanceQuality100, // 233,216
 
         IncreaseGatherChance5, // = 235,218
 

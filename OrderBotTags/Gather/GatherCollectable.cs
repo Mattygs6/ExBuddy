@@ -681,12 +681,12 @@
 
         private void CheckForGatherRotationOverride()
         {
-            if (!FreeRange)
+            if (!gatherRotation.CanOverride)
             {
                 return;
             }
 
-            foreach (var entry in Rotations)//.Select(rotation => rotation.Value.CreateInstance<IGatheringRotation>()).Where(instance => instance.ShouldOverrideSelectedGatheringRotation(this)))
+            foreach (var entry in Rotations)
             {
                 var rotation = entry.Value.CreateInstance<IGatheringRotation>();
                 if (rotation.ShouldOverrideSelectedGatheringRotation(this))

@@ -81,6 +81,7 @@
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\MapGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\OverrideUnspoiledGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\RegularNodeGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\UnspoiledGatheringRotation.cs" />
     <Compile Include="Gather\GatheringRotationAttribute.cs" />
     <Compile Include="Gather\GatherSpot.cs" />
@@ -107,7 +108,8 @@
     <Content Include="Gather\Profiles\AdamantiteOre_AzysLla.xml" />
     <Content Include="Gather\Profiles\ChysahlGreens_CWH.xml" />
     <Content Include="Gather\Profiles\FreeRangeCollect450.xml" />
-    <Content Include="Gather\Profiles\FreeRangeGather.xml" />
+    <Content Include="Gather\Profiles\FreeRangeCollect550.xml" />
+    <Content Include="Gather\Profiles\FreeRangeGatherAll.xml" />
     <Content Include="Gather\Prototype\Profiles\AdamantiteOre_AzysLla.xml" />
   </ItemGroup>
   <ItemGroup>

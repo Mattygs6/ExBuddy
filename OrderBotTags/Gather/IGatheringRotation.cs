@@ -4,6 +4,8 @@
 
     public interface IGatheringRotation
     {
+        bool CanOverride { get; }
+
         bool ForceGatherIfMissingGpOrTime { get; }
 
         Task<bool> Prepare(GatherCollectable tag);

@@ -5,8 +5,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
     using ff14bot;
 
-    [GatheringRotation("Map", 0, 8)]
-    public class MapGatheringRotation : UnspoiledGatheringRotation
+    //Name, RequiredGp, RequiredTime
+    [GatheringRotation("RegularNode", 0, 0)]
+    public class RegularNodeGatheringRotation : UnspoiledGatheringRotation
     {
         public override async Task<bool> Prepare(GatherCollectable tag)
         {
@@ -15,18 +16,17 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await Actions.Cast(Ability.CollectorsGlove);
             }
 
-            return await base.Prepare(tag);
-        }
-
-        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
-        {
             return true;
         }
 
         public override bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
-            // Only override if the item name ends with ' map'
-            if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" map", StringComparison.InvariantCultureIgnoreCase))
+            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                return false;
+            }
+
+            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
                 return false;
             }

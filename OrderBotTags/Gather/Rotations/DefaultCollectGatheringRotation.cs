@@ -24,6 +24,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
+        public virtual bool CanOverride
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public virtual bool ForceGatherIfMissingGpOrTime
         {
             get
@@ -40,9 +48,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             var hits = 0;
             while (GatheringManager.WindowOpen && hits < 2)
             {
-                tag.GatherItem.GatherItem();
-                hits++;
-                await Coroutine.Sleep(2200);
+                hits += tag.GatherItem.GatherItem() ? 1 : 0;
+                await Coroutine.Sleep(200);
             }
 
             MasterpieceWindow = await GetValidMasterPieceWindow(5000);

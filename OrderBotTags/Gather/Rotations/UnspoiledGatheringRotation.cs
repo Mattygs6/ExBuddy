@@ -12,6 +12,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     public class UnspoiledGatheringRotation : IGatheringRotation
     {
         protected static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
+
+        public virtual bool CanOverride
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public virtual bool ForceGatherIfMissingGpOrTime
         {
             get
@@ -28,7 +37,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             tag.GatherItem.GatherItem();
-            await Coroutine.Sleep(2200);
+            await Coroutine.Sleep(1000);
 
             return true;
         }
@@ -64,11 +73,28 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             while (GatheringManager.SwingsRemaining > 0)
             {
                 tag.ResolveGatherItem();
-                await Coroutine.Sleep(500);
-                tag.GatherItem.GatherItem();
-            }
 
-            await Coroutine.Sleep(1000);
+                if (GatheringManager.GatheringCombo == 4)
+                {
+                    if (
+                        await
+                        Coroutine.Wait(
+                            1000,
+                            () =>
+                            Actionmanager.CanCast(
+                                Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChanceQuality100],
+                                Core.Player)))
+                    {
+                        await Actions.Cast(Ability.IncreaseGatherChanceQuality100);
+                    }
+                }
+
+                do
+                {
+                    await Coroutine.Sleep(200);
+                }
+                while (!tag.GatherItem.GatherItem());
+            }
 
             return true;
         }

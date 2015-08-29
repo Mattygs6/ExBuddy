@@ -15,11 +15,11 @@ namespace ExBuddy.OrderBotTags
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
                 //TODO:make sleep time a param?
-                await Coroutine.Wait(4000, () => Actionmanager.CanCast(spellId, Core.Player));
+                await Coroutine.Wait(2200, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
                 //Wait till we can cast again
-                await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+                await Coroutine.Wait(2200, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
                 await Coroutine.Sleep(150);
             }
             else
@@ -40,11 +40,11 @@ namespace ExBuddy.OrderBotTags
         {
             //TODO:make sleep time a param?
             //Wait till we can cast the spell
-            await Coroutine.Wait(4000, () => Actionmanager.CanCast(id, Core.Player));
+            await Coroutine.Wait(2200, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
 
             //Wait till we can cast again
-            await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+            await Coroutine.Wait(2200, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
             await Coroutine.Sleep(150);
 
             return result;

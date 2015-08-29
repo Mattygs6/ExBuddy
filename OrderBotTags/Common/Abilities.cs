@@ -57,6 +57,16 @@
                                 },
                                 {
                                     Ability
+                                    .UtmostCaution,
+                                    4093
+                                },
+                                {
+                                    Ability
+                                    .DeepBreath,
+                                    4094
+                                },
+                                {
+                                    Ability
                                     .SingleMind,
                                     4098
                                 }
@@ -111,6 +121,16 @@
                                 },
                                 {
                                     Ability
+                                    .UtmostCaution,
+                                    4079
+                                },
+                                {
+                                    Ability
+                                    .DeepBreath,
+                                    4080
+                                },
+                                {
+                                    Ability
                                     .SingleMind,
                                     4084
                                 }
@@ -155,6 +175,10 @@
         ImpulsiveAppraisal, // = 4077,4091
 
         DiscerningEye, // = 4078,4092
+
+        UtmostCaution, // = 4079,4093
+
+        DeepBreath, // = 4080,4094
 
         SingleMind, // = 4084,4098
     }

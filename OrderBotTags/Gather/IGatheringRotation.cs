@@ -2,10 +2,12 @@
 {
     using System.Threading.Tasks;
 
+    using ff14bot.Managers;
+
     public interface IGatheringRotation
     {
-        Task<bool> Prepare(uint slot);
-        Task<bool> ExecuteRotation();
+        Task<GatheringItem> Prepare(uint slot);
+        Task<bool> ExecuteRotation(GatheringItem gatherItem);
         Task<bool> Gather(uint slot);
     }
 }

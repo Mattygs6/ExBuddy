@@ -196,16 +196,20 @@
         private async Task<bool> ResolveGatherRotation()
         {
             Type rotationType;
-            if (Rotations.TryGetValue(GatherRotation, out rotationType))
+            if (!Rotations.TryGetValue(GatherRotation, out rotationType))
             {
-                gatherRotation = rotationType.CreateInstance<IGatheringRotation>();
-                Logging.Write("Using rotation: " + GatherRotation);
-                return true;
+                rotationType = typeof(DefaultCollectGatheringRotation);
+                Logging.Write("Could not find rotation, using DefaultCollect instead.");
             }
 
-            Logging.Write("Could not find rotation, using DefaultCollect instead.");
+            gatherRotation = rotationType.CreateInstance<IGatheringRotation>();
+            gatherRotationGp =
+                rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, ushort>(p => p.RequiredGp);
+            gatherRotationTime =
+                rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, byte>(
+                    p => p.RequiredTimeInSeconds);
 
-            gatherRotation = new DefaultCollectGatheringRotation();
+            Logging.Write("Using rotation: " + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(p => p.Name, rotationType.Name.Replace("GatheringRotation", string.Empty)));
 
             return true;
         }
@@ -424,8 +428,8 @@
 
             await Coroutine.Sleep(2200);
 
-            await gatherRotation.Prepare((uint)this.Slot);
-            await gatherRotation.ExecuteRotation();
+            var item = await gatherRotation.Prepare((uint)this.Slot);
+            await gatherRotation.ExecuteRotation(item);
             await gatherRotation.Gather((uint)this.Slot);
 
             Poi.Clear("Gather Complete!");

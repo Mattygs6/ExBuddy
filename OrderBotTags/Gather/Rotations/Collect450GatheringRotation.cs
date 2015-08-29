@@ -3,11 +3,12 @@
     using System.Threading.Tasks;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     [GatheringRotation("Collect450", 600, 30)]
     public class Collect450GatheringRotation : DefaultCollectGatheringRotation
     {
-        public override async Task<bool> ExecuteRotation()
+        public override async Task<bool> ExecuteRotation(GatheringItem gatherItem)
         {
             await DiscerningMethodical();
             await DiscerningMethodical();

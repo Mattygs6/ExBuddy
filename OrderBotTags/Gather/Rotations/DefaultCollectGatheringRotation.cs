@@ -16,7 +16,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     {
         protected AtkAddonControl MasterpieceWindow;
 
-        public virtual async Task<bool> Prepare(uint slot)
+        protected bool HasDiscerningEye
+        {
+            get
+            {
+                return Core.Player.HasAura((int)AbilityAura.DiscerningEye);
+            }
+        }
+
+        public virtual async Task<GatheringItem> Prepare(uint slot)
         {
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
             await Actions.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
@@ -38,10 +46,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             MasterpieceWindow = await GetValidMasterPieceWindow(5000);
-            return true;
+            return item;
         }
 
-        public virtual async Task<bool> ExecuteRotation()
+        public virtual async Task<bool> ExecuteRotation(GatheringItem gatherItem)
         {
             await DiscerningMethodical();
             await DiscerningMethodical();
@@ -60,6 +68,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             var exCount = 0;
             while (GatheringManager.SwingsRemaining > 0)
             {
+                if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
+                {
+                    RaptureAtkUnitManager.Update();
+                    MasterpieceWindow = await GetValidMasterPieceWindow(5000);
+                }
+
                 try
                 {
                     await Coroutine.Wait(5000, () => !SelectYesNoItem.IsOpen);

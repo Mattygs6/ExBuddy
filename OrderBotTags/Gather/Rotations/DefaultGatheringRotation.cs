@@ -11,7 +11,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Default", 0, 23)]
     public class DefaultGatheringRotation : IGatheringRotation
     {
-        public virtual async Task<bool> Prepare(uint slot)
+        public virtual async Task<GatheringItem> Prepare(uint slot)
         {
             var hits = 0;
             GatheringItem item = null;
@@ -29,10 +29,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 }
             }
 
-            return true;
+            return item;
         }
 
-        public virtual async Task<bool> ExecuteRotation()
+        public virtual async Task<bool> ExecuteRotation(GatheringItem gatherItem)
         {
             if (Core.Player.CurrentGP >= 500)
             {

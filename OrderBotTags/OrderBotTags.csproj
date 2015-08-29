@@ -72,6 +72,8 @@
     <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Common\Behaviors.cs" />
     <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect550GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect530GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect470GatheringRotation.cs" />
     <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />

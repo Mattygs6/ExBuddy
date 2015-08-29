@@ -3,11 +3,12 @@
     using System.Threading.Tasks;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     [GatheringRotation("Collect470")]
     public class Collect470GatheringRotation : DefaultCollectGatheringRotation
     {
-        public override async Task<bool> ExecuteRotation()
+        public override async Task<bool> ExecuteRotation(GatheringItem gatherItem)
         {
             await Actions.Cast(Ability.DiscerningEye);
 
@@ -28,7 +29,7 @@
         {
             await Actions.Cast(Ability.ImpulsiveAppraisal);
 
-            if (Core.Player.HasAura((int)AbilityAura.DiscerningEye))
+            if (HasDiscerningEye)
             {
                 await Actions.Cast(Ability.SingleMind);
             }

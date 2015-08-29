@@ -4,7 +4,7 @@
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
-			<GatherCollectable FreeRange="true">
+			<GatherCollectable FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>

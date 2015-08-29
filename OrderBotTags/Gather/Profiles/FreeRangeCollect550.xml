@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Collectable: Free Range Collect550</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<While condition="True">
+			<GatherCollectable FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
+				<GatherObjects>
+					<GatherObject>Ephemeral Rocky Outcrop</GatherObject>
+					<GatherObject>Ephemeral Lush Vegetation Patch</GatherObject>
+					<GatherObject>Rocky Outcrop</GatherObject>
+					<GatherObject>Lush Vegetation Patch</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Radiant Fire Moraine</ItemName>
+					<ItemName>Bright Fire Rock</ItemName>
+					<ItemName>Fire Moraine</ItemName>
+					<ItemName>Radiant Lightning Moraine</ItemName>
+					<ItemName>Bright Lightning Rock</ItemName>
+					<ItemName>Lightning Moraine</ItemName>
+					<ItemName>Clary Sage</ItemName>
+					<ItemName>Fury Mint</ItemName>
+					<ItemName>Highland Oregano</ItemName>
+					<ItemName>Black Soil</ItemName>
+					<ItemName>Peat Moss</ItemName>
+					<ItemName>Granular Clay</ItemName>
+				</ItemNames>
+				<GatherRotation>Collect550</GatherRotation>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

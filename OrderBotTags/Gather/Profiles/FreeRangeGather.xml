@@ -4,7 +4,7 @@
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
-			<GatherCollectable FreeRange="true" AlwaysGather="false">
+			<GatherCollectable FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>
@@ -12,7 +12,7 @@
 					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
 				</GatherObjects>
 				<ItemNames>
-					<ItemName>Dragonskin Map</ItemName>
+					<ItemName>Timeworn Dragonskin Map</ItemName>
 					<ItemName>Adamantite Ore</ItemName>
 					<!--<ItemName>Heavens Lemon</ItemName>-->
 					<ItemName>Abalathian Mistletoe</ItemName>
@@ -23,6 +23,8 @@
 					<!--<ItemName>Chives</ItemName>-->
 					<!--<ItemName>Coerthan Tea Leaves</ItemName>-->
 					<ItemName>Pearl Sprouts</ItemName>
+					<ItemName>Hardsilver Ore</ItemName>
+					<ItemName>Birch Log</ItemName>
 					<ItemName>Grade 5 Carbonized Matter</ItemName>
 					<ItemName>Dark Matter Cluster</ItemName>
 					<ItemName>Old World Fig</ItemName>

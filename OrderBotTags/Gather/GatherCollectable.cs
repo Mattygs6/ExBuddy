@@ -10,6 +10,7 @@
 
     using Buddy.Coroutines;
 
+    using Clio.Utilities;
     using Clio.XmlEngine;
 
     using Exbuddy.OrderBotTags;
@@ -35,6 +36,8 @@
         private readonly SpellData cordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         private bool isDone;
+
+        private Func<bool> freeRangeConditionFunc;
 
         private IGatheringRotation gatherRotation;
 
@@ -67,16 +70,6 @@
                 return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), gatherRotationGp);
             }
         }
-
-        public override string ToString()
-        {
-            if (FreeRange && DateTime.Now.Second % 60 > 2)
-            {
-                return "GatherCollectable: FreeRange Mode";
-            }
-
-            return base.ToString();
-        }
         
         public GatheringItem GatherItem { get; private set; }
 
@@ -94,6 +87,10 @@
 
         [XmlAttribute("FreeRange")]
         public bool FreeRange { get; set; }
+
+        [DefaultValue("Condition.TrueFor(1, TimeSpan.FromHours(1))")]
+        [XmlAttribute("FreeRangeCondition")]
+        public string FreeRangeCondition { get; set; }
 
         [DefaultValue(45)]
         [XmlAttribute("MountId")]
@@ -145,6 +142,7 @@
             gatherRotationTime = 0;
             Node = null;
             GatherItem = null;
+            freeRangeConditionFunc = null;
         }
 
         protected override void OnDone()
@@ -158,30 +156,33 @@
             return
                 new PrioritySelector(
                     new Decorator(
+                        ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance3D(Core.Player.Location) > Radius)),
+                        new Action(r => OnResetCachedDone())),
+                    new Decorator(
                         ret => Node == null,
                         new Sequence(
                             new ActionRunCoroutine(ctx => FindNode()),
                             new Action(r => MovementManager.SetFacing2D(Node.Location)))),
                     new Decorator(
-                        ret => Node != null && GatherSpot == null,
+                        ret => Node != null && Node.IsValid  && GatherSpot == null,
                         new ActionRunCoroutine(ctx => FindGatherSpot())),
                     new Decorator(
-                        ret => Node != null && GatherSpot != null && gatherRotation == null,
+                        ret => Node != null && Node.IsValid && GatherSpot != null && gatherRotation == null,
                         new ActionRunCoroutine(ctx => ResolveGatherRotation())),
                     new Decorator(
                         ret =>
-                        Node != null && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
+                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
                         new ActionRunCoroutine(ctx => MoveToGatherSpot())),
                     new Decorator(
                         ret =>
-                        Node != null && GatherSpot != null &&  Node.CanGather
+                        Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
                         && Node.Location.Distance3D(Core.Player.Location) <= Distance,
                         new Sequence(
                             new ActionRunCoroutine(ctx => BeforeGather()),
                             new ActionRunCoroutine(ctx => Gather()),
                             new ActionRunCoroutine(ctx => AfterGather()))),
                     new Decorator(
-                        ret => Node != null && GatherSpot != null && !FreeRange && !Node.CanGather,
+                        ret => Node != null && Node.IsValid && GatherSpot != null && !FreeRange && !Node.CanGather,
                         new ActionRunCoroutine(ctx => MoveFromGatherSpot())));
         }
 
@@ -234,7 +235,9 @@
                            { "Collect470", typeof(Collect470GatheringRotation) },
                            { "Collect450", typeof(Collect450GatheringRotation) },
                            { "Collect550", typeof(Collect550GatheringRotation) },
-                           { "Collect570", typeof(Collect550GatheringRotation) }
+                           { "Collect570", typeof(Collect550GatheringRotation) },
+                           { "Map", typeof(MapGatheringRotation) },
+                           { "OverrideDefault", typeof(OverrideDefaultGatheringRotation)}
                        };
         } 
 
@@ -244,7 +247,7 @@
             if (!Rotations.TryGetValue(GatherRotation, out rotationType))
             {
                 rotationType = typeof(DefaultCollectGatheringRotation);
-                Logging.Write("Could not find rotation, using DefaultCollect instead.");
+                Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using DefaultCollect instead.");
             }
 
             gatherRotation = rotationType.CreateInstance<IGatheringRotation>();
@@ -254,7 +257,7 @@
                 rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, byte>(
                     p => p.RequiredTimeInSeconds);
 
-            Logging.Write("Using rotation: " + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(p => p.Name, rotationType.Name.Replace("GatheringRotation", string.Empty)));
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(p => p.Name, rotationType.Name.Replace("GatheringRotation", string.Empty)));
 
             return true;
         }
@@ -272,15 +275,30 @@
                 GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
             }
 
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: GatherSpot set -> " + GatherSpot);
+
             return true;
         }
 
         private async Task<bool> FindNode()
         {
+            IEnumerable<GatheringPointObject> nodes;
+
+            if (FreeRange)
+            {
+                nodes =
+                    GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                        .Where(gpo => gpo.Distance2D(Core.Player.Location) < Radius);
+            }
+            else
+            {
+                nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>();
+            }
+
             if (GatherObjects != null)
             {
                 Node =
-                    GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                    nodes
                         .OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
                         .FirstOrDefault(
                             gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase)
@@ -288,22 +306,23 @@
             }
             else
             {
-                Node = GameObjectManager.GetObjectsOfType<GatheringPointObject>()
-                    .FirstOrDefault(gpo => gpo.CanGather);
+                Node = nodes.FirstOrDefault(gpo => gpo.CanGather);
             }
 
 
 
             if (Node == null)
             {
-                if (FreeRange)
+                if (FreeRange && !FreeRangeConditional())
                 {
-                    await Coroutine.Sleep(5000);
+                    await Coroutine.Sleep(100);
                     isDone = true;
                 }
 
                 return false;
             }
+
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
 
             return true;
         }
@@ -615,6 +634,16 @@
                     break;
                 }
             }
+        }
+
+        private bool FreeRangeConditional()
+        {
+            if (freeRangeConditionFunc == null)
+            {
+                freeRangeConditionFunc = ScriptManager.GetCondition(FreeRangeCondition);
+            }
+
+            return freeRangeConditionFunc();
         }
     }
 }

@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Common\Abilities.cs" />
     <Compile Include="Common\Actions.cs" />
+    <Compile Include="Common\Condition.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Craft\Collect.cs" />

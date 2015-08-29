@@ -8,6 +8,7 @@
     using Buddy.Coroutines;
 
     using Clio.Utilities;
+    using Clio.XmlEngine;
 
     using ff14bot;
     using ff14bot.Enums;
@@ -24,20 +25,20 @@
         Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true);
     }
 
-    [Clio.XmlEngine.XmlElement("GatherSpot")]
+    [XmlElement("GatherSpot")]
     public class GatherSpot : IGatherSpot
     {
         private Func<bool> conditional;
 
         [DefaultValue("True")]
-        [Clio.XmlEngine.XmlAttribute("Condition")]
+        [XmlAttribute("Condition")]
         public string Condition { get; set; }
 
-        [Clio.XmlEngine.XmlAttribute("NodeLocation")]
+        [XmlAttribute("NodeLocation")]
         public Vector3 NodeLocation { get; set; }
 
         [DefaultValue(true)]
-        [Clio.XmlEngine.XmlAttribute("UseMesh")]
+        [XmlAttribute("UseMesh")]
         public bool UseMesh { get; set; }
 
         public bool IsMatch
@@ -76,27 +77,27 @@
         }
     }
 
-    [Clio.XmlEngine.XmlElement("StealthApproachGatherSpot")]
+    [XmlElement("StealthApproachGatherSpot")]
     public class StealthApproachGatherSpot : IGatherSpot
     {
         private Func<bool> conditional;
 
         [DefaultValue("True")]
-        [Clio.XmlEngine.XmlAttribute("Condition")]
+        [XmlAttribute("Condition")]
         public string Condition { get; set; }
 
-        [Clio.XmlEngine.XmlAttribute("NodeLocation")]
+        [XmlAttribute("NodeLocation")]
         public Vector3 NodeLocation { get; set; }
 
-        [Clio.XmlEngine.XmlAttribute("StealthLocation")]
+        [XmlAttribute("StealthLocation")]
         public Vector3 StealthLocation { get; set; }
 
         [DefaultValue(true)]
-        [Clio.XmlEngine.XmlAttribute("ReturnToStealthLocation")]
+        [XmlAttribute("ReturnToStealthLocation")]
         public bool ReturnToStealthLocation { get; set; }
 
         [DefaultValue(true)]
-        [Clio.XmlEngine.XmlAttribute("UseMesh")]
+        [XmlAttribute("UseMesh")]
         public bool UseMesh { get; set; }
 
         public bool IsMatch

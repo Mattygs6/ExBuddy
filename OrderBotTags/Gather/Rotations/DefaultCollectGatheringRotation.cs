@@ -24,6 +24,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
+        public virtual bool ForceGatherIfMissingGpOrTime
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public virtual async Task<GatheringItem> Prepare(uint slot)
         {
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
@@ -68,18 +76,22 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             var exCount = 0;
             while (GatheringManager.SwingsRemaining > 0)
             {
-                if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
-                {
-                    RaptureAtkUnitManager.Update();
-                    MasterpieceWindow = await GetValidMasterPieceWindow(5000);
-                }
-
                 try
                 {
                     await Coroutine.Wait(5000, () => !SelectYesNoItem.IsOpen);
                     while (!SelectYesNoItem.IsOpen)
                     {
-                        MasterpieceWindow.SendAction(1, 1, 0);
+                        if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
+                        {
+                            RaptureAtkUnitManager.Update();
+                            MasterpieceWindow = await GetValidMasterPieceWindow(5000);
+                        }
+
+                        if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                        {
+                            MasterpieceWindow.SendAction(1, 1, 0);    
+                        }
+                        
                         await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
                     }
 
@@ -127,9 +139,23 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             await Actions.Cast(Ability.MethodicalAppraisal);
         }
 
+        protected async Task DiscerningUtmostMethodical()
+        {
+            await Actions.Cast(Ability.DiscerningEye);
+            await Actions.Cast(Ability.UtmostCaution);
+            await Actions.Cast(Ability.MethodicalAppraisal);
+        }
+
         protected async Task SingleMindMethodical()
         {
             await Actions.Cast(Ability.SingleMind);
+            await Actions.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task SingleMindUtmostMethodical()
+        {
+            await Actions.Cast(Ability.SingleMind);
+            await Actions.Cast(Ability.UtmostCaution);
             await Actions.Cast(Ability.MethodicalAppraisal);
         }
     }

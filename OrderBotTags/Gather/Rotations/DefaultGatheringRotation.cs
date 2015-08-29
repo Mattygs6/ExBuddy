@@ -11,6 +11,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Default", 0, 23)]
     public class DefaultGatheringRotation : IGatheringRotation
     {
+        public virtual bool ForceGatherIfMissingGpOrTime
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public virtual async Task<GatheringItem> Prepare(uint slot)
         {
             var hits = 0;

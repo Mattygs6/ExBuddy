@@ -6,6 +6,7 @@
 
     public interface IGatheringRotation
     {
+        bool ForceGatherIfMissingGpOrTime { get; }
         Task<GatheringItem> Prepare(uint slot);
         Task<bool> ExecuteRotation(GatheringItem gatherItem);
         Task<bool> Gather(uint slot);

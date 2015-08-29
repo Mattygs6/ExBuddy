@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -168,6 +169,20 @@
 
                 ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.RegisterTypes(types);
 
+                foreach (var type in types)
+                {
+                    Logging.Write(
+                        Colors.Chartreuse,
+                        "GatherCollectable: Loaded Rotation -> {0}, GP: {1}, Time: {2}",
+                        type.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
+                            attr => attr.Name,
+                            type.Name.Replace("GatheringRotation", string.Empty)),
+                            type.GetCustomAttributePropertyValue<GatheringRotationAttribute, ushort>(
+                                attr => attr.RequiredGp),
+                            type.GetCustomAttributePropertyValue<GatheringRotationAttribute, byte>(
+                                attr => attr.RequiredTimeInSeconds));
+                }
+
                 var dict =
                     types.ToDictionary(
                         k => k.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(attr => attr.Name, k.Name.Replace("GatheringRotation", string.Empty)), v => v);
@@ -176,7 +191,7 @@
             }
             catch
             {
-                Logging.Write("Unable to get types");
+                Logging.Write("Unable to get types, Loading Known Rotations.");
             }
 
             return LoadKnownRotationTypes();
@@ -189,7 +204,9 @@
                            { "Default", typeof(DefaultGatheringRotation) },
                            { "DefaultCollect", typeof(DefaultCollectGatheringRotation) },
                            { "Collect470", typeof(Collect470GatheringRotation) },
-                           { "Collect450", typeof(Collect450GatheringRotation) }
+                           { "Collect450", typeof(Collect450GatheringRotation) },
+                           { "Collect550", typeof(Collect550GatheringRotation) },
+                           { "Collect570", typeof(Collect550GatheringRotation) }
                        };
         } 
 
@@ -280,12 +297,22 @@
 
         private async Task<bool> BeforeGather()
         {
+            if (Core.Player.CurrentGP >= AdjustedWaitForGp)
+            {
+                return true;
+            }
+
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
 
             if (realSecondsTillStartGathering < 1)
             {
+                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                {
+                    return true;
+                }
+
                 Logging.Write("Not enough time to gather");
                 isDone = true;
                 return true;
@@ -298,6 +325,12 @@
             if (CordialType <= CordialType.None)
             {
                 Logging.Write("Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
+
+                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                {
+                    return true;
+                }
+
                 if (gp >= AdjustedWaitForGp)
                 {
                     return await WaitForGpRegain();
@@ -322,6 +355,11 @@
                 // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
                 if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
                 {
+                    if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                    {
+                        return true;
+                    }
+
                     return await WaitForGpRegain();
                 }
             }
@@ -333,15 +371,29 @@
 
             if (realSecondsTillStartGathering < 1)
             {
+                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                {
+                    return true;
+                }
+
                 Logging.Write("Not enough GP to gather");
                 isDone = true;
                 return true;
             }
 
+            ticksTillStartGathering = realSecondsTillStartGathering / 3;
+
+            gp = Core.Player.CurrentGP + ticksTillStartGathering * 5;
+
             if (gp + 400 >= AdjustedWaitForGp)
             {
                 if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
                 {
+                    if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                    {
+                        return true;
+                    }
+
                     return await WaitForGpRegain();
                 }
             }
@@ -357,6 +409,11 @@
 
             if (realSecondsTillStartGathering < 1)
             {
+                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                {
+                    return true;
+                }
+
                 Logging.Write("Not enough GP to gather");
                 isDone = true;
                 return true;

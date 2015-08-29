@@ -42,9 +42,9 @@
 
         private byte gatherRotationTime;
 
-        private IGatherSpot gatherSpot;
+        internal IGatherSpot GatherSpot;
 
-        private GatheringPointObject node;
+        internal GatheringPointObject Node;
 
         static GatherCollectable()
         {
@@ -68,6 +68,22 @@
             }
         }
 
+        public override string ToString()
+        {
+            if (FreeRange && DateTime.Now.Second % 60 > 2)
+            {
+                return "GatherCollectable: FreeRange Mode";
+            }
+
+            return base.ToString();
+        }
+        
+        public GatheringItem GatherItem { get; private set; }
+
+        [DefaultValue(true)]
+        [XmlAttribute("AlwaysGather")]
+        public bool AlwaysGather { get; set; }
+
         [DefaultValue(CordialTime.BeforeGather)]
         [XmlElement("CordialTime")]
         public CordialTime CordialTime { get; set; }
@@ -75,6 +91,9 @@
         [DefaultValue(CordialType.Auto)]
         [XmlElement("CordialType")]
         public CordialType CordialType { get; set; }
+
+        [XmlAttribute("FreeRange")]
+        public bool FreeRange { get; set; }
 
         [DefaultValue(45)]
         [XmlAttribute("MountId")]
@@ -102,6 +121,9 @@
         [XmlElement("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
 
+        [XmlElement("ItemNames")]
+        public List<string> ItemNames { get; set; }
+
         [DefaultValue(3.0f)]
         [XmlAttribute("Distance")]
         public float Distance { get; set; }
@@ -117,11 +139,17 @@
         protected override void OnResetCachedDone()
         {
             isDone = false;
-            gatherSpot = null;
+            GatherSpot = null;
             gatherRotation = null;
             gatherRotationGp = 0;
             gatherRotationTime = 0;
-            node = null;
+            Node = null;
+            GatherItem = null;
+        }
+
+        protected override void OnDone()
+        {
+            GatherItem = null;
         }
 
         protected override Composite CreateBehavior()
@@ -130,30 +158,30 @@
             return
                 new PrioritySelector(
                     new Decorator(
-                        ret => gatherRotation == null,
-                        new ActionRunCoroutine(ctx => ResolveGatherRotation())),
-                    new Decorator(
-                        ret => node == null,
+                        ret => Node == null,
                         new Sequence(
                             new ActionRunCoroutine(ctx => FindNode()),
-                            new Action(r => MovementManager.SetFacing2D(node.Location)))),
+                            new Action(r => MovementManager.SetFacing2D(Node.Location)))),
                     new Decorator(
-                        ret => node != null && gatherSpot == null,
+                        ret => Node != null && GatherSpot == null,
                         new ActionRunCoroutine(ctx => FindGatherSpot())),
                     new Decorator(
+                        ret => Node != null && GatherSpot != null && gatherRotation == null,
+                        new ActionRunCoroutine(ctx => ResolveGatherRotation())),
+                    new Decorator(
                         ret =>
-                        node != null && gatherSpot != null && node.Location.Distance3D(Core.Player.Location) > Distance,
+                        Node != null && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
                         new ActionRunCoroutine(ctx => MoveToGatherSpot())),
                     new Decorator(
                         ret =>
-                        node != null && gatherSpot != null &&  node.CanGather
-                        && node.Location.Distance3D(Core.Player.Location) <= Distance,
+                        Node != null && GatherSpot != null &&  Node.CanGather
+                        && Node.Location.Distance3D(Core.Player.Location) <= Distance,
                         new Sequence(
                             new ActionRunCoroutine(ctx => BeforeGather()),
                             new ActionRunCoroutine(ctx => Gather()),
                             new ActionRunCoroutine(ctx => AfterGather()))),
                     new Decorator(
-                        ret => node != null && gatherSpot != null && !node.CanGather,
+                        ret => Node != null && GatherSpot != null && !FreeRange && !Node.CanGather,
                         new ActionRunCoroutine(ctx => MoveFromGatherSpot())));
         }
 
@@ -235,13 +263,13 @@
         {
             if (GatherSpots != null)
             {
-                gatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
+                GatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
             }
 
             // Either GatherSpots is null or there are no matches, use fallback
-            if (gatherSpot == null)
+            if (GatherSpot == null)
             {
-                gatherSpot = new GatherSpot { NodeLocation = node.Location, UseMesh = true };
+                GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
             }
 
             return true;
@@ -251,7 +279,7 @@
         {
             if (GatherObjects != null)
             {
-                node =
+                Node =
                     GameObjectManager.GetObjectsOfType<GatheringPointObject>()
                         .OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
                         .FirstOrDefault(
@@ -260,12 +288,20 @@
             }
             else
             {
-                node = GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                Node = GameObjectManager.GetObjectsOfType<GatheringPointObject>()
                     .FirstOrDefault(gpo => gpo.CanGather);
             }
 
-            if (node == null)
+
+
+            if (Node == null)
             {
+                if (FreeRange)
+                {
+                    await Coroutine.Sleep(5000);
+                    isDone = true;
+                }
+
                 return false;
             }
 
@@ -276,9 +312,9 @@
         {
             var result =
                 await 
-                gatherSpot.MoveToSpot(
+                GatherSpot.MoveToSpot(
                     () => Actions.CastAura(Ability.Stealth, AbilityAura.Stealth),
-                    node.Location,
+                    Node.Location,
                     (uint)MountId,
                     Radius,
                     NavHeight,
@@ -289,7 +325,7 @@
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            var result = await gatherSpot.MoveFromSpot();
+            var result = await GatherSpot.MoveFromSpot();
 
             isDone = true;
             return result;
@@ -439,6 +475,11 @@
             {
                 
             }
+
+            if (FreeRange)
+            {
+                isDone = true;
+            }
  
             return true;
         }
@@ -473,25 +514,107 @@
                     Ability.Truth,
                     Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 
-            Poi.Current = new Poi(node, PoiType.Gather);
+            Poi.Current = new Poi(Node, PoiType.Gather);
             Poi.Current.Unit.Interact();
 
             if (!await Coroutine.Wait(6000, () => GatheringManager.WindowOpen))
             {
                 Logging.Write("Gathering Window didn't open: Re-attempting to move into place.");
-                gatherSpot = new GatherSpot { NodeLocation = node.Location, UseMesh = true };
+                GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
                 return false;
             }
 
             await Coroutine.Sleep(2200);
 
-            var item = await gatherRotation.Prepare((uint)this.Slot);
-            await gatherRotation.ExecuteRotation(item);
-            await gatherRotation.Gather((uint)this.Slot);
+            ResolveGatherItem();
+
+            CheckForGatherRotationOverride();
+
+            await gatherRotation.Prepare(this);
+            await gatherRotation.ExecuteRotation(this);
+            await gatherRotation.Gather(this);
 
             Poi.Clear("Gather Complete!");
 
             return true;
+        }
+
+        internal bool ResolveGatherItem()
+        {
+            GatherItem = null;
+            var windowItems = GatheringManager.GatheringWindowItems;
+            if (ItemNames == null || ItemNames.Count == 0)
+            {
+                GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
+            }
+
+            if (GatherItem == null && ItemNames != null)
+            {
+                foreach (var itemName in ItemNames)
+                {
+                    GatherItem =
+                        windowItems.FirstOrDefault(
+                            i =>
+                            i.IsFilled && !i.IsUnknown
+                            && string.Equals(
+                                itemName,
+                                i.ItemData.EnglishName,
+                                StringComparison.InvariantCultureIgnoreCase));
+
+                    if (GatherItem != null && (!GatherItem.ItemData.Unique || GatherItem.ItemData.ItemCount() == 0))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (GatherItem == null && !AlwaysGather)
+            {
+                Poi.Clear("Skipping this node, no items we want to gather.");
+                var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
+                window.SendAction(1, 3, 0xFFFFFFFF);
+
+                isDone = true;
+                return false;
+            }
+
+            if (GatherItem != null)
+            {
+                return true;
+            }
+            
+            GatherItem =
+                windowItems.OrderByDescending(i => i.SlotIndex)
+                    .FirstOrDefault(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20) // Try to gather cluster/crystal/shard
+                ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect
+                ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
+
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering" + GatherItem.ItemData);
+
+            return true;
+        }
+
+        private void CheckForGatherRotationOverride()
+        {
+            if (!FreeRange)
+            {
+                return;
+            }
+
+            foreach (var entry in Rotations)//.Select(rotation => rotation.Value.CreateInstance<IGatheringRotation>()).Where(instance => instance.ShouldOverrideSelectedGatheringRotation(this)))
+            {
+                var rotation = entry.Value.CreateInstance<IGatheringRotation>();
+                if (rotation.ShouldOverrideSelectedGatheringRotation(this))
+                {
+                    gatherRotation = rotation;
+                    Logging.Write(
+                        Colors.Chartreuse,
+                        "GatherCollectable: NEW Gather Rotation Loaded ->" + entry.Value.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
+                            attr => attr.Name,
+                            entry.Value.Name.Replace("GatheringRotation", string.Empty)));
+                    break;
+                }
+            }
         }
     }
 }

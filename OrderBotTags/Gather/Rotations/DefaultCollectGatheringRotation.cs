@@ -32,32 +32,25 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
-        public virtual async Task<GatheringItem> Prepare(uint slot)
+        public virtual async Task<bool> Prepare(GatherCollectable tag)
         {
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
             await Actions.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
             var hits = 0;
-            GatheringItem item = null;
             while (GatheringManager.WindowOpen && hits < 2)
             {
-                await
-                    Coroutine.Wait(
-                        5000,
-                        () => (item = GatheringManager.GetGatheringItemByIndex(slot)) != null);
-                if (item != null)
-                {
-                    item.GatherItem();
-                    hits++;
-                    await Coroutine.Sleep(2200);
-                }
+                tag.GatherItem.GatherItem();
+                hits++;
+                await Coroutine.Sleep(2200);
             }
 
             MasterpieceWindow = await GetValidMasterPieceWindow(5000);
-            return item;
+
+            return true;
         }
 
-        public virtual async Task<bool> ExecuteRotation(GatheringItem gatherItem)
+        public virtual async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
             await DiscerningMethodical();
             await DiscerningMethodical();
@@ -71,7 +64,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public virtual async Task<bool> Gather(uint slot)
+        public virtual async Task<bool> Gather(GatherCollectable tag)
         {
             var exCount = 0;
             while (GatheringManager.SwingsRemaining > 0)
@@ -117,6 +110,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             return true;
+        }
+
+        public virtual bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        {
+            return false;
         }
 
         protected virtual async Task<AtkAddonControl> GetValidMasterPieceWindow(int timeoutMs)

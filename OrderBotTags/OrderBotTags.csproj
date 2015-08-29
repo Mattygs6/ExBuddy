@@ -73,11 +73,13 @@
     <Compile Include="Common\Behaviors.cs" />
     <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect550GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect530GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect570GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect470GatheringRotation.cs" />
     <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\MapGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\OverrideDefaultGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\DefaultGatheringRotation.cs" />
     <Compile Include="Gather\GatheringRotationAttribute.cs" />
     <Compile Include="Gather\GatherSpot.cs" />
@@ -100,7 +102,11 @@
     </Content>
     <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
     <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
+    <Content Include="Gather\Profiles\AdamantiteChysahl.xml" />
     <Content Include="Gather\Profiles\AdamantiteOre_AzysLla.xml" />
+    <Content Include="Gather\Profiles\ChysahlGreens_CWH.xml" />
+    <Content Include="Gather\Profiles\FreeRangeCollect450.xml" />
+    <Content Include="Gather\Profiles\FreeRangeGather.xml" />
     <Content Include="Gather\Prototype\Profiles\AdamantiteOre_AzysLla.xml" />
   </ItemGroup>
   <ItemGroup>

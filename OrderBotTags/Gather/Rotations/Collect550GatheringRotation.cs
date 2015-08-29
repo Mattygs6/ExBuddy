@@ -16,15 +16,15 @@
             }
         }
 
-        public override async Task<bool> ExecuteRotation(GatheringItem gatherItem)
+        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
-            if (gatherItem.Level < 60)
+            if (tag.GatherItem.Level < 60)
             {
                 await Actions.Cast(Ability.ImpulsiveAppraisal);
                 await Actions.Cast(Ability.ImpulsiveAppraisal);
                 await Actions.Cast(Ability.MethodicalAppraisal);
 
-                if (gatherItem.Level >= 58 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
+                if (tag.GatherItem.Level >= 58 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
                 {
                     await Actions.Cast(Ability.IncreaseGatherChance5);
                 }

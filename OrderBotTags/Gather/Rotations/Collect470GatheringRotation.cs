@@ -8,7 +8,7 @@
     [GatheringRotation("Collect470")]
     public class Collect470GatheringRotation : DefaultCollectGatheringRotation
     {
-        public override async Task<bool> ExecuteRotation(GatheringItem gatherItem)
+        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
             await Actions.Cast(Ability.DiscerningEye);
 

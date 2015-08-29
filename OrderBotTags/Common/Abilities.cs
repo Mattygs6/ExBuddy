@@ -19,8 +19,18 @@
                                 },
                                 {
                                     Ability
+                                    .Toil,
+                                    214
+                                },
+                                {
+                                    Ability
                                     .IncreaseGatherChance5,
                                     218
+                                },
+                                {
+                                    Ability
+                                    .IncreaseGatherChance15,
+                                    220
                                 },
                                 {
                                     Ability.IncreaseGatherYield,
@@ -31,9 +41,22 @@
                                     224
                                 },
                                 {
+                                    Ability.IncreaseGatherQuality10,
+                                    225
+                                },
+                                {
+                                    Ability.IncreaseGatherQuality30,
+                                    226
+                                },
+                                {
                                     Ability
                                     .Truth,
                                     221
+                                },
+                                {
+                                    Ability
+                                    .IncreaseGatherChance50,
+                                    295
                                 },
                                 {
                                     Ability
@@ -83,8 +106,18 @@
                                 },
                                 {
                                     Ability
+                                    .Toil,
+                                    231
+                                },
+                                {
+                                    Ability
                                     .IncreaseGatherChance5,
                                     235
+                                },
+                                {
+                                    Ability
+                                    .IncreaseGatherChance15,
+                                    237
                                 },
                                 {
                                     Ability.IncreaseGatherYield,
@@ -95,9 +128,22 @@
                                     241
                                 },
                                 {
+                                    Ability.IncreaseGatherQuality10,
+                                    242
+                                },
+                                {
+                                    Ability.IncreaseGatherQuality30,
+                                    243
+                                },
+                                {
                                     Ability
                                     .Truth,
                                     238
+                                },
+                                {
+                                    Ability
+                                    .IncreaseGatherChance50,
+                                    295
                                 },
                                 {
                                     Ability
@@ -160,13 +206,23 @@
 
         Stealth, // = 229,212
 
+        Toil, // = 231,214
+
         IncreaseGatherChance5, // = 235,218
+
+        IncreaseGatherChance15, // = 237,220
 
         IncreaseGatherYield, // = 239,222
 
         IncreaseGatherYield2, // = 241,224
 
+        IncreaseGatherQuality10, // 242,225
+
+        IncreaseGatherQuality30, // 243,226
+
         Truth, // = 238,221
+
+        IncreaseGatherChance50, // = 295,294
 
         CollectorsGlove, // = 4074,4088
 

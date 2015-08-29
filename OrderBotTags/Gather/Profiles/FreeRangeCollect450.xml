@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Collectable: Free Range Collect 450</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<While condition="True">
+			<GatherCollectable FreeRange="true">
+				<GatherObjects>
+					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
+					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>
+					<GatherObject>Unspoiled Mature Tree</GatherObject>
+					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Cuprite</ItemName>
+					<ItemName>Red Quartz</ItemName>
+					<ItemName>Light Kidney Ore</ItemName>
+					<ItemName>Morel</ItemName>
+					<ItemName>Abalathian Mistletoe</ItemName>
+					<ItemName>Heavens Lemon</ItemName>
+				</ItemNames>
+				<GatherRotation>Collect450</GatherRotation>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

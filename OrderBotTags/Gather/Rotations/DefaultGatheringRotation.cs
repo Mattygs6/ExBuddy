@@ -11,6 +11,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Default", 0, 23)]
     public class DefaultGatheringRotation : IGatheringRotation
     {
+        protected static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
         public virtual bool ForceGatherIfMissingGpOrTime
         {
             get
@@ -19,34 +20,33 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
-        public virtual async Task<GatheringItem> Prepare(uint slot)
+        public virtual async Task<bool> Prepare(GatherCollectable tag)
         {
-            var hits = 0;
-            GatheringItem item = null;
-            while (GatheringManager.WindowOpen && hits < 1)
-            {
-                await
-                    Coroutine.Wait(
-                        5000,
-                        () => (item = GatheringManager.GetGatheringItemByIndex(slot)) != null);
-                if (item != null)
-                {
-                    item.GatherItem();
-                    hits++;
-                    await Coroutine.Sleep(2200);
-                }
-            }
+            tag.GatherItem.GatherItem();
+            await Coroutine.Sleep(2200);
 
-            return item;
+            return true;
         }
 
-        public virtual async Task<bool> ExecuteRotation(GatheringItem gatherItem)
+        public virtual async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
-            if (Core.Player.CurrentGP >= 500)
+            if (tag.GatherItem.ItemId < 20)
+            {
+                foreach (var ward in WardSkills)
+                {
+                    if (Actionmanager.CanCast(ward, Core.Player))
+                    {
+                        Actionmanager.DoAction(ward, Core.Player);
+                        break;
+                    }
+                }
+            } 
+            else if (Core.Player.CurrentGP >= 500)
             {
                 await Actions.Cast(Ability.IncreaseGatherYield2);
             }
-            if (Core.Player.CurrentGP >= 50)
+
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
             {
                 await Actions.Cast(Ability.IncreaseGatherChance5);
             }
@@ -54,17 +54,23 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public virtual async Task<bool> Gather(uint slot)
+        public virtual async Task<bool> Gather(GatherCollectable tag)
         {
             while (GatheringManager.SwingsRemaining > 0)
             {
+                tag.ResolveGatherItem();
                 await Coroutine.Sleep(500);
-                GatheringManager.GetGatheringItemByIndex(5).GatherItem();
+                tag.GatherItem.GatherItem();
             }
 
             await Coroutine.Sleep(1000);
 
             return true;
+        }
+
+        public virtual bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        {
+            return false;
         }
     }
 }

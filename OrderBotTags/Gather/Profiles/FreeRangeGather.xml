@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Collectable: Free Range Gather</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<While condition="True">
+			<GatherCollectable FreeRange="true" AlwaysGather="false">
+				<GatherObjects>
+					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
+					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>
+					<GatherObject>Unspoiled Mature Tree</GatherObject>
+					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Dragonskin Map</ItemName>
+					<ItemName>Adamantite Ore</ItemName>
+					<!--<ItemName>Heavens Lemon</ItemName>-->
+					<ItemName>Abalathian Mistletoe</ItemName>
+					<!--<ItemName>Dravanian Mistletoe</ItemName>-->
+					<ItemName>Porcini</ItemName>
+					<!--<ItemName>Morel</ItemName>-->
+					<ItemName>Cloud Banana</ItemName>
+					<!--<ItemName>Chives</ItemName>-->
+					<!--<ItemName>Coerthan Tea Leaves</ItemName>-->
+					<ItemName>Pearl Sprouts</ItemName>
+					<ItemName>Grade 5 Carbonized Matter</ItemName>
+					<ItemName>Dark Matter Cluster</ItemName>
+					<ItemName>Old World Fig</ItemName>
+					<ItemName>Scarlet Sap</ItemName>
+					<ItemName>Ice Cluster</ItemName>
+					<ItemName>Water Cluster</ItemName>
+					<ItemName>Grade 4 Carbonized Matter</ItemName>
+					<ItemName>Wind Cluster</ItemName>
+					<ItemName>Fire Cluster</ItemName>
+					<ItemName>Lightning Cluster</ItemName>
+					<ItemName>Earth Cluster</ItemName>
+					<ItemName>Gold Ore</ItemName>
+					<ItemName>Volcanic Rock Salt</ItemName>
+					<ItemName>Darksteel Ore</ItemName>
+					<ItemName>Young Cieldas Spinach</ItemName>
+					<ItemName>Crawler Cocoon</ItemName>
+				</ItemNames>
+				<GatherRotation>Default</GatherRotation>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

@@ -33,5 +33,20 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
             return true;
         }
+
+        protected override async Task<bool> IncreaseChance(GatherCollectable tag)
+        {
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96)
+            {
+                await Actions.Cast(Ability.IncreaseGatherChance5);
+            }
+
+            if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86)
+            {
+                await Actions.Cast(Ability.IncreaseGatherChance15);
+            }
+
+            return true;
+        }
     }
 }

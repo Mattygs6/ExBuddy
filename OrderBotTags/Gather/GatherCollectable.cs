@@ -274,7 +274,7 @@
 
         private async Task<bool> FindGatherSpot()
         {
-            if (GatherSpots != null)
+            if (GatherSpots != null && Node.Location.Distance3D(Core.Player.Location) > Distance)
             {
                 GatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
             }
@@ -340,6 +340,7 @@
                 if (await Coroutine.Wait(entry.Length, () => Node.Location.Distance3D(Core.Player.Location) > Radius))
                 {
                     Node = null;
+                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node cleared");
                     return false;
                 }
             }
@@ -374,6 +375,7 @@
 
         private async Task<bool> BeforeGather()
         {
+            //TODO: Fix the logic so it is easier to read
             if (Core.Player.CurrentGP >= AdjustedWaitForGp)
             {
                 return true;
@@ -415,6 +417,11 @@
 
                 Logging.Write("Not enough time to gather");
                 isDone = true;
+                return true;
+            }
+
+            if (gatherRotation.ForceGatherIfMissingGpOrTime)
+            {
                 return true;
             }
 
@@ -578,7 +585,7 @@
 
             if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
             {
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(25), "Blacklisting node so that we don't retarget." + Poi.Current.Unit);
+                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(25), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
             }
 
             var attempts = 0;
@@ -611,6 +618,7 @@
 
             if (!ResolveGatherItem())
             {
+                isDone = true;
                 return false;
             }
 
@@ -686,7 +694,9 @@
                 return;
             }
 
-            foreach (var entry in Rotations)
+            var rotationType = gatherRotation.GetType();
+
+            foreach (var entry in Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID))
             {
                 var rotation = entry.Value.CreateInstance<IGatheringRotation>();
                 if (rotation.ShouldOverrideSelectedGatheringRotation(this))

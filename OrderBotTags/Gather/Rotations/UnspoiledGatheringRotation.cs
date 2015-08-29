@@ -60,10 +60,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await Actions.Cast(Ability.IncreaseGatherYield2);
             }
 
-            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
-            {
-                await Actions.Cast(Ability.IncreaseGatherChance5);
-            }
+            await IncreaseChance(tag);
 
             return true;
         }
@@ -101,6 +98,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public virtual bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
+            return false;
+        }
+
+        protected virtual async Task<bool> IncreaseChance(GatherCollectable tag)
+        {
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            {
+                return await Actions.Cast(Ability.IncreaseGatherChance5);
+            }
+
             return false;
         }
     }

@@ -80,8 +80,8 @@
     <Compile Include="Gather\CordialType.cs" />
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\MapGatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\OverrideDefaultGatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\DefaultGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\OverrideUnspoiledGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\UnspoiledGatheringRotation.cs" />
     <Compile Include="Gather\GatheringRotationAttribute.cs" />
     <Compile Include="Gather\GatherSpot.cs" />
     <Compile Include="Gather\GatherStrategy.cs" />

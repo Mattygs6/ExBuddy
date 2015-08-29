@@ -3,13 +3,17 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using System.Threading.Tasks;
 
     using ff14bot;
-    using ff14bot.Enums;
 
-    [GatheringRotation("OverrideDefault", 600, 25)]
-    public class OverrideDefaultGatheringRotation : DefaultGatheringRotation
+    [GatheringRotation("OverrideUnspoiled", 600, 25)]
+    public class OverrideUnspoiledGatheringRotation : UnspoiledGatheringRotation
     {
         public override async Task<bool> Prepare(GatherCollectable tag)
         {
+            if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+            {
+                await Actions.Cast(Ability.CollectorsGlove);
+            }
+
             await Actions.Cast(Ability.Toil);
 
             return true;
@@ -43,13 +47,13 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             // We want to be able to get HQ items, this is the purpose.
-            if (tag.GatherItem.FortuneModifier.HasFlag(FortuneModifier.NormalOnly))
+            if (tag.GatherItem.HqChance == 0)
             {
                 return false;
             }
 
             // Only override if we have the default rotation
-            if (tag.GatherRotation != "Default")
+            if (tag.GatherRotation != "Unspoiled")
             {
                 return false;
             }

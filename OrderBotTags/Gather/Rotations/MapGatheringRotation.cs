@@ -3,9 +3,21 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using System;
     using System.Threading.Tasks;
 
+    using ff14bot;
+
     [GatheringRotation("Map", 0, 25)]
-    public class MapGatheringRotation : DefaultGatheringRotation
+    public class MapGatheringRotation : UnspoiledGatheringRotation
     {
+        public override async Task<bool> Prepare(GatherCollectable tag)
+        {
+            if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+            {
+                await Actions.Cast(Ability.CollectorsGlove);
+            }
+
+            return await base.Prepare(tag);
+        }
+
         public override async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
             return true;

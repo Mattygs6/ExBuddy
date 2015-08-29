@@ -8,8 +8,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
-    [GatheringRotation("Default", 0, 23)]
-    public class DefaultGatheringRotation : IGatheringRotation
+    [GatheringRotation("Unspoiled", 0, 23)]
+    public class UnspoiledGatheringRotation : IGatheringRotation
     {
         protected static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
         public virtual bool ForceGatherIfMissingGpOrTime
@@ -22,6 +22,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public virtual async Task<bool> Prepare(GatherCollectable tag)
         {
+            if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+            {
+                await Actions.Cast(Ability.CollectorsGlove);
+            }
+
             tag.GatherItem.GatherItem();
             await Coroutine.Sleep(2200);
 

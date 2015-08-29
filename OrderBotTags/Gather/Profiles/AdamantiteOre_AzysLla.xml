@@ -33,7 +33,7 @@
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 				</GatherObjects>
-				<GatherRotation>Default</GatherRotation>
+				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect470</GatherRotation>-->
 				<GatherSpots>
 					<StealthApproachGatherSpot 

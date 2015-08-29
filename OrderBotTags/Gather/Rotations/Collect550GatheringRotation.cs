@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
 
     using ff14bot;
-    using ff14bot.Managers;
 
     [GatheringRotation("Collect550", 600, 34)]
     public class Collect550GatheringRotation : DefaultCollectGatheringRotation
@@ -18,13 +17,15 @@
 
         public override async Task<bool> ExecuteRotation(GatherCollectable tag)
         {
-            if (tag.GatherItem.Level < 60)
+            // Not level 60.
+            if (tag.GatherItem.Chance > 95)
             {
                 await Actions.Cast(Ability.ImpulsiveAppraisal);
                 await Actions.Cast(Ability.ImpulsiveAppraisal);
                 await Actions.Cast(Ability.MethodicalAppraisal);
 
-                if (tag.GatherItem.Level >= 58 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
+                // level 58 only
+                if (tag.GatherItem.Chance < 99 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
                 {
                     await Actions.Cast(Ability.IncreaseGatherChance5);
                 }

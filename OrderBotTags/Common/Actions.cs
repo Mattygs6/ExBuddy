@@ -14,12 +14,13 @@ namespace ExBuddy.OrderBotTags
             bool result;
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
-                // TODO: look into efficienes here
+                //TODO:make sleep time a param?
                 await Coroutine.Wait(4000, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
-                //Wait till we can cast methodical again
-                await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.MethodicalAppraisal], Core.Player));
+                //Wait till we can cast again
+                await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+                await Coroutine.Sleep(150);
             }
             else
             {
@@ -37,13 +38,14 @@ namespace ExBuddy.OrderBotTags
 
         internal static async Task<bool> Cast(uint id)
         {
-            // TODO: look into efficienes here
+            //TODO:make sleep time a param?
             //Wait till we can cast the spell
             await Coroutine.Wait(4000, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
 
-            //Wait till we can cast methodical again
-            await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.MethodicalAppraisal], Core.Player));
+            //Wait till we can cast again
+            await Coroutine.Wait(4000, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+            await Coroutine.Sleep(150);
 
             return result;
         }

@@ -10,6 +10,10 @@
 					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>
 					<GatherObject>Unspoiled Mature Tree</GatherObject>
 					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+					<GatherObject>Mineral Deposit</GatherObject>
+					<GatherObject>Rocky Outcrop</GatherObject>
+					<GatherObject>Mature Tree</GatherObject>
+					<GatherObject>Lush Vegetation Patch</GatherObject>
 				</GatherObjects>
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>
@@ -25,6 +29,8 @@
 					<ItemName>Pearl Sprouts</ItemName>
 					<ItemName>Hardsilver Ore</ItemName>
 					<ItemName>Birch Log</ItemName>
+					<!--<ItemName>Hardsilver Sand</ItemName>-->
+					<ItemName>Cloud Mica</ItemName>
 					<ItemName>Grade 5 Carbonized Matter</ItemName>
 					<ItemName>Dark Matter Cluster</ItemName>
 					<ItemName>Old World Fig</ItemName>
@@ -42,7 +48,7 @@
 					<ItemName>Young Cieldas Spinach</ItemName>
 					<ItemName>Crawler Cocoon</ItemName>
 				</ItemNames>
-				<GatherRotation>Default</GatherRotation>
+				<GatherRotation>Unspoiled</GatherRotation>
 			</GatherCollectable>
 		</While>
 	</Order>

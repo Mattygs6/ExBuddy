@@ -54,7 +54,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         {
             await DiscerningMethodical();
             await DiscerningMethodical();
-            await SingleMindMethodical();
+            await DiscerningMethodical();
 
             if (Core.Player.CurrentGP >= 50)
             {

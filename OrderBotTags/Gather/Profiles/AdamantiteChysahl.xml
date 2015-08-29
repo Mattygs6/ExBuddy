@@ -74,7 +74,7 @@
 					<ItemNames>
 						<ItemName>Chysahl Greens</ItemName>
 					</ItemNames>
-					<GatherRotation>Default</GatherRotation>
+					<GatherRotation>Unspoiled</GatherRotation>
 					<!--<GatherRotation>Collect470</GatherRotation>-->
 				</GatherCollectable>
 				<LogMessage message="Waiting for now...until we find something better to do."/>
@@ -94,7 +94,7 @@
 					<ItemNames>
 						<ItemName>Adamantite Ore</ItemName>
 					</ItemNames>
-					<GatherRotation>Default</GatherRotation>
+					<GatherRotation>Unspoiled</GatherRotation>
 					<!--<GatherRotation>Collect470</GatherRotation>-->
 					<GatherSpots>
 						<StealthApproachGatherSpot 

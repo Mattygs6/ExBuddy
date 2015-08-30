@@ -63,7 +63,7 @@
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Craft\Collect.cs" />
-    <Compile Include="Fish\Collectable.cs" />
+    <Compile Include="Common\Collectable.cs" />
     <Compile Include="Fish\Extensions.cs" />
     <Compile Include="Fish\Fish.cs" />
     <Compile Include="Fish\FishResult.cs" />
@@ -72,6 +72,8 @@
     <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Common\Behaviors.cs" />
+    <Compile Include="Gather\Rotations\Collect345GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect550GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect570GatheringRotation.cs" />
@@ -81,6 +83,9 @@
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\MapGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\OverrideUnspoiledGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\ElementalGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\DiscoverUnknownsGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\SmartYieldGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\RegularNodeGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\UnspoiledGatheringRotation.cs" />
     <Compile Include="Gather\GatheringRotationAttribute.cs" />

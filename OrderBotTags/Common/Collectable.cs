@@ -13,14 +13,6 @@
         public string Name { get; set; }
 
         [Clio.XmlEngine.XmlAttribute("Value")]
-        public int UValue { get; set; }
-
-        public uint Value
-        {
-            get
-            {
-                return Convert.ToUInt32(UValue);
-            }
-        }
+        public int Value { get; set; }
     }
 }

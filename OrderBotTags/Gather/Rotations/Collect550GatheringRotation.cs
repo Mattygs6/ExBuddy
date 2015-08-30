@@ -1,8 +1,10 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
+    using System;
     using System.Threading.Tasks;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     [GatheringRotation("Collect550", 600, 34)]
     public class Collect550GatheringRotation : DefaultCollectGatheringRotation
@@ -15,63 +17,85 @@
             }
         }
 
-        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
+        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
             // Not level 60.
             if (tag.GatherItem.Chance > 95)
             {
-                await Actions.Cast(Ability.ImpulsiveAppraisal);
-                await Actions.Cast(Ability.ImpulsiveAppraisal);
-                await Actions.Cast(Ability.MethodicalAppraisal);
+                await Impulsive(tag);
+                await Impulsive(tag);
+                await Methodical(tag);
 
                 // level 58 only
                 if (tag.GatherItem.Chance < 99 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
                 {
-                    await Actions.Cast(Ability.IncreaseGatherChance5);
+                    await tag.Cast(Ability.IncreaseGatherChance5);
                 }
 
                 return true;
             }
 
             var appraisalsRemaining = 4;
-            await Actions.Cast(Ability.ImpulsiveAppraisal);
+            await Impulsive(tag);
             appraisalsRemaining--;
 
             if (HasDiscerningEye)
             {
-                await SingleMindUtmostMethodical();
+                await SingleMindUtmostMethodical(tag);
                 appraisalsRemaining--;
             }
 
-            await Actions.Cast(Ability.ImpulsiveAppraisal);
+            await Impulsive(tag);
             appraisalsRemaining--;
 
             if (HasDiscerningEye)
             {
-                await SingleMindUtmostMethodical();
+                await SingleMindUtmostMethodical(tag);
                 appraisalsRemaining--;
             }
 
             if (appraisalsRemaining == 2)
             {
-                await Actions.Cast(Ability.MethodicalAppraisal);
-
-                return true;
+                await Methodical(tag);
             }
 
             if (appraisalsRemaining == 1)
             {
-                await Actions.Cast(Ability.DiscerningEye);
-                await Actions.Cast(Ability.UtmostCaution);
-                await Actions.Cast(Ability.MethodicalAppraisal);
+                await DiscerningUtmostMethodical(tag);
             }
 
-            if (Core.Player.CurrentGP >= 50)
-            {
-                await Actions.Cast(Ability.IncreaseGatherChance5);
-            }
+            await IncreaseChance(tag);
 
             return true;
+        }
+
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        {
+            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                // We need 5 swings to use this rotation
+                if (GatheringManager.SwingsRemaining < 5)
+                {
+                    return -1;
+                }
+            }
+
+            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                // We need 4 swings to use this rotation
+                if (GatheringManager.SwingsRemaining < 4)
+                {
+                    return -1;
+                }
+            }
+
+            // if we have a collectable && the collectable value is greater than or equal to 550: Priority 550
+            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 550)
+            {
+                return 550;
+            }
+
+            return -1;
         }
     }
 }

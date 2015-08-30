@@ -5,14 +5,14 @@
 
     using ff14bot.Managers;
 
-    [GatheringRotation("Collect450", 600, 30)]
-    public class Collect450GatheringRotation : DefaultCollectGatheringRotation
+    [GatheringRotation("Collect345", 0, 24)]
+    public class Collect345GatheringRotation : DefaultCollectGatheringRotation
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            await DiscerningMethodical(tag);
-            await DiscerningMethodical(tag);
-            await SingleMindMethodical(tag);
+            await Methodical(tag);
+            await Methodical(tag);
+            await Methodical(tag);
 
             await IncreaseChance(tag);
 
@@ -39,10 +39,11 @@
                 }
             }
 
-            // if we have a collectable && the collectable value is greater than or equal to 450: Priority 450
-            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 450)
+
+            // if we have a collectable && the collectable value is greater than or equal to 345: Priority 345
+            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 345)
             {
-                return 450;
+                return 345;
             }
 
             return -1;

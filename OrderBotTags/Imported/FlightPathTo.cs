@@ -38,7 +38,7 @@ namespace ff14bot.NeoProfiles
         [XmlAttribute("MountId")]
         public int MountId { get; set; }
 
-        [DefaultValue(20.0f)]
+        [DefaultValue(0.0f)]
         [XmlAttribute("NavHeight")]
         public float NavHeight { get; set; }
 
@@ -60,13 +60,16 @@ namespace ff14bot.NeoProfiles
 
             if (waypoints.Count > 0)
             {
-                foreach (var waypoint in waypoints)
+                for (var i = 0; i < waypoints.Count; i++)
                 {
                     if (LogWaypoints)
                     {
-                        Logging.Write("Moving to waypoint: {0}", waypoint);
+                        Logging.Write("Moving to waypoint: {0}", waypoints[i]);
                     }
-                    await MoveToWithinRadius(waypoint, Radius);
+
+                    var from = i == 0 ? Core.Player.Location : waypoints[i - 1];
+
+                    await MoveToWithinRadius(from, waypoints[i], Radius);
                 }
             }
             else
@@ -121,7 +124,8 @@ namespace ff14bot.NeoProfiles
                 if (end.Y > start.Y) up = -up;
                 Vector3 computed = start + t * travelDirection;
                 up.Normalize();
-                computed += ((float)(Math.Sin((double)(t * (float)Math.PI))) * height) * up;
+
+                computed.Y += ((float)(Math.Sin((double)(t * (float)Math.PI)))) * up.Y;
                 return computed;
             }
         }
@@ -174,12 +178,17 @@ namespace ff14bot.NeoProfiles
             return true;
         }
 
-        public async Task<bool> MoveToWithinRadius(Vector3 target, float radius)
+        public async Task<bool> MoveToWithinRadius(Vector3 from, Vector3 to, float radius)
         {
-            while (Distance2D(GameObjectManager.LocalPlayer.Location, target) > Radius)
+            while (Distance2D(GameObjectManager.LocalPlayer.Location, to) > Radius)
             {
                 await EnsureFlying();
-                playerMover.MoveTowards(target);
+                if (!await PathIsClear(from, to))
+                {
+                    //to.Y += NavHeight;
+                }
+
+                playerMover.MoveTowards(to);
                 await Coroutine.Sleep(200);
             }
             playerMover.MoveStop();

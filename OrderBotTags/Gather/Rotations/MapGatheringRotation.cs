@@ -8,22 +8,23 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Map", 0, 8)]
     public class MapGatheringRotation : UnspoiledGatheringRotation
     {
-        public override async Task<bool> Prepare(GatherCollectable tag)
+        public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
             if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
             {
-                await Actions.Cast(Ability.CollectorsGlove);
+                await tag.Cast(Ability.CollectorsGlove);
             }
 
             return await base.Prepare(tag);
         }
 
-        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
+        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
+            await IncreaseChance(tag);
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
             // Only override if the item name ends with ' map'
             if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" map", StringComparison.InvariantCultureIgnoreCase))
@@ -31,7 +32,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
-            return 100;
+            return 10000;
         }
     }
 }

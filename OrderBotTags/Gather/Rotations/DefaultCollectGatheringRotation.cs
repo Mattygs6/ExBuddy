@@ -10,7 +10,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.RemoteWindows;
-
+    
+    // Gathers approx 516 if perception capped.
     [GatheringRotation("DefaultCollect")]
     public class DefaultCollectGatheringRotation : IGatheringRotation
     {
@@ -40,16 +41,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
-        public virtual async Task<bool> Prepare(GatherCollectable tag)
+        public virtual async Task<bool> Prepare(GatherCollectableTag tag)
         {
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
-            await Actions.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
+            await tag.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
             var hits = 0;
             while (GatheringManager.WindowOpen && hits < 2)
             {
                 hits += tag.GatherItem.GatherItem() ? 1 : 0;
-                await Coroutine.Sleep(200);
+                await Coroutine.Sleep(1000);
             }
 
             MasterpieceWindow = await GetValidMasterPieceWindow(5000);
@@ -57,21 +58,18 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public virtual async Task<bool> ExecuteRotation(GatherCollectable tag)
+        public virtual async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            await DiscerningMethodical();
-            await DiscerningMethodical();
-            await DiscerningMethodical();
+            await DiscerningMethodical(tag);
+            await DiscerningMethodical(tag);
+            await DiscerningMethodical(tag);
 
-            if (Core.Player.CurrentGP >= 50)
-            {
-                await Actions.Cast(Ability.IncreaseGatherChance5);
-            }
+            await IncreaseChance(tag);
 
             return true;
         }
 
-        public virtual async Task<bool> Gather(GatherCollectable tag)
+        public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
             var exCount = 0;
             while (GatheringManager.SwingsRemaining > 0)
@@ -119,8 +117,32 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public virtual int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public virtual int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
+            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                // We need 5 swings to use this rotation
+                if (GatheringManager.SwingsRemaining < 5)
+                {
+                    return -1;
+                }
+            }
+
+            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+                // We need 4 swings to use this rotation
+                if (GatheringManager.SwingsRemaining < 4)
+                {
+                    return -1;
+                }
+            }
+
+            // if we have a collectable && the collectable value is greater than or equal to 516: Priority 516
+            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 516)
+            {
+                return 516;
+            }
+
             return -1;
         }
 
@@ -138,30 +160,50 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return atkControl;
         }
 
-        protected async Task DiscerningMethodical()
+        protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.DiscerningEye);
-            await Actions.Cast(Ability.MethodicalAppraisal);
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            {
+                return await tag.Cast(Ability.IncreaseGatherChance5);
+            }
+
+            return false;
         }
 
-        protected async Task DiscerningUtmostMethodical()
+        protected async Task DiscerningMethodical(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.DiscerningEye);
-            await Actions.Cast(Ability.UtmostCaution);
-            await Actions.Cast(Ability.MethodicalAppraisal);
+            await tag.Cast(Ability.DiscerningEye);
+            await tag.Cast(Ability.MethodicalAppraisal);
         }
 
-        protected async Task SingleMindMethodical()
+        protected async Task DiscerningUtmostMethodical(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.SingleMind);
-            await Actions.Cast(Ability.MethodicalAppraisal);
+            await tag.Cast(Ability.DiscerningEye);
+            await tag.Cast(Ability.UtmostCaution);
+            await tag.Cast(Ability.MethodicalAppraisal);
         }
 
-        protected async Task SingleMindUtmostMethodical()
+        protected async Task Impulsive(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.SingleMind);
-            await Actions.Cast(Ability.UtmostCaution);
-            await Actions.Cast(Ability.MethodicalAppraisal);
+            await tag.Cast(Ability.ImpulsiveAppraisal);
+        }
+
+        protected async Task Methodical(GatherCollectableTag tag)
+        {
+            await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task SingleMindMethodical(GatherCollectableTag tag)
+        {
+            await tag.Cast(Ability.SingleMind);
+            await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task SingleMindUtmostMethodical(GatherCollectableTag tag)
+        {
+            await tag.Cast(Ability.SingleMind);
+            await tag.Cast(Ability.UtmostCaution);
+            await tag.Cast(Ability.MethodicalAppraisal);
         }
     }
 }

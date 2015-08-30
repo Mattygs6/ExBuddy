@@ -8,12 +8,12 @@
 
         bool ForceGatherIfMissingGpOrTime { get; }
 
-        Task<bool> Prepare(GatherCollectable tag);
+        Task<bool> Prepare(GatherCollectableTag tag);
 
-        Task<bool> ExecuteRotation(GatherCollectable tag);
+        Task<bool> ExecuteRotation(GatherCollectableTag tag);
 
-        Task<bool> Gather(GatherCollectable tag);
+        Task<bool> Gather(GatherCollectableTag tag);
 
-        int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag);
+        int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag);
     }
 }

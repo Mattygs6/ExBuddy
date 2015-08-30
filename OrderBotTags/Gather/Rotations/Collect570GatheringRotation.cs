@@ -8,23 +8,33 @@
     [GatheringRotation("Collect570", 600, 34)]
     public class Collect570GatheringRotation : DefaultCollectGatheringRotation
     {
-        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
+        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.UtmostCaution);
-            await Actions.Cast(Ability.MethodicalAppraisal);
-            
-            await Actions.Cast(Ability.UtmostCaution);
-            await Actions.Cast(Ability.MethodicalAppraisal);
+            await DiscerningUtmostMethodical(tag);
+            await DiscerningUtmostMethodical(tag);
+            await Methodical(tag);
+            await Methodical(tag);
 
-            await DiscerningMethodical();
-            await DiscerningMethodical();
-
-            if (Core.Player.CurrentGP >= 50)
-            {
-                await Actions.Cast(Ability.IncreaseGatherChance5);
-            }
+            await IncreaseChance(tag);
 
             return true;
+        }
+
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        {
+            // We need 5 swings to use this rotation
+            if (GatheringManager.SwingsRemaining < 5)
+            {
+                return -1;
+            }
+
+            // if we have a collectable && the collectable value is greater than or equal to 570: Priority 570
+            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 570)
+            {
+                return 570;
+            }
+
+            return -1;
         }
     }
 }

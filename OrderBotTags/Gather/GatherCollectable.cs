@@ -27,11 +27,11 @@
     using Action = TreeSharp.Action;
 
     [XmlElement("GatherCollectable")]
-    public class GatherCollectable : ProfileBehavior
+    public class GatherCollectableTag : ProfileBehavior
     {
         private static readonly Dictionary<string, Type> Rotations;
 
-        private readonly SpellData cordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+        private static readonly SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         private bool isDone;
 
@@ -47,7 +47,11 @@
 
         internal GatheringPointObject Node;
 
-        static GatherCollectable()
+        internal GatheringItem GatherItem;
+
+        internal Collectable CollectableItem;
+
+        static GatherCollectableTag()
         {
             Rotations = LoadRotationTypes();
         }
@@ -69,8 +73,6 @@
             }
         }
 
-        internal GatheringItem GatherItem { get; private set; }
-
         [DefaultValue(true)]
         [XmlAttribute("AlwaysGather")]
         public bool AlwaysGather { get; set; }
@@ -82,6 +84,9 @@
         [DefaultValue(CordialType.Auto)]
         [XmlElement("CordialType")]
         public CordialType CordialType { get; set; }
+
+        [XmlElement("DiscoverUnknowns")]
+        public bool DiscoverUnknowns { get; set; }
 
         [XmlAttribute("FreeRange")]
         public bool FreeRange { get; set; }
@@ -98,7 +103,7 @@
         [XmlAttribute("LogFlight")]
         public bool LogFlight { get; set; }
 
-        [DefaultValue(5)]
+        [DefaultValue(-1)]
         [XmlAttribute("Slot")]
         public int Slot { get; set; }
 
@@ -116,6 +121,9 @@
         [XmlElement("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
 
+        [XmlElement("Collectables")]
+        public List<Collectable> Collectables { get; set; }
+
         [XmlElement("ItemNames")]
         public List<string> ItemNames { get; set; }
 
@@ -131,6 +139,15 @@
         [XmlAttribute("NavHeight")]
         public float NavHeight { get; set; }
 
+        [DefaultValue(150)]
+        [XmlAttribute("SpellDelay")]
+        public int SpellDelay { get; set; }
+
+        [DefaultValue(2000)]
+        [XmlAttribute("WindowDelay")]
+        public int WindowDelay { get; set; }
+
+
         protected override void OnResetCachedDone()
         {
             if (!isDone)
@@ -140,17 +157,16 @@
 
             isDone = false;
             GatherSpot = null;
-            gatherRotation = null;
-            gatherRotationGp = 0;
-            gatherRotationTime = 0;
             Node = null;
             GatherItem = null;
-            freeRangeConditionFunc = null;
+            CollectableItem = null;
         }
 
-        protected override void OnDone()
+        protected override void OnStart()
         {
-            GatherItem = null;
+            // Ensure positive values
+            WindowDelay = WindowDelay > 0 ? WindowDelay : 2000;
+            SpellDelay = SpellDelay > 0 ? SpellDelay : 150;
         }
 
         protected override Composite CreateBehavior()
@@ -159,7 +175,7 @@
             return
                 new PrioritySelector(
                     new Decorator(
-                        ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance3D(Core.Player.Location) > Radius)),
+                        ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance2D(Core.Player.Location) > Radius)),
                         new Action(r => OnResetCachedDone())),
                     new Decorator(
                         ret => Node == null,
@@ -174,12 +190,12 @@
                         new ActionRunCoroutine(ctx => ResolveGatherRotation())),
                     new Decorator(
                         ret =>
-                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
+                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance2D(Core.Player.Location) > Distance,
                         new ActionRunCoroutine(ctx => MoveToGatherSpot())),
                     new Decorator(
                         ret =>
                         Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
-                        && Node.Location.Distance3D(Core.Player.Location) <= Distance,
+                        && Node.Location.Distance2D(Core.Player.Location) <= Distance,
                         new Sequence(
                             new ActionRunCoroutine(ctx => BeforeGather()),
                             new ActionRunCoroutine(ctx => Gather()),
@@ -272,7 +288,7 @@
 
         private async Task<bool> FindGatherSpot()
         {
-            if (GatherSpots != null && Node.Location.Distance3D(Core.Player.Location) > Distance)
+            if (GatherSpots != null && Node.Location.Distance2D(Core.Player.Location) > Distance)
             {
                 GatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
             }
@@ -335,7 +351,7 @@
                     Colors.PaleVioletRed,
                     "Node on blacklist, waiting until we move out of range or it clears.");
 
-                if (await Coroutine.Wait(entry.Length, () => Node.Location.Distance3D(Core.Player.Location) > Radius))
+                if (await Coroutine.Wait(entry.Length, () => Node.Location.Distance2D(Core.Player.Location) > Radius))
                 {
                     Node = null;
                     Logging.Write(Colors.Chartreuse, "GatherCollectable: Node cleared");
@@ -353,7 +369,7 @@
             var result =
                 await
                 GatherSpot.MoveToSpot(
-                    () => Actions.CastAura(Ability.Stealth, AbilityAura.Stealth),
+                    () => CastAura(Ability.Stealth, AbilityAura.Stealth),
                     Node.Location,
                     (uint)MountId,
                     Radius,
@@ -397,7 +413,7 @@
 
             var ticksTillStartGathering = realSecondsTillStartGathering / 3;
 
-            var gp = Core.Player.CurrentGP + ticksTillStartGathering * 5;
+            var gp = Math.Min(Core.Player.CurrentGP + ticksTillStartGathering * 5, Core.Player.MaxGP);
 
             if (CordialType <= CordialType.None)
             {
@@ -427,7 +443,7 @@
             {
                 return await WaitForGpRegain();
             }
-            if (realSecondsTillStartGathering < cordialSpellData.Cooldown.TotalSeconds)
+            if (realSecondsTillStartGathering < CordialSpellData.Cooldown.TotalSeconds)
             {
                 return true;
             }
@@ -465,7 +481,7 @@
 
             ticksTillStartGathering = realSecondsTillStartGathering / 3;
 
-            gp = Core.Player.CurrentGP + ticksTillStartGathering * 5;
+            gp = Math.Min(Core.Player.CurrentGP + ticksTillStartGathering * 5, Core.Player.MaxGP);
 
             if (gp + 400 >= AdjustedWaitForGp)
             {
@@ -540,7 +556,7 @@
 
         private async Task<bool> UseCordial(CordialType cordialType, int maxTimeoutSeconds = 5)
         {
-            if (cordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
+            if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
             {
                 var cordial =
                     InventoryManager.FilledSlots.FirstOrDefault(
@@ -575,7 +591,7 @@
         private async Task<bool> Gather()
         {
             await
-                Actions.CastAura(
+                CastAura(
                     Ability.Truth,
                     Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 
@@ -615,7 +631,7 @@
                 return true;
             }
 
-            await Coroutine.Sleep(2200);
+            await Coroutine.Sleep(WindowDelay > 0 ? WindowDelay : 2000);
 
             if (!ResolveGatherItem())
             {
@@ -636,33 +652,88 @@
             return true;
         }
 
+        internal async Task<bool> Cast(uint id)
+        {
+            return await Actions.Cast(id, SpellDelay);
+        }
+
+        internal async Task<bool> Cast(Ability id)
+        {
+            return await Actions.Cast(id, SpellDelay);
+        }
+
+        internal async Task<bool> CastAura(uint spellId, int auraId = -1)
+        {
+            return await Actions.CastAura(spellId, SpellDelay, auraId);
+        }
+
+        internal async Task<bool> CastAura(Ability ability, AbilityAura auraId = AbilityAura.None)
+        {
+            return await Actions.CastAura(ability, SpellDelay, auraId);
+        }
+
         internal bool ResolveGatherItem()
         {
             GatherItem = null;
+            CollectableItem = null;
             var windowItems = GatheringManager.GatheringWindowItems;
-            if (ItemNames == null || ItemNames.Count == 0)
+
+            // TODO: move method to common so we use it on fish too
+            if (InventoryItemCount() >= 100)
             {
-                GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
+                if (SetGatherItemByItemName(windowItems.OrderByDescending(i => i.SlotIndex)
+                        .Where(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20).ToArray()))
+                {
+                    return true;
+                }
             }
 
-            if (GatherItem == null && ItemNames != null)
+            if (DiscoverUnknowns)
             {
-                foreach (var itemName in ItemNames)
+                var items =
+                    new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex)
+                        .ToArray();
+
+                GatherItem = items.FirstOrDefault(i => i.IsUnknown && i.Amount > 0);
+
+                if (GatherItem != null)
+                {
+                    return true;
+                }
+            }
+
+            if (Collectables != null && Collectables.Count > 0)
+            {
+                foreach (var collectable in Collectables)
                 {
                     GatherItem =
                         windowItems.FirstOrDefault(
                             i =>
                             i.IsFilled && !i.IsUnknown
                             && string.Equals(
-                                itemName,
+                                collectable.Name,
                                 i.ItemData.EnglishName,
                                 StringComparison.InvariantCultureIgnoreCase));
 
-                    if (GatherItem != null && (!GatherItem.ItemData.Unique || GatherItem.ItemData.ItemCount() == 0))
+                    if (GatherItem != null)
                     {
+                        CollectableItem = collectable;
                         return true;
                     }
                 }
+            }
+
+            if (ItemNames != null && ItemNames.Count > 0)
+            {
+                if (SetGatherItemByItemName(windowItems))
+                {
+                    return true;
+                }
+            }
+
+            if (Slot > -1 && Slot < 8)
+            {
+                GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
             }
 
             if (GatherItem == null && !AlwaysGather)
@@ -682,7 +753,7 @@
             GatherItem =
                 windowItems.OrderByDescending(i => i.SlotIndex)
                     .FirstOrDefault(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20) // Try to gather cluster/crystal/shard
-                ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect
+                ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
                 ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
 
             Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering" + GatherItem.ItemData);
@@ -690,8 +761,30 @@
             return true;
         }
 
-        private void CheckForGatherRotationOverride()
+        private bool SetGatherItemByItemName(ICollection<GatheringItem> windowItems)
         {
+            foreach (var itemName in ItemNames)
+            {
+                GatherItem =
+                    windowItems.FirstOrDefault(
+                        i =>
+                        i.IsFilled && !i.IsUnknown
+                        && string.Equals(
+                            itemName,
+                            i.ItemData.EnglishName,
+                            StringComparison.InvariantCultureIgnoreCase));
+
+                if (GatherItem != null && (!GatherItem.ItemData.Unique || GatherItem.ItemData.ItemCount() == 0))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void CheckForGatherRotationOverride()
+        {            
             if (!gatherRotation.CanOverride)
             {
                 return;
@@ -699,10 +792,23 @@
 
             var rotationType = gatherRotation.GetType();
 
-            var rotationAndType = Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID)
-                .Select(r => new { Rotation= r.Value.CreateInstance<IGatheringRotation>(), Type = r.Value})
-                .OrderBy(r => r.Rotation.ShouldOverrideSelectedGatheringRotation(this))
-                .FirstOrDefault();
+            var rotationAndTypes = Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID)
+                .Select(
+                    r =>
+                        {
+                            var rotation = r.Value.CreateInstance<IGatheringRotation>();
+                            return
+                                new
+                                    {
+                                        Rotation = rotation,
+                                        Type = r.Value,
+                                        OverrideValue = rotation.ShouldOverrideSelectedGatheringRotation(this)
+                                    };
+                        })
+                .Where(r => r.OverrideValue > -1)
+                .OrderByDescending(r => r.OverrideValue).ToArray();
+
+            var rotationAndType = rotationAndTypes.FirstOrDefault();
 
             if (rotationAndType == null)
             {
@@ -731,6 +837,11 @@
             }
 
             return freeRangeConditionFunc();
+        }
+
+        private int InventoryItemCount()
+        {
+            return InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems);
         }
     }
 }

@@ -1,5 +1,6 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
+    using System;
     using System.Threading.Tasks;
 
     using ff14bot;
@@ -7,27 +8,33 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("OverrideUnspoiled", 600, 25)]
     public class OverrideUnspoiledGatheringRotation : UnspoiledGatheringRotation
     {
-        public override async Task<bool> Prepare(GatherCollectable tag)
+        public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
             if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
             {
-                await Actions.Cast(Ability.CollectorsGlove);
+                await tag.Cast(Ability.CollectorsGlove);
             }
 
-            await Actions.Cast(Ability.Toil);
+            await tag.Cast(Ability.Toil);
 
             return true;
         }
 
-        public override async Task<bool> ExecuteRotation(GatherCollectable tag)
+        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            await Actions.Cast(Ability.IncreaseGatherQuality30);
+            await tag.Cast(Ability.IncreaseGatherQuality30);
 
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
+            // Not unspoiled node, don't override
+            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) == -1)
+            {
+                return -1;
+            }
+
             // Only override in free range mode
             if (!tag.FreeRange)
             {
@@ -47,7 +54,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             // We want to be able to get HQ items, this is the purpose.
-            if (tag.GatherItem.HqChance == 0)
+            if (tag.GatherItem.HqChance <= 0)
             {
                 return -1;
             }
@@ -58,7 +65,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
-            return 1000;
+            return 5000;
         }
     }
 }

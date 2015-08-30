@@ -427,7 +427,7 @@
             {
                 return await WaitForGpRegain();
             }
-            if (realSecondsTillStartGathering < cordialSpellData.AdjustedCooldown.Seconds)
+            if (realSecondsTillStartGathering < cordialSpellData.Cooldown.TotalSeconds)
             {
                 return true;
             }
@@ -540,7 +540,7 @@
 
         private async Task<bool> UseCordial(CordialType cordialType, int maxTimeoutSeconds = 5)
         {
-            if (cordialSpellData.AdjustedCooldown.Seconds < maxTimeoutSeconds)
+            if (cordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
             {
                 var cordial =
                     InventoryManager.FilledSlots.FirstOrDefault(

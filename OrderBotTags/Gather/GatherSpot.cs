@@ -12,6 +12,7 @@
 
     using ff14bot;
     using ff14bot.Enums;
+    using ff14bot.Managers;
     using ff14bot.Navigation;
 
     public interface IGatherSpot
@@ -74,6 +75,11 @@
             }
 
             return result;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("GatherSpot -> NodeLocation: {0}, Condition: {1}, UseMesh: {2}", NodeLocation, Condition, UseMesh);
         }
     }
 
@@ -194,6 +200,17 @@
         private async Task<bool> MoveToNodeLocation(float radius, string name)
         {
             return await MoveToLocation(NodeLocation, radius, name);
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, Condition: {2}, ReturnToStealthLocation: {3}, UseMesh: {4}",
+                StealthLocation,
+                NodeLocation,
+                Condition,
+                ReturnToStealthLocation,
+                UseMesh);
         }
     }
 }

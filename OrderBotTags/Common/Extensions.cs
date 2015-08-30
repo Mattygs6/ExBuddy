@@ -4,8 +4,6 @@
     using System.Linq;
     using System.Reflection;
 
-    using Exbuddy.OrderBotTags;
-
     public static partial class Extensions
     {
         /// <summary>

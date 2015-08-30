@@ -23,15 +23,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public override bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
             // Only override if the item name ends with ' map'
             if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" map", StringComparison.InvariantCultureIgnoreCase))
             {
-                return false;
+                return -1;
             }
 
-            return true;
+            return 100;
         }
     }
 }

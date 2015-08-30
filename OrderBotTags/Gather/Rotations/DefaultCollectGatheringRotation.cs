@@ -119,9 +119,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public virtual bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public virtual int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
-            return false;
+            return -1;
         }
 
         protected virtual async Task<AtkAddonControl> GetValidMasterPieceWindow(int timeoutMs)

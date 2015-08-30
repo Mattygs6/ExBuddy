@@ -89,6 +89,9 @@
     <Compile Include="Gather\GatherCollectable.cs" />
     <Compile Include="Gather\IGatheringRotation.cs" />
     <Compile Include="Gather\Prototype\SafeCollectAdamantite.cs" />
+    <Compile Include="Imported\Fate.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Imported\FlightPathTo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace Exbuddy.OrderBotTags
+﻿namespace ExBuddy.OrderBotTags
 {
 	using System;
 	using System.Collections.Concurrent;

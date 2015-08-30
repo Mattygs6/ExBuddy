@@ -26,39 +26,39 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public override bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
             // Only override in free range mode
             if (!tag.FreeRange)
             {
-                return false;
+                return -1;
             }
 
             // Only override if we have 600 or more gp.
             if (Core.Player.CurrentGP < 600)
             {
-                return false;
+                return -1;
             }
 
             // Only override if we get more than 1 item
             if (tag.GatherItem.Amount == 1)
             {
-                return false;
+                return -1;
             }
 
             // We want to be able to get HQ items, this is the purpose.
             if (tag.GatherItem.HqChance == 0)
             {
-                return false;
+                return -1;
             }
 
             // Only override if we have the default rotation
             if (tag.GatherRotation != "Unspoiled")
             {
-                return false;
+                return -1;
             }
 
-            return true;
+            return 1000;
         }
     }
 }

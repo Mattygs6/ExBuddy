@@ -19,19 +19,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public override bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
+        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag)
         {
             if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
-                return false;
+                return -1;
             }
 
             if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
-                return false;
+                return -1;
             }
 
-            return true;
+            return 200;
         }
 
         protected override async Task<bool> IncreaseChance(GatherCollectable tag)

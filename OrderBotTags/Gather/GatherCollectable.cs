@@ -13,8 +13,6 @@
     using Clio.Utilities;
     using Clio.XmlEngine;
 
-    using Exbuddy.OrderBotTags;
-
     using ExBuddy.OrderBotTags.Gather.Rotations;
 
     using ff14bot;
@@ -71,7 +69,7 @@
             }
         }
 
-        public GatheringItem GatherItem { get; private set; }
+        internal GatheringItem GatherItem { get; private set; }
 
         [DefaultValue(true)]
         [XmlAttribute("AlwaysGather")]
@@ -279,7 +277,7 @@
                 GatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
             }
 
-            // Either GatherSpots is null or there are no matches, use fallback
+            // Either GatherSpots is null, the node is already in range, or there are no matches, use fallback
             if (GatherSpot == null)
             {
                 GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
@@ -531,6 +529,9 @@
 
             if (FreeRange)
             {
+                //TODO: check this.
+                // We want to reset here if Free Range, but we need to implement looping and possibly hotspots
+                // OnResetCachedDone();
                 isDone = true;
             }
 
@@ -585,7 +586,7 @@
 
             if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
             {
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(25), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(Math.Max(gatherRotationTime + 15, 30)), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
             }
 
             var attempts = 0;
@@ -629,6 +630,8 @@
             await gatherRotation.Gather(this);
 
             Poi.Clear("Gather Complete!");
+
+            await Coroutine.Wait(6000, () => !Node.CanGather);
 
             return true;
         }
@@ -696,20 +699,28 @@
 
             var rotationType = gatherRotation.GetType();
 
-            foreach (var entry in Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID))
+            var rotationAndType = Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID)
+                .Select(r => new { Rotation= r.Value.CreateInstance<IGatheringRotation>(), Type = r.Value})
+                .OrderBy(r => r.Rotation.ShouldOverrideSelectedGatheringRotation(this))
+                .FirstOrDefault();
+
+            if (rotationAndType == null)
             {
-                var rotation = entry.Value.CreateInstance<IGatheringRotation>();
-                if (rotation.ShouldOverrideSelectedGatheringRotation(this))
-                {
-                    gatherRotation = rotation;
-                    Logging.Write(
-                        Colors.Chartreuse,
-                        "GatherCollectable: NEW Gather Rotation Loaded ->" + entry.Value.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
-                            attr => attr.Name,
-                            entry.Value.Name.Replace("GatheringRotation", string.Empty)));
-                    break;
-                }
+                return;
             }
+            
+            Logging.Write(
+                Colors.Chartreuse,
+                "GatherCollectable: Rotation Override -> Old: "
+                + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
+                attr => attr.Name,
+                    rotationType.Name.Replace("GatheringRotation", string.Empty))
+                + " , New: "
+                + rotationAndType.Type.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
+                    attr => attr.Name,
+                    rotationAndType.Type.Name.Replace("GatheringRotation", string.Empty)));
+
+            gatherRotation = rotationAndType.Rotation;
         }
 
         private bool FreeRangeConditional()

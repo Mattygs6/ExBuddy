@@ -14,6 +14,6 @@
 
         Task<bool> Gather(GatherCollectable tag);
 
-        bool ShouldOverrideSelectedGatheringRotation(GatherCollectable tag);
+        int ShouldOverrideSelectedGatheringRotation(GatherCollectable tag);
     }
 }

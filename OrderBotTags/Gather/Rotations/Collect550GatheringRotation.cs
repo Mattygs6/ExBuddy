@@ -5,7 +5,7 @@
     using ff14bot;
     using ff14bot.Managers;
 
-    [GatheringRotation("Collect550", 600, 34)]
+    [GatheringRotation("Collect550", 0, 34)]
     public class Collect550GatheringRotation : DefaultCollectGatheringRotation
     {
         public override bool ForceGatherIfMissingGpOrTime

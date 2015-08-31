@@ -64,7 +64,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                         Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 tag.GatherItem.GatherItem();
             }
-            while ((MasterpieceWindow = await GetValidMasterPieceWindow(1000)) == null);
+            while ((MasterpieceWindow = await GetValidMasterPieceWindow(4000)) == null);
 
             return true;
         }
@@ -104,7 +104,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                             MasterpieceWindow.SendAction(1, 1, 0);    
                         }
                         
-                        await Coroutine.Wait(2000, () => SelectYesNoItem.IsOpen);
+                        await Coroutine.Wait(5000, () => SelectYesNoItem.IsOpen);
                     }
 
                     Logging.Write("Clicked Yes");
@@ -126,7 +126,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 }
 
                 Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
-                await Coroutine.Wait(2000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
                 Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
             }
 

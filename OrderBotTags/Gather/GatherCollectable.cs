@@ -394,7 +394,26 @@
                 return true;
             }
 
-            var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            var eorzeaMinutesTillDespawn = int.MaxValue;
+            if (this.IsUnspoiled())
+            {
+                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            }
+            
+            if(this.IsEphemeral())
+            {
+                var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
+                var rounded = new DateTime(
+                    hoursFromNow.Year,
+                    hoursFromNow.Month,
+                    hoursFromNow.Day,
+                    hoursFromNow.Hour - (hoursFromNow.Hour % 4),
+                    0,
+                    0);
+
+                eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
+            }
+
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
@@ -462,7 +481,26 @@
             }
 
             // Recalculate: could have no time left at this point
-            eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            eorzeaMinutesTillDespawn = int.MaxValue;
+            if (this.IsUnspoiled())
+            {
+                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            }
+
+            if (this.IsEphemeral())
+            {
+                var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
+                var rounded = new DateTime(
+                    hoursFromNow.Year,
+                    hoursFromNow.Month,
+                    hoursFromNow.Day,
+                    hoursFromNow.Hour - (hoursFromNow.Hour % 4),
+                    0,
+                    0);
+
+                eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
+            }
+
             realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
@@ -505,7 +543,26 @@
 
         private async Task<bool> WaitForGpRegain()
         {
-            var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            var eorzeaMinutesTillDespawn = int.MaxValue;
+            if (this.IsUnspoiled())
+            {
+                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+            }
+
+            if (this.IsEphemeral())
+            {
+                var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
+                var rounded = new DateTime(
+                    hoursFromNow.Year,
+                    hoursFromNow.Month,
+                    hoursFromNow.Day,
+                    hoursFromNow.Hour - (hoursFromNow.Hour % 4),
+                    0,
+                    0);
+
+                eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
+            }
+
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 

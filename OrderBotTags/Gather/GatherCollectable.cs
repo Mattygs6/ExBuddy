@@ -596,9 +596,23 @@
         {
             if (CordialTime.HasFlag(CordialTime.AfterGather))
             {
-                if (CordialType == CordialType.Auto && Core.Player.MaxGP - Core.Player.CurrentGP > 550)
+                if (CordialType == CordialType.Auto)
                 {
-                    
+                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 550)
+                    {
+                        if (await UseCordial(CordialType.HiCordial))
+                        {
+                            return true;
+                        }
+                    }
+
+                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 390)
+                    {
+                        if (await UseCordial(CordialType.Cordial))
+                        {
+                            return true;
+                        }
+                    }
                 }
 
                 if (CordialType == CordialType.HiCordial)
@@ -610,14 +624,19 @@
                             return true;
                         }
 
+                        if (await UseCordial(CordialType.Cordial))
+                        {
+                            return true;
+                        }
                     }
-
-                    await UseCordial(CordialType.Cordial);
                 }
 
                 if (CordialType == CordialType.Cordial && Core.Player.MaxGP - Core.Player.CurrentGP > 330)
                 {
-                    await UseCordial(CordialType.Cordial);
+                    if (await UseCordial(CordialType.Cordial))
+                    {
+                        return true;
+                    }
                 }
             }
 

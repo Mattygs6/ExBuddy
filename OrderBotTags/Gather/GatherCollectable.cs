@@ -139,7 +139,7 @@
         [XmlAttribute("NavHeight")]
         public float NavHeight { get; set; }
 
-        [DefaultValue(150)]
+        [DefaultValue(250)]
         [XmlAttribute("SpellDelay")]
         public int SpellDelay { get; set; }
 

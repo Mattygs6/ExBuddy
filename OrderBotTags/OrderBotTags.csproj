@@ -118,7 +118,9 @@
     <Content Include="Gather\Profiles\ChysahlGreens_CWH.xml" />
     <Content Include="Gather\Profiles\FreeRangeCollect450.xml" />
     <Content Include="Gather\Profiles\FreeRangeCollect550.xml" />
+    <Content Include="Gather\Profiles\FreeRangeCollectAll.xml" />
     <Content Include="Gather\Profiles\FreeRangeGatherAll.xml" />
+    <Content Include="Gather\Profiles\Porcini_Churning.xml" />
     <Content Include="Gather\Prototype\Profiles\AdamantiteOre_AzysLla.xml" />
   </ItemGroup>
   <ItemGroup>

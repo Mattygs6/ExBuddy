@@ -89,13 +89,13 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 try
                 {
                     swingsRemaining--;
-                    await Coroutine.Wait(5000, () => !SelectYesNoItem.IsOpen);
-                    while (!SelectYesNoItem.IsOpen)
+                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
+                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
                     {
                         if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
                         {
                             RaptureAtkUnitManager.Update();
-                            MasterpieceWindow = await GetValidMasterPieceWindow(5000);
+                            MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                         }
 
                         if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
@@ -104,11 +104,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                             MasterpieceWindow.SendAction(1, 1, 0);    
                         }
                         
-                        await Coroutine.Wait(5000, () => SelectYesNoItem.IsOpen);
+                        await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
                     }
 
                     Logging.Write("Clicked Yes");
                     ff14bot.RemoteWindows.SelectYesNoItem.Yes();
+                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
                 }
                 catch (Exception ex)
                 {
@@ -125,12 +126,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                     }
                 }
 
-                Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
                 await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
-                Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
             }
-
-            Logging.Write("Exit loop");
 
             return true;
         }

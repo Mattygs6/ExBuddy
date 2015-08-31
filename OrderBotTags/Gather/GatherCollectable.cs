@@ -348,11 +348,15 @@
                     Colors.PaleVioletRed,
                     "Node on blacklist, waiting until we move out of range or it clears.");
 
-                if (await Coroutine.Wait(entry.Length, () => Node.Location.Distance2D(Core.Player.Location) > Radius))
+                if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Core.Player.Location) > Radius))
                 {
-                    Node = null;
-                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
-                    return false;
+                    if (!entry.IsFinished)
+                    {
+                        Node = null;
+                        Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
+                        return false;
+                    }
+
                 }
 
                 Logging.Write(Colors.Chartreuse, "GatherCollectable: Node removed from blacklist.");
@@ -399,8 +403,8 @@
             {
                 eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             }
-            
-            if(this.IsEphemeral())
+
+            if (this.IsEphemeral())
             {
                 var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
                 var rounded = new DateTime(
@@ -457,13 +461,9 @@
                 return true;
             }
 
-            if (gp >= AdjustedWaitForGp || !CordialTime.HasFlag(CordialTime.BeforeGather))
+            if (gp >= AdjustedWaitForGp && !CordialTime.HasFlag(CordialTime.BeforeGather))
             {
                 return await WaitForGpRegain();
-            }
-            if (realSecondsTillStartGathering < CordialSpellData.Cooldown.TotalSeconds)
-            {
-                return true;
             }
 
             if (gp + 300 >= AdjustedWaitForGp)
@@ -573,7 +573,7 @@
                     return true;
                 }
 
-                Logging.Write("Not enough GP to gather");
+                Logging.Write("Not enough time to gather");
                 isDone = true;
                 return true;
             }
@@ -667,16 +667,16 @@
                     if (await Coroutine.Wait(
                         TimeSpan.FromSeconds(maxTimeoutSeconds),
                         () =>
+                        {
+                            if (Core.Player.IsMounted)
                             {
-                                if (Core.Player.IsMounted)
-                                {
-                                    Logging.Write("Dismounting to use cordial.");
-                                    Actionmanager.Dismount();
-                                    return false;
-                                }
+                                Logging.Write("Dismounting to use cordial.");
+                                Actionmanager.Dismount();
+                                return false;
+                            }
 
-                                return cordial.CanUse(Core.Player);
-                            }))
+                            return cordial.CanUse(Core.Player);
+                        }))
                     {
                         cordial.UseItem(Core.Player);
                         Logging.Write("Using Cordial: " + cordialType);
@@ -855,7 +855,7 @@
                     window.SendAction(1, 3, 0xFFFFFFFF);
                     await Coroutine.Sleep(250);
                 }
-                
+
                 return false;
             }
 
@@ -898,7 +898,7 @@
         }
 
         private void CheckForGatherRotationOverride()
-        {            
+        {
             if (!gatherRotation.CanOverride)
             {
                 return;

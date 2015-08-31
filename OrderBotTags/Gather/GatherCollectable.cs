@@ -19,6 +19,7 @@
     using ff14bot.Enums;
     using ff14bot.Helpers;
     using ff14bot.Managers;
+    using ff14bot.Navigation;
     using ff14bot.NeoProfiles;
     using ff14bot.Objects;
 
@@ -117,9 +118,11 @@
         [XmlElement("GatherSpots")]
         public List<StealthApproachGatherSpot> GatherSpots { get; set; }
 
-        [DefaultValue(GatherStrategy.CollectOnce)]
+        [DefaultValue(GatherStrategy.GatherOrCollect)]
         [XmlElement("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
+
+        public List<HotSpot> HotSpots { get; set; }
 
         [XmlElement("Collectables")]
         public List<Collectable> Collectables { get; set; }

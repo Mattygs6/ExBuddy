@@ -28,7 +28,6 @@
 		</If>
 		<RunCode name="Gear"/>
 		<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.1" MountId="1" NavHeight="0" DismountAtDestination="false" />
-		<FlightPathTo XYZ="-684.4172, 100.6977, -600.1046" Radius="3.0" Smoothing="0.02" MountId="1" NavHeight="-30" DismountAtDestination="false" LogWaypoints="true" />
 		<While condition="True">
 			<GatherCollectable>
 				<GatherObjects>
@@ -37,7 +36,7 @@
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect470</GatherRotation>-->
 			</GatherCollectable>
-			<FlightPathTo XYZ="-684.4172, 100.6977, -600.1046" Radius="3.0" Smoothing="0.02" MountId="1" NavHeight="0" DismountAtDestination="false" LogWaypoints="true" />
+			<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.02" MountId="1" NavHeight="0" DismountAtDestination="false" LogWaypoints="true" />
 		</While>
 	</Order>
 </Profile>

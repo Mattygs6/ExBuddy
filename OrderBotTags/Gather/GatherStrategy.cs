@@ -2,7 +2,7 @@
 {
     public enum GatherStrategy : byte
     {
-        CollectOnce, // Unspoiled
+        GatherOrCollect, // Unspoiled
         TouchAndGo // Epheremal
     }
 }

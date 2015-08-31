@@ -106,7 +106,7 @@ namespace ff14bot.NeoProfiles
 
         public static async Task<Vector3> SampleParabola(Vector3 start, Vector3 end, float height, float t)
         {
-            if (Math.Abs(start.Y - end.Y) < 0.1f)
+            if (Math.Abs(start.Y - end.Y) < 3.0f)
             {
                 //start and end are roughly level, pretend they are - simpler solution with less steps
                 Vector3 travelDirection = end - start;
@@ -125,7 +125,7 @@ namespace ff14bot.NeoProfiles
                 Vector3 computed = start + t * travelDirection;
                 up.Normalize();
 
-                computed.Y += ((float)(Math.Sin((double)(t * (float)Math.PI)))) * up.Y;
+                computed.Y += ((float)(Math.Sin((double)(t * (float)Math.PI))) * height) * up.Y;
                 return computed;
             }
         }

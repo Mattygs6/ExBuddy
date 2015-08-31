@@ -66,9 +66,8 @@
 				<!-- <If condition="Core.Player.Location.Distance2D(new Clio.Utilities.Vector3(-684.4172f, 145.6977f, -600.1046f) &gt; ff14bot.Settings.CharacterSettings.Instance.MountDistance">
 				    <FlightPathTo XYZ="-684.4172, 145.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0" DismountAtDestination="false" LogWaypoints="true" />
 				</If> -->
-				<FlightPathTo XYZ="-684.4172, 145.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" LogWaypoints="true" />
-				<FlightPathTo XYZ="-684.4172, 100.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" LogWaypoints="true" />
-				<GatherCollectable NavHeight="-40">
+				<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" LogWaypoints="true" />
+				<GatherCollectable>
 					<GatherObjects>
 						<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
 					</GatherObjects>
@@ -88,7 +87,7 @@
 				</If>
 				<RunCode name="MIN"/>
 				<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
-				<GatherCollectable NavHeight="15.0">
+				<GatherCollectable>
 					<GatherObjects>
 						<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 					</GatherObjects>

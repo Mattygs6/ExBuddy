@@ -29,7 +29,7 @@
 		</If>
 		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
 		<While condition="True">
-			<GatherCollectable NavHeight="15.0">
+			<GatherCollectable>
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 				</GatherObjects>

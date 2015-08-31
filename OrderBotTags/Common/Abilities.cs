@@ -19,6 +19,11 @@
                                 },
                                 {
                                     Ability
+                                    .Preparation,
+                                    213
+                                },
+                                {
+                                    Ability
                                     .Toil,
                                     214
                                 },
@@ -108,6 +113,11 @@
                                     Ability
                                     .Stealth,
                                     229
+                                },
+                                {
+                                    Ability
+                                    .Preparation,
+                                    230
                                 },
                                 {
                                     Ability
@@ -215,6 +225,8 @@
         None,
 
         Stealth, // = 229,212
+
+        Preparation, // = 230,213
 
         Toil, // = 231,214
 

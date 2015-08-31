@@ -1,8 +1,8 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
 
+    using ff14bot;
     using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
@@ -11,18 +11,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
+            if (Core.Player.CurrentGP >= 500)
+            {
+                await tag.Cast(Ability.IncreaseGatherYield2);
+            }
+
+            await IncreaseChance(tag);
 
             return true;
         }
 
         public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
-            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
-            {
-                return -1;
-            }
-
-            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsEphemeral() || tag.IsUnspoiled())
             {
                 return -1;
             }

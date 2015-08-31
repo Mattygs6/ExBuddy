@@ -11,6 +11,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Unspoiled", 500, 23)]
     public class UnspoiledGatheringRotation : IGatheringRotation
     {
+        public GatheringRotationAttribute Attributes
+        {
+            get
+            {
+                return
+                    ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.NotInherited[this.GetType().GUID][0];
+            }
+        }
+
         protected static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
 
         public virtual bool CanOverride
@@ -56,9 +65,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
-            while (GatheringManager.SwingsRemaining > 0)
+            int swingsRemaining;
+            while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
             {
-                tag.ResolveGatherItem();
+                swingsRemaining--;
+
+                if (!tag.ResolveGatherItem())
+                {
+                    return false;
+                }
 
                 if (GatheringManager.GatheringCombo == 4)
                 {
@@ -75,11 +90,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                     }
                 }
 
-                do
-                {
-                    await Coroutine.Sleep(200);
-                }
-                while (!tag.GatherItem.GatherItem());
+                await
+                    Coroutine.Wait(
+                        500,
+                        () =>
+                        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+
+                tag.GatherItem.GatherItem();
+
+                await Coroutine.Wait(2000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;

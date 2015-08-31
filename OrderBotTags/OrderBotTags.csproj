@@ -72,6 +72,7 @@
     <Compile Include="Fish\KeeperAction.cs" />
     <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Common\Behaviors.cs" />
+    <Compile Include="Gather\Rotations\Collect240GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect345GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />

@@ -19,14 +19,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
+        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+        {
+            await IncreaseChance(tag);
+
+            return true;
+        }
+
         public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
-            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
-            {
-                return -1;
-            }
-
-            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsEphemeral() || tag.IsUnspoiled())
             {
                 return -1;
             }
@@ -36,14 +38,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         protected override async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
-            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96)
+            if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51)
             {
-                await tag.Cast(Ability.IncreaseGatherChance5);
+                return await tag.Cast(Ability.IncreaseGatherChance50);
             }
 
             if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86)
             {
-                await tag.Cast(Ability.IncreaseGatherChance15);
+                return await tag.Cast(Ability.IncreaseGatherChance15);
+            }
+
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96)
+            {
+                return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return true;

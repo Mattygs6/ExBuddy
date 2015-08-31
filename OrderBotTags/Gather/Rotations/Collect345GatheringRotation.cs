@@ -21,7 +21,7 @@
 
         public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
-            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsUnspoiled())
             {
                 // We need 5 swings to use this rotation
                 if (GatheringManager.SwingsRemaining < 5)
@@ -30,7 +30,7 @@
                 }
             }
 
-            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsEphemeral())
             {
                 // We need 4 swings to use this rotation
                 if (GatheringManager.SwingsRemaining < 4)

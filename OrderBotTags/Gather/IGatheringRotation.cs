@@ -4,6 +4,8 @@
 
     public interface IGatheringRotation
     {
+        GatheringRotationAttribute Attributes { get; }
+
         bool CanOverride { get; }
 
         bool ForceGatherIfMissingGpOrTime { get; }

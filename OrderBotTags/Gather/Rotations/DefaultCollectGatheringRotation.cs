@@ -25,6 +25,15 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
         }
 
+        public GatheringRotationAttribute Attributes
+        {
+            get
+            {
+                return
+                    ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.NotInherited[this.GetType().GUID][0];
+            }
+        }
+
         public virtual bool CanOverride
         {
             get
@@ -46,11 +55,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
             await tag.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
-            var hits = 0;
-            while (GatheringManager.WindowOpen && hits < 2)
+            var hits = tag.IsUnspoiled() ? 2 : 1;
+            var difference = GatheringManager.SwingsRemaining - hits;
+            while (difference < GatheringManager.SwingsRemaining)
             {
-                hits += tag.GatherItem.GatherItem() ? 1 : 0;
-                await Coroutine.Sleep(1000);
+                hits--;
+                await
+                    Coroutine.Wait(
+                        500,
+                        () =>
+                        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+                tag.GatherItem.GatherItem();
+
+                await Coroutine.Wait(2000, () => hits + difference == GatheringManager.SwingsRemaining);
             }
 
             MasterpieceWindow = await GetValidMasterPieceWindow(5000);
@@ -119,7 +136,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public virtual int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
-            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsUnspoiled())
             {
                 // We need 5 swings to use this rotation
                 if (GatheringManager.SwingsRemaining < 5)
@@ -128,7 +145,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 }
             }
 
-            if (tag.Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            if (tag.IsEphemeral())
             {
                 // We need 4 swings to use this rotation
                 if (GatheringManager.SwingsRemaining < 4)

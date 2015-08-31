@@ -1,6 +1,5 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
 
     using ff14bot;
@@ -30,7 +29,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
             // Not unspoiled node, don't override
-            if (tag.Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) == -1)
+            if (!tag.IsUnspoiled())
             {
                 return -1;
             }

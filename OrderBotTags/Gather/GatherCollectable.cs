@@ -30,7 +30,7 @@
     [XmlElement("GatherCollectable")]
     public class GatherCollectableTag : ProfileBehavior
     {
-        private static readonly Dictionary<string, Type> Rotations;
+        private static readonly Dictionary<string, IGatheringRotation> Rotations;
 
         private static readonly SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
@@ -38,11 +38,9 @@
 
         private Func<bool> freeRangeConditionFunc;
 
+        private IGatheringRotation initialGatherRotation;
+
         private IGatheringRotation gatherRotation;
-
-        private ushort gatherRotationGp;
-
-        private byte gatherRotationTime;
 
         internal IGatherSpot GatherSpot;
 
@@ -70,7 +68,7 @@
             get
             {
                 // Return the lower of your MaxGP rounded down to the nearest 50.
-                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), gatherRotationGp);
+                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), gatherRotation.Attributes.RequiredTimeInSeconds);
             }
         }
 
@@ -208,7 +206,7 @@
                         new ActionRunCoroutine(ctx => MoveFromGatherSpot())));
         }
 
-        private static Dictionary<string, Type> LoadRotationTypes()
+        private static Dictionary<string, IGatheringRotation> LoadRotationTypes()
         {
             Type[] types = null;
             try
@@ -216,7 +214,7 @@
                 types =
                     Assembly.GetExecutingAssembly()
                         .GetTypes()
-                        .Where(t => !t.IsAbstract && typeof(IGatheringRotation).IsAssignableFrom(t))
+                        .Where(t => !t.IsAbstract && typeof(IGatheringRotation).IsAssignableFrom(t) && t.GetCustomAttribute<GatheringRotationAttribute>() != null)
                         .ToArray();
             }
             catch
@@ -231,23 +229,22 @@
 
             ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.RegisterTypes(types);
 
-            foreach (var type in types)
+            var instances = types.Select(t => t.CreateInstance<IGatheringRotation>()).ToArray();
+
+            foreach (var instance in instances)
             {
                 Logging.Write(
                     Colors.Chartreuse,
                     "GatherCollectable: Loaded Rotation -> {0}, GP: {1}, Time: {2}",
-                    type.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
-                        attr => attr.Name,
-                        type.Name.Replace("GatheringRotation", string.Empty)),
-                        type.GetCustomAttributePropertyValue<GatheringRotationAttribute, ushort>(
-                            attr => attr.RequiredGp),
-                        type.GetCustomAttributePropertyValue<GatheringRotationAttribute, byte>(
-                            attr => attr.RequiredTimeInSeconds));
+                    instance.Attributes.Name,
+                    instance.Attributes.RequiredGp,
+                    instance.Attributes.RequiredTimeInSeconds);
             }
 
+
             var dict =
-                types.ToDictionary(
-                    k => k.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(attr => attr.Name, k.Name.Replace("GatheringRotation", string.Empty)), v => v);
+                instances.ToDictionary(
+                    k => k.Attributes.Name, v => v);
 
             return dict;
 
@@ -270,21 +267,16 @@
 
         private async Task<bool> ResolveGatherRotation()
         {
-            Type rotationType;
-            if (!Rotations.TryGetValue(GatherRotation, out rotationType))
+            IGatheringRotation rotation;
+            if (!Rotations.TryGetValue(GatherRotation, out rotation))
             {
-                rotationType = typeof(DefaultCollectGatheringRotation);
+                rotation = new DefaultCollectGatheringRotation();
                 Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using DefaultCollect instead.");
             }
 
-            gatherRotation = rotationType.CreateInstance<IGatheringRotation>();
-            gatherRotationGp =
-                rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, ushort>(p => p.RequiredGp);
-            gatherRotationTime =
-                rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, byte>(
-                    p => p.RequiredTimeInSeconds);
+            initialGatherRotation = gatherRotation = rotation;
 
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(p => p.Name, rotationType.Name.Replace("GatheringRotation", string.Empty)));
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + rotation.Attributes.Name);
 
             return true;
         }
@@ -357,9 +349,11 @@
                 if (await Coroutine.Wait(entry.Length, () => Node.Location.Distance2D(Core.Player.Location) > Radius))
                 {
                     Node = null;
-                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node cleared");
+                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
                     return false;
                 }
+
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Node removed from blacklist.");
             }
 
             Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
@@ -400,7 +394,7 @@
 
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -468,7 +462,7 @@
             // Recalculate: could have no time left at this point
             eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
+            realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -511,7 +505,7 @@
         {
             var eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotationTime;
+            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
             if (realSecondsTillStartGathering < 1)
             {
@@ -605,7 +599,7 @@
 
             if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
             {
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(Math.Max(gatherRotationTime + 15, 30)), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30)), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
             }
 
             var attempts = 0;
@@ -648,9 +642,12 @@
             await gatherRotation.ExecuteRotation(this);
             await gatherRotation.Gather(this);
 
-            Poi.Clear("Gather Complete!");
-
             await Coroutine.Wait(6000, () => !Node.CanGather);
+
+            gatherRotation = initialGatherRotation;
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+
+            Poi.Clear("Gather Complete, Node is gone!");
 
             return true;
         }
@@ -759,7 +756,7 @@
                 ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
                 ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
 
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering" + GatherItem.ItemData);
+            Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
 
             return true;
         }
@@ -795,41 +792,31 @@
 
             var rotationType = gatherRotation.GetType();
 
-            var rotationAndTypes = Rotations.Where(kvp => kvp.Value.GUID != rotationType.GUID)
+            var rotationAndTypes = Rotations.Where(kvp => !object.ReferenceEquals(kvp.Value, gatherRotation))
                 .Select(
-                    r =>
-                        {
-                            var rotation = r.Value.CreateInstance<IGatheringRotation>();
-                            return
-                                new
-                                    {
-                                        Rotation = rotation,
-                                        Type = r.Value,
-                                        OverrideValue = rotation.ShouldOverrideSelectedGatheringRotation(this)
-                                    };
-                        })
+                    r => new
+                             {
+                                 Rotation = r.Value,
+                                 OverrideValue = r.Value.ShouldOverrideSelectedGatheringRotation(this)
+                             })
                 .Where(r => r.OverrideValue > -1)
                 .OrderByDescending(r => r.OverrideValue).ToArray();
 
-            var rotationAndType = rotationAndTypes.FirstOrDefault();
+            var rotation = rotationAndTypes.FirstOrDefault();
 
-            if (rotationAndType == null)
+            if (rotation == null)
             {
                 return;
             }
-            
+
             Logging.Write(
                 Colors.Chartreuse,
                 "GatherCollectable: Rotation Override -> Old: "
-                + rotationType.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
-                attr => attr.Name,
-                    rotationType.Name.Replace("GatheringRotation", string.Empty))
+                + gatherRotation.Attributes.Name
                 + " , New: "
-                + rotationAndType.Type.GetCustomAttributePropertyValue<GatheringRotationAttribute, string>(
-                    attr => attr.Name,
-                    rotationAndType.Type.Name.Replace("GatheringRotation", string.Empty)));
+                + rotation.Rotation.Attributes.Name);
 
-            gatherRotation = rotationAndType.Rotation;
+            gatherRotation = rotation.Rotation;
         }
 
         private bool FreeRangeConditional()
@@ -845,6 +832,16 @@
         private int InventoryItemCount()
         {
             return InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems);
+        }
+
+        internal bool IsEphemeral()
+        {
+            return Node.EnglishName.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) >= 0;
+        }
+
+        internal bool IsUnspoiled()
+        {
+            return Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0;
         }
     }
 }

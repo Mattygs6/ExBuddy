@@ -673,8 +673,11 @@
 
             await Coroutine.Wait(6000, () => !Node.CanGather);
 
-            gatherRotation = initialGatherRotation;
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+            if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
+            {
+                gatherRotation = initialGatherRotation;
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+            }
 
             Poi.Clear("Gather Complete, Node is gone!");
 

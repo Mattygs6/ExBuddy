@@ -1,6 +1,5 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
 
     using ff14bot;
@@ -20,7 +19,7 @@
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
             // level 56
-            if (tag.GatherItem.Chance > 98)
+            if (tag.GatherItem.Chance > 98 || Core.Player.CurrentGP < 600)
             {
                 await Impulsive(tag);
                 await Impulsive(tag);

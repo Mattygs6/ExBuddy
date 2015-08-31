@@ -67,10 +67,10 @@
         {
             get
             {
-                var requiredTime = this.gatherRotation == null ? 0 : this.gatherRotation.Attributes.RequiredTimeInSeconds;
+                var requiredGp = this.gatherRotation == null ? 0 : this.gatherRotation.Attributes.RequiredGp;
 
                 // Return the lower of your MaxGP rounded down to the nearest 50.
-                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), requiredTime);
+                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), requiredGp);
             }
         }
 

@@ -4,12 +4,14 @@
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
-			<GatherCollectable FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
+			<GatherCollectable DiscoverUnknowns="true" FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
 				<GatherObjects>
 					<GatherObject>Ephemeral Rocky Outcrop</GatherObject>
 					<GatherObject>Ephemeral Lush Vegetation Patch</GatherObject>
 					<GatherObject>Rocky Outcrop</GatherObject>
 					<GatherObject>Lush Vegetation Patch</GatherObject>
+					<GatherObject>Mineral Deposit</GatherObject>
+					<GatherObject>Mature Tree</GatherObject>
 				</GatherObjects>
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>

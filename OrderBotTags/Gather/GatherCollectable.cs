@@ -537,10 +537,33 @@
 
         private async Task<bool> AfterGather()
         {
-            if (Core.Player.CurrentGP < AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.BeforeGather))
+            if (CordialTime.HasFlag(CordialTime.AfterGather))
             {
+                if (CordialType == CordialType.Auto && Core.Player.MaxGP - Core.Player.CurrentGP > 550)
+                {
+                    
+                }
 
+                if (CordialType == CordialType.HiCordial )
+                {
+                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 430)
+                    {
+                        if (await UseCordial(CordialType.HiCordial))
+                        {
+                            return true;
+                        }
+
+                    }
+
+                    await UseCordial(CordialType.Cordial);
+                }
+
+                if (CordialType == CordialType.Cordial && Core.Player.MaxGP - Core.Player.CurrentGP > 330)
+                {
+                    await UseCordial(CordialType.Cordial);
+                }
             }
+
 
             if (FreeRange)
             {
@@ -563,24 +586,30 @@
 
                 if (cordial != null)
                 {
-                    Logging.Write("Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Core.Player.CurrentGP);
-                    if (await Coroutine.Wait(TimeSpan.FromSeconds(maxTimeoutSeconds),
+                    Logging.Write(
+                        "Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Core.Player.CurrentGP);
+                    if (await Coroutine.Wait(
+                        TimeSpan.FromSeconds(maxTimeoutSeconds),
                         () =>
-                        {
-                            if (Core.Player.IsMounted)
                             {
-                                Logging.Write("Dismounting to use cordial.");
-                                Actionmanager.Dismount();
-                                return false;
-                            }
+                                if (Core.Player.IsMounted)
+                                {
+                                    Logging.Write("Dismounting to use cordial.");
+                                    Actionmanager.Dismount();
+                                    return false;
+                                }
 
-                            return cordial.CanUse(Core.Player);
-                        }))
+                                return cordial.CanUse(Core.Player);
+                            }))
                     {
                         cordial.UseItem(Core.Player);
                         Logging.Write("Using Cordial: " + cordialType);
                         return true;
                     }
+                }
+                else
+                {
+                    Logging.Write(Colors.Chartreuse, "No Cordial avilable, buy more " + cordialType);
                 }
             }
 

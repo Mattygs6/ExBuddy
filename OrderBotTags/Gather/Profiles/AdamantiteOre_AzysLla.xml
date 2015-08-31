@@ -33,6 +33,9 @@
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 				</GatherObjects>
+				<ItemNames>
+					<ItemName>Adamantite Ore</ItemName>
+				</ItemNames>
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect470</GatherRotation>-->
 				<GatherSpots>

@@ -14,12 +14,11 @@ namespace ExBuddy.OrderBotTags
             bool result;
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
-                //TODO:make sleep time a param?
-                await Coroutine.Wait(2200, () => Actionmanager.CanCast(spellId, Core.Player));
+                await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
                 //Wait till we can cast again
-                await Coroutine.Wait(2200, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+                await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 await Coroutine.Sleep(delay);
             }
             else
@@ -38,13 +37,12 @@ namespace ExBuddy.OrderBotTags
 
         internal static async Task<bool> Cast(uint id, int delay)
         {
-            //TODO:make sleep time a param?/ do we want to wait for before cast or just after?
             //Wait till we can cast the spell
-            await Coroutine.Wait(2200, () => Actionmanager.CanCast(id, Core.Player));
+            await Coroutine.Wait(2500, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
 
             //Wait till we can cast again
-            await Coroutine.Wait(2200, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+            await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
             await Coroutine.Sleep(delay);
 
             return result;

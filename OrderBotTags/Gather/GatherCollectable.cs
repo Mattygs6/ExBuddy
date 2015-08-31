@@ -79,11 +79,11 @@
         public bool AlwaysGather { get; set; }
 
         [DefaultValue(CordialTime.BeforeGather)]
-        [XmlElement("CordialTime")]
+        [XmlAttribute("CordialTime")]
         public CordialTime CordialTime { get; set; }
 
         [DefaultValue(CordialType.Auto)]
-        [XmlElement("CordialType")]
+        [XmlAttribute("CordialType")]
         public CordialType CordialType { get; set; }
 
         [XmlElement("DiscoverUnknowns")]
@@ -544,7 +544,7 @@
                     
                 }
 
-                if (CordialType == CordialType.HiCordial )
+                if (CordialType == CordialType.HiCordial)
                 {
                     if (Core.Player.MaxGP - Core.Player.CurrentGP > 430)
                     {

@@ -100,12 +100,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
                         if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
                         {
+                            Logging.Write("Clicked Collect");
                             MasterpieceWindow.SendAction(1, 1, 0);    
                         }
                         
                         await Coroutine.Wait(2000, () => SelectYesNoItem.IsOpen);
                     }
 
+                    Logging.Write("Clicked Yes");
                     ff14bot.RemoteWindows.SelectYesNoItem.Yes();
                 }
                 catch (Exception ex)
@@ -123,8 +125,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                     }
                 }
 
+                Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
                 await Coroutine.Wait(2000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                Logging.Write("Swings Remaining: " + GatheringManager.SwingsRemaining);
             }
+
+            Logging.Write("Exit loop");
 
             return true;
         }

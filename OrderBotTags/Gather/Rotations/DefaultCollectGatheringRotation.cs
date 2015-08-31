@@ -55,22 +55,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
             await tag.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
-            var hits = tag.IsUnspoiled() ? 2 : 1;
-            var difference = GatheringManager.SwingsRemaining - hits;
-            while (difference < GatheringManager.SwingsRemaining)
+            do
             {
-                hits--;
                 await
                     Coroutine.Wait(
-                        500,
+                        2500,
                         () =>
                         Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 tag.GatherItem.GatherItem();
-
-                await Coroutine.Wait(2000, () => hits + difference == GatheringManager.SwingsRemaining);
             }
-
-            MasterpieceWindow = await GetValidMasterPieceWindow(5000);
+            while ((MasterpieceWindow = await GetValidMasterPieceWindow(1000)) == null);
 
             return true;
         }

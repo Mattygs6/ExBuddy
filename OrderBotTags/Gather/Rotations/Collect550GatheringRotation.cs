@@ -19,8 +19,8 @@
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            // Not level 56.
-            if (tag.GatherItem.Chance > 95)
+            // level 56
+            if (tag.GatherItem.Chance > 98)
             {
                 await Impulsive(tag);
                 await Impulsive(tag);

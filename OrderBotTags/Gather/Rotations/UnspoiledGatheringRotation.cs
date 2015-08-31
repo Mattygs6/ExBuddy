@@ -74,7 +74,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             {
                 swingsRemaining--;
 
-                if (!tag.ResolveGatherItem())
+                if (!await tag.ResolveGatherItem())
                 {
                     return false;
                 }

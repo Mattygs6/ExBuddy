@@ -659,7 +659,7 @@
                 return true;
             }
 
-            if (!ResolveGatherItem())
+            if (!await ResolveGatherItem())
             {
                 isDone = true;
                 return false;
@@ -701,7 +701,7 @@
             return await Actions.CastAura(ability, SpellDelay, auraId);
         }
 
-        internal bool ResolveGatherItem()
+        internal async Task<bool> ResolveGatherItem()
         {
             GatherItem = null;
             CollectableItem = null;
@@ -769,8 +769,14 @@
             {
                 Poi.Clear("Skipping this node, no items we want to gather.");
                 var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
-                window.SendAction(1, 3, 0xFFFFFFFF);
 
+                while (window.IsValid)
+                {
+                    await Coroutine.Wait(250, () => !window.IsValid);
+                    window.SendAction(1, 3, 0xFFFFFFFF);
+                    await Coroutine.Sleep(250);
+                }
+                
                 return false;
             }
 
@@ -818,8 +824,6 @@
             {
                 return;
             }
-
-            var rotationType = gatherRotation.GetType();
 
             var rotationAndTypes = Rotations.Where(kvp => !object.ReferenceEquals(kvp.Value, gatherRotation))
                 .Select(

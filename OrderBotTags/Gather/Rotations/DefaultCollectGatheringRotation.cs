@@ -83,10 +83,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
             var exCount = 0;
-            while (GatheringManager.SwingsRemaining > 0)
+            int swingsRemaining;
+            while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
             {
                 try
                 {
+                    swingsRemaining--;
                     await Coroutine.Wait(5000, () => !SelectYesNoItem.IsOpen);
                     while (!SelectYesNoItem.IsOpen)
                     {
@@ -101,11 +103,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                             MasterpieceWindow.SendAction(1, 1, 0);    
                         }
                         
-                        await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
+                        await Coroutine.Wait(2000, () => SelectYesNoItem.IsOpen);
                     }
 
                     ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-                    await Coroutine.Sleep(2200);
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +123,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                     }
                 }
 
-                await Coroutine.Wait(300, () => GatheringManager.SwingsRemaining == 0);
+                await Coroutine.Wait(2000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;

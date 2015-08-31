@@ -12,8 +12,14 @@
 
     using ff14bot;
     using ff14bot.Enums;
-    using ff14bot.Managers;
     using ff14bot.Navigation;
+
+    public enum GatherSpotType
+    {
+        GatherSpot,
+        StealthGatherSpot,
+        StealthApproachGatherSpot
+    }
 
     public interface IGatherSpot
     {
@@ -21,13 +27,34 @@
 
         bool IsMatch { get; }
 
-        Task<bool> MoveFromSpot();
+        Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction);
 
         Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true);
     }
 
     [XmlElement("GatherSpot")]
-    public class GatherSpot : IGatherSpot
+    public class GatherSpot : StealthGatherSpot
+    {
+        public override Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
+        {
+            return base.MoveFromSpot(null);
+        }
+
+        public override Task<bool> MoveToSpot(
+            Func<Task<bool>> stealthAction,
+            Vector3 fallbackLocation,
+            uint mountId,
+            float radius = 2,
+            float navHeight = 5,
+            string name = null,
+            bool logFlight = true)
+        {
+            return base.MoveToSpot(null, fallbackLocation, mountId, radius, navHeight, name, logFlight);
+        }
+    }
+
+    [XmlElement("StealthGatherSpot")]
+    public class StealthGatherSpot : IGatherSpot
     {
         private Func<bool> conditional;
 
@@ -55,12 +82,17 @@
             }
         }
 
-        public async Task<bool> MoveFromSpot()
+        public virtual async Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
         {
+            if (unStealthAction != null)
+            {
+                await unStealthAction();
+            }
+
             return true;
         }
 
-        public async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
+        public virtual async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
         {
             if (NodeLocation == Vector3.Zero)
             {
@@ -119,9 +151,14 @@
             }
         }
 
-        public async Task<bool> MoveFromSpot()
+        public async Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
         {
-            await MoveToLocation(StealthLocation, 2.0f, "Stealth Location");
+            await MoveToLocation(StealthLocation, 1.0f, "Stealth Location");
+
+            if (unStealthAction != null)
+            {
+                unStealthAction();
+            }
 
             return true;
         }

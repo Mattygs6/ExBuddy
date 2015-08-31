@@ -9,6 +9,7 @@ namespace ExBuddy.OrderBotTags
     using Clio.Utilities;
 
     using ff14bot;
+    using ff14bot.Behavior;
     using ff14bot.Enums;
     using ff14bot.Managers;
     using ff14bot.Navigation;
@@ -17,25 +18,18 @@ namespace ExBuddy.OrderBotTags
 
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true, int timeout = Timeout.Infinite)
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true, int timeout = Timeout.Infinite, bool stopInRange = true, bool dismountAtDestination = false)
         {
             bool result;
-            if (!Core.Player.IsMounted && Core.Player.Distance(destination) >= CharacterSettings.Instance.MountDistance)
-            {
-                Navigator.Stop();
-                Actionmanager.Mount(mountId);
-                await Coroutine.Sleep(1500);
-            }
-
-            if (Core.Player.IsMounted && WorldManager.CanFly)
+            if (Core.Player.Distance(destination) >= CharacterSettings.Instance.MountDistance && WorldManager.CanFly)
             {
                 var fp = new FlightPathTo
                              {
                                  Target = destination,
                                  Radius = Math.Max(radius, 3.0f), // Flying requires a larger radius
                                  NavHeight = navHeight,
-                                 Smoothing = 0.2f,
-                                 DismountAtDestination = true,
+                                 Smoothing = 0.5f,
+                                 DismountAtDestination = dismountAtDestination,
                                  LogWaypoints = logFlight
                              };
 
@@ -44,15 +38,30 @@ namespace ExBuddy.OrderBotTags
             }
             else
             {
+                if (!Core.Player.IsMounted && Core.Player.Distance(destination) >= CharacterSettings.Instance.MountDistance)
+                {
+                    Navigator.Stop();// Do we need this still?
+                    await CommonTasks.MountUp(mountId);
+
+                    await Coroutine.Sleep(1500);// do we need this still
+                }
+
                 if (useMesh)
                 {
                     result = await Coroutine.Wait(
                         timeout,
                         () =>
                             {
+                                Sprint().Wait(timeout);
                                 var moveResult = Navigator.NavigationProvider.MoveTo(
                                     destination,
                                     name);
+
+                                if (Core.Player.Location.Distance3D(destination) <= radius)
+                                {
+                                    Navigator.PlayerMover.MoveStop();
+                                    return true;
+                                }
 
                                 return moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination;
                             });
@@ -66,6 +75,7 @@ namespace ExBuddy.OrderBotTags
                             {
                                 if (Core.Player.Location.Distance2D(destination) > radius)
                                 {
+                                    Sprint().Wait(timeout);
                                     playerMover.MoveTowards(destination);
                                     Coroutine.Sleep(200).Wait();
                                     return false;
@@ -75,12 +85,27 @@ namespace ExBuddy.OrderBotTags
                                 return true;
                             });
                 }
-
-                Actionmanager.Dismount();
-                await Coroutine.Sleep(1000);
+                
+                if (dismountAtDestination)
+                {
+                    // TODO: Check if we need sleep still
+                    await CommonTasks.StopAndDismount();
+                    await Coroutine.Sleep(1000);
+                }
             }
 
             return result;
+        }
+
+        public static async Task<bool> Sprint()
+        {
+            if (!Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving
+                && Actionmanager.IsSprintReady)
+            {
+                Actionmanager.Sprint();
+            }
+
+            return true;
         }
     }
 }

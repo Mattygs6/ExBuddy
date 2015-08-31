@@ -144,10 +144,10 @@ namespace ExBuddy.OrderBotTags
                 this.Keepers = new List<Keeper>();
             }
 
-            if (this.Collectables == null)
-            {
-                this.Collectables = new List<Collectable>();
-            }
+            ////if (this.Collectables == null)
+            ////{
+            ////    this.Collectables = new List<Collectable>();
+            ////}
 
             GamelogManager.MessageRecevied += ReceiveMessage;
             FishSpots.IsCyclic = true;
@@ -324,8 +324,8 @@ namespace ExBuddy.OrderBotTags
         [XmlElement("Keepers")]
         public List<Keeper> Keepers { get; set; }
 
-        [XmlElement("Collectables")]
-        public List<Collectable> Collectables { get; set; }
+        ////[XmlElement("Collectables")]
+        ////public List<Collectable> Collectables { get; set; }
 
         [XmlElement("FishSpots")]
         public IndexedList<FishSpot> FishSpots { get; set; }

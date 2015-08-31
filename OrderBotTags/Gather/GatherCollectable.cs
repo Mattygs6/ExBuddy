@@ -36,6 +36,8 @@
 
         private bool isDone;
 
+        private int loopCount;
+
         private Func<bool> freeRangeConditionFunc;
 
         private IGatheringRotation initialGatherRotation;
@@ -44,11 +46,15 @@
 
         internal IGatherSpot GatherSpot;
 
+        internal HotSpot HotSpot;
+
         internal GatheringPointObject Node;
 
         internal GatheringItem GatherItem;
 
         internal Collectable CollectableItem;
+
+        private Func<bool> whileFunc;
 
         static GatherCollectableTag()
         {
@@ -111,7 +117,7 @@
         [XmlElement("GatherObjects")]
         public List<string> GatherObjects { get; set; }
 
-        [DefaultValue("Collect470")]
+        [DefaultValue("RegularNode")]
         [XmlElement("GatherRotation")]
         public string GatherRotation { get; set; }
 
@@ -122,7 +128,8 @@
         [XmlElement("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
 
-        public List<HotSpot> HotSpots { get; set; }
+        [XmlElement("HotSpots")]
+        public IndexedList<HotSpot> HotSpots { get; set; }
 
         [XmlElement("Collectables")]
         public List<Collectable> Collectables { get; set; }
@@ -150,6 +157,28 @@
         [XmlAttribute("WindowDelay")]
         public int WindowDelay { get; set; }
 
+        [DefaultValue(-1)]
+        [XmlAttribute("Loops")]
+        public int Loops { get; set; }
+
+        [DefaultValue("True")]
+        [XmlAttribute("While")]
+        public string While { get; set; }
+
+        // TODO: Look into making this use Type instead of Enum
+        [DefaultValue(GatherSpotType.GatherSpot)]
+        [XmlAttribute("DefaultGatherSpotType")]
+        public GatherSpotType DefaultGatherSpotType { get; set; }
+
+        protected bool Condition()
+        {
+            if (whileFunc == null)
+            {
+                whileFunc = ScriptManager.GetCondition(While);
+            }
+
+            return whileFunc();
+        }
 
         protected override void OnResetCachedDone()
         {
@@ -159,6 +188,12 @@
             }
 
             isDone = false;
+            loopCount = 0;
+            ResetInternal();
+        }
+
+        internal void ResetInternal()
+        {
             GatherSpot = null;
             Node = null;
             GatherItem = null;
@@ -169,7 +204,12 @@
         {
             // Ensure positive values
             WindowDelay = WindowDelay > 0 ? WindowDelay : 2000;
-            SpellDelay = SpellDelay > 0 ? SpellDelay : 150;
+            SpellDelay = SpellDelay > 0 ? SpellDelay : 250;
+
+            if (HotSpots != null)
+            {
+                HotSpots.IsCyclic = Loops < 1;
+            }
         }
 
         protected override Composite CreateBehavior()
@@ -178,10 +218,16 @@
             return
                 new PrioritySelector(
                     new Decorator(
+                        ret => !Condition(),
+                        new Action(r => isDone = true)),
+                    new Decorator(
                         ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance2D(Core.Player.Location) > Radius)),
                         new Action(r => OnResetCachedDone())),
                     new Decorator(
-                        ret => Node == null,
+                        ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot(Core.Player.Location),
+                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name))),
+                    new Decorator(
+                        ret => (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location)) && Node == null,
                         new Sequence(
                             new ActionRunCoroutine(ctx => FindNode()),
                             new Action(r => MovementManager.SetFacing2D(Node.Location)))),
@@ -205,7 +251,9 @@
                             new ActionRunCoroutine(ctx => AfterGather()))),
                     new Decorator(
                         ret => Node != null && Node.IsValid && GatherSpot != null && !FreeRange && !Node.CanGather,
-                        new ActionRunCoroutine(ctx => MoveFromGatherSpot())));
+                        new Sequence(
+                        new ActionRunCoroutine(ctx => MoveFromGatherSpot()),
+                        new ActionRunCoroutine(ctx => ResetOrDone()))));
         }
 
         private static Dictionary<string, IGatheringRotation> LoadRotationTypes()
@@ -272,13 +320,53 @@
             IGatheringRotation rotation;
             if (!Rotations.TryGetValue(GatherRotation, out rotation))
             {
-                rotation = new DefaultCollectGatheringRotation();
-                Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using DefaultCollect instead.");
+                rotation = new RegularNodeGatheringRotation();
+                Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using RegularNode instead.");
             }
 
             initialGatherRotation = gatherRotation = rotation;
 
             Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + rotation.Attributes.Name);
+
+            return true;
+        }
+
+        private async Task<bool> ResetOrDone()
+        {
+            if (HotSpots == null || HotSpots.Count == 0)
+            {
+                isDone = true;
+            }
+            else
+            {
+                ResetInternal();
+                await ChangeHotSpot();
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ChangeHotSpot()
+        {
+            if (HotSpots != null)
+            {
+                // If finished current loop and set to not cyclic (we know this because if it was cyclic Next is always true)
+                if (!HotSpots.Next())
+                {
+                    // If finished all loops, otherwise just incrementing loop count
+                    if (++loopCount == Loops)
+                    {
+                        isDone = true;
+                        return true;
+                    }
+
+                    // If not cyclic and it is on the last index
+                    if (!HotSpots.IsCyclic && HotSpots.Index == HotSpots.Count - 1)
+                    {
+                        HotSpots.Index = 0;
+                    }
+                }
+            }
 
             return true;
         }
@@ -293,7 +381,7 @@
             // Either GatherSpots is null, the node is already in range, or there are no matches, use fallback
             if (GatherSpot == null)
             {
-                GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
+                SetFallbackGatherSpot(Node.Location, true);
             }
 
             Logging.Write(Colors.Chartreuse, "GatherCollectable: GatherSpot set -> " + GatherSpot);
@@ -301,7 +389,7 @@
             return true;
         }
 
-        private async Task<bool> FindNode()
+        private async Task<bool> FindNode(bool retryCenterHotspot = true)
         {
             IEnumerable<GatheringPointObject> nodes;
 
@@ -313,7 +401,17 @@
             }
             else
             {
-                nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>();
+                if (HotSpots != null)
+                {
+                    nodes =
+                        GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                            .OrderBy(gpo => HotSpots.CurrentOrDefault.XYZ.Distance2D(gpo.Location))
+                            .Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
+                }
+                else
+                {
+                    nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>();
+                }
             }
 
             if (GatherObjects != null)
@@ -332,6 +430,27 @@
 
             if (Node == null)
             {
+                if (HotSpots != null)
+                {
+                    if (retryCenterHotspot)
+                    {
+                        await
+                            Behaviors.MoveTo(
+                                HotSpots.CurrentOrDefault,
+                                true,
+                                (uint)MountId,
+                                Radius,
+                                NavHeight,
+                                HotSpots.CurrentOrDefault.Name);
+
+                        Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes, trying again from center of hotspot.");
+
+                        return await FindNode(false);
+                    }
+
+                    await ChangeHotSpot();
+                }
+
                 if (FreeRange && !FreeRangeConditional())
                 {
                     await Coroutine.Sleep(100);
@@ -384,9 +503,17 @@
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            var result = await GatherSpot.MoveFromSpot();
+            var result = await GatherSpot.MoveFromSpot(
+                async () =>
+                    {
+                        if (Core.Player.HasAura((int)AbilityAura.Stealth))
+                        {
+                            return await CastAura(Ability.Stealth);
+                        }
 
-            isDone = true;
+                        return true;
+                    });
+
             return result;
         }
 
@@ -694,10 +821,13 @@
 
         private async Task<bool> Gather()
         {
-            await
-                CastAura(
-                    Ability.Truth,
-                    Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+            if (Core.Player.ClassLevel >= 46)
+            {
+                await
+                    CastAura(
+                        Ability.Truth,
+                        Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+            }
 
             if (Poi.Current.Unit != Node)
             {
@@ -723,7 +853,7 @@
                     }
 
                     Logging.Write("Gathering Window didn't open: Re-attempting to move into place. " + ++attempts);
-                    GatherSpot = new GatherSpot { NodeLocation = Node.Location, UseMesh = true };
+                    //SetFallbackGatherSpot(Node.Location, true);
 
                     await MoveToGatherSpot();
                 }
@@ -865,14 +995,30 @@
             }
 
             GatherItem =
-                windowItems.OrderByDescending(i => i.SlotIndex)
-                    .FirstOrDefault(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20) // Try to gather cluster/crystal/shard
+                windowItems.Where(i => i.IsFilled && !i.IsUnknown)
+                    .OrderByDescending(i => i.ItemId)
+                    .FirstOrDefault(i => i.ItemId < 20) // Try to gather cluster/crystal/shard
                 ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
                 ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
 
             Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
 
             return true;
+        }
+
+        private void SetFallbackGatherSpot(Vector3 location, bool useMesh)
+        {
+            switch (DefaultGatherSpotType)
+            {
+                case GatherSpotType.StealthApproachGatherSpot:
+                case GatherSpotType.StealthGatherSpot:
+                    GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };
+                    break;
+                case GatherSpotType.GatherSpot:
+                default:
+                    GatherSpot = new GatherSpot { NodeLocation = location, UseMesh = useMesh };
+                    break;
+            }
         }
 
         private bool SetGatherItemByItemName(ICollection<GatheringItem> windowItems)

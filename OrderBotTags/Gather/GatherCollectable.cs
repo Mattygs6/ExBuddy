@@ -191,12 +191,12 @@
                         new ActionRunCoroutine(ctx => ResolveGatherRotation())),
                     new Decorator(
                         ret =>
-                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance2D(Core.Player.Location) > Distance,
+                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
                         new ActionRunCoroutine(ctx => MoveToGatherSpot())),
                     new Decorator(
                         ret =>
                         Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
-                        && Node.Location.Distance2D(Core.Player.Location) <= Distance,
+                        && Node.Location.Distance3D(Core.Player.Location) <= Distance,
                         new Sequence(
                             new ActionRunCoroutine(ctx => BeforeGather()),
                             new ActionRunCoroutine(ctx => Gather()),

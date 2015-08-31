@@ -19,18 +19,12 @@
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            // Not level 60.
+            // Not level 56.
             if (tag.GatherItem.Chance > 95)
             {
                 await Impulsive(tag);
                 await Impulsive(tag);
                 await Methodical(tag);
-
-                // level 58 only
-                if (tag.GatherItem.Chance < 99 && (Core.Player.CurrentGP >= 650 || (Core.Player.MaxGP - Core.Player.CurrentGP) <= 50))
-                {
-                    await tag.Cast(Ability.IncreaseGatherChance5);
-                }
 
                 return true;
             }

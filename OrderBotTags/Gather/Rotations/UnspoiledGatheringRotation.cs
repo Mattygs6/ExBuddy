@@ -45,8 +45,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await tag.Cast(Ability.CollectorsGlove);
             }
 
+            await
+                Coroutine.Wait(
+                    tag.WindowDelay + 500,
+                    () =>
+                    Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
             tag.GatherItem.GatherItem();
-            await Coroutine.Sleep(1000);
 
             return true;
         }

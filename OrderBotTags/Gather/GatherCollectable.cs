@@ -659,8 +659,6 @@
                 return true;
             }
 
-            await Coroutine.Sleep(WindowDelay > 0 ? WindowDelay : 2000);
-
             if (!ResolveGatherItem())
             {
                 isDone = true;

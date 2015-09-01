@@ -10,7 +10,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.RemoteWindows;
-    
+
     // Gathers approx 516 if perception capped.
     [GatheringRotation("DefaultCollect")]
     public class DefaultCollectGatheringRotation : IGatheringRotation
@@ -46,7 +46,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         {
             get
             {
-                return false;
+                return Poi.Current != null && Poi.Current.Type == PoiType.Gather
+                       && Poi.Current.Name.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) == -1
+                       && Poi.Current.Name.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) == -1;
             }
         }
 
@@ -101,9 +103,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                         if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
                         {
                             Logging.Write("Clicked Collect");
-                            MasterpieceWindow.SendAction(1, 1, 0);    
+                            MasterpieceWindow.SendAction(1, 1, 0);
                         }
-                        
+
                         await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
                     }
 

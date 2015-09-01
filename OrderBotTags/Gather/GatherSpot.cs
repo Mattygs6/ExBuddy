@@ -1,18 +1,12 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather
 {
-    using System;
     using System.ComponentModel;
-    using System.Threading;
     using System.Threading.Tasks;
-
-    using Buddy.Coroutines;
 
     using Clio.Utilities;
     using Clio.XmlEngine;
 
     using ff14bot;
-    using ff14bot.Enums;
-    using ff14bot.Navigation;
 
     public enum GatherSpotType
     {
@@ -25,43 +19,25 @@
     {
         Vector3 NodeLocation { get; set; }
 
-        bool IsMatch { get; }
+        Task<bool> MoveFromSpot(GatherCollectableTag tag);
 
-        Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction);
-
-        Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true);
+        Task<bool> MoveToSpot(GatherCollectableTag tag);
     }
 
     [XmlElement("GatherSpot")]
     public class GatherSpot : StealthGatherSpot
     {
-        public override Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
+        public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            return base.MoveFromSpot(null);
-        }
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, tag.Node.EnglishName, tag.LogFlight, true, true);
 
-        public override Task<bool> MoveToSpot(
-            Func<Task<bool>> stealthAction,
-            Vector3 fallbackLocation,
-            uint mountId,
-            float radius = 2,
-            float navHeight = 5,
-            string name = null,
-            bool logFlight = true)
-        {
-            return base.MoveToSpot(null, fallbackLocation, mountId, radius, navHeight, name, logFlight);
+            return result;
         }
     }
 
     [XmlElement("StealthGatherSpot")]
     public class StealthGatherSpot : IGatherSpot
     {
-        private Func<bool> conditional;
-
-        [DefaultValue("True")]
-        [XmlAttribute("Condition")]
-        public string Condition { get; set; }
-
         [XmlAttribute("NodeLocation")]
         public Vector3 NodeLocation { get; set; }
 
@@ -69,67 +45,40 @@
         [XmlAttribute("UseMesh")]
         public bool UseMesh { get; set; }
 
-        public bool IsMatch
+        public virtual async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
-            get
+            if (Core.Player.HasAura((int)AbilityAura.Stealth))
             {
-                if (conditional == null)
-                {
-                    conditional = ScriptManager.GetCondition(Condition);
-                }
-
-                return conditional();
-            }
-        }
-
-        public virtual async Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
-        {
-            if (unStealthAction != null)
-            {
-                await unStealthAction();
+                return await tag.CastAura(Ability.Stealth);
             }
 
             return true;
         }
 
-        public virtual async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
+        public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            if (NodeLocation == Vector3.Zero)
-            {
-                NodeLocation = fallbackLocation;
-            }
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, tag.Node.EnglishName, tag.LogFlight, true, true);
 
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, mountId, radius, navHeight, name, logFlight);
-
-            if (stealthAction != null)
-            {
-                await stealthAction();
-            }
+            result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
             return result;
         }
 
         public override string ToString()
         {
-            return string.Format("GatherSpot -> NodeLocation: {0}, Condition: {1}, UseMesh: {2}", NodeLocation, Condition, UseMesh);
+            return string.Format("GatherSpot -> NodeLocation: {0}, UseMesh: {1}", NodeLocation, UseMesh);
         }
     }
 
     [XmlElement("StealthApproachGatherSpot")]
     public class StealthApproachGatherSpot : IGatherSpot
     {
-        private Func<bool> conditional;
-
-        [DefaultValue("True")]
-        [XmlAttribute("Condition")]
-        public string Condition { get; set; }
-
         [XmlAttribute("NodeLocation")]
         public Vector3 NodeLocation { get; set; }
 
         [XmlAttribute("StealthLocation")]
         public Vector3 StealthLocation { get; set; }
-
+            
         [DefaultValue(true)]
         [XmlAttribute("ReturnToStealthLocation")]
         public bool ReturnToStealthLocation { get; set; }
@@ -138,114 +87,50 @@
         [XmlAttribute("UseMesh")]
         public bool UseMesh { get; set; }
 
-        public bool IsMatch
+        [XmlAttribute("UnstealthAfter")]
+        public bool UnstealthAfter { get; set; }
+
+        public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
-            get
+            var result = true;
+            if (ReturnToStealthLocation)
             {
-                if (conditional == null)
-                {
-                    conditional = ScriptManager.GetCondition(Condition);
-                }
-
-                return conditional();
-            }
-        }
-
-        public async Task<bool> MoveFromSpot(Func<Task<bool>> unStealthAction)
-        {
-            await MoveToLocation(StealthLocation, 1.0f, "Stealth Location");
-
-            if (unStealthAction != null)
-            {
-                unStealthAction();
+                result &= await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName);
             }
 
-            return true;
+            if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
+            {
+                result &= await tag.CastAura(Ability.Stealth);
+            }
+
+            return result;
         }
 
-        public async Task<bool> MoveToSpot(Func<Task<bool>> stealthAction, Vector3 fallbackLocation, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true)
+        public async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
             if (StealthLocation == Vector3.Zero)
             {
                 return false;
             }
 
-            if (NodeLocation == Vector3.Zero)
-            {
-                NodeLocation = fallbackLocation;
-            }
-
-            var result = await MoveToStealthLocation(mountId, radius, navHeight, logFlight);
+            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, "Stealth Location", tag.LogFlight, true, true);
 
             if (result)
             {
-                if (stealthAction != null)
-                {
-                    await stealthAction();
-                }
+                await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-                result = await MoveToNodeLocation(radius, name);
+                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Radius, tag.Node.EnglishName);
             }
 
             return result;
-        }
-
-        private async Task<bool> MoveToLocation(Vector3 destination, float radius, string name)
-        {
-            bool result;
-            if (UseMesh)
-            {
-                result = await Coroutine.Wait(
-                    Timeout.Infinite,
-                    () =>
-                    {
-                        var moveResult = Navigator.NavigationProvider.MoveTo(
-                            destination,
-                            name);
-
-                        return moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination;
-                    });
-            }
-            else
-            {
-                var playerMover = new SlideMover();
-                result = await Coroutine.Wait(
-                    Timeout.Infinite,
-                    () =>
-                    {
-                        if (Core.Player.Location.Distance2D(destination) > radius)
-                        {
-                            playerMover.MoveTowards(destination);
-                            Coroutine.Sleep(200).Wait();
-                            return false;
-                        }
-
-                        playerMover.MoveStop();
-                        return true;
-                    });
-            }
-
-            return result;
-        }
-
-        private async Task<bool> MoveToStealthLocation(uint mountId, float radius, float navHeight, bool logFlight)
-        {
-            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, mountId, radius, navHeight, "Stealth Location", logFlight);
-            return result;
-        }
-
-        private async Task<bool> MoveToNodeLocation(float radius, string name)
-        {
-            return await MoveToLocation(NodeLocation, radius, name);
         }
 
         public override string ToString()
         {
             return string.Format(
-                "StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, Condition: {2}, ReturnToStealthLocation: {3}, UseMesh: {4}",
+                "StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, ReturnToStealthLocation: {2}, UseMesh: {3}",
                 StealthLocation,
                 NodeLocation,
-                Condition,
                 ReturnToStealthLocation,
                 UseMesh);
         }

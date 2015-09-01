@@ -6,7 +6,7 @@
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
 			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
-			CordialType="Cordial" CordialTime="Auto">
+			CordialType="Cordial">
 				<Collectables>
 					<!-- 450 -->
 					<Collectable Name="Cuprite" Value="450" />
@@ -26,7 +26,7 @@
 					<Collectable Name="Bright Lightning Rock" Value="550" />
 					<Collectable Name="Lightning Moraine" Value="550" />
 					<Collectable Name="Clary Sage" Value="550" />
-					<Collectable Name="Fury Mint" Value="550" />
+					<Collectable Name="Furymint" Value="550" />
 					<Collectable Name="Highland Oregano" Value="550" />
 					<Collectable Name="Black Soil" Value="550" />
 					<Collectable Name="Peat Moss" Value="550" />

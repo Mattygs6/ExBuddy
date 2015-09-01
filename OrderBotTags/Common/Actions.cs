@@ -17,6 +17,8 @@ namespace ExBuddy.OrderBotTags
                 await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
+                //Wait till we have the aura
+                await Coroutine.Wait(2500, () => Core.Player.HasAura(auraId));
                 //Wait till we can cast again
                 await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 await Coroutine.Sleep(delay);
@@ -42,7 +44,7 @@ namespace ExBuddy.OrderBotTags
             var result = Actionmanager.DoAction(id, Core.Player);
 
             //Wait till we can cast again
-            await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.CollectorsGlove], Core.Player));
+            await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
             await Coroutine.Sleep(delay);
 
             return result;

@@ -4,20 +4,20 @@
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
-			<GatherCollectable FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
-				<GatherObjects>
-					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
-					<GatherObject>Unspoiled Rocky Outcrop</GatherObject>
-					<GatherObject>Unspoiled Mature Tree</GatherObject>
-					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
-				</GatherObjects>
+			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
+			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
+			CordialType="Cordial">
+				<Collectables>
+					<!-- 450 -->
+					<Collectable Name="Cuprite" Value="450" />
+					<Collectable Name="Red Quartz" Value="450" />
+					<Collectable Name="Light Kidney Ore" Value="450" />
+					<Collectable Name="Abalathian Mistletoe" Value="450" />
+					<Collectable Name="Heavens Lemon" Value="450" />
+					<Collectable Name="Morel" Value="450" />
+				</Collectables>
 				<ItemNames>
-					<ItemName>Cuprite</ItemName>
-					<ItemName>Red Quartz</ItemName>
-					<ItemName>Light Kidney Ore</ItemName>
-					<ItemName>Morel</ItemName>
-					<ItemName>Abalathian Mistletoe</ItemName>
-					<ItemName>Heavens Lemon</ItemName>
+					<ItemName>Timeworn Dragonskin Map</ItemName>
 				</ItemNames>
 				<GatherRotation>Collect450</GatherRotation>
 			</GatherCollectable>

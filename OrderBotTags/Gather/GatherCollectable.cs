@@ -16,6 +16,7 @@
     using ExBuddy.OrderBotTags.Gather.Rotations;
 
     using ff14bot;
+    using ff14bot.Behavior;
     using ff14bot.Enums;
     using ff14bot.Helpers;
     using ff14bot.Managers;
@@ -46,8 +47,6 @@
 
         internal IGatherSpot GatherSpot;
 
-        internal HotSpot HotSpot;
-
         internal GatheringPointObject Node;
 
         internal GatheringItem GatherItem;
@@ -55,6 +54,8 @@
         internal Collectable CollectableItem;
 
         private Func<bool> whileFunc;
+
+        private DateTime startTime;
 
         static GatherCollectableTag()
         {
@@ -88,11 +89,11 @@
         [XmlAttribute("CordialTime")]
         public CordialTime CordialTime { get; set; }
 
-        [DefaultValue(CordialType.Auto)]
+        [DefaultValue(CordialType.None)]
         [XmlAttribute("CordialType")]
         public CordialType CordialType { get; set; }
 
-        [XmlElement("DiscoverUnknowns")]
+        [XmlAttribute("DiscoverUnknowns")]
         public bool DiscoverUnknowns { get; set; }
 
         [XmlAttribute("FreeRange")]
@@ -106,17 +107,22 @@
         [XmlAttribute("MountId")]
         public int MountId { get; set; }
 
-        [DefaultValue(true)]
         [XmlAttribute("LogFlight")]
         public bool LogFlight { get; set; }
 
+        // I want this to be an attribute, but for backwards compatibilty, we will use element
         [DefaultValue(-1)]
-        [XmlAttribute("Slot")]
+        [XmlElement("Slot")]
         public int Slot { get; set; }
+
+        // Backwards compatibility
+        [XmlElement("GatherObject")]
+        public string GatherObject { get; set; }
 
         [XmlElement("GatherObjects")]
         public List<string> GatherObjects { get; set; }
 
+        // Maybe this should be an attribute?
         [DefaultValue("RegularNode")]
         [XmlElement("GatherRotation")]
         public string GatherRotation { get; set; }
@@ -125,7 +131,7 @@
         public List<StealthApproachGatherSpot> GatherSpots { get; set; }
 
         [DefaultValue(GatherStrategy.GatherOrCollect)]
-        [XmlElement("GatherStrategy")]
+        [XmlAttribute("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
 
         [XmlElement("HotSpots")]
@@ -160,6 +166,9 @@
         [DefaultValue(-1)]
         [XmlAttribute("Loops")]
         public int Loops { get; set; }
+
+        [XmlAttribute("SpawnTimeout")]
+        public int SpawnTimeout { get; set; }
 
         [DefaultValue("True")]
         [XmlAttribute("While")]
@@ -210,27 +219,39 @@
             {
                 HotSpots.IsCyclic = Loops < 1;
             }
+
+            // backwards compatibility
+            if (GatherObjects == null && !string.IsNullOrWhiteSpace(GatherObject))
+            {
+                GatherObjects = new List<string>{ GatherObject };
+            }
+
+            startTime = DateTime.Now;
         }
 
         protected override Composite CreateBehavior()
         {
-            // Had to add null check for node.
             return
                 new PrioritySelector(
                     new Decorator(
                         ret => !Condition(),
                         new Action(r => isDone = true)),
+                        new Decorator(
+                            ret => !MovementManager.IsFlying && Core.Player.ClassLevel >= 46 && !Core.Player.HasAura((int)(Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)),
+                            new ActionRunCoroutine(ctx => CastTruth())),
                     new Decorator(
                         ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance2D(Core.Player.Location) > Radius)),
                         new Action(r => OnResetCachedDone())),
                     new Decorator(
-                        ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot(Core.Player.Location),
-                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name))),
+                        ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
+                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius -1, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight))),
                     new Decorator(
                         ret => (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location)) && Node == null,
                         new Sequence(
                             new ActionRunCoroutine(ctx => FindNode()),
-                            new Action(r => MovementManager.SetFacing2D(Node.Location)))),
+                            new Decorator(
+                                ret => HotSpots == null,
+                            new Action(r => MovementManager.SetFacing2D(Node.Location))))),
                     new Decorator(
                         ret => Node != null && Node.IsValid && GatherSpot == null,
                         new ActionRunCoroutine(ctx => FindGatherSpot())),
@@ -331,6 +352,22 @@
             return true;
         }
 
+        private async Task<bool> CastTruth()
+        {
+            while (Core.Player.IsMounted)
+            {
+                await CommonTasks.StopAndDismount();
+                await Coroutine.Yield();
+            }
+
+            await
+                CastAura(
+                    Ability.Truth,
+                    Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+
+            return true;
+        }
+        
         private async Task<bool> ResetOrDone()
         {
             if (HotSpots == null || HotSpots.Count == 0)
@@ -348,6 +385,11 @@
 
         private async Task<bool> ChangeHotSpot()
         {
+            if (SpawnTimeout > 0 && DateTime.Now < startTime.AddSeconds(SpawnTimeout))
+            {
+                return false;
+            }
+
             if (HotSpots != null)
             {
                 // If finished current loop and set to not cyclic (we know this because if it was cyclic Next is always true)
@@ -375,7 +417,7 @@
         {
             if (GatherSpots != null && Node.Location.Distance2D(Core.Player.Location) > Distance)
             {
-                GatherSpot = GatherSpots.FirstOrDefault(gs => gs != null && gs.IsMatch);
+                GatherSpot = GatherSpots.OrderBy(gs => gs.NodeLocation.Distance2D(Node.Location)).FirstOrDefault();
             }
 
             // Either GatherSpots is null, the node is already in range, or there are no matches, use fallback
@@ -391,134 +433,123 @@
 
         private async Task<bool> FindNode(bool retryCenterHotspot = true)
         {
-            IEnumerable<GatheringPointObject> nodes;
+            while (true)
+            {
+                IEnumerable<GatheringPointObject> nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>().Where(gpo => gpo.CanGather).ToArray();
 
-            if (FreeRange)
-            {
-                nodes =
-                    GameObjectManager.GetObjectsOfType<GatheringPointObject>()
-                        .Where(gpo => gpo.Distance2D(Core.Player.Location) < Radius);
-            }
-            else
-            {
-                if (HotSpots != null)
+                if (GatherStrategy == GatherStrategy.TouchAndGo && HotSpots != null)
                 {
-                    nodes =
-                        GameObjectManager.GetObjectsOfType<GatheringPointObject>()
-                            .OrderBy(gpo => HotSpots.CurrentOrDefault.XYZ.Distance2D(gpo.Location))
-                            .Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
+                    if (GatherObjects != null)
+                    {
+                        nodes = nodes.Where(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
+                    }
+
+                    foreach (var node in nodes.OrderBy(gpo => gpo.Location.Distance2D(Core.Player.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location)).Skip(1))
+                    {
+                        if (!Blacklist.Contains(node.ObjectId, BlacklistFlags.Interact))
+                        {
+                            Blacklist.Add(node, BlacklistFlags.Interact, TimeSpan.FromSeconds(30), "Skip furthest nodes in hotspot. We only want 1.");
+                        }
+                    }
+                }
+
+                nodes = nodes.Where(gpo => !Blacklist.Contains(gpo.ObjectId, BlacklistFlags.Interact));
+
+                if (FreeRange)
+                {
+                    nodes = nodes.Where(gpo => gpo.Distance2D(Core.Player.Location) < Radius);
                 }
                 else
                 {
-                    nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>();
-                }
-            }
-
-            if (GatherObjects != null)
-            {
-                Node =
-                    nodes
-                        .OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
-                        .FirstOrDefault(
-                            gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase)
-                            && gpo.CanGather);
-            }
-            else
-            {
-                Node = nodes.FirstOrDefault(gpo => gpo.CanGather);
-            }
-
-            if (Node == null)
-            {
-                if (HotSpots != null)
-                {
-                    if (retryCenterHotspot)
+                    if (HotSpots != null)
                     {
-                        await
-                            Behaviors.MoveTo(
-                                HotSpots.CurrentOrDefault,
-                                true,
-                                (uint)MountId,
-                                Radius,
-                                NavHeight,
-                                HotSpots.CurrentOrDefault.Name);
+                        nodes = nodes.OrderBy(gpo => gpo.Location.Distance2D(Core.Player.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
+                    }
+                }
 
-                        Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes, trying again from center of hotspot.");
+                if (GatherObjects != null)
+                {
+                    Node = nodes.OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
+                }
+                else
+                {
+                    Node = nodes.FirstOrDefault();
+                }
 
-                        return await FindNode(false);
+                if (Node == null)
+                {
+                    if (HotSpots != null)
+                    {
+                        if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot)
+                        {
+                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight);
+
+                            Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes, trying again from center of hotspot.");
+
+                            retryCenterHotspot = false;
+                            continue;
+                        }
+
+                        if (!await ChangeHotSpot())
+                        {
+                            retryCenterHotspot = false;
+                            continue;
+                        }
                     }
 
-                    await ChangeHotSpot();
-                }
-
-                if (FreeRange && !FreeRangeConditional())
-                {
-                    await Coroutine.Sleep(100);
-                    isDone = true;
-                }
-
-                return false;
-            }
-
-            var entry = Blacklist.GetEntry(Node.ObjectId);
-            if (entry != null && entry.Flags.HasFlag(BlacklistFlags.Interact))
-            {
-                Logging.Write(
-                    Colors.PaleVioletRed,
-                    "Node on blacklist, waiting until we move out of range or it clears.");
-
-                if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Core.Player.Location) > Radius))
-                {
-                    if (!entry.IsFinished)
+                    if (FreeRange && !FreeRangeConditional())
                     {
-                        Node = null;
-                        Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
-                        return false;
+                        await Coroutine.Yield();
+                        isDone = true;
                     }
 
+                    return false;
                 }
 
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Node removed from blacklist.");
+                var entry = Blacklist.GetEntry(Node.ObjectId);
+                if (entry != null && entry.Flags.HasFlag(BlacklistFlags.Interact))
+                {
+                    Logging.Write(Colors.PaleVioletRed, "Node on blacklist, waiting until we move out of range or it clears.");
+
+                    if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Core.Player.Location) > Radius))
+                    {
+                        if (!entry.IsFinished)
+                        {
+                            Node = null;
+                            Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
+                            return false;
+                        }
+                    }
+
+                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node removed from blacklist.");
+                }
+
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
+
+                return true;
             }
-
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
-
-            return true;
         }
 
         private async Task<bool> MoveToGatherSpot()
         {
-            var result =
-                await
-                GatherSpot.MoveToSpot(
-                    () => CastAura(Ability.Stealth, AbilityAura.Stealth),
-                    Node.Location,
-                    (uint)MountId,
-                    Radius,
-                    NavHeight,
-                    "Gather Spot",
-                    LogFlight);
+            var result = await GatherSpot.MoveToSpot(this);
             return result;
         }
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            var result = await GatherSpot.MoveFromSpot(
-                async () =>
-                    {
-                        if (Core.Player.HasAura((int)AbilityAura.Stealth))
-                        {
-                            return await CastAura(Ability.Stealth);
-                        }
-
-                        return true;
-                    });
+            var result = await GatherSpot.MoveFromSpot(this);
 
             return result;
         }
 
         private async Task<bool> BeforeGather()
         {
+            if (Poi.Current.Unit != Node)
+            {
+                Poi.Current = new Poi(Node, PoiType.Gather);
+            }
+
             //TODO: Fix the logic so it is easier to read
             if (Core.Player.CurrentGP >= AdjustedWaitForGp)
             {
@@ -556,7 +587,7 @@
                 }
 
                 Logging.Write("Not enough time to gather");
-                isDone = true;
+                // isDone = true;
                 return true;
             }
 
@@ -579,7 +610,7 @@
                 }
 
                 Logging.Write("Not enough time to gather");
-                isDone = true;
+                // isDone = true;
                 return true;
             }
 
@@ -639,7 +670,7 @@
                 }
 
                 Logging.Write("Not enough GP to gather");
-                isDone = true;
+                // isDone = true;
                 return true;
             }
 
@@ -701,7 +732,7 @@
                 }
 
                 Logging.Write("Not enough time to gather");
-                isDone = true;
+                // isDone = true;
                 return true;
             }
 
@@ -795,7 +826,7 @@
                         TimeSpan.FromSeconds(maxTimeoutSeconds),
                         () =>
                         {
-                            if (Core.Player.IsMounted)
+                            if (Core.Player.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
                             {
                                 Logging.Write("Dismounting to use cordial.");
                                 Actionmanager.Dismount();
@@ -821,22 +852,13 @@
 
         private async Task<bool> Gather()
         {
-            if (Core.Player.ClassLevel >= 46)
-            {
-                await
-                    CastAura(
-                        Ability.Truth,
-                        Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
-            }
-
-            if (Poi.Current.Unit != Node)
-            {
-                Poi.Current = new Poi(Node, PoiType.Gather);
-            }
-
             if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
             {
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30)), "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
+                                          ? TimeSpan.FromSeconds(15)
+                                          : TimeSpan.FromSeconds(
+                                              Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
             }
 
             var attempts = 0;
@@ -867,7 +889,7 @@
 
             if (!await ResolveGatherItem())
             {
-                isDone = true;
+                ResetInternal();
                 return false;
             }
 
@@ -974,16 +996,15 @@
                 GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
             }
 
-            if (GatherItem == null && !AlwaysGather)
+            if (GatherItem == null && (!AlwaysGather || GatherStrategy == GatherStrategy.TouchAndGo))
             {
                 Poi.Clear("Skipping this node, no items we want to gather.");
                 var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
 
                 while (window.IsValid)
                 {
-                    await Coroutine.Wait(250, () => !window.IsValid);
                     window.SendAction(1, 3, 0xFFFFFFFF);
-                    await Coroutine.Sleep(250);
+                    await Coroutine.Yield();
                 }
 
                 return false;

@@ -9,9 +9,16 @@
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
 				if(!Core.Player.HasAura(222))
 				{
-					if(Core.Player.IsMounted)
+					var result = true;
+					if (MovementManager.IsFlying)
 					{
-						Actionmanager.Dismount();
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
 						await Buddy.Coroutines.Coroutine.Sleep(1000);
 					}
 					
@@ -27,9 +34,9 @@
 			<TeleportTo Name="Helix" AetheryteId="74" />
 			<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
 		</If>
-		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" DismountAtDestination="false" />
+		<!-- TODO: do we still need the while? -->
 		<While condition="True">
-			<GatherCollectable>
+			<GatherCollectable loops="1" spawnTimeout="120">
 				<GatherObjects>
 					<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 				</GatherObjects>
@@ -39,20 +46,14 @@
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect470</GatherRotation>-->
 				<GatherSpots>
-					<StealthApproachGatherSpot 
-						stealthLocation="70.86564, -0.4920825, -858.0936"
-						nodeLocation="71.80842, -0.29418, -856.2421"
-						condition="(Core.Player.Heading &gt; 1.5 or Core.Player.Heading == 1.5) and Core.Player.Heading &lt; 3.6"/>
-					<StealthApproachGatherSpot
-						stealthLocation="20.53567, -1.213719, -827.198"
-						nodeLocation="24.25113, -0.01400313, -832.7057"
-						condition="(Core.Player.Heading &gt; 3.6 or Core.Player.Heading == 3.6) and Core.Player.Heading &lt; 5.7"/>
-					<StealthApproachGatherSpot
-						stealthLocation="89.52304, -1.827069, -791.0764"
-						nodeLocation="79.85004, -0.2340581, -805.6276"/>
+					<StealthApproachGatherSpot stealthLocation="70.86564, -0.4920825, -858.0936" nodeLocation="72.07767, 0.7522836, -854.5031"/>
+					<StealthApproachGatherSpot stealthLocation="20.53567, -1.213719, -827.198" nodeLocation="25.29292, 0.5668808, -833.7905"/>
+					<StealthApproachGatherSpot stealthLocation="89.52304, -1.827069, -791.0764"	nodeLocation="79.63015, 0.5219008, -804.5839"/>
 				</GatherSpots>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="57.50256, 21.00859, -835.1724"/>
+				</HotSpots>
 			</GatherCollectable>
-			<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="5.0" DismountAtDestination="false" />
 		</While>
 	</Order>
 </Profile>

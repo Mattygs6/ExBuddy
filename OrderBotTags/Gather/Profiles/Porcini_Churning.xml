@@ -7,9 +7,18 @@
 			<![CDATA[
 				ff14bot.Managers.ChatManager.SendChat("/gs change 20");
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				
 				if(!Core.Player.HasAura(221))
 				{
-					if(Core.Player.IsMounted)
+					var result = true;
+
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
 					{
 						Actionmanager.Dismount();
 						await Buddy.Coroutines.Coroutine.Sleep(1000);
@@ -25,32 +34,25 @@
 		<If Condition="not IsOnMap(400)">
 			<TeleportTo Name="Zenith" AetheryteId="79" />
 			<MoveTo XYZ="-574.8106, 48.80803, 310.9625"/>
+			<FlightPathTo XYZ="-463.0666, 160.2987, 266.5712" Radius="3.0" MountId="1" DismountAtDestination="false" />
 		</If>
 		<RunCode name="Gear"/>
-		<FlightPathTo XYZ="-463.0666, 160.2987, 266.5712" Radius="3.0" Smoothing="0.4" MountId="1" DismountAtDestination="false" />
-		<FlightPathTo XYZ="173.6, 296.5012, -704.6605" Radius="3.0" Smoothing="0.1" MountId="1" NavHeight="60" DismountAtDestination="false" />
 		<While condition="True">
-			<GatherCollectable NavHeight="-5">
+			<GatherCollectable loops="1" spawnTimeout="120">
 				<GatherObjects>
 					<GatherObject>Unspoiled Mature Tree</GatherObject>
 				</GatherObjects>
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect450</GatherRotation>-->
 				<GatherSpots>
-					<StealthApproachGatherSpot 
-						stealthLocation="221.1639, 218.9276, -654.8363"
-						nodeLocation="222.5773, 218.4649, -658.0814"
-						condition="(Core.Player.Heading &gt; 0.4 or Core.Player.Heading == 0.4) and Core.Player.Heading &lt; 2.5"/>
-					<StealthApproachGatherSpot
-						stealthLocation="106.7898, 213.772, -801.8348"
-						condition="(Core.Player.Heading &gt; 2.5 or Core.Player.Heading == 2.5) and Core.Player.Heading &lt; 5" />
-					<StealthApproachGatherSpot
-						stealthLocation="169.6753, 219.6535, -592.4287"
-						nodeLocation="175.5408, 220.2071, -600.0065"
-						/>
+					<StealthApproachGatherSpot stealthLocation="221.1639, 218.9276, -654.8363" nodeLocation="222.5773, 218.4649, -658.0814" />
+					<StealthApproachGatherSpot stealthLocation="106.7898, 213.772, -801.8348" nodeLocation="106.7898, 213.772, -801.8348" />
+					<StealthApproachGatherSpot stealthLocation="169.6753, 219.6535, -592.4287" nodeLocation="175.5408, 220.2071, -600.0065"	/>
 				</GatherSpots>
+				<HotSpots>
+					<HotSpot Radius="150" XYZ="173.6, 296.5012, -704.6605"/>
+				</HotSpots>
 			</GatherCollectable>
-			<FlightPathTo XYZ="173.6, 296.5012, -704.6605" Radius="3.0" Smoothing="0.05" MountId="1" NavHeight="50" DismountAtDestination="false" />
 		</While>
 	</Order>
 </Profile>

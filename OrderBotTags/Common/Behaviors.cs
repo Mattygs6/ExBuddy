@@ -1,7 +1,7 @@
 namespace ExBuddy.OrderBotTags
 {
     using System;
-    using System.Threading;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Buddy.Coroutines;
@@ -16,85 +16,93 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.NeoProfiles;
     using ff14bot.Settings;
 
+    using NeoGaia.ConnectionHandler;
+
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = true, int timeout = Timeout.Infinite, bool stopInRange = true, bool dismountAtDestination = false)
+        private static uint id;
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false)
         {
-            bool result;
-            if (Core.Player.Distance(destination) >= CharacterSettings.Instance.MountDistance && WorldManager.CanFly)
+            if (id == int.MaxValue)
+            {
+                id = 0;
+            }
+
+            var distance3d = Core.Player.Location.Distance3D(destination);
+            var target = new CanFullyNavigateTarget { Id = id++, Position = destination };
+            var targets = new[] { target };
+
+            var canNav = await Navigator.NavigationProvider.CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
+            var canNavResult = canNav.FirstOrDefault(r => r.Id == target.Id);
+            if (MovementManager.IsFlying ||
+                (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance || (canNavResult != null && (canNavResult.CanNavigate != 1 || canNavResult.PathLength * 0.9 > distance3d)))))
             {
                 var fp = new FlightPathTo
                              {
                                  Target = destination,
                                  Radius = Math.Max(radius, 3.0f), // Flying requires a larger radius
                                  NavHeight = navHeight,
+                                 MountId = (int)mountId,
                                  Smoothing = 0.5f,
                                  DismountAtDestination = dismountAtDestination,
                                  LogWaypoints = logFlight
                              };
 
                 await fp.Fly();
-                result = await Coroutine.Wait(timeout, () => fp.IsDone);
+
+                while (!fp.IsDone)
+                {
+                    await Coroutine.Yield();
+                }
             }
             else
             {
-                if (!Core.Player.IsMounted && Core.Player.Distance(destination) >= CharacterSettings.Instance.MountDistance)
+                if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance)
                 {
-                    Navigator.Stop();// Do we need this still?
+                    // We might need Navigator.Stop();
                     await CommonTasks.MountUp(mountId);
-
-                    await Coroutine.Sleep(1500);// do we need this still
                 }
 
-                if (useMesh)
-                {
-                    result = await Coroutine.Wait(
-                        timeout,
-                        () =>
-                            {
-                                Sprint().Wait(timeout);
-                                var moveResult = Navigator.NavigationProvider.MoveTo(
-                                    destination,
-                                    name);
+                await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
 
-                                if (Core.Player.Location.Distance3D(destination) <= radius)
-                                {
-                                    Navigator.PlayerMover.MoveStop();
-                                    return true;
-                                }
-
-                                return moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination;
-                            });
-                }
-                else
+                if (dismountAtDestination && Core.Player.IsMounted)
                 {
-                    var playerMover = new SlideMover();
-                    result = await Coroutine.Wait(
-                        timeout,
-                        () =>
-                            {
-                                if (Core.Player.Location.Distance2D(destination) > radius)
-                                {
-                                    Sprint().Wait(timeout);
-                                    playerMover.MoveTowards(destination);
-                                    Coroutine.Sleep(200).Wait();
-                                    return false;
-                                }
-
-                                playerMover.MoveStop();
-                                return true;
-                            });
-                }
-                
-                if (dismountAtDestination)
-                {
-                    // TODO: Check if we need sleep still
                     await CommonTasks.StopAndDismount();
-                    await Coroutine.Sleep(1000);
                 }
             }
 
-            return result;
+            return true;
+        }
+
+        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh, float radius, string name = null, bool stopInRange = true)
+        {
+            if (useMesh)
+            {
+                MoveResult moveResult = MoveResult.GeneratingPath;
+                while (Core.Player.Location.Distance2D(destination) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
+                {
+                    await Sprint();
+                    moveResult = Navigator.NavigationProvider.MoveTo(destination, name);
+                    await Coroutine.Yield();
+                }
+
+                Navigator.Stop();
+            }
+            else
+            {
+                var playerMover = new SlideMover();
+
+                while (Core.Player.Location.Distance2D(destination) > radius)
+                {
+                    await Sprint();
+                    playerMover.MoveTowards(destination);
+                    await Coroutine.Yield();
+                }
+
+                playerMover.MoveStop();
+            }
+
+            return true;
         }
 
         public static async Task<bool> Sprint()

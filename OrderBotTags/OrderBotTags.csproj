@@ -62,6 +62,7 @@
     <Compile Include="Common\Condition.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
+    <Compile Include="Common\StealthMoveToTag.cs" />
     <Compile Include="Craft\Collect.cs" />
     <Compile Include="Common\Collectable.cs" />
     <Compile Include="Fish\Extensions.cs" />

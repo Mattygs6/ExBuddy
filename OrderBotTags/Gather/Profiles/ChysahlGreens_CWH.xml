@@ -9,7 +9,15 @@
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
 				if(!Core.Player.HasAura(221))
 				{
-					if(Core.Player.IsMounted)
+					var result = true;
+
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
 					{
 						Actionmanager.Dismount();
 						await Buddy.Coroutines.Coroutine.Sleep(1000);
@@ -25,11 +33,11 @@
 		<If condition="not IsOnMap(397)">
 			<TeleportTo name="Falcon's Nest" aetheryteId="71" />
 			<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
+			<FlightPathTo XYZ="447.8192, 232.5399, 689.0173" Radius="3.0" MountId="1" DismountAtDestination="false" />
 		</If>
 		<RunCode name="Gear"/>
-		<FlightPathTo XYZ="-684.4172, 130.6977, -600.1046" Radius="3.0" Smoothing="0.1" MountId="1" NavHeight="200" DismountAtDestination="false" LogWaypoints="true" />
 		<While condition="True">
-			<GatherCollectable>
+			<GatherCollectable loops="1" spawnTimeout="120">
 				<GatherObjects>
 					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
 				</GatherObjects>
@@ -38,8 +46,10 @@
 				</ItemNames>
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect470</GatherRotation>-->
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+				</HotSpots>
 			</GatherCollectable>
-			<FlightPathTo XYZ="-684.4172, 100.6977, -600.1046" Radius="3.0" Smoothing="0.02" MountId="1" NavHeight="0" DismountAtDestination="false" LogWaypoints="true" />
 		</While>
 	</Order>
 </Profile>

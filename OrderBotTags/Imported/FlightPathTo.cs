@@ -13,6 +13,7 @@ namespace ff14bot.NeoProfiles
     using TreeSharp;
 
     using System.Collections.Generic;
+    using System.Windows.Media;
 
     using ff14bot.Behavior;
 
@@ -21,7 +22,7 @@ namespace ff14bot.NeoProfiles
     {
         private bool isDone;
         private readonly IPlayerMover playerMover = new SlideMover();
-        private List<Vector3> waypoints = new List<Vector3>();
+        private readonly List<Vector3> waypoints = new List<Vector3>();
 
         public override bool IsDone { get { return isDone; } }
 
@@ -31,6 +32,7 @@ namespace ff14bot.NeoProfiles
         [XmlAttribute("Radius")]
         public float Radius { get; set; }
 
+        [DefaultValue(0.1f)]
         [XmlAttribute("Smoothing")]
         public float Smoothing { get; set; }
 
@@ -64,7 +66,7 @@ namespace ff14bot.NeoProfiles
                 {
                     if (LogWaypoints)
                     {
-                        Logging.Write("Moving to waypoint: {0}", waypoints[i]);
+                        Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Moving to waypoint: {0}", waypoints[i]);
                     }
 
                     var from = i == 0 ? Core.Player.Location : waypoints[i - 1];
@@ -74,7 +76,7 @@ namespace ff14bot.NeoProfiles
             }
             else
             {
-                Logging.Write("No viable path computed for {0}.", Target);
+                Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: No viable path computed for {0}.", Target);
             }
 
             if (DismountAtDestination)
@@ -133,14 +135,19 @@ namespace ff14bot.NeoProfiles
         public async Task<List<Vector3>> FindWaypoints(Vector3 target)
         {
             waypoints.Clear();
-            var distance = Distance2D(GameObjectManager.LocalPlayer.Location, target);
-            var desiredNumberOfPoints = Math.Max(Math.Floor(distance * Smoothing), 1);
-            var height = target.Y + NavHeight;
+            var distance = GameObjectManager.LocalPlayer.Location.Distance3D(target);
+            var desiredNumberOfPoints = Math.Max(Math.Floor(distance * Math.Min((1/ Math.Pow(distance, 1.0/3.0)) + Smoothing, 1.0)), 1.0);
+
+            // Height will be "Forced height or no greater than 1/5th the distance" and also not more than 100
+            var height = Math.Min(Math.Max(NavHeight, distance / 5), 100);
+            
             for (var i = 0.0f; i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
                 var waypoint = await SampleParabola(GameObjectManager.LocalPlayer.Location, target, (float)height, i);
                 waypoints.Add(waypoint);
             }
+
+            Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Created {0} waypoints to fly a distance of {1}", waypoints.Count, distance);
 
             return waypoints;
         }
@@ -162,8 +169,8 @@ namespace ff14bot.NeoProfiles
         {
             while (!GameObjectManager.LocalPlayer.IsMounted)
             {
-                Actionmanager.Mount(Convert.ToUInt32(MountId));
-                await Coroutine.Sleep(2000);
+                await CommonTasks.MountUp((uint)MountId);
+                await Coroutine.Yield();
             }
             return true;
         }
@@ -180,7 +187,7 @@ namespace ff14bot.NeoProfiles
 
         public async Task<bool> MoveToWithinRadius(Vector3 from, Vector3 to, float radius)
         {
-            while (Distance2D(GameObjectManager.LocalPlayer.Location, to) > Radius)
+            while (GameObjectManager.LocalPlayer.Location.Distance3D(to) > Radius)
             {
                 await EnsureFlying();
                 if (!await PathIsClear(from, to))
@@ -189,7 +196,7 @@ namespace ff14bot.NeoProfiles
                 }
 
                 playerMover.MoveTowards(to);
-                await Coroutine.Sleep(200);
+                await Coroutine.Yield();
             }
             playerMover.MoveStop();
             return true;
@@ -200,8 +207,10 @@ namespace ff14bot.NeoProfiles
             while (GameObjectManager.LocalPlayer.IsMounted)
             {
                 Actionmanager.Dismount();
-                await Coroutine.Sleep(500);
+                await Coroutine.Yield();
             }
+
+            await Coroutine.Sleep(500);
             return true;
         }
 

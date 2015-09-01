@@ -4,29 +4,26 @@
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
-			<GatherCollectable DiscoverUnknowns="true" FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))" AlwaysGather="false" Radius="8">
-				<GatherObjects>
-					<GatherObject>Ephemeral Rocky Outcrop</GatherObject>
-					<GatherObject>Ephemeral Lush Vegetation Patch</GatherObject>
-					<GatherObject>Rocky Outcrop</GatherObject>
-					<GatherObject>Lush Vegetation Patch</GatherObject>
-					<GatherObject>Mineral Deposit</GatherObject>
-					<GatherObject>Mature Tree</GatherObject>
-				</GatherObjects>
+			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
+			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
+			CordialType="Cordial">
+				<Collectables>
+					<!-- 550 -->
+					<Collectable Name="Radiant Fire Moraine" Value="550" />
+					<Collectable Name="Bright Fire Rock" Value="550" />
+					<Collectable Name="Fire Moraine" Value="550" />
+					<Collectable Name="Radiant Lightning Moraine" Value="550" />
+					<Collectable Name="Bright Lightning Rock" Value="550" />
+					<Collectable Name="Lightning Moraine" Value="550" />
+					<Collectable Name="Clary Sage" Value="550" />
+					<Collectable Name="Furymint" Value="550" />
+					<Collectable Name="Highland Oregano" Value="550" />
+					<Collectable Name="Black Soil" Value="550" />
+					<Collectable Name="Peat Moss" Value="550" />
+					<Collectable Name="Granular Clay" Value="550" />
+				</Collectables>
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>
-					<ItemName>Radiant Fire Moraine</ItemName>
-					<ItemName>Bright Fire Rock</ItemName>
-					<ItemName>Fire Moraine</ItemName>
-					<ItemName>Radiant Lightning Moraine</ItemName>
-					<ItemName>Bright Lightning Rock</ItemName>
-					<ItemName>Lightning Moraine</ItemName>
-					<ItemName>Clary Sage</ItemName>
-					<ItemName>Fury Mint</ItemName>
-					<ItemName>Highland Oregano</ItemName>
-					<ItemName>Black Soil</ItemName>
-					<ItemName>Peat Moss</ItemName>
-					<ItemName>Granular Clay</ItemName>
 				</ItemNames>
 				<GatherRotation>Collect550</GatherRotation>
 			</GatherCollectable>

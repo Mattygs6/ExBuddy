@@ -7,7 +7,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot.Managers;
 
     [GatheringRotation("Map", 0, 8)]
-    public class MapGatheringRotation : UnspoiledGatheringRotation
+    public class MapGatheringRotation : RegularNodeGatheringRotation
     {
         public override async Task<bool> Prepare(GatherCollectableTag tag)
         {

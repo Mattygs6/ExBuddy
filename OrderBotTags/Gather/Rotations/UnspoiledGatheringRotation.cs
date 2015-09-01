@@ -45,11 +45,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await tag.Cast(Ability.CollectorsGlove);
             }
 
-            await
-                Coroutine.Wait(
-                    tag.WindowDelay + 500,
-                    () =>
-                    Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+            while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+            {
+                await Coroutine.Yield();
+            }
+
+            ////await
+                ////Coroutine.Wait(
+                ////    tag.WindowDelay + 500,
+                ////    () =>
+                ////    Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
             tag.GatherItem.GatherItem();
 
             return true;
@@ -79,30 +84,30 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                     return false;
                 }
 
+                while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+                {
+                    await Coroutine.Yield();
+                }
+
                 if (GatheringManager.GatheringCombo == 4)
                 {
-                    if (
-                        await
-                        Coroutine.Wait(
-                            1000,
-                            () =>
-                            Actionmanager.CanCast(
-                                Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChanceQuality100],
-                                Core.Player)))
+                    await tag.Cast(Ability.IncreaseGatherChanceQuality100);
+
+                    while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
                     {
-                        await tag.Cast(Ability.IncreaseGatherChanceQuality100);
+                        await Coroutine.Yield();
                     }
                 }
 
-                await
-                    Coroutine.Wait(
-                        500,
-                        () =>
-                        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+                ////await
+                ////    Coroutine.Wait(
+                ////        500,
+                ////        () =>
+                ////        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
 
                 tag.GatherItem.GatherItem();
 
-                await Coroutine.Wait(2000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                await Coroutine.Wait(2500, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;

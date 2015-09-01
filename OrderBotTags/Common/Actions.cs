@@ -14,7 +14,11 @@ namespace ExBuddy.OrderBotTags
             bool result;
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
-                await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
+                while (GatheringManager.ShouldPause(DataManager.SpellCache[spellId]))
+                {
+                    await Coroutine.Yield();
+                }
+                //await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
                 //Wait till we have the aura
@@ -40,7 +44,11 @@ namespace ExBuddy.OrderBotTags
         internal static async Task<bool> Cast(uint id, int delay)
         {
             //Wait till we can cast the spell
-            await Coroutine.Wait(2500, () => Actionmanager.CanCast(id, Core.Player));
+            while (GatheringManager.ShouldPause(DataManager.SpellCache[id]))
+            {
+                await Coroutine.Yield();
+            }
+            //await Coroutine.Wait(2500, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
 
             //Wait till we can cast again

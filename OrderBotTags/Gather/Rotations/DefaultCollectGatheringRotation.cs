@@ -59,14 +59,18 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
             do
             {
-                await
-                    Coroutine.Wait(
-                        2500,
-                        () =>
-                        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+                while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+                {
+                    await Coroutine.Yield();
+                }
+                ////await
+                ////    Coroutine.Wait(
+                ////        2500,
+                ////        () =>
+                ////        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 tag.GatherItem.GatherItem();
             }
-            while ((MasterpieceWindow = await GetValidMasterPieceWindow(4000)) == null);
+            while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null);
 
             return true;
         }

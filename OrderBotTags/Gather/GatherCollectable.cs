@@ -103,6 +103,9 @@
         [XmlAttribute("FreeRangeCondition")]
         public string FreeRangeCondition { get; set; }
 
+        [XmlElement("GatheringSkillOrder")]
+        public GatheringSkillOrder GatheringSkillOrder { get; set; }
+
         [DefaultValue(45)]
         [XmlAttribute("MountId")]
         public int MountId { get; set; }
@@ -121,6 +124,9 @@
 
         [XmlElement("GatherObjects")]
         public List<string> GatherObjects { get; set; }
+
+        [XmlAttribute("DisableRotationOverride")]
+        public bool DisableRotationOverride { get; set; }
 
         // Maybe this should be an attribute?
         [DefaultValue("RegularNode")]
@@ -154,6 +160,9 @@
         [DefaultValue(5.0f)]
         [XmlAttribute("NavHeight")]
         public float NavHeight { get; set; }
+
+        [XmlAttribute("SkipWindowDelay")]
+        public uint SkipWindowDelay { get; set; }
 
         [DefaultValue(250)]
         [XmlAttribute("SpellDelay")]
@@ -211,9 +220,8 @@
 
         protected override void OnStart()
         {
-            // Ensure positive values
-            WindowDelay = WindowDelay > 0 ? WindowDelay : 2000;
-            SpellDelay = SpellDelay > 0 ? SpellDelay : 250;
+            SpellDelay = SpellDelay < 100 ? 100 : SpellDelay;
+            WindowDelay = WindowDelay < 500 ? 500 : WindowDelay;
 
             if (HotSpots != null)
             {
@@ -223,7 +231,13 @@
             // backwards compatibility
             if (GatherObjects == null && !string.IsNullOrWhiteSpace(GatherObject))
             {
-                GatherObjects = new List<string>{ GatherObject };
+                GatherObjects = new List<string> { GatherObject };
+            }
+
+            // backwards compatibility
+            if (GatheringSkillOrder != null)
+            {
+                DisableRotationOverride = true;
             }
 
             startTime = DateTime.Now;
@@ -244,7 +258,7 @@
                         new Action(r => OnResetCachedDone())),
                     new Decorator(
                         ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
-                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius -1, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight))),
+                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius - 1, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight))),
                     new Decorator(
                         ret => (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location)) && Node == null,
                         new Sequence(
@@ -367,7 +381,7 @@
 
             return true;
         }
-        
+
         private async Task<bool> ResetOrDone()
         {
             if (HotSpots == null || HotSpots.Count == 0)
@@ -487,12 +501,14 @@
                             Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes, trying again from center of hotspot.");
 
                             retryCenterHotspot = false;
+                            await Coroutine.Yield();
                             continue;
                         }
 
                         if (!await ChangeHotSpot())
                         {
                             retryCenterHotspot = false;
+                            await Coroutine.Yield();
                             continue;
                         }
                     }
@@ -864,13 +880,19 @@
             var attempts = 0;
             while (attempts < 3 && !GatheringManager.WindowOpen)
             {
+                while (MovementManager.IsFlying)
+                {
+                    await CommonTasks.Land();
+                    await Coroutine.Yield();
+                }
+
                 Poi.Current.Unit.Interact();
 
-                if (!await Coroutine.Wait(3000, () => GatheringManager.WindowOpen))
+                if (!await Coroutine.Wait((int)WindowDelay, () => GatheringManager.WindowOpen))
                 {
                     if (FreeRange)
                     {
-                        Logging.Write("Gathering Window didn't open: Retrying in 3 seconds. " + ++attempts);
+                        Logging.Write("Gathering Window didn't open: Retrying. " + ++attempts);
                         continue;
                     }
 
@@ -896,10 +918,54 @@
             CheckForGatherRotationOverride();
 
             await gatherRotation.Prepare(this);
-            await gatherRotation.ExecuteRotation(this);
+
+            if (GatheringSkillOrder == null || GatheringSkillOrder.GatheringSkills.Count == 0)
+            {
+                await gatherRotation.ExecuteRotation(this);
+            }
+            else
+            {
+
+                var gpRequired = 0U;
+                var skillList = new List<SpellData>();
+                foreach (var gatheringSkill in GatheringSkillOrder.GatheringSkills)
+                {
+                    // Ignoring times to cast.... no skills would ever be cast more than once.
+                    SpellData spellData;
+
+                    if (!Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellName, out spellData))
+                    {
+                        Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellId, out spellData);
+                    }
+
+                    if (spellData == null)
+                    {
+                        Logging.Write(
+                            Colors.PaleVioletRed,
+                            "Unable to find skill -> Name: {0}, Id: {1}",
+                            gatheringSkill.SpellName,
+                            gatheringSkill.SpellId);
+                    }
+                    else
+                    {
+                        skillList.Add(spellData);
+                        gpRequired += spellData.Cost;    
+                    }
+                }
+                if (!GatheringSkillOrder.AllOrNone || gpRequired <= Core.Player.CurrentGP)
+                {
+                    foreach (var skill in skillList)
+                    {
+                        await Cast(skill.Id);
+                    }
+                }
+            }
+
             await gatherRotation.Gather(this);
 
             await Coroutine.Wait(6000, () => !Node.CanGather);
+
+            await Coroutine.Sleep(Math.Max((int)WindowDelay, 1500));
 
             if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
             {
@@ -999,6 +1065,12 @@
             if (GatherItem == null && (!AlwaysGather || GatherStrategy == GatherStrategy.TouchAndGo))
             {
                 Poi.Clear("Skipping this node, no items we want to gather.");
+
+                if (SkipWindowDelay > 0)
+                {
+                    await Coroutine.Sleep((int)SkipWindowDelay);
+                }
+
                 var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
 
                 while (window.IsValid)
@@ -1066,7 +1138,7 @@
 
         private void CheckForGatherRotationOverride()
         {
-            if (!gatherRotation.CanOverride)
+            if (!gatherRotation.CanOverride || DisableRotationOverride)
             {
                 return;
             }

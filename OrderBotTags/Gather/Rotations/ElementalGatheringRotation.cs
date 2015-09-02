@@ -19,6 +19,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await tag.Cast(Ability.CollectorsGlove);
             }
 
+            // We can see the elemental item, no need to hit the node.
             if (WardSkills.Any(ward => Actionmanager.CanCast(ward, Core.Player)))
             {
                 return true;
@@ -32,27 +33,17 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            if (!DoesWardIncreaseItemYield(tag))
+            if (Core.Player.CurrentGP < 400)
             {
                 return true;
             }
 
-            foreach (var ward in WardSkills)
+            var ward = WardSkills.FirstOrDefault(w => Actionmanager.CanCast(w, Core.Player));
+            
+            if(ward > 0)
             {
-                // TODO: if we change actions to only wait for cast if we can cast the ability
-                // TODO: and make sure we have collectors glove/ if not, no need to wait, just use timeout param
-
-                //if (await Actions.Cast(ward))
-                //{
-                //    break;
-                //}
-
-                if (Actionmanager.CanCast(ward, Core.Player))
-                {
-                    Actionmanager.DoAction(ward, Core.Player);
-                    await IncreaseChance(tag);
-                    break;
-                }
+                Actionmanager.DoAction(ward, Core.Player);
+                await IncreaseChance(tag);
             }
 
             return true;
@@ -60,6 +51,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
         {
+            // Don't use unless ward increases item yield.
+            if (!DoesWardIncreaseItemYield(tag))
+            {
+                return -1;
+            }
+
             if (tag.GatherItem.ItemId < 20)
             {
                 return 10000;

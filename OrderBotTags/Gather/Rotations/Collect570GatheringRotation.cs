@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
 
-    using ff14bot;
     using ff14bot.Managers;
 
     [GatheringRotation("Collect570", 600, 34)]

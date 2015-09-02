@@ -120,8 +120,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
+
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
             {
+                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                }
+
                 return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 

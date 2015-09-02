@@ -17,6 +17,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     {
         protected AtkAddonControl MasterpieceWindow;
 
+        protected int CurrentRarity
+        {
+            get
+            {
+                if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                {
+                    return Core.Memory.Read<int>(MasterpieceWindow.Pointer + 0x000001C4);    
+                }
+
+                return 0;
+            }
+        }
+
         protected bool HasDiscerningEye
         {
             get
@@ -54,7 +67,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public virtual async Task<bool> Prepare(GatherCollectableTag tag)
         {
-            // TODO: we don't want to force people to dismount to cast these, so it is eating up 3-5 seconds of gather time...
             await tag.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
             do
@@ -63,11 +75,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await Coroutine.Yield();
                 }
-                ////await
-                ////    Coroutine.Wait(
-                ////        2500,
-                ////        () =>
-                ////        Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+
                 tag.GatherItem.GatherItem();
             }
             while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null);
@@ -185,6 +193,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         {
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
             {
+                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    // todo: return await flora mastery or clear vision
+                }
+
                 return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 

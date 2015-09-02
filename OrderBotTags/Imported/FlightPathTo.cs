@@ -132,11 +132,22 @@ namespace ff14bot.NeoProfiles
             }
         }
 
-        public async Task<List<Vector3>> FindWaypoints(Vector3 target)
+        public async Task FindWaypoints(Vector3 target)
         {
             waypoints.Clear();
             var distance = GameObjectManager.LocalPlayer.Location.Distance3D(target);
-            var desiredNumberOfPoints = Math.Max(Math.Floor(distance * Math.Min((1/ Math.Pow(distance, 1.0/3.0)) + Smoothing, 1.0)), 1.0);
+            double desiredNumberOfPoints;
+
+            if (distance < Radius)
+            {
+                Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Already in range -> Me: {0}, Target{1}", Core.Player.Location, target);
+                return;
+            }
+
+            desiredNumberOfPoints = Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 3.0)) + Smoothing, 1.0)), 1.0);
+
+            desiredNumberOfPoints = Math.Min(desiredNumberOfPoints, Math.Floor(distance));
+
 
             // Height will be "Forced height or no greater than 1/5th the distance" and also not more than 100
             var height = Math.Min(Math.Max(NavHeight, distance / 5), 100);
@@ -148,8 +159,6 @@ namespace ff14bot.NeoProfiles
             }
 
             Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Created {0} waypoints to fly a distance of {1}", waypoints.Count, distance);
-
-            return waypoints;
         }
 
         public async Task<bool> PathIsClear(Vector3 from, Vector3 to)

@@ -29,6 +29,11 @@
                                 },
                                 {
                                     Ability
+                                    .Toil,
+                                    215
+                                },
+                                {
+                                    Ability
                                     .IncreaseGatherChanceQuality100,
                                     216
                                 },
@@ -70,6 +75,11 @@
                                 },
                                 {
                                     Ability
+                                    .IncreaseGatherChanceOnce15,
+                                    4086
+                                },
+                                {
+                                    Ability
                                     .CollectorsGlove,
                                     4088
                                 },
@@ -77,6 +87,11 @@
                                     Ability
                                     .MethodicalAppraisal,
                                     4089
+                                },
+                                {
+                                    Ability
+                                    .InstinctualAppraisal,
+                                    4090
                                 },
                                 {
                                     Ability
@@ -126,6 +141,11 @@
                                 },
                                 {
                                     Ability
+                                    .AdditionalAttempt,
+                                    232
+                                },
+                                {
+                                    Ability
                                     .IncreaseGatherChanceQuality100,
                                     233
                                 },
@@ -167,6 +187,11 @@
                                 },
                                 {
                                     Ability
+                                    .IncreaseGatherChanceOnce15,
+                                    4072
+                                },
+                                {
+                                    Ability
                                     .CollectorsGlove,
                                     4074
                                 },
@@ -174,6 +199,11 @@
                                     Ability
                                     .MethodicalAppraisal,
                                     4075
+                                },
+                                {
+                                    Ability
+                                    .InstinctualAppraisal,
+                                    4076
                                 },
                                 {
                                     Ability
@@ -230,6 +260,8 @@
 
         Toil, // = 231,214
 
+        AdditionalAttempt, // 232,215
+
         IncreaseGatherChanceQuality100, // 233,216
 
         IncreaseGatherChance5, // = 235,218
@@ -248,9 +280,13 @@
 
         IncreaseGatherChance50, // = 295,294
 
+        IncreaseGatherChanceOnce15, // 4072, 4086
+
         CollectorsGlove, // = 4074,4088
 
         MethodicalAppraisal, // = 4075,4089
+
+        InstinctualAppraisal, // = 4076,4090
 
         ImpulsiveAppraisal, // = 4077,4091
 

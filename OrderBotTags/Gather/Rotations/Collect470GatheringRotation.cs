@@ -1,6 +1,5 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
 
     using ff14bot.Managers;

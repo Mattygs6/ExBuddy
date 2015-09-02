@@ -391,7 +391,7 @@
             else
             {
                 ResetInternal();
-                await ChangeHotSpot();
+                //await ChangeHotSpot();
             }
 
             return true;
@@ -409,8 +409,10 @@
                 // If finished current loop and set to not cyclic (we know this because if it was cyclic Next is always true)
                 if (!HotSpots.Next())
                 {
+                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Finished {0} of {1} loops.", ++loopCount, Loops);
+
                     // If finished all loops, otherwise just incrementing loop count
-                    if (++loopCount == Loops)
+                    if (loopCount == Loops)
                     {
                         isDone = true;
                         return true;
@@ -956,7 +958,10 @@
                 {
                     foreach (var skill in skillList)
                     {
-                        await Cast(skill.Id);
+                        if (Core.Player.CurrentGP > skill.Cost)
+                        {
+                            await Cast(skill.Id);    
+                        }
                     }
                 }
             }

@@ -3,6 +3,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using System.Threading.Tasks;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
     [GatheringRotation("RegularNode", 0, 0)]
@@ -37,6 +38,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         protected override async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
+            // TODO: Logic to use 15% additional on single item (possibly for collectables).
             if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51)
             {
                 return await tag.Cast(Ability.IncreaseGatherChance50);
@@ -44,11 +46,21 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
             if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86)
             {
+                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                }
+
                 return await tag.Cast(Ability.IncreaseGatherChance15);
             }
 
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96)
             {
+                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                }
+
                 return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 

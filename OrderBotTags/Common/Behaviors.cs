@@ -20,22 +20,11 @@ namespace ExBuddy.OrderBotTags
 
     public static class Behaviors
     {
-        private static uint id;
         public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false)
         {
-            if (id == int.MaxValue)
-            {
-                id = 0;
-            }
-
             var distance3d = Core.Player.Location.Distance3D(destination);
-            var target = new CanFullyNavigateTarget { Id = id++, Position = destination };
-            var targets = new[] { target };
 
-            var canNav = await Navigator.NavigationProvider.CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
-            var canNavResult = canNav.FirstOrDefault(r => r.Id == target.Id);
-            if (MovementManager.IsFlying ||
-                (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance || (canNavResult != null && (canNavResult.CanNavigate != 1 || canNavResult.PathLength * 0.9 > distance3d)))))
+            if (MovementManager.IsFlying || (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance )) || !destination.IsGround())
             {
                 var fp = new FlightPathTo
                              {

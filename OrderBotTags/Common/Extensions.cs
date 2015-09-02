@@ -4,6 +4,10 @@
     using System.Linq;
     using System.Reflection;
 
+    using Clio.Utilities;
+
+    using ff14bot.Managers;
+
     public static partial class Extensions
     {
         /// <summary>
@@ -92,6 +96,48 @@
             }
 
             return defaultValue;
+        }
+
+        public static bool IsGround(this Vector3 vector)
+        {
+            Vector3 above = new Vector3(vector.X, vector.Y + 0.2f, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y + 2.0f, vector.Z);
+            Vector3 hit;
+            Vector3 distances;
+            if (WorldManager.Raycast(above, below, out hit, out distances) && hit != Vector3.Zero)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static Vector3 GetFloor(this Vector3 vector, float maxDistanceToCheck = 100.0f)
+        {
+            Vector3 above = new Vector3(vector.X, vector.Y + 0.2f, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y - maxDistanceToCheck, vector.Z);
+            Vector3 hit;
+            Vector3 distances;
+            if (WorldManager.Raycast(above, below, out hit, out distances) && hit != Vector3.Zero)
+            {
+                return hit;
+            }
+
+            return Vector3.Zero;
+        }
+
+        public static Vector3 GetCeiling(this Vector3 vector, float maxDistanceToCheck = 100.0f)
+        {
+            Vector3 above = new Vector3(vector.X, vector.Y + maxDistanceToCheck, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y - 0.2f, vector.Z);
+            Vector3 hit;
+            Vector3 distances;
+            if (WorldManager.Raycast(below, above, out hit, out distances) && hit != Vector3.Zero)
+            {
+                return hit;
+            }
+
+            return Vector3.Zero;
         }
     }
 }

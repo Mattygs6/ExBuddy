@@ -50,6 +50,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
+            if (tag.GatherItem.HqChance < 1)
+            {
+                return -1;
+            }
+
             if (tag.GatherIncrease == GatherIncrease.Quality 
                 || (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel < 40))
             {

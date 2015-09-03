@@ -1087,7 +1087,7 @@
                 ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
                 ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
 
-            if (previousGatherItem.ItemId != GatherItem.ItemId)
+            if (previousGatherItem == null || previousGatherItem.ItemId != GatherItem.ItemId)
             {
                 Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");    
             }

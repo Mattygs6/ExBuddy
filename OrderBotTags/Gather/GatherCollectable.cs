@@ -226,12 +226,6 @@
                 GatherObjects = new List<string> { GatherObject };
             }
 
-            // backwards compatibility
-            if (GatheringSkillOrder != null)
-            {
-                DisableRotationOverride = true;
-            }
-
             startTime = DateTime.Now;
         }
 

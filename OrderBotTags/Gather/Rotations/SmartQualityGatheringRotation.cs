@@ -56,7 +56,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             if (tag.GatherIncrease == GatherIncrease.Quality 
-                || (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel < 40))
+                || (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel >= 15 && Core.Player.ClassLevel < 40))
             {
                 return 9001;
             }

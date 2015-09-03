@@ -1,7 +1,6 @@
 namespace ExBuddy.OrderBotTags
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using Buddy.Coroutines;
@@ -16,23 +15,20 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.NeoProfiles;
     using ff14bot.Settings;
 
-    using NeoGaia.ConnectionHandler;
-
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false)
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false, bool checkIfDestinationIsGround = true)
         {
             var distance3d = Core.Player.Location.Distance3D(destination);
 
-            if (MovementManager.IsFlying || (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance )) || !destination.IsGround())
+            if (MovementManager.IsFlying || (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance)) || (checkIfDestinationIsGround && !destination.IsGround()))
             {
                 var fp = new FlightPathTo
                              {
                                  Target = destination,
-                                 Radius = Math.Max(radius, 3.0f), // Flying requires a larger radius
+                                 Radius = radius,
                                  NavHeight = navHeight,
                                  MountId = (int)mountId,
-                                 Smoothing = 0.5f,
                                  DismountAtDestination = dismountAtDestination,
                                  LogWaypoints = logFlight
                              };
@@ -46,7 +42,7 @@ namespace ExBuddy.OrderBotTags
             }
             else
             {
-                if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance)
+                if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount)
                 {
                     // We might need Navigator.Stop();
                     await CommonTasks.MountUp(mountId);
@@ -65,12 +61,18 @@ namespace ExBuddy.OrderBotTags
 
         public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh, float radius, string name = null, bool stopInRange = true)
         {
+            var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
+            float distance;
             if (useMesh)
             {
                 MoveResult moveResult = MoveResult.GeneratingPath;
-                while (Core.Player.Location.Distance2D(destination) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
+                while ((distance = Core.Player.Location.Distance2D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
                 {
-                    await Sprint();
+                    if (distance > sprintDistance)
+                    {
+                        await Sprint();
+                    }
+
                     moveResult = Navigator.NavigationProvider.MoveTo(destination, name);
                     await Coroutine.Yield();
                 }
@@ -80,10 +82,14 @@ namespace ExBuddy.OrderBotTags
             else
             {
                 var playerMover = new SlideMover();
-
-                while (Core.Player.Location.Distance2D(destination) > radius)
+ 
+                while ((distance = Core.Player.Location.Distance2D(destination)) > radius)
                 {
-                    await Sprint();
+                    if (distance > sprintDistance)
+                    {
+                        await Sprint();
+                    }
+                    
                     playerMover.MoveTowards(destination);
                     await Coroutine.Yield();
                 }
@@ -96,8 +102,7 @@ namespace ExBuddy.OrderBotTags
 
         public static async Task<bool> Sprint()
         {
-            if (!Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving
-                && Actionmanager.IsSprintReady)
+            if (Actionmanager.IsSprintReady && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
             {
                 Actionmanager.Sprint();
             }

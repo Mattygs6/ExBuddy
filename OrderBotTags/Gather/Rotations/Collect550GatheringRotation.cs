@@ -6,16 +6,8 @@
     using ff14bot.Managers;
 
     [GatheringRotation("Collect550", 0, 34)]
-    public class Collect550GatheringRotation : DefaultCollectGatheringRotation
+    public sealed class Collect550GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
-        public override bool ForceGatherIfMissingGpOrTime
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
             // level 56
@@ -62,7 +54,7 @@
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             if (tag.IsUnspoiled())
             {

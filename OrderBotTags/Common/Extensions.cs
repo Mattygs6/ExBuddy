@@ -100,8 +100,8 @@
 
         public static bool IsGround(this Vector3 vector)
         {
-            Vector3 above = new Vector3(vector.X, vector.Y + 0.2f, vector.Z);
-            Vector3 below = new Vector3(vector.X, vector.Y - 2.0f, vector.Z);
+            Vector3 above = new Vector3(vector.X, vector.Y + 0.3f, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y - 3.0f, vector.Z);
             Vector3 hit;
             Vector3 distances;
             if (WorldManager.Raycast(above, below, out hit, out distances) && hit != Vector3.Zero)

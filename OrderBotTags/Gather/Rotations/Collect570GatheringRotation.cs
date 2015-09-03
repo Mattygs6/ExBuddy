@@ -5,7 +5,7 @@
     using ff14bot.Managers;
 
     [GatheringRotation("Collect570", 600, 34)]
-    public class Collect570GatheringRotation : DefaultCollectGatheringRotation
+    public sealed class Collect570GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
@@ -19,7 +19,7 @@
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             // We need 5 swings to use this rotation
             if (GatheringManager.SwingsRemaining < 5)

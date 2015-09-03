@@ -2,13 +2,18 @@
 {
     using System.Threading.Tasks;
 
+    public interface IGetOverridePriority
+    {
+        int GetOverridePriority(GatherCollectableTag tag);
+    }
+
     public interface IGatheringRotation
     {
         GatheringRotationAttribute Attributes { get; }
 
-        bool CanOverride { get; }
+        bool CanBeOverriden { get; }
 
-        bool ForceGatherIfMissingGpOrTime { get; }
+        bool ShouldForceGather { get; }
 
         Task<bool> Prepare(GatherCollectableTag tag);
 
@@ -16,6 +21,6 @@
 
         Task<bool> Gather(GatherCollectableTag tag);
 
-        int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag);
+        int ResolveOverridePriority(GatherCollectableTag tag);
     }
 }

@@ -5,7 +5,7 @@
     using ff14bot;
 
     [GatheringRotation("Collect240Dynamic", 200, 28)]
-    public class Collect240DynamicGatheringRotation : DefaultCollectGatheringRotation
+    public sealed class Collect240DynamicGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
@@ -69,7 +69,7 @@
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             // if we have a collectable && the collectable value is greater than or equal to 240: Priority 240
             if (tag.CollectableItem != null && tag.CollectableItem.Value >= 240)

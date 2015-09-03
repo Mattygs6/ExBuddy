@@ -13,6 +13,7 @@
     using Clio.Utilities;
     using Clio.XmlEngine;
 
+    using ExBuddy.OrderBotTags.Common;
     using ExBuddy.OrderBotTags.Gather.Rotations;
 
     using ff14bot;
@@ -29,11 +30,11 @@
     using Action = TreeSharp.Action;
 
     [XmlElement("GatherCollectable")]
-    public class GatherCollectableTag : ProfileBehavior
+    public sealed class GatherCollectableTag : FlightVars
     {
-        private static readonly Dictionary<string, IGatheringRotation> Rotations;
+        internal static readonly Dictionary<string, IGatheringRotation> Rotations;
 
-        private static readonly SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+        internal static readonly SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         private bool isDone;
 
@@ -44,6 +45,8 @@
         private IGatheringRotation initialGatherRotation;
 
         private IGatheringRotation gatherRotation;
+
+        internal bool GatherItemIsFallback;
 
         internal IGatherSpot GatherSpot;
 
@@ -106,13 +109,6 @@
         [XmlElement("GatheringSkillOrder")]
         public GatheringSkillOrder GatheringSkillOrder { get; set; }
 
-        [DefaultValue(45)]
-        [XmlAttribute("MountId")]
-        public int MountId { get; set; }
-
-        [XmlAttribute("LogFlight")]
-        public bool LogFlight { get; set; }
-
         // I want this to be an attribute, but for backwards compatibilty, we will use element
         [DefaultValue(-1)]
         [XmlElement("Slot")]
@@ -136,6 +132,10 @@
         [XmlElement("GatherSpots")]
         public List<StealthApproachGatherSpot> GatherSpots { get; set; }
 
+        [DefaultValue(GatherIncrease.Auto)]
+        [XmlAttribute("GatherIncrease")]
+        public GatherIncrease GatherIncrease { get; set; }
+
         [DefaultValue(GatherStrategy.GatherOrCollect)]
         [XmlAttribute("GatherStrategy")]
         public GatherStrategy GatherStrategy { get; set; }
@@ -149,17 +149,9 @@
         [XmlElement("ItemNames")]
         public List<string> ItemNames { get; set; }
 
-        [DefaultValue(3.0f)]
+        [DefaultValue(3.2f)]
         [XmlAttribute("Distance")]
         public float Distance { get; set; }
-
-        [DefaultValue(2.0f)]
-        [XmlAttribute("Radius")]
-        public float Radius { get; set; }
-
-        [DefaultValue(5.0f)]
-        [XmlAttribute("NavHeight")]
-        public float NavHeight { get; set; }
 
         [XmlAttribute("SkipWindowDelay")]
         public uint SkipWindowDelay { get; set; }
@@ -188,7 +180,7 @@
         [XmlAttribute("DefaultGatherSpotType")]
         public GatherSpotType DefaultGatherSpotType { get; set; }
 
-        protected bool Condition()
+        private bool Condition()
         {
             if (whileFunc == null)
             {
@@ -258,7 +250,7 @@
                         new Action(r => OnResetCachedDone())),
                     new Decorator(
                         ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
-                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius - 1, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight))),
+                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius - 1, NavHeight, HotSpots.CurrentOrDefault.Name, LogWaypoints))),
                     new Decorator(
                         ret => (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location)) && Node == null,
                         new Sequence(
@@ -339,23 +331,47 @@
         {
             return new[]
                        {
+                            typeof(RegularNodeGatheringRotation),
                             typeof(UnspoiledGatheringRotation) ,
                             typeof(DefaultCollectGatheringRotation),
-                            typeof(Collect470GatheringRotation),
+                            typeof(Collect115GatheringRotation),
+                            typeof(Collect240DynamicGatheringRotation),
+                            typeof(Collect345GatheringRotation),
                             typeof(Collect450GatheringRotation),
+                            typeof(Collect470GatheringRotation),
                             typeof(Collect550GatheringRotation),
                             typeof(Collect570GatheringRotation),
+                            typeof(DiscoverUnknownsGatheringRotation),
+                            typeof(ElementalGatheringRotation),
+                            typeof(TopsoilGatheringRotation),
                             typeof(MapGatheringRotation),
-                            typeof(OverrideUnspoiledGatheringRotation)
+                            typeof(SmartQualityGatheringRotation),
+                            typeof(SmartYieldGatheringRotation)
                        };
         }
 
         private async Task<bool> ResolveGatherRotation()
         {
+            if (GatheringSkillOrder != null && GatheringSkillOrder.GatheringSkills.Count > 0)
+            {
+                initialGatherRotation = gatherRotation = new GatheringSkillOrderGatheringRotation();
+
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + gatherRotation.Attributes.Name);
+            }
+
             IGatheringRotation rotation;
             if (!Rotations.TryGetValue(GatherRotation, out rotation))
             {
-                rotation = new RegularNodeGatheringRotation();
+                // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+                if (!Rotations.TryGetValue("RegularNode", out rotation))
+                {
+                    rotation = new RegularNodeGatheringRotation();
+                }
+                else
+                {
+                    rotation = Rotations["RegularNode"];
+                }
+                
                 Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using RegularNode instead.");
             }
 
@@ -391,7 +407,6 @@
             else
             {
                 ResetInternal();
-                //await ChangeHotSpot();
             }
 
             return true;
@@ -496,11 +511,14 @@
                 {
                     if (HotSpots != null)
                     {
-                        if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot)
+                        var myLocation = Core.Player.Location;
+                        if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
+                            && GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
+                            .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
                         {
-                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name, LogFlight);
+                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name, LogWaypoints);
 
-                            Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes, trying again from center of hotspot.");
+                            Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
 
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
@@ -599,7 +617,7 @@
 
             if (realSecondsTillStartGathering < 1)
             {
-                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                if (gatherRotation.ShouldForceGather)
                 {
                     return true;
                 }
@@ -617,7 +635,7 @@
             {
                 Logging.Write("Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
 
-                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                if (gatherRotation.ShouldForceGather)
                 {
                     return true;
                 }
@@ -632,7 +650,7 @@
                 return true;
             }
 
-            if (gatherRotation.ForceGatherIfMissingGpOrTime)
+            if (gatherRotation.ShouldForceGather)
             {
                 return true;
             }
@@ -647,7 +665,7 @@
                 // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
                 if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
                 {
-                    if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                    if (gatherRotation.ShouldForceGather)
                     {
                         return true;
                     }
@@ -682,7 +700,7 @@
 
             if (realSecondsTillStartGathering < 1)
             {
-                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                if (gatherRotation.ShouldForceGather)
                 {
                     return true;
                 }
@@ -700,7 +718,7 @@
             {
                 if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
                 {
-                    if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                    if (gatherRotation.ShouldForceGather)
                     {
                         return true;
                     }
@@ -709,7 +727,7 @@
                 }
             }
 
-            if (gatherRotation.ForceGatherIfMissingGpOrTime)
+            if (gatherRotation.ShouldForceGather)
             {
                 return true;
             }
@@ -744,7 +762,7 @@
 
             if (realSecondsTillStartGathering < 1)
             {
-                if (gatherRotation.ForceGatherIfMissingGpOrTime)
+                if (gatherRotation.ShouldForceGather)
                 {
                     return true;
                 }
@@ -868,17 +886,13 @@
             return false;
         }
 
-        private async Task<bool> Gather()
+        private async Task Peek()
         {
-            if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
-            {
-                var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-                                          ? TimeSpan.FromSeconds(15)
-                                          : TimeSpan.FromSeconds(
-                                              Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
-            }
+            await InteractWithNode();
+        }
 
+        private async Task<bool> InteractWithNode()
+        {
             var attempts = 0;
             while (attempts < 3 && !GatheringManager.WindowOpen)
             {
@@ -919,52 +933,28 @@
 
             CheckForGatherRotationOverride();
 
+            return true;
+        }
+
+        private async Task<bool> Gather()
+        {
+            if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
+            {
+                var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
+                                          ? TimeSpan.FromSeconds(15)
+                                          : TimeSpan.FromSeconds(
+                                              Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+            }
+
+            if (!await InteractWithNode())
+            {
+                return false;
+            }
+
             await gatherRotation.Prepare(this);
 
-            if (GatheringSkillOrder == null || GatheringSkillOrder.GatheringSkills.Count == 0)
-            {
-                await gatherRotation.ExecuteRotation(this);
-            }
-            else
-            {
-
-                var gpRequired = 0U;
-                var skillList = new List<SpellData>();
-                foreach (var gatheringSkill in GatheringSkillOrder.GatheringSkills)
-                {
-                    // Ignoring times to cast.... no skills would ever be cast more than once.
-                    SpellData spellData;
-
-                    if (!Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellName, out spellData))
-                    {
-                        Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellId, out spellData);
-                    }
-
-                    if (spellData == null)
-                    {
-                        Logging.Write(
-                            Colors.PaleVioletRed,
-                            "Unable to find skill -> Name: {0}, Id: {1}",
-                            gatheringSkill.SpellName,
-                            gatheringSkill.SpellId);
-                    }
-                    else
-                    {
-                        skillList.Add(spellData);
-                        gpRequired += spellData.Cost;    
-                    }
-                }
-                if (!GatheringSkillOrder.AllOrNone || gpRequired <= Core.Player.CurrentGP)
-                {
-                    foreach (var skill in skillList)
-                    {
-                        if (Core.Player.CurrentGP > skill.Cost)
-                        {
-                            await Cast(skill.Id);    
-                        }
-                    }
-                }
-            }
+            await gatherRotation.ExecuteRotation(this);
 
             await gatherRotation.Gather(this);
 
@@ -1005,6 +995,8 @@
 
         internal async Task<bool> ResolveGatherItem()
         {
+            var previousGatherItem = GatherItem;
+            GatherItemIsFallback = false;
             GatherItem = null;
             CollectableItem = null;
             var windowItems = GatheringManager.GatheringWindowItems;
@@ -1076,13 +1068,7 @@
                     await Coroutine.Sleep((int)SkipWindowDelay);
                 }
 
-                var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
-
-                while (window.IsValid)
-                {
-                    window.SendAction(1, 3, 0xFFFFFFFF);
-                    await Coroutine.Yield();
-                }
+                await CloseGatheringWindow();
 
                 return false;
             }
@@ -1092,6 +1078,8 @@
                 return true;
             }
 
+            GatherItemIsFallback = true;
+
             GatherItem =
                 windowItems.Where(i => i.IsFilled && !i.IsUnknown)
                     .OrderByDescending(i => i.ItemId)
@@ -1099,7 +1087,10 @@
                 ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
                 ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
 
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
+            if (previousGatherItem.ItemId != GatherItem.ItemId)
+            {
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");    
+            }
 
             return true;
         }
@@ -1143,17 +1134,17 @@
 
         private void CheckForGatherRotationOverride()
         {
-            if (!gatherRotation.CanOverride || DisableRotationOverride)
+            if (!gatherRotation.CanBeOverriden || DisableRotationOverride)
             {
                 return;
             }
 
-            var rotationAndTypes = Rotations.Where(kvp => !object.ReferenceEquals(kvp.Value, gatherRotation))
+            var rotationAndTypes = Rotations
                 .Select(
                     r => new
                              {
                                  Rotation = r.Value,
-                                 OverrideValue = r.Value.ShouldOverrideSelectedGatheringRotation(this)
+                                 OverrideValue = r.Value.ResolveOverridePriority(this)
                              })
                 .Where(r => r.OverrideValue > -1)
                 .OrderByDescending(r => r.OverrideValue).ToArray();
@@ -1188,6 +1179,17 @@
         private int InventoryItemCount()
         {
             return InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems);
+        }
+
+        internal async Task CloseGatheringWindow()
+        {
+            var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
+
+            while (window.IsValid)
+            {
+                window.SendAction(1, 3, 0xFFFFFFFF);
+                await Coroutine.Yield();
+            }
         }
 
         internal bool IsEphemeral()

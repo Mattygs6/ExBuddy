@@ -1,31 +1,29 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
     [GatheringRotation("DiscoverUnknowns", 250, 0)]
-    public class DiscoverUnknownsGatheringRotation : RegularNodeGatheringRotation
+    public class DiscoverUnknownsGatheringRotation : GatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
-            if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+            if (tag.IsUnspoiled()
+                && Core.Player.CurrentGP >= 550
+                && GatheringManager.GatheringWindowItems.Count(i => i.IsUnknown && i.Amount > 0) > 1)
             {
-                await tag.Cast(Ability.CollectorsGlove);
+
+                await tag.Cast(Ability.Toil);
             }
-
-            return true;
+            
+            return await base.Prepare(tag);
         }
 
-        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
-        {
-            await IncreaseChance(tag);
-
-            return true;
-        }
-
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             if (tag.GatherItem.IsUnknown)
             {

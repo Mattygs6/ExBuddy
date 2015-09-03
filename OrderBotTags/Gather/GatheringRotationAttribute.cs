@@ -6,7 +6,7 @@ namespace ExBuddy.OrderBotTags.Gather
     public sealed class GatheringRotationAttribute : Attribute
     {
         public GatheringRotationAttribute(string name)
-            : this(name, 600, 30)
+            : this(name, 0, 0)
         {
         }
 

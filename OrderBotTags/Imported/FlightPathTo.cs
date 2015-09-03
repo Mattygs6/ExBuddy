@@ -8,18 +8,62 @@ namespace ff14bot.NeoProfiles
     using ff14bot.Helpers;
     using ff14bot.Navigation;
     using System;
-    using System.ComponentModel;
     using System.Threading.Tasks;
     using TreeSharp;
 
     using System.Collections.Generic;
     using System.Windows.Media;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot.Behavior;
 
-    [XmlElement("FlightPathTo")]
-    public class FlightPathTo : ProfileBehavior
+    public class FlightPath : IEquatable<FlightPath>
     {
+        public Vector3 Start { get; set; }
+
+        public Vector3 End { get; set; }
+
+        // TODO: waypoints
+
+        public bool Equals(FlightPath other)
+        {
+            return other.Start.Distance3D(this.Start) < 2.0f && other.End.Distance3D(this.End) < 2.0f;
+        }
+    }
+
+    [XmlElement("FlightPathTo")]
+    public class FlightPathTo : FlightVars
+    {
+        // TODO make path cache have sliding expiration timeouts
+        private static readonly HashSet<FlightPath> Paths = new HashSet<FlightPath>(EqualityComparer<FlightPath>.Default);
+
+        public static FlightPathTo New(Vector3 destination)
+        {
+            var fp = new FlightPathTo { Target = destination };
+
+            // TODO: apply defaults.
+
+            return fp;
+        }
+
+        public static FlightPathTo New(FlightVars flightVars, Vector3 destination, bool dismountAtDestination)
+        {
+            var fp = new FlightPathTo
+                         {
+                             Target = destination,
+                             EdgeDetection = 50.0f,
+                             Radius = flightVars.Radius,
+                             InverseParabolicMagnitude = 10,
+                             Smoothing = 0.1f,
+                             MountId = flightVars.MountId,
+                             NavHeight = flightVars.NavHeight,
+                             LogWaypoints = flightVars.LogWaypoints,
+                             DismountAtDestination = dismountAtDestination
+                         };
+            return fp;
+        }
+
         private bool isDone;
         private readonly IPlayerMover playerMover = new SlideMover();
         private readonly List<Vector3> waypoints = new List<Vector3>();
@@ -28,28 +72,6 @@ namespace ff14bot.NeoProfiles
 
         [XmlAttribute("XYZ")]
         public Vector3 Target { get; set; }
-
-        [XmlAttribute("Radius")]
-        public float Radius { get; set; }
-
-        [DefaultValue(0.1f)]
-        [XmlAttribute("Smoothing")]
-        public float Smoothing { get; set; }
-
-        [DefaultValue(45)]
-        [XmlAttribute("MountId")]
-        public int MountId { get; set; }
-
-        [DefaultValue(0.0f)]
-        [XmlAttribute("NavHeight")]
-        public float NavHeight { get; set; }
-
-        [DefaultValue(true)]
-        [XmlAttribute("DismountAtDestination")]
-        public bool DismountAtDestination { get; set; }
-
-        [XmlAttribute("LogWaypoints")]
-        public bool LogWaypoints { get; set; }
 
         protected override Composite CreateBehavior()
         {
@@ -62,16 +84,14 @@ namespace ff14bot.NeoProfiles
 
             if (waypoints.Count > 0)
             {
-                for (var i = 0; i < waypoints.Count; i++)
+                foreach (var waypoint in waypoints)
                 {
                     if (LogWaypoints)
                     {
-                        Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Moving to waypoint: {0}", waypoints[i]);
+                        Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Moving to waypoint: {0}", waypoint);
                     }
 
-                    var from = i == 0 ? Core.Player.Location : waypoints[i - 1];
-
-                    await MoveToWithinRadius(from, waypoints[i], Radius);
+                    await MoveToWithinRadius(waypoint, Radius);
                 }
             }
             else
@@ -111,20 +131,20 @@ namespace ff14bot.NeoProfiles
             if (Math.Abs(start.Y - end.Y) < 3.0f)
             {
                 //start and end are roughly level, pretend they are - simpler solution with less steps
-                Vector3 travelDirection = end - start;
-                Vector3 computed = start + t * travelDirection;
+                Vector3 direction3 = end - start;
+                Vector3 computed = start + t * direction3;
                 computed.Y += (float)(Math.Sin((double)(t * (float)Math.PI))) * height;
                 return computed;
             }
             else
             {
                 //start and end are not level, gets more complicated
-                Vector3 travelDirection = end - start;
-                Vector3 levelDirecteion = end - new Vector3(start.X, end.Y, start.Z);
-                Vector3 right = Vector3.Cross(travelDirection, levelDirecteion);
-                Vector3 up = Vector3.Cross(right, travelDirection);
+                Vector3 direction3 = end - start;
+                Vector3 direction2 = end - new Vector3(start.X, end.Y, start.Z);
+                Vector3 right = Vector3.Cross(direction3, direction2);
+                Vector3 up = Vector3.Cross(right, direction3); // Should this be direction2?
                 if (end.Y > start.Y) up = -up;
-                Vector3 computed = start + t * travelDirection;
+                Vector3 computed = start + t * direction3;
                 up.Normalize();
 
                 computed.Y += ((float)(Math.Sin((double)(t * (float)Math.PI))) * height) * up.Y;
@@ -136,7 +156,6 @@ namespace ff14bot.NeoProfiles
         {
             waypoints.Clear();
             var distance = GameObjectManager.LocalPlayer.Location.Distance3D(target);
-            double desiredNumberOfPoints;
 
             if (distance < Radius)
             {
@@ -144,13 +163,13 @@ namespace ff14bot.NeoProfiles
                 return;
             }
 
-            desiredNumberOfPoints = Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 3.0)) + Smoothing, 1.0)), 1.0);
+            var desiredNumberOfPoints = Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 3.0)) + Smoothing, 1.0)), 1.0);
 
             desiredNumberOfPoints = Math.Min(desiredNumberOfPoints, Math.Floor(distance));
 
 
-            // Height will be "Forced height or no greater than 1/5th the distance" and also not more than 100
-            var height = Math.Min(Math.Max(NavHeight, distance / 5), 100);
+            // Height will be "Forced height" or no greater than 1/5th the distance and also not more than 100
+            var height = Math.Max(NavHeight, Math.Min(distance / 5, 100.0f));
             
             for (var i = 0.0f; i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
@@ -161,12 +180,13 @@ namespace ff14bot.NeoProfiles
             Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Created {0} waypoints to fly a distance of {1}", waypoints.Count, distance);
         }
 
-        public async Task<bool> PathIsClear(Vector3 from, Vector3 to)
+        public async Task<bool> PathIsClear(Vector3 to)
         {
             Vector3 hit, distances;
-            var somethingInTheWay = WorldManager.Raycast(from, to, out hit, out distances);
 
-            return !somethingInTheWay;
+
+
+            return true;
         }
 
         public async Task<bool> TakeFlight()
@@ -194,15 +214,15 @@ namespace ff14bot.NeoProfiles
             return true;
         }
 
-        public async Task<bool> MoveToWithinRadius(Vector3 from, Vector3 to, float radius)
+        public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
         {
             while (GameObjectManager.LocalPlayer.Location.Distance3D(to) > Radius)
             {
                 await EnsureFlying();
-                if (!await PathIsClear(from, to))
-                {
-                    //to.Y += NavHeight;
-                }
+                ////if (!await PathIsClear(to))
+                ////{
+
+                ////}
 
                 playerMover.MoveTowards(to);
                 await Coroutine.Yield();

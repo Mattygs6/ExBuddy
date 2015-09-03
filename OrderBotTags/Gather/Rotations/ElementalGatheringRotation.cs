@@ -10,32 +10,23 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
     //Name, RequiredGp, RequiredTime
     [GatheringRotation("Elemental", 0, 0)]
-    public class ElementalGatheringRotation : UnspoiledGatheringRotation
+    public class ElementalGatheringRotation : SmartGatheringRotation, IGetOverridePriority
     {
-        public override async Task<bool> Prepare(GatherCollectableTag tag)
-        {
-            if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
-            {
-                await tag.Cast(Ability.CollectorsGlove);
-            }
-
-            // We can see the elemental item, no need to hit the node.
-            if (WardSkills.Any(ward => Actionmanager.CanCast(ward, Core.Player)))
-            {
-                return true;
-            }
-
-            tag.GatherItem.GatherItem();
-            await Coroutine.Sleep(1000);
-
-            return true;
-        }
-
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            if (Core.Player.CurrentGP < 400)
+            if (Core.Player.CurrentGP < 400 || tag.GatherItemIsFallback)
             {
                 return true;
+            }
+
+            if (tag.GatherItem.ItemId < 8 && Core.Player.ClassLevel >= 41)
+            {
+                return true;
+            }
+
+            while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+            {
+                await Coroutine.Yield();
             }
 
             var ward = WardSkills.FirstOrDefault(w => Actionmanager.CanCast(w, Core.Player));
@@ -49,7 +40,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             // Don't use unless ward increases item yield.
             if (!DoesWardIncreaseItemYield(tag))

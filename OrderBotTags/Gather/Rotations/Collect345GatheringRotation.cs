@@ -5,7 +5,7 @@
     using ff14bot.Managers;
 
     [GatheringRotation("Collect345", 0, 24)]
-    public class Collect345GatheringRotation : DefaultCollectGatheringRotation
+    public sealed class Collect345GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
@@ -18,7 +18,7 @@
             return true;
         }
 
-        public override int ShouldOverrideSelectedGatheringRotation(GatherCollectableTag tag)
+        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
             if (tag.IsUnspoiled())
             {

@@ -1,4 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Profile [
+	<!ENTITY Collect "1">
+]>
 <Profile>
 	<Name>Collectable: Chysahl Greens</Name>
 	<KillRadius>50</KillRadius>
@@ -33,23 +36,38 @@
 		<If condition="not IsOnMap(397)">
 			<TeleportTo name="Falcon's Nest" aetheryteId="71" />
 			<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
-			<FlightPathTo XYZ="447.8192, 232.5399, 689.0173" Radius="3.0" MountId="1" DismountAtDestination="false" />
+			<FlightPathTo XYZ="447.8192, 232.5399, 689.0173" DismountAtDestination="false" />
 		</If>
 		<RunCode name="Gear"/>
 		<While condition="True">
-			<GatherCollectable loops="1" spawnTimeout="120">
-				<GatherObjects>
-					<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
-				</GatherObjects>
-				<ItemNames>
-					<ItemName>Chysahl Greens</ItemName>
-				</ItemNames>
-				<GatherRotation>Unspoiled</GatherRotation>
-				<!--<GatherRotation>Collect470</GatherRotation>-->
-				<HotSpots>
-					<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
-				</HotSpots>
-			</GatherCollectable>
+			<If condition="&Collect_Chysahl; != 0">
+				<GatherCollectable loops="1" spawnTimeout="200">
+					<GatherObjects>
+						<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+					</GatherObjects>
+					<Collectables>
+						<Collectable Name="Chysahl Greens" Value="470" />
+					</Collectables>
+					<GatherRotation>Collect470</GatherRotation>
+					<HotSpots>
+						<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+					</HotSpots>
+				</GatherCollectable>
+			</If>
+			<If condition="&Collect_Chysahl; == 0">
+				<GatherCollectable loops="1" spawnTimeout="200" gatherIncrease="Quality">
+					<GatherObjects>
+						<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+					</GatherObjects>
+					<ItemNames>
+						<ItemName>Chysahl Greens</ItemName>
+					</ItemNames>
+					<GatherRotation>Unspoiled</GatherRotation>
+					<HotSpots>
+						<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+					</HotSpots>
+				</GatherCollectable>
+			</If>
 		</While>
 	</Order>
 </Profile>

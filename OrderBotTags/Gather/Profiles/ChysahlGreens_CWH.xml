@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Profile [
-	<!ENTITY Collect "1">
+	<!ENTITY Collect_Chysahl "1">
 ]>
 <Profile>
 	<Name>Collectable: Chysahl Greens</Name>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--User Configuration-->
 <!DOCTYPE Profile [
-	<!ENTITY Collect "1">
+	<!ENTITY Collect_Adamantite "1">
 ]>
 <Profile>
 	<Name>Collectable: Adamantite Ore</Name>
@@ -41,7 +41,7 @@
 		<!-- TODO: do we still need the while? -->
 		<FlightPathTo XYZ="-64.44664, -37.67329, -809.4534" Radius="3.0" DismountAtDestination="false" LogWaypoints="true" />
 		<While condition="True">
-			<If condition="&Collect; != 0">
+			<If condition="&Collect_Adamantite; != 0">
 				<GatherCollectable loops="1" spawnTimeout="200">
 					<GatherObjects>
 						<GatherObject>Unspoiled Mineral Deposit</GatherObject>
@@ -60,7 +60,7 @@
 					</HotSpots>
 				</GatherCollectable>
 			</If>
-			<If condition="&Collect; == 0">
+			<If condition="&Collect_Adamantite; == 0">
 				<GatherCollectable loops="1" spawnTimeout="200">
 					<GatherObjects>
 						<GatherObject>Unspoiled Mineral Deposit</GatherObject>

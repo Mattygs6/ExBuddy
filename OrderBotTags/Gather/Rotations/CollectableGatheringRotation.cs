@@ -157,39 +157,89 @@
             return atkControl;
         }
 
+        protected async Task Discerning(GatherCollectableTag tag)
+        {
+            Logging.Write("Casting Discerning Eye!");
+            await tag.Cast(Ability.DiscerningEye);
+        }
+
         protected async Task DiscerningMethodical(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
+            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task DiscerningImpulsive(GatherCollectableTag tag)
+        {
+            Logging.Write("Casting Discerning Eye!");
+            await tag.Cast(Ability.DiscerningEye);
+            Logging.Write("Casting Impulsive Appraisal!");
+            await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task DiscerningUtmostMethodical(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
+            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
+            Logging.Write("Casting Methodical Appraisal!");
+            await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task UtmostImpulsive(GatherCollectableTag tag)
+        {
+            Logging.Write("Casting Utmost Caution!");
+            await tag.Cast(Ability.UtmostCaution);
+            Logging.Write("Casting Impulsive Appraisal!");
+            await tag.Cast(Ability.ImpulsiveAppraisal);
+        }
+
+        protected async Task UtmostMethodical(GatherCollectableTag tag)
+        {
+            Logging.Write("Casting Utmost Caution!");
+            await tag.Cast(Ability.UtmostCaution);
+            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task Impulsive(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Impulsive Appraisal!");
             await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task Methodical(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task SingleMindImpulsive(GatherCollectableTag tag)
+        {
+            Logging.Write("Casting Single Mind!");
+            await tag.Cast(Ability.SingleMind);
+            Logging.Write("Casting Impulsive Appraisal!");
+            await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task SingleMindMethodical(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Single Mind!");
             await tag.Cast(Ability.SingleMind);
+            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task SingleMindUtmostMethodical(GatherCollectableTag tag)
         {
+            Logging.Write("Casting Single Mind!");
             await tag.Cast(Ability.SingleMind);
+            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
+            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
     }

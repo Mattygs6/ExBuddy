@@ -156,7 +156,7 @@
         [XmlAttribute("SkipWindowDelay")]
         public uint SkipWindowDelay { get; set; }
 
-        [DefaultValue(250)]
+        [DefaultValue(2500)]
         [XmlAttribute("SpellDelay")]
         public int SpellDelay { get; set; }
 

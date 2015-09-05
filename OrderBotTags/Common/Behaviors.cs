@@ -59,11 +59,11 @@ namespace ExBuddy.OrderBotTags
                 }
 
                 await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
+            }
 
-                if (dismountAtDestination && Core.Player.IsMounted)
-                {
-                    await CommonTasks.StopAndDismount();
-                }
+            if (dismountAtDestination && Core.Player.IsMounted)
+            {
+                await CommonTasks.StopAndDismount();
             }
 
             return true;

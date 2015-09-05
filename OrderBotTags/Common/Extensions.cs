@@ -1,11 +1,15 @@
 ﻿namespace ExBuddy.OrderBotTags
 {
     using System;
+    using System.Data.SqlTypes;
     using System.Linq;
     using System.Reflection;
+    using System.Windows.Media;
 
+    using Clio.Common;
     using Clio.Utilities;
 
+    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public static partial class Extensions
@@ -98,13 +102,13 @@
             return defaultValue;
         }
 
-        public static bool IsGround(this Vector3 vector)
+        public static bool IsGround(this Vector3 vector, float range = 3.0f)
         {
+            range = range <= 0 ? 0.1f : range;
             Vector3 above = new Vector3(vector.X, vector.Y + 0.3f, vector.Z);
-            Vector3 below = new Vector3(vector.X, vector.Y - 3.0f, vector.Z);
-            Vector3 hit;
-            Vector3 distances;
-            if (WorldManager.Raycast(above, below, out hit, out distances) && hit != Vector3.Zero)
+            Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
+            Vector3 hit, distances;
+            if (WorldManager.Raycast(above, below, out hit, out distances))
             {
                 return true;
             }
@@ -112,30 +116,83 @@
             return false;
         }
 
-        public static Vector3 GetFloor(this Vector3 vector, float maxDistanceToCheck = 100.0f)
+        public static Vector3 HeightCorrection(this Vector3 vector, float range = 5.0f)
         {
-            Vector3 below = new Vector3(vector.X, vector.Y - maxDistanceToCheck, vector.Z);
-            Vector3 hit;
-            Vector3 distances;
-            if (WorldManager.Raycast(vector, below, out hit, out distances) && hit != Vector3.Zero)
+            range = range <= 0 ? 0.1f : range;
+            Vector3 above = new Vector3(vector.X, vector.Y + range, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
+            Vector3 hit, distances;
+            if (WorldManager.Raycast(vector, above, out hit, out distances))
             {
-                return hit;
+                vector = hit;
+                vector.Y -= range;
+                return vector;
             }
 
-            return Vector3.Zero;
+            if (WorldManager.Raycast(vector, below, out hit, out distances))
+            {
+                vector = hit;
+                vector.Y += range;
+            }
+
+            return vector;
         }
 
-        public static Vector3 GetCeiling(this Vector3 vector, float maxDistanceToCheck = 100.0f)
+        public static Vector3 GetFloor(this Vector3 vector, float maxDistanceToCheck = 1000.0f)
         {
-            Vector3 above = new Vector3(vector.X, vector.Y + maxDistanceToCheck, vector.Z);
-            Vector3 hit;
-            Vector3 distances;
-            if (WorldManager.Raycast(vector, above, out hit, out distances) && hit != Vector3.Zero)
+            Vector3 below = new Vector3(vector.X, vector.Y - maxDistanceToCheck, vector.Z);
+            Vector3 hit, distances;
+            if (WorldManager.Raycast(vector, below, out hit, out distances))
             {
                 return hit;
             }
 
-            return Vector3.Zero;
+            return vector;
+        }
+
+        public static Vector3 GetCeiling(this Vector3 vector, float maxDistanceToCheck = 1000.0f)
+        {
+            Vector3 above = new Vector3(vector.X, vector.Y + maxDistanceToCheck, vector.Z);
+            Vector3 hit, distances;
+            if (WorldManager.Raycast(vector, above, out hit, out distances))
+            {
+                return hit;
+            }
+
+            return vector;
+        }
+
+        public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
+        {
+
+            var random = new Vector3(
+                vector.X + (float)MathEx.Random(0.0, range),
+                vector.Y + (float)MathEx.Random(0.0, range),
+                vector.Z + (float)MathEx.Random(0.0, range));
+
+            Logging.WriteDiagnostic(
+                Colors.DarkKhaki,
+                "ExBuddy: Adding Random Direction.  from {0} to {1}",
+                vector,
+                random);
+
+            return random;
+        }
+
+        public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f)
+        {
+            var random = new Vector3(
+                vector.X + (float)MathEx.Random(0.0, range),
+                vector.Y,
+                vector.Z + (float)MathEx.Random(0.0, range));
+
+            Logging.WriteDiagnostic(
+                Colors.DarkKhaki,
+                "ExBuddy: Adding Random Direction2D.  from {0} to {1}",
+                vector,
+                random);
+
+            return random;
         }
     }
 }

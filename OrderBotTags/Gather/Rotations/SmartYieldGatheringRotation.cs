@@ -19,6 +19,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             // Staring count at -30 since we regain that within the next node and we usually have +30 above the threshold on our gear at each point.
             if (Core.Player.CurrentGP >= Core.Player.MaxGP - 30)
             {
+                //TODO: might move this to the interface or the main tag, and manage it there so we don't miss incrementing it when we get other rotation overrides.
                 maxGpNodeCount++;
             }
 

@@ -6,32 +6,63 @@
 
     using ff14bot.NeoProfiles;
 
-    public interface IFlightVars
+    public interface IFlightNavigationArgs
     {
-        float EdgeDetection { get; set; }
-
-        float Radius { get; set; }
-
         int InverseParabolicMagnitude { get; set; }
 
         float Smoothing { get; set; }
 
-        int MountId { get; set; }
-
-        float NavHeight { get; set; }
-
-        bool DismountAtDestination { get; set; }
+        float ForcedAltitude { get; set; }
 
         bool LogWaypoints { get; set; }
     }
 
+    public interface IFlightMovementArgs
+    {
+        int MountId { get; set; }
+        float Radius { get; set; }
+        bool ForceLanding { get; set; }
+    }
+
+    public interface IFlightVars : IFlightMovementArgs, IFlightNavigationArgs
+    {
+    }
+
+    public class FlightMovementArgs : IFlightMovementArgs
+    {
+        public FlightMovementArgs()
+        {
+            this.Radius = 2.7f;
+        }
+
+        public int MountId { get; set; }
+
+        public float Radius { get; set; }
+
+        public bool ForceLanding { get; set; }
+    }
+
+    public class FlightNavigationArgs : IFlightNavigationArgs
+    {
+        public FlightNavigationArgs()
+        {
+            this.InverseParabolicMagnitude = 10;
+            this.Smoothing = 0.1f;
+            this.LogWaypoints = true;
+        }
+
+        public int InverseParabolicMagnitude { get; set; }
+
+        public float Smoothing { get; set; }
+
+        public float ForcedAltitude { get; set; }
+
+        public bool LogWaypoints { get; set; }
+    }
+
     public abstract class FlightVars : ProfileBehavior, IFlightVars
     {
-        [DefaultValue(50.0f)]
-        [XmlAttribute("EdgeDetection")]
-        public float EdgeDetection { get; set; }
-
-        [DefaultValue(2.7f)]
+        [DefaultValue(3.0f)]
         [XmlAttribute("Radius")]
         public float Radius { get; set; }
 
@@ -39,21 +70,20 @@
         [XmlAttribute("InverseParabolicMagnitude")]
         public int InverseParabolicMagnitude { get; set; }
 
-        [DefaultValue(0.1f)]
+        [DefaultValue(0.5f)]
         [XmlAttribute("Smoothing")]
         public float Smoothing { get; set; }
 
-        [DefaultValue(45)]
+        [DefaultValue(0)]
         [XmlAttribute("MountId")]
         public int MountId { get; set; }
 
         [DefaultValue(0.0f)]
-        [XmlAttribute("NavHeight")]
-        public float NavHeight { get; set; }
+        [XmlAttribute("ForcedAltitude")]
+        public float ForcedAltitude { get; set; }
 
-        [DefaultValue(true)]
-        [XmlAttribute("DismountAtDestination")]
-        public bool DismountAtDestination { get; set; }
+        [XmlAttribute("ForceLanding")]
+        public bool ForceLanding { get; set; }
 
         [XmlAttribute("LogWaypoints")]
         public bool LogWaypoints { get; set; }

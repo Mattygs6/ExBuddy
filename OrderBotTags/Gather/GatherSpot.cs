@@ -8,13 +8,6 @@
 
     using ff14bot;
 
-    public enum GatherSpotType
-    {
-        GatherSpot,
-        StealthGatherSpot,
-        StealthApproachGatherSpot
-    }
-
     public interface IGatherSpot
     {
         Vector3 NodeLocation { get; set; }
@@ -29,7 +22,7 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
 
             return result;
         }
@@ -57,7 +50,7 @@
 
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
 
             result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
@@ -113,13 +106,13 @@
                 return false;
             }
 
-            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.NavHeight, "Stealth Location", tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.ForcedAltitude, tag.InverseParabolicMagnitude, "Stealth Location", tag.LogWaypoints, true, true, false);
 
             if (result)
             {
                 await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Radius, tag.Node.EnglishName);
+                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName);
             }
 
             return result;

@@ -149,7 +149,7 @@
         [XmlElement("ItemNames")]
         public List<string> ItemNames { get; set; }
 
-        [DefaultValue(3.2f)]
+        [DefaultValue(3.1f)]
         [XmlAttribute("Distance")]
         public float Distance { get; set; }
 
@@ -215,6 +215,11 @@
             SpellDelay = SpellDelay < 100 ? 100 : SpellDelay;
             WindowDelay = WindowDelay < 500 ? 500 : WindowDelay;
 
+            if (Distance > 3.5f)
+            {
+                TreeRoot.Stop("Using a distance of greater than 3.5 is not supported, change the value and restart the profile.");
+            }
+
             if (HotSpots != null)
             {
                 HotSpots.IsCyclic = Loops < 1;
@@ -231,48 +236,66 @@
 
         protected override Composite CreateBehavior()
         {
-            return
-                new PrioritySelector(
-                    new Decorator(
-                        ret => !Condition(),
-                        new Action(r => isDone = true)),
+            return new PrioritySelector(
+                new Decorator(ret => !Condition(), new Action(r => isDone = true)),
+                new Decorator(
+                    ret =>
+                    !MovementManager.IsFlying && Core.Player.ClassLevel >= 46
+                    && !Core.Player.HasAura(
+                        (int)
+                        (Core.Player.CurrentJob == ClassJobType.Miner
+                             ? AbilityAura.TruthOfMountains
+                             : AbilityAura.TruthOfForests)),
+                    new ActionRunCoroutine(ctx => CastTruth())),
+                new Decorator(
+                    ret =>
+                    Node != null
+                    && (!Node.IsValid || (FreeRange && Node.Location.Distance3D(Core.Player.Location) > Radius)),
+                    new Action(r => OnResetCachedDone())),
+                new Decorator(
+                    ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
+                    new ActionRunCoroutine(
+                        ctx =>
+                        Behaviors.MoveTo(
+                            HotSpots.CurrentOrDefault,
+                            true,
+                            (uint)MountId,
+                            HotSpots.CurrentOrDefault.Radius * 0.8f,
+                            ForcedAltitude,
+                            InverseParabolicMagnitude,
+                            HotSpots.CurrentOrDefault.Name,
+                            LogWaypoints))),
+                new Decorator(
+                    ret =>
+                    (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location))
+                    && Node == null,
+                    new Sequence(
+                        new ActionRunCoroutine(ctx => FindNode()),
                         new Decorator(
-                            ret => !MovementManager.IsFlying && Core.Player.ClassLevel >= 46 && !Core.Player.HasAura((int)(Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)),
-                            new ActionRunCoroutine(ctx => CastTruth())),
-                    new Decorator(
-                        ret => Node != null && (!Node.IsValid || (FreeRange && Node.Location.Distance2D(Core.Player.Location) > Radius)),
-                        new Action(r => OnResetCachedDone())),
-                    new Decorator(
-                        ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
-                        new ActionRunCoroutine(ctx => Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, HotSpots.CurrentOrDefault.Radius - 1, NavHeight, HotSpots.CurrentOrDefault.Name, LogWaypoints))),
-                    new Decorator(
-                        ret => (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location)) && Node == null,
-                        new Sequence(
-                            new ActionRunCoroutine(ctx => FindNode()),
-                            new Decorator(
-                                ret => HotSpots == null,
+                            ret => HotSpots == null,
                             new Action(r => MovementManager.SetFacing2D(Node.Location))))),
-                    new Decorator(
-                        ret => Node != null && Node.IsValid && GatherSpot == null,
-                        new ActionRunCoroutine(ctx => FindGatherSpot())),
-                    new Decorator(
-                        ret => Node != null && Node.IsValid && GatherSpot != null && gatherRotation == null,
-                        new ActionRunCoroutine(ctx => ResolveGatherRotation())),
-                    new Decorator(
-                        ret =>
-                        Node != null && Node.IsValid && GatherSpot != null && !FreeRange && Node.Location.Distance3D(Core.Player.Location) > Distance,
-                        new ActionRunCoroutine(ctx => MoveToGatherSpot())),
-                    new Decorator(
-                        ret =>
-                        Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
-                        && Node.Location.Distance3D(Core.Player.Location) <= Distance,
-                        new Sequence(
-                            new ActionRunCoroutine(ctx => BeforeGather()),
-                            new ActionRunCoroutine(ctx => Gather()),
-                            new ActionRunCoroutine(ctx => AfterGather()))),
-                    new Decorator(
-                        ret => Node != null && Node.IsValid && GatherSpot != null && !FreeRange && !Node.CanGather,
-                        new Sequence(
+                new Decorator(
+                    ret => Node != null && Node.IsValid && GatherSpot == null,
+                    new ActionRunCoroutine(ctx => FindGatherSpot())),
+                new Decorator(
+                    ret => Node != null && Node.IsValid && GatherSpot != null && gatherRotation == null,
+                    new ActionRunCoroutine(ctx => ResolveGatherRotation())),
+                new Decorator(
+                    ret =>
+                    Node != null && Node.IsValid && GatherSpot != null && !FreeRange
+                    && Node.Location.Distance3D(Core.Player.Location) > Distance,
+                    new ActionRunCoroutine(ctx => MoveToGatherSpot())),
+                new Decorator(
+                    ret =>
+                    Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
+                    && Node.Location.Distance3D(Core.Player.Location) <= Distance,
+                    new Sequence(
+                        new ActionRunCoroutine(ctx => BeforeGather()),
+                        new ActionRunCoroutine(ctx => Gather()),
+                        new ActionRunCoroutine(ctx => AfterGather()))),
+                new Decorator(
+                    ret => Node != null && Node.IsValid && GatherSpot != null && !FreeRange && !Node.CanGather,
+                    new Sequence(
                         new ActionRunCoroutine(ctx => MoveFromGatherSpot()),
                         new ActionRunCoroutine(ctx => ResetOrDone()))));
         }
@@ -365,7 +388,7 @@
                 {
                     rotation = Rotations["RegularNode"];
                 }
-                
+
                 Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using RegularNode instead.");
             }
 
@@ -510,7 +533,7 @@
                             && GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
                             .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
                         {
-                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, NavHeight, HotSpots.CurrentOrDefault.Name, LogWaypoints);
+                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, ForcedAltitude, InverseParabolicMagnitude, HotSpots.CurrentOrDefault.Name, LogWaypoints);
 
                             Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
 
@@ -1083,7 +1106,7 @@
 
             if (previousGatherItem == null || previousGatherItem.ItemId != GatherItem.ItemId)
             {
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");    
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
             }
 
             return true;
@@ -1093,6 +1116,8 @@
         {
             switch (DefaultGatherSpotType)
             {
+                    // TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
+                    // If flying, land in area closest to node not in sight of an enemy and stealth.
                 case GatherSpotType.StealthApproachGatherSpot:
                 case GatherSpotType.StealthGatherSpot:
                     GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };

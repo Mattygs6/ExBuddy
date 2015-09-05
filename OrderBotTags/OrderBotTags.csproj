@@ -41,6 +41,10 @@
     <Reference Include="GreyMagic">
       <HintPath>..\Assembly\GreyMagic.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RebornBuddy, Version=1.0.302.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -59,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Common\Abilities.cs" />
     <Compile Include="Common\Actions.cs" />
+    <Compile Include="Common\Collisions.cs" />
     <Compile Include="Common\Condition.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\FlightVars.cs" />
@@ -75,6 +80,7 @@
     <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Common\Behaviors.cs" />
     <Compile Include="Gather\GatherIncrease.cs" />
+    <Compile Include="Gather\GatherSpotType.cs" />
     <Compile Include="Gather\Rotations\Collect240DynamicGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect345GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\Collect115GatheringRotation.cs" />
@@ -107,9 +113,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Imported\FlightPathTo.cs" />
+    <Compile Include="Navigation\FlightEnabledNavigator.cs" />
+    <Compile Include="Navigation\FlightEnabledSlideMover.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Schema\Fish.xsd">
       <SubType>Designer</SubType>
     </None>

@@ -105,10 +105,10 @@
                              {
                                  Target = safeSpot.Item1,
                                  Radius = 3.0f,
-                                 NavHeight = 5.0f,
+                                 ForcedAltitude = 5.0f,
                                  MountId = MountId,
                                  Smoothing = 0.2f,
-                                 DismountAtDestination = true,
+                                 ForceLanding = true,
                                  LogWaypoints = LogWaypoints
                              };
                 fp.Start();

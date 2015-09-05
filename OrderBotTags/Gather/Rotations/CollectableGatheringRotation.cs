@@ -66,10 +66,15 @@
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            // TODO: Make dynamic rotation
+            // 120-172
             await DiscerningMethodical(tag);
+            Logging.Write("Current Rarity: " + CurrentRarity);
+
             await DiscerningMethodical(tag);
+            Logging.Write("Current Rarity: " + CurrentRarity);
+
             await DiscerningMethodical(tag);
+            Logging.Write("Current Rarity: " + CurrentRarity);
 
             await IncreaseChance(tag);
 
@@ -78,6 +83,7 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
+            // TODO: need to analyze this method again, figure out a more efficient way to click without causing errors.
             var exCount = 0;
             int swingsRemaining;
             while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
@@ -85,7 +91,7 @@
                 try
                 {
                     swingsRemaining--;
-                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
+                    //await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
                     while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
                     {
                         if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
@@ -105,7 +111,7 @@
 
                     Logging.Write("Clicked Yes");
                     ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
+                    //await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +128,8 @@
                     }
                 }
 
-                await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                // Need to double check if we can cast prep here or not
+                await Coroutine.Wait(5000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;

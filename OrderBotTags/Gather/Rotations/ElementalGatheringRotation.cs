@@ -19,11 +19,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return true;
             }
 
-            if (tag.GatherItem.ItemId < 8 && Core.Player.ClassLevel >= 41)
-            {
-                return true;
-            }
-
             while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
             {
                 await Coroutine.Yield();

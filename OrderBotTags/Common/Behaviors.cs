@@ -17,19 +17,22 @@ namespace ExBuddy.OrderBotTags
 
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false, bool checkIfDestinationIsGround = true)
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, int inverseParabolicMagnitude = 10, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false, bool checkIfDestinationIsGround = true)
         {
             var distance3d = Core.Player.Location.Distance3D(destination);
 
-            if (MovementManager.IsFlying || (WorldManager.CanFly && (distance3d >= CharacterSettings.Instance.MountDistance)) || (checkIfDestinationIsGround && !destination.IsGround()))
+            if (MovementManager.IsFlying || (WorldManager.CanFly && ((distance3d >= CharacterSettings.Instance.MountDistance) || (checkIfDestinationIsGround && !destination.IsGround()))))
             {
+                // TODO: need better way to handle initializing and params for this function altogether.
                 var fp = new FlightPathTo
                              {
                                  Target = destination,
                                  Radius = radius,
-                                 NavHeight = navHeight,
+                                 ForcedAltitude = navHeight,
+                                 Smoothing = 0.5f,
+                                 InverseParabolicMagnitude = inverseParabolicMagnitude,
                                  MountId = (int)mountId,
-                                 DismountAtDestination = dismountAtDestination,
+                                 ForceLanding = dismountAtDestination,
                                  LogWaypoints = logFlight
                              };
 
@@ -45,7 +48,14 @@ namespace ExBuddy.OrderBotTags
                 if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount)
                 {
                     // We might need Navigator.Stop();
-                    await CommonTasks.MountUp(mountId);
+                    if (mountId > 0)
+                    {
+                        await CommonTasks.MountUp(mountId);
+                    }
+                    else
+                    {
+                        await CommonTasks.MountUp();
+                    }
                 }
 
                 await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
@@ -66,7 +76,7 @@ namespace ExBuddy.OrderBotTags
             if (useMesh)
             {
                 MoveResult moveResult = MoveResult.GeneratingPath;
-                while ((distance = Core.Player.Location.Distance2D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
+                while ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
                 {
                     if (distance > sprintDistance)
                     {
@@ -83,7 +93,7 @@ namespace ExBuddy.OrderBotTags
             {
                 var playerMover = new SlideMover();
  
-                while ((distance = Core.Player.Location.Distance2D(destination)) > radius)
+                while ((distance = Core.Player.Location.Distance3D(destination)) > radius)
                 {
                     if (distance > sprintDistance)
                     {

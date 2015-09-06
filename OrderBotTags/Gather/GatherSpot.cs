@@ -22,7 +22,7 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, false, false);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
 
             return result;
         }

@@ -122,20 +122,64 @@
             Vector3 above = new Vector3(vector.X, vector.Y + range, vector.Z);
             Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
             Vector3 hit, distances;
-            if (WorldManager.Raycast(vector, above, out hit, out distances))
+            if (WorldManager.Raycast(vector + new Vector3(0,-2, 0), above, out hit, out distances))
             {
                 vector = hit;
                 vector.Y -= range;
                 return vector;
             }
 
-            if (WorldManager.Raycast(vector, below, out hit, out distances))
+            if (WorldManager.Raycast(vector + new Vector3(0, 2, 0), below, out hit, out distances))
             {
                 vector = hit;
                 vector.Y += range;
             }
 
             return vector;
+        }
+
+        public static bool IsSafeSphere(this Vector3 vector, float range = 5.0f)
+        {
+            range = range <= 0 ? 0.1f : range;
+            Vector3 above = new Vector3(vector.X, vector.Y + range, vector.Z);
+            Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
+            Vector3 hit, distances;
+
+            if (WorldManager.Raycast(vector, above, out hit, out distances))
+            {
+                return false;
+            }
+
+            if (WorldManager.Raycast(vector, below, out hit, out distances))
+            {
+                return false;
+            }
+
+            var side = range / (float)Math.Sqrt(2);
+
+            var vector1 = new Vector3(vector.X + side, vector.Y, vector.Z + side);
+            var vector2 = new Vector3(vector.X + side, vector.Y, vector.Z - side);
+            var vector3 = new Vector3(vector.X - side, vector.Y, vector.Z + side);
+            var vector4 = new Vector3(vector.X - side, vector.Y, vector.Z - side);
+
+            if (WorldManager.Raycast(vector, vector1, out hit, out distances))
+            {
+                return false;
+            }
+            if (WorldManager.Raycast(vector, vector2, out hit, out distances))
+            {
+                return false;
+            }
+            if (WorldManager.Raycast(vector, vector3, out hit, out distances))
+            {
+                return false;
+            }
+            if (WorldManager.Raycast(vector, vector4, out hit, out distances))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public static Vector3 GetFloor(this Vector3 vector, float maxDistanceToCheck = 1000.0f)

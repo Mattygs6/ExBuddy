@@ -113,8 +113,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Imported\FlightPathTo.cs" />
+    <Compile Include="Navigation\EnableFlightPlugin.cs" />
     <Compile Include="Navigation\FlightEnabledNavigator.cs" />
     <Compile Include="Navigation\FlightEnabledSlideMover.cs" />
+    <Compile Include="Navigation\FlightPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

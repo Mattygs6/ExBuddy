@@ -46,7 +46,7 @@
         {
             if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
             {
-                await tag.Cast(Ability.CollectorsGlove);
+                return await tag.Cast(Ability.CollectorsGlove);
             }
 
             return true;
@@ -54,9 +54,7 @@
 
         public virtual async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            await IncreaseChance(tag);
-
-            return true;
+            return await IncreaseChance(tag);
         }
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)

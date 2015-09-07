@@ -15,6 +15,7 @@
 
     using ExBuddy.OrderBotTags.Common;
     using ExBuddy.OrderBotTags.Gather.Rotations;
+    using ExBuddy.OrderBotTags.Navigation;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -26,8 +27,6 @@
     using ff14bot.Objects;
 
     using TreeSharp;
-
-    using Action = TreeSharp.Action;
 
     [XmlElement("GatherCollectable")]
     public sealed class GatherCollectableTag : FlightVars
@@ -56,9 +55,15 @@
 
         internal Collectable CollectableItem;
 
+        internal int NodesGatheredAtMaxGp;
+
         private Func<bool> whileFunc;
 
         private DateTime startTime;
+
+        private BotEvent cleanup;
+
+        private FlightEnabledNavigator navigator;
 
         static GatherCollectableTag()
         {
@@ -77,7 +82,7 @@
         {
             get
             {
-                var requiredGp = this.gatherRotation == null ? 0 : this.gatherRotation.Attributes.RequiredGp;
+                var requiredGp = gatherRotation == null ? 0 : gatherRotation.Attributes.RequiredGp;
 
                 // Return the lower of your MaxGP rounded down to the nearest 50.
                 return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), requiredGp);
@@ -180,14 +185,21 @@
         [XmlAttribute("DefaultGatherSpotType")]
         public GatherSpotType DefaultGatherSpotType { get; set; }
 
-        private bool Condition()
+        private bool HandleCondition()
         {
             if (whileFunc == null)
             {
                 whileFunc = ScriptManager.GetCondition(While);
             }
 
-            return whileFunc();
+            // If statement is true, return false so we can continue the routine
+            if (whileFunc())
+            {
+                return false;
+            }
+
+            isDone = true;
+            return true;
         }
 
         protected override void OnResetCachedDone()
@@ -199,6 +211,7 @@
 
             isDone = false;
             loopCount = 0;
+            NodesGatheredAtMaxGp = 0;
             ResetInternal();
         }
 
@@ -232,72 +245,92 @@
             }
 
             startTime = DateTime.Now;
+
+            //navigator = new FlightEnabledNavigator(Navigator.NavigationProvider);
+
+            cleanup = bot =>
+            {
+                DoCleanup();
+                TreeRoot.OnStop -= cleanup;
+            };
+
+            TreeRoot.OnStop += cleanup;
+        }
+
+        protected override void OnDone()
+        {
+
+            TreeRoot.OnStop -= cleanup;
+            DoCleanup();
+        }
+
+        private void DoCleanup()
+        {
+            if (navigator != null)
+            {
+                navigator.Dispose();
+            }
         }
 
         protected override Composite CreateBehavior()
         {
-            return new PrioritySelector(
-                new Decorator(ret => !Condition(), new Action(r => isDone = true)),
-                new Decorator(
-                    ret =>
-                    !MovementManager.IsFlying && Core.Player.ClassLevel >= 46
-                    && !Core.Player.HasAura(
-                        (int)
-                        (Core.Player.CurrentJob == ClassJobType.Miner
-                             ? AbilityAura.TruthOfMountains
-                             : AbilityAura.TruthOfForests)),
-                    new ActionRunCoroutine(ctx => CastTruth())),
-                new Decorator(
-                    ret =>
-                    Node != null
-                    && (!Node.IsValid || (FreeRange && Node.Location.Distance3D(Core.Player.Location) > Radius)),
-                    new Action(r => OnResetCachedDone())),
-                new Decorator(
-                    ret => HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location),
-                    new ActionRunCoroutine(
-                        ctx =>
-                        Behaviors.MoveTo(
-                            HotSpots.CurrentOrDefault,
-                            true,
-                            (uint)MountId,
-                            HotSpots.CurrentOrDefault.Radius * 0.8f,
-                            ForcedAltitude,
-                            InverseParabolicMagnitude,
-                            HotSpots.CurrentOrDefault.Name,
-                            LogWaypoints))),
-                new Decorator(
-                    ret =>
-                    (HotSpots == null || HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location))
-                    && Node == null,
-                    new Sequence(
-                        new ActionRunCoroutine(ctx => FindNode()),
-                        new Decorator(
-                            ret => HotSpots == null,
-                            new Action(r => MovementManager.SetFacing2D(Node.Location))))),
-                new Decorator(
-                    ret => Node != null && Node.IsValid && GatherSpot == null,
-                    new ActionRunCoroutine(ctx => FindGatherSpot())),
-                new Decorator(
-                    ret => Node != null && Node.IsValid && GatherSpot != null && gatherRotation == null,
-                    new ActionRunCoroutine(ctx => ResolveGatherRotation())),
-                new Decorator(
-                    ret =>
-                    Node != null && Node.IsValid && GatherSpot != null && !FreeRange
-                    && Node.Location.Distance3D(Core.Player.Location) > Distance,
-                    new ActionRunCoroutine(ctx => MoveToGatherSpot())),
-                new Decorator(
-                    ret =>
-                    Node != null && Node.IsValid && GatherSpot != null && Node.CanGather
-                    && Node.Location.Distance3D(Core.Player.Location) <= Distance,
-                    new Sequence(
-                        new ActionRunCoroutine(ctx => BeforeGather()),
-                        new ActionRunCoroutine(ctx => Gather()),
-                        new ActionRunCoroutine(ctx => AfterGather()))),
-                new Decorator(
-                    ret => Node != null && Node.IsValid && GatherSpot != null && !FreeRange && !Node.CanGather,
-                    new Sequence(
-                        new ActionRunCoroutine(ctx => MoveFromGatherSpot()),
-                        new ActionRunCoroutine(ctx => ResetOrDone()))));
+            return new ActionRunCoroutine(ctx => Main());
+        }
+
+        private async Task<bool> Main()
+        {
+            await CommonTasks.HandleLoading();
+
+            return HandleCondition()
+                || await CastTruth()
+                || HandleReset()
+                || await MoveToHotSpot()
+                || await FindNode()
+                || FindGatherSpot()
+                || ResolveGatherRotation()
+                || await MoveToGatherSpot()
+                || await GatherSequence()
+                || (await MoveFromGatherSpot() && ResetOrDone());
+        }
+
+        private async Task<bool> GatherSequence()
+        {
+            if (!Node.CanGather || !(Node.Location.Distance3D(Core.Player.Location) <= Distance))
+            {
+                return false;
+            }
+
+            return await BeforeGather() && await Gather() && await AfterGather();
+        }
+
+        private bool HandleReset()
+        {
+            if (Node == null || (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(Core.Player.Location) > Radius))))
+            {
+                return false;
+            }
+
+            OnResetCachedDone();
+            return true;
+        }
+
+        private async Task<bool> MoveToHotSpot()
+        {
+            if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location))
+            {
+                //return lets try not caring if we succeed on the move
+                    await
+                    Behaviors.MoveTo(
+                        HotSpots.CurrentOrDefault,
+                        true,
+                        (uint)MountId,
+                        HotSpots.CurrentOrDefault.Radius * 0.75f,
+                        HotSpots.CurrentOrDefault.Name);
+
+                return true;
+            }
+
+            return false;
         }
 
         private static Dictionary<string, IGatheringRotation> LoadRotationTypes()
@@ -367,8 +400,13 @@
                        };
         }
 
-        private async Task<bool> ResolveGatherRotation()
+        private bool ResolveGatherRotation()
         {
+            if (gatherRotation != null)
+            {
+                return false;
+            }
+
             if (GatheringSkillOrder != null && GatheringSkillOrder.GatheringSkills.Count > 0)
             {
                 initialGatherRotation = gatherRotation = new GatheringSkillOrderGatheringRotation();
@@ -401,21 +439,29 @@
 
         private async Task<bool> CastTruth()
         {
+            if (MovementManager.IsFlying
+                || Core.Player.ClassLevel < 46
+                || Core.Player.HasAura((int)
+                        (Core.Player.CurrentJob == ClassJobType.Miner
+                             ? AbilityAura.TruthOfMountains
+                             : AbilityAura.TruthOfForests)))
+            {
+                return false;
+            }
+
             while (Core.Player.IsMounted)
             {
                 await CommonTasks.StopAndDismount();
                 await Coroutine.Yield();
             }
 
-            await
+            return await
                 CastAura(
                     Ability.Truth,
                     Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
-
-            return true;
         }
 
-        private async Task<bool> ResetOrDone()
+        private bool ResetOrDone()
         {
             if (HotSpots == null || HotSpots.Count == 0)
             {
@@ -429,7 +475,7 @@
             return true;
         }
 
-        private async Task<bool> ChangeHotSpot()
+        private bool ChangeHotSpot()
         {
             if (SpawnTimeout > 0 && DateTime.Now < startTime.AddSeconds(SpawnTimeout))
             {
@@ -461,11 +507,16 @@
             return true;
         }
 
-        private async Task<bool> FindGatherSpot()
+        private bool FindGatherSpot()
         {
-            if (GatherSpots != null && Node.Location.Distance2D(Core.Player.Location) > Distance)
+            if (GatherSpot != null)
             {
-                GatherSpot = GatherSpots.OrderBy(gs => gs.NodeLocation.Distance2D(Node.Location)).FirstOrDefault();
+                return false;
+            }
+
+            if (GatherSpots != null && Node.Location.Distance3D(Core.Player.Location) > Distance)
+            {
+                GatherSpot = GatherSpots.OrderBy(gs => gs.NodeLocation.Distance3D(Node.Location)).FirstOrDefault(gs => gs.NodeLocation.Distance3D(Node.Location) <= Distance);
             }
 
             // Either GatherSpots is null, the node is already in range, or there are no matches, use fallback
@@ -481,6 +532,11 @@
 
         private async Task<bool> FindNode(bool retryCenterHotspot = true)
         {
+            if (Node != null)
+            {
+                return false;
+            }
+
             while (true)
             {
                 IEnumerable<GatheringPointObject> nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>().Where(gpo => gpo.CanGather).ToArray();
@@ -515,6 +571,7 @@
                     }
                 }
 
+                // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                 if (GatherObjects != null)
                 {
                     Node = nodes.OrderBy(gpo => GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
@@ -531,18 +588,17 @@
                         var myLocation = Core.Player.Location;
                         if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
                             && GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
-                            .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
+                                   .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
                         {
-                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, ForcedAltitude, InverseParabolicMagnitude, HotSpots.CurrentOrDefault.Name, LogWaypoints);
-
                             Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
-
+                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, HotSpots.CurrentOrDefault.Name);
+                            
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
                             continue;
                         }
 
-                        if (!await ChangeHotSpot())
+                        if (!ChangeHotSpot())
                         {
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
@@ -554,9 +610,10 @@
                     {
                         await Coroutine.Yield();
                         isDone = true;
+                        return true;
                     }
 
-                    return false;
+                    return true;
                 }
 
                 var entry = Blacklist.GetEntry(Node.ObjectId);
@@ -579,21 +636,33 @@
 
                 Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
 
+                if (HotSpots == null)
+                {
+                    MovementManager.SetFacing2D(Node.Location);
+                }
+
                 return true;
             }
         }
 
         private async Task<bool> MoveToGatherSpot()
         {
-            var result = await GatherSpot.MoveToSpot(this);
-            return result;
+            if (FreeRange || !(Node.Location.Distance3D(Core.Player.Location) > Distance))
+            {
+                return false;
+            }
+
+            return await GatherSpot.MoveToSpot(this);
         }
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            var result = await GatherSpot.MoveFromSpot(this);
+            if (Node.CanGather)
+            {
+                return false;
+            }
 
-            return result;
+            return await GatherSpot.MoveFromSpot(this);
         }
 
         private async Task<bool> BeforeGather()
@@ -610,12 +679,12 @@
             }
 
             var eorzeaMinutesTillDespawn = int.MaxValue;
-            if (this.IsUnspoiled())
+            if (IsUnspoiled())
             {
                 eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             }
 
-            if (this.IsEphemeral())
+            if (IsEphemeral())
             {
                 var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
                 var rounded = new DateTime(
@@ -693,12 +762,12 @@
 
             // Recalculate: could have no time left at this point
             eorzeaMinutesTillDespawn = int.MaxValue;
-            if (this.IsUnspoiled())
+            if (IsUnspoiled())
             {
                 eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             }
 
-            if (this.IsEphemeral())
+            if (IsEphemeral())
             {
                 var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
                 var rounded = new DateTime(
@@ -755,12 +824,12 @@
         private async Task<bool> WaitForGpRegain()
         {
             var eorzeaMinutesTillDespawn = int.MaxValue;
-            if (this.IsUnspoiled())
+            if (IsUnspoiled())
             {
                 eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
             }
 
-            if (this.IsEphemeral())
+            if (IsEphemeral())
             {
                 var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
                 var rounded = new DateTime(
@@ -805,6 +874,23 @@
 
         private async Task<bool> AfterGather()
         {
+            Poi.Clear("Gather Complete, Node is gone!");
+
+            if (Core.Player.CurrentGP >= Core.Player.MaxGP - 30)
+            {
+                NodesGatheredAtMaxGp++;
+            }
+            else
+            {
+                NodesGatheredAtMaxGp = 0;
+            }
+
+            if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
+            {
+                gatherRotation = initialGatherRotation;
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+            }
+
             if (CordialTime.HasFlag(CordialTime.AfterGather))
             {
                 if (CordialType == CordialType.Auto)
@@ -854,7 +940,7 @@
 
             if (FreeRange)
             {
-                //TODO: check this.
+                //TODO: check 
                 // We want to reset here if Free Range, but we need to implement looping and possibly hotspots
                 // OnResetCachedDone();
                 isDone = true;
@@ -903,11 +989,6 @@
             return false;
         }
 
-        private async Task Peek()
-        {
-            await InteractWithNode();
-        }
-
         private async Task<bool> InteractWithNode()
         {
             var attempts = 0;
@@ -915,25 +996,28 @@
             {
                 while (MovementManager.IsFlying)
                 {
-                    await CommonTasks.Land();
+                    Navigator.Stop();
+                    Actionmanager.Dismount();
                     await Coroutine.Yield();
                 }
 
                 Poi.Current.Unit.Interact();
 
-                if (!await Coroutine.Wait((int)WindowDelay, () => GatheringManager.WindowOpen))
+                if (await Coroutine.Wait(WindowDelay, () => GatheringManager.WindowOpen))
                 {
-                    if (FreeRange)
-                    {
-                        Logging.Write("Gathering Window didn't open: Retrying. " + ++attempts);
-                        continue;
-                    }
-
-                    Logging.Write("Gathering Window didn't open: Re-attempting to move into place. " + ++attempts);
-                    //SetFallbackGatherSpot(Node.Location, true);
-
-                    await MoveToGatherSpot();
+                    continue;
                 }
+
+                if (FreeRange)
+                {
+                    Logging.Write("Gathering Window didn't open: Retrying. " + ++attempts);
+                    continue;
+                }
+
+                Logging.Write("Gathering Window didn't open: Re-attempting to move into place. " + ++attempts);
+                //SetFallbackGatherSpot(Node.Location, true);
+
+                await MoveToGatherSpot();
             }
 
             if (!GatheringManager.WindowOpen)
@@ -964,28 +1048,20 @@
                 Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
             }
 
-            if (!await InteractWithNode())
+            return await InteractWithNode()
+                && await gatherRotation.Prepare(this)
+                && await gatherRotation.ExecuteRotation(this)
+                && await gatherRotation.Gather(this)
+                && await Coroutine.Wait(6000, () => !Node.CanGather)
+                && await WaitForGatherWindowToClose();
+        }
+
+        private async Task<bool> WaitForGatherWindowToClose()
+        {
+            while (GatheringManager.WindowOpen)
             {
-                return false;
+                await Coroutine.Yield();
             }
-
-            await gatherRotation.Prepare(this);
-
-            await gatherRotation.ExecuteRotation(this);
-
-            await gatherRotation.Gather(this);
-
-            await Coroutine.Wait(6000, () => !Node.CanGather);
-
-            await Coroutine.Sleep(Math.Max((int)WindowDelay, 1500));
-
-            if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
-            {
-                gatherRotation = initialGatherRotation;
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
-            }
-
-            Poi.Clear("Gather Complete, Node is gone!");
 
             return true;
         }
@@ -1021,8 +1097,21 @@
             // TODO: move method to common so we use it on fish too
             if (InventoryItemCount() >= 100)
             {
-                if (SetGatherItemByItemName(windowItems.OrderByDescending(i => i.SlotIndex)
-                        .Where(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20).ToArray()))
+                if (ItemNames != null && ItemNames.Count > 0)
+                {
+                    if (SetGatherItemByItemName(windowItems.OrderByDescending(i => i.SlotIndex)
+                                           .Where(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20).ToArray()))
+                    {
+                        return true;
+                    }
+                }
+
+                GatherItem =
+                    windowItems.Where(i => i.IsFilled && !i.IsUnknown)
+                        .OrderByDescending(i => i.ItemId)
+                        .FirstOrDefault(i => i.ItemId < 20);
+
+                if (GatherItem != null)
                 {
                     return true;
                 }
@@ -1116,12 +1205,13 @@
         {
             switch (DefaultGatherSpotType)
             {
-                    // TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
-                    // If flying, land in area closest to node not in sight of an enemy and stealth.
+                // TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
+                // If flying, land in area closest to node not in sight of an enemy and stealth.
                 case GatherSpotType.StealthApproachGatherSpot:
                 case GatherSpotType.StealthGatherSpot:
                     GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };
                     break;
+                // ReSharper disable once RedundantCaseLabel
                 case GatherSpotType.GatherSpot:
                 default:
                     GatherSpot = new GatherSpot { NodeLocation = location, UseMesh = useMesh };

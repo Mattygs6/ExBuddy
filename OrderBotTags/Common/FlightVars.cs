@@ -14,13 +14,15 @@
 
         float ForcedAltitude { get; set; }
 
+        float Radius { get; set; }
+
         bool LogWaypoints { get; set; }
     }
 
     public interface IFlightMovementArgs
     {
         int MountId { get; set; }
-        float Radius { get; set; }
+
         bool ForceLanding { get; set; }
     }
 
@@ -30,14 +32,7 @@
 
     public class FlightMovementArgs : IFlightMovementArgs
     {
-        public FlightMovementArgs()
-        {
-            this.Radius = 2.7f;
-        }
-
         public int MountId { get; set; }
-
-        public float Radius { get; set; }
 
         public bool ForceLanding { get; set; }
     }
@@ -46,10 +41,13 @@
     {
         public FlightNavigationArgs()
         {
+            this.Radius = 2.7f;
             this.InverseParabolicMagnitude = 10;
             this.Smoothing = 0.1f;
             this.LogWaypoints = true;
         }
+
+        public float Radius { get; set; }
 
         public int InverseParabolicMagnitude { get; set; }
 
@@ -70,7 +68,7 @@
         [XmlAttribute("InverseParabolicMagnitude")]
         public int InverseParabolicMagnitude { get; set; }
 
-        [DefaultValue(0.5f)]
+        [DefaultValue(0.0f)]
         [XmlAttribute("Smoothing")]
         public float Smoothing { get; set; }
 

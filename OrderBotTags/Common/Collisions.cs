@@ -2,8 +2,10 @@
 {
     using System;
 
+    using Clio.Common;
     using Clio.Utilities;
 
+    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     [Flags]
@@ -27,7 +29,7 @@
 
         private readonly float forwardRange;
 
-        private Vector3 forwardNormal;
+        private readonly Vector3 forwardNormal;
 
         public Collider(Vector3 position, Vector3 direction, float forwardRange)
         {
@@ -90,8 +92,7 @@
             ForwardLeft.Normalize();
             ForwardDown.Normalize();
 
-            // Apply magnitude create 1.25* diagonals in case object is convex
-            var diagonalMagnitude = forwardRange * 1.25f / (float)Math.Cos(45.0f * Math.PI / 180);
+            var diagonalMagnitude = forwardRange / (float)Math.Cos(45.0f * Math.PI / 180);
             Right *= forwardRange;
             Up *= forwardRange;
             Left *= forwardRange;
@@ -107,18 +108,29 @@
         {
             travelDeviation = Vector3.Zero;
             var valueFound = false;
-            for (float i = 0.1f; i < 1; i += 0.1f)
+
+            // Making the rays 1.5x as long as our detection range to ensure it is clear
+            var forwardRay = Position + Forward * 1.5f;
+            var forwardRightRay = Position + ForwardRight * 1.5f;
+            var forwardLeftRay = Position + ForwardLeft * 1.5f;
+            var forwardUpRay = Vector3.Zero;
+            var forwardDownRay = Vector3.Zero;
+            Vector3 lastHit = ForwardHit;
+            Vector3 hit = ForwardHit;
+            Vector3 distances;
+
+            for (float i = 0.2f; i < 1; i += 0.2f)
             {
-                Vector3 hit;
-                Vector3 distances;
-                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + Forward, Position + ForwardRight, i), out hit, out distances))
+                lastHit = hit;
+                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardRight;
                     break;
                 }
 
-                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + Forward, Position + ForwardLeft, i), out hit, out distances))
+                lastHit = hit;
+                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardLeft;
@@ -128,18 +140,21 @@
 
             if (!valueFound)
             {
-                for (float i = 0.1f; i < 1; i += 0.1f)
+                forwardUpRay = Position + ForwardUp * 1.5f;
+                forwardDownRay = Position + ForwardDown * 1.5f;
+
+                for (float i = 0.2f; i < 1; i += 0.2f)
                 {
-                    Vector3 hit;
-                    Vector3 distances;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + Forward, Position + ForwardUp, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
                         break;
                     }
 
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + Forward, Position + ForwardDown, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -150,18 +165,21 @@
 
             if (!valueFound)
             {
-                for (float i = 0.1f; i < 1; i += 0.1f)
+                var upRay = Position + Up * 1.5f;
+                var downRay = Position + Down * 1.5f;
+
+                for (float i = 0.2f; i < 1; i += 0.2f)
                 {
-                    Vector3 hit;
-                    Vector3 distances;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + ForwardUp, Position + Up, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
                         break;
                     }
 
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + ForwardDown, Position + Down, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -172,18 +190,21 @@
 
             if (!valueFound)
             {
-                for (float i = 0.1f; i < 1; i += 0.1f)
+                var leftRay = Position + Left * 2;
+                var rightRay = Position + Right * 2;
+
+                for (float i = 0.2f; i < 1; i += 0.2f)
                 {
-                    Vector3 hit;
-                    Vector3 distances;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + ForwardLeft, Position + Left, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardLeft;
                         break;
                     }
 
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(Position + ForwardRight, Position + Right, i), out hit, out distances))
+                    lastHit = hit;
+                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardRight;
@@ -198,22 +219,17 @@
             }
             else
             {
-                ApplyMagnitude(ref travelDeviation);
+                var direction = travelDeviation - Position;
+
+                var dot = Vector3.Dot(forwardRay, direction);
+                var angle = MathEx.ToDegrees((float)Math.Acos(dot / (forwardRay.Magnitude * direction.Magnitude)));
+
+                angle = Math.Abs(angle - 90);
+
+                Logging.Write("Angle of deviation: " + angle);
             }
 
             return valueFound;
-        }
-
-        private void ApplyMagnitude(ref Vector3 deviationVector)
-        {
-            var direction = deviationVector - Position;
-
-            direction.Normalize();
-
-            // we used 4 the distance per waypoint
-            direction *= forwardRange / 3.0f;
-
-            deviationVector = Position + direction;
         }
 
         public CollisionFlags Flags;
@@ -244,13 +260,9 @@
     }
     public class Collisions
     {
-        private Vector3 ray2;
-
-        private readonly float forwardRange;
-
         public readonly Collider PlayerCollider;
 
-        public readonly Collider DestinationCollider;
+        //public readonly Collider DestinationCollider;
 
         public Collisions(Vector3 position, Vector3 ray3, float forwardRange = 30.0f)
         {

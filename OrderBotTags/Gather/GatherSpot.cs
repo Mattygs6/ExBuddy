@@ -7,6 +7,7 @@
     using Clio.XmlEngine;
 
     using ff14bot;
+    using ff14bot.Managers;
 
     public interface IGatherSpot
     {
@@ -22,7 +23,7 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName);
 
             return result;
         }
@@ -50,7 +51,7 @@
 
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.ForcedAltitude, tag.InverseParabolicMagnitude, tag.Node.EnglishName, tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, true, true);
 
             result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
@@ -106,7 +107,7 @@
                 return false;
             }
 
-            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, tag.ForcedAltitude, tag.InverseParabolicMagnitude, "Stealth Location", tag.LogWaypoints, true, true, false);
+            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, "Stealth Location", true, true);
 
             if (result)
             {

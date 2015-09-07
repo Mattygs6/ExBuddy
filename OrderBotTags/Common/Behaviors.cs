@@ -12,58 +12,41 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.Enums;
     using ff14bot.Managers;
     using ff14bot.Navigation;
-    using ff14bot.NeoProfiles;
     using ff14bot.Settings;
 
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, float navHeight = 5.0f, int inverseParabolicMagnitude = 10, string name = null, bool logFlight = false, bool stopInRange = true, bool dismountAtDestination = false, bool checkIfDestinationIsGround = true)
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, string name = null, bool stopInRange = true, bool dismountAtDestination = false)
         {
+            // ReSharper disable once InconsistentNaming
             var distance3d = Core.Player.Location.Distance3D(destination);
 
-            if (MovementManager.IsFlying || (WorldManager.CanFly && ((distance3d >= CharacterSettings.Instance.MountDistance) || (checkIfDestinationIsGround && !destination.IsGround()))))
+            if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount)
             {
-                // TODO: need better way to handle initializing and params for this function altogether.
-                var fp = new FlightPathTo
-                             {
-                                 Target = destination,
-                                 Radius = radius,
-                                 ForcedAltitude = navHeight,
-                                 Smoothing = 0.5f,
-                                 InverseParabolicMagnitude = inverseParabolicMagnitude,
-                                 MountId = (int)mountId,
-                                 ForceLanding = dismountAtDestination,
-                                 LogWaypoints = logFlight
-                             };
-
-                await fp.Fly();
-
-                while (!fp.IsDone)
+                if (mountId > 0)
                 {
-                    await Coroutine.Yield();
+                    await CommonTasks.MountUp(mountId);
+                }
+                else
+                {
+                    await CommonTasks.MountUp();
                 }
             }
-            else
+
+            await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
+
+            while (dismountAtDestination && Core.Player.IsMounted)
             {
-                if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount)
+                if (MovementManager.IsFlying)
                 {
-                    // We might need Navigator.Stop();
-                    if (mountId > 0)
-                    {
-                        await CommonTasks.MountUp(mountId);
-                    }
-                    else
-                    {
-                        await CommonTasks.MountUp();
-                    }
+                    Navigator.Stop();
+                }
+                else
+                {
+                    Actionmanager.Dismount();
                 }
 
-                await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
-            }
-
-            if (dismountAtDestination && Core.Player.IsMounted)
-            {
-                await CommonTasks.StopAndDismount();
+                await Coroutine.Yield();
             }
 
             return true;
@@ -75,15 +58,15 @@ namespace ExBuddy.OrderBotTags
             float distance;
             if (useMesh)
             {
-                MoveResult moveResult = MoveResult.GeneratingPath;
+                var moveResult = MoveResult.GeneratingPath;
                 while ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
                 {
                     if (distance > sprintDistance)
                     {
-                        await Sprint();
+                        Sprint();
                     }
 
-                    moveResult = Navigator.NavigationProvider.MoveTo(destination, name);
+                    moveResult = Navigator.MoveTo(destination, name);
                     await Coroutine.Yield();
                 }
 
@@ -91,26 +74,24 @@ namespace ExBuddy.OrderBotTags
             }
             else
             {
-                var playerMover = new SlideMover();
- 
                 while ((distance = Core.Player.Location.Distance3D(destination)) > radius)
                 {
                     if (distance > sprintDistance)
                     {
-                        await Sprint();
+                        Sprint();
                     }
-                    
-                    playerMover.MoveTowards(destination);
+
+                    Navigator.PlayerMover.MoveTowards(destination);
                     await Coroutine.Yield();
                 }
 
-                playerMover.MoveStop();
+                Navigator.PlayerMover.MoveStop();
             }
 
             return true;
         }
 
-        public static async Task<bool> Sprint()
+        public static bool Sprint()
         {
             if (Actionmanager.IsSprintReady && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
             {

@@ -1,0 +1,156 @@
+﻿namespace ExBuddy.OrderBotTags.Navigation
+{
+    using System;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Media;
+
+    using ExBuddy.OrderBotTags.Common;
+
+    using ff14bot;
+    using ff14bot.AClasses;
+    using ff14bot.Behavior;
+    using ff14bot.Helpers;
+    using ff14bot.Navigation;
+
+    using TreeSharp;
+
+    public class EnableFlightPlugin : BotPlugin
+    {
+        private Composite startCoroutine;
+
+        private FlightEnabledNavigator navigator;
+
+        private BotEvent cleanup;
+
+        public override string Author
+        {
+            get { return "ExMatt"; }
+        }
+
+        public override string Name
+        {
+            get { return "EnableFlight"; }
+        }
+
+        public override System.Version Version
+        {
+            get
+            {
+                return new Version(0, 9, 0);
+            }
+        }
+
+        private async Task<bool> Start()
+        {
+            if (navigator == null)
+            {
+                navigator = new FlightEnabledNavigator(
+                    Navigator.NavigationProvider,
+                    new FlightEnabledSlideMover(Navigator.PlayerMover),
+                    new FlightNavigationArgs
+                    {
+                        ForcedAltitude = EnableFlightSettings.Instance.ForcedAltitude,
+                        InverseParabolicMagnitude = EnableFlightSettings.Instance.InverseParabolicMagnitude,
+                        LogWaypoints = EnableFlightSettings.Instance.LogWaypoints,
+                        Radius = EnableFlightSettings.Instance.Radius,
+                        Smoothing = EnableFlightSettings.Instance.Smoothing
+                    });
+
+                cleanup = bot =>
+                {
+                    DoCleanup();
+                    TreeRoot.OnStop -= cleanup;
+                };
+
+                TreeRoot.OnStop += cleanup;
+
+                Logging.Write(Colors.DeepSkyBlue, "Started Flight Navigator.");
+            }
+
+            return false;
+        }
+
+        private void DoCleanup()
+        {
+            if (navigator != null)
+            {
+                Logging.Write(Colors.DeepSkyBlue, "Stopped Flight Navigator.");
+                navigator.Dispose();
+                navigator = null;
+            }
+        }
+
+        public override void OnShutdown()
+        {
+            if (navigator != null)
+            {
+                Logging.Write(Colors.DeepSkyBlue, "Stopped Flight Navigator.");
+                navigator.Dispose();
+                navigator = null;
+            }
+        }
+
+        public override void OnInitialize()
+        {
+            startCoroutine = new ActionRunCoroutine(ctx => Start());
+        }
+
+        public override void OnDisabled()
+        {
+            TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
+            TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+
+
+        }
+
+        public override void OnEnabled()
+        {
+            //Add our hook to the logic tree here and setup event handler for when the treehooks are cleared
+            //We want to add our hook here incase the user enables the plugin once the bot is already running.
+            TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+            TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
+        }
+
+        private void OnHooksCleared(object sender, EventArgs args)
+        {
+            TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+        }
+    }
+
+    public class EnableFlightSettings : JsonSettings
+    {
+        private static EnableFlightSettings instance;
+
+        public static EnableFlightSettings Instance
+        {
+            get
+            {
+                return instance ?? (instance = new EnableFlightSettings("EnableFlightSettings"));
+            }
+        }
+
+        public EnableFlightSettings(string path)
+            : base(Path.Combine(CharacterSettingsDirectory, "EnableFlight.json"))
+        {
+            
+        }
+
+        [DefaultValue(2.7f)]
+        public float Radius { get; set; }
+
+        [DefaultValue(10)]
+        public int InverseParabolicMagnitude { get; set; }
+
+        [DefaultValue(0.0f)]
+        public float Smoothing { get; set; }
+
+        [DefaultValue(0.0f)]
+        public float ForcedAltitude { get; set; }
+
+        [DefaultValue(false)]
+        public bool LogWaypoints { get; set; }
+    }
+}

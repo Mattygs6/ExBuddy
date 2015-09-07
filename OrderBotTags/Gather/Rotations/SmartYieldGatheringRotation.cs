@@ -1,46 +1,38 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ff14bot;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
     [GatheringRotation("SmartYield", 0, 0)]
     public class SmartYieldGatheringRotation : SmartGatheringRotation, IGetOverridePriority
     {
-        private int maxGpNodeCount;
-
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
             var level = Core.Player.ClassLevel;
-            // Staring count at -30 since we regain that within the next node and we usually have +30 above the threshold on our gear at each point.
-            if (Core.Player.CurrentGP >= Core.Player.MaxGP - 30)
-            {
-                //TODO: might move this to the interface or the main tag, and manage it there so we don't miss incrementing it when we get other rotation overrides.
-                maxGpNodeCount++;
-            }
 
             if (GatheringManager.SwingsRemaining > 4 ||
-                (level < 50 && maxGpNodeCount > 4) || maxGpNodeCount > 6)
+                ShouldForceUseRotation(tag, level))
             {
-                maxGpNodeCount = 0;
-
                 if (Core.Player.CurrentGP >= 500 && level >= 40)
                 {
                     await tag.Cast(Ability.IncreaseGatherYield2);
                     return await base.ExecuteRotation(tag);
                 }
 
-                if (Core.Player.CurrentGP >= 400 && level >= 30 && level < 40)
+                if (Core.Player.CurrentGP >= 400 && level >= 30 && (level < 40 || Core.Player.MaxGP < 500))
                 {
                     await tag.Cast(Ability.IncreaseGatherYield);
                     return await base.ExecuteRotation(tag);
                 }
 
-                if (Core.Player.CurrentGP >= 300 && level >= 25 && level < 30)
+                if (Core.Player.CurrentGP >= 300 && level >= 25 && (level < 30 || Core.Player.MaxGP < 400))
                 {
                     while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
                     {
@@ -55,6 +47,21 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             return true;
+        }
+
+        private bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
+        {
+            if ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6)
+            {
+                Logging.Write(
+                    Colors.Chartreuse,
+                    "GatherCollectable: Using Gp since we have gathered {0] nodes at max Gp.",
+                    tag.NodesGatheredAtMaxGp);
+
+                return true;
+            }
+
+            return false;
         }
 
         int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)

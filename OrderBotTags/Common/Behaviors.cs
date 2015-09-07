@@ -16,7 +16,7 @@ namespace ExBuddy.OrderBotTags
 
     public static class Behaviors
     {
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh, uint mountId, float radius = 2.0f, string name = null, bool stopInRange = true, bool dismountAtDestination = false)
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh = true, uint mountId = 0, float radius = 2.0f, string name = null, bool stopInRange = true, bool dismountAtDestination = false)
         {
             // ReSharper disable once InconsistentNaming
             var distance3d = Core.Player.Location.Distance3D(destination);
@@ -52,7 +52,7 @@ namespace ExBuddy.OrderBotTags
             return true;
         }
 
-        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh, float radius, string name = null, bool stopInRange = true)
+        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh = true, float radius = 2.0f, string name = null, bool stopInRange = true)
         {
             var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
             float distance;

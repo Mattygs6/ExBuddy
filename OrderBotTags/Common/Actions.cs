@@ -42,8 +42,6 @@ namespace ExBuddy.OrderBotTags
 
                 //Wait till we have the aura
                 await Coroutine.Wait(2500, () => Core.Player.HasAura(auraId));
-                //Wait till we can cast again
-                await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
                 await Coroutine.Sleep(delay);
             }
             else

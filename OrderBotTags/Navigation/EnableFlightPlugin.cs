@@ -62,6 +62,7 @@
                 cleanup = bot =>
                 {
                     DoCleanup();
+                    DisposeNav();
                     TreeRoot.OnStop -= cleanup;
                 };
 
@@ -83,14 +84,19 @@
             }
         }
 
+        private void DisposeNav()
+        {
+            var nav = Navigator.NavigationProvider as GaiaNavigator;
+            if (nav != null)
+            {
+                Logging.Write(Colors.DeepSkyBlue, "Disposing the GaiaNavigator");
+                nav.Dispose();
+            }
+        }
+
         public override void OnShutdown()
         {
-            if (navigator != null)
-            {
-                Logging.Write(Colors.DeepSkyBlue, "Stopped Flight Navigator.");
-                navigator.Dispose();
-                navigator = null;
-            }
+            DoCleanup();
         }
 
         public override void OnInitialize()
@@ -102,14 +108,11 @@
         {
             TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
             TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
-
-
+            DoCleanup();
         }
 
         public override void OnEnabled()
         {
-            //Add our hook to the logic tree here and setup event handler for when the treehooks are cleared
-            //We want to add our hook here incase the user enables the plugin once the bot is already running.
             TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
             TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
         }

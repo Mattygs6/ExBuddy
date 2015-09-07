@@ -2,22 +2,54 @@
 <Profile>
 	<Name>Collectable: Free Range Collect</Name>
 	<KillRadius>50</KillRadius>
+		<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
 	<Order>
+		<RunCode name="Gear"/>
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
 			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
 			CordialType="Cordial">
 				<Collectables>
+					<!-- 240 -->					
+					<!-- 345 -->
 					<!-- 450 -->
 					<Collectable Name="Cuprite" Value="450" />
-					<Collectable Name="Red Quartz" Value="450" />
+          <Collectable Name="Red Quartz" Value="450"/>
 					<Collectable Name="Light Kidney Ore" Value="450" />
 					<Collectable Name="Abalathian Mistletoe" Value="450" />
 					<Collectable Name="Heavens Lemon" Value="450" />
 					<Collectable Name="Morel" Value="450" />
+					<Collectable Name="Yellow Copper Ore" Value="450" />
 					<!-- 470 -->
 					<Collectable Name="Adamantite Ore" Value="470" />
 					<Collectable Name="Chysahl Greens" Value="470" />
+          <Collectable Name="Green Quartz" Value="470" />
+          <!--Collectable Name="Abalathian Rock Salt" Value="550"/-->
 					<!-- 550 -->
 					<Collectable Name="Radiant Fire Moraine" Value="550" />
 					<Collectable Name="Bright Fire Rock" Value="550" />

@@ -9,7 +9,7 @@
       <xsl:apply-templates select="@*|node()"/>
     </GatherCollectable>
   </xsl:template>
-  
+
   <xsl:template match="GatheringSkillOrder">
   </xsl:template>
 

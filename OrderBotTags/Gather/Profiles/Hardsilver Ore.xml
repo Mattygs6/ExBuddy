@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Hardsilver Ore</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<RunCode name="Gear"/>
+    <WaitTimer waitTime="3"/>
+    <If condition="not IsOnMap(399)">
+      <If condition="not IsOnMap(478)">
+        <LogMessage Message="Teleporting to gather Hardsilver Ore."/>
+        <TeleportTo name="Idyllshire" aetheryteId="75"/>
+      </If>
+      <UseTransport name="Goodly Adventurer" interactDistance="3.0" npcId="1015570" xyz="63.45142, 207.29, -2.773367" />
+    </If>
+		<!-- TODO: do we still need the while? -->
+		<While condition="True">
+			<GatherCollectable AlwaysGather="true" Radius="2" gatherIncrease="Quality">
+				<GatherObjects>
+					<GatherObject>Mineral Deposit</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Hardsilver Ore</ItemName>
+				</ItemNames>
+				<GatherRotation>regularnode</GatherRotation>
+				<GatherSpots>
+				</GatherSpots>
+				<HotSpots>
+					<HotSpot Radius="60" XYZ="126.1025, 69.58351, 49.10416"/>
+          <HotSpot Radius="60" XYZ="235.9106, 73.5178, 145.8422"/>
+          <HotSpot Radius="5" XYZ="186.9059, 105.7, 119.8316"/>
+          <HotSpot Radius="60" XYZ="49.99953, 53.17538, 156.416"/>
+				</HotSpots>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

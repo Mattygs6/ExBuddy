@@ -36,10 +36,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Clio.Localization">
-      <HintPath>..\Assembly\Clio.Localization.dll</HintPath>
+      <HintPath>..\..\..\..\..\Game Data\RB\Clio.Localization.dll</HintPath>
     </Reference>
     <Reference Include="GreyMagic">
-      <HintPath>..\Assembly\GreyMagic.dll</HintPath>
+      <HintPath>..\..\..\..\..\Game Data\RB\GreyMagic.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
@@ -48,7 +48,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="RebornBuddy, Version=1.0.302.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
+      <HintPath>..\..\..\..\..\Game Data\RB\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -69,31 +69,17 @@
     <Compile Include="Common\FlightVars.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\StealthMoveToTag.cs" />
-    <Compile Include="Craft\Collect.cs" />
     <Compile Include="Common\Collectable.cs" />
-    <Compile Include="Fish\Extensions.cs" />
-    <Compile Include="Fish\Fish.cs" />
-    <Compile Include="Fish\FishResult.cs" />
-    <Compile Include="Fish\FishSpot.cs" />
-    <Compile Include="Fish\Keeper.cs" />
-    <Compile Include="Fish\KeeperAction.cs" />
-    <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Common\Behaviors.cs" />
     <Compile Include="Gather\GatherIncrease.cs" />
     <Compile Include="Gather\GatherSpotType.cs" />
-    <Compile Include="Gather\Rotations\Collect240DynamicGatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect345GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect115GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect550GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect570GatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Collect470GatheringRotation.cs" />
     <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />
     <Compile Include="Gather\Rotations\CollectableGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringSkillOrderGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Newb%27s DynamicRotation.cs" />
     <Compile Include="Gather\Rotations\SmartGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\SmartQualityGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\TopsoilGatheringRotation.cs" />
@@ -109,9 +95,6 @@
     <Compile Include="Gather\GatherCollectable.cs" />
     <Compile Include="Gather\IGatheringRotation.cs" />
     <Compile Include="Gather\Prototype\SafeCollectAdamantite.cs" />
-    <Compile Include="Imported\Fate.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Imported\FlightPathTo.cs" />
     <Compile Include="Navigation\EnableFlightPlugin.cs" />
     <Compile Include="Navigation\FlightEnabledNavigator.cs" />
@@ -120,32 +103,28 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Schema\Fish.xsd">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Fish\Example\Fishing_Forager_Supra_Lucis.xml" />
-    <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
-    <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
+    <Content Include="Gather\Profiles\Cyclops Onion.xml" />
+    <Content Include="Gather\Profiles\FreeRangeCollectAll.xml" />
+    <Content Include="Gather\Profiles\Hardsilver Ore.xml" />
+    <Content Include="Gather\Profiles\Highland Wheat.xml" />
+    <Content Include="Gather\Profiles\Mythrite Ore.xml" />
+    <Content Include="Gather\Profiles\Mythrite Sand.xml" />
+    <Content Include="Gather\Profiles\Raw Chrysolite.xml" />
+    <Content Include="Gather\Profiles\Raw Larimar.xml" />
+    <Content Include="Gather\Profiles\Raw Mormorion.xml" />
+    <Content Include="Gather\Profiles\Stalk of Ramie.xml" />
+    <Content Include="Gather\Profiles\Titanium Ore.xml" />
     <Content Include="Gather\Profiles\Transform\Botany-Crystal Farming.xml" />
     <Content Include="Gather\Profiles\Transform\GatherToGatherCollectable.xslt" />
     <Content Include="Gather\Profiles\AdamantiteChysahl.xml" />
     <Content Include="Gather\Profiles\AdamantiteOre_AzysLla.xml" />
     <Content Include="Gather\Profiles\ChysahlGreens_CWH.xml" />
-    <Content Include="Gather\Profiles\FreeRangeCollect450.xml" />
-    <Content Include="Gather\Profiles\FreeRangeCollect550.xml" />
-    <Content Include="Gather\Profiles\FreeRangeCollectAll.xml" />
     <Content Include="Gather\Profiles\FreeRangeGatherAll.xml" />
     <Content Include="Gather\Profiles\Porcini_Churning.xml" />
+    <Content Include="Gather\Profiles\Wyrm Obsidian.xml" />
     <Content Include="Gather\Prototype\Profiles\AdamantiteOre_AzysLla.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Craft\Resolver\" />
     <Folder Include="Gather\Interfaces\" />
     <Folder Include="Interfaces\" />
   </ItemGroup>

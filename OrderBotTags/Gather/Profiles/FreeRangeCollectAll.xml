@@ -5,7 +5,7 @@
 		<CodeChunks>
 		<CodeChunk name="Gear">
 			<![CDATA[
-				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
+				ff14bot.Managers.ChatManager.SendChat("/gs change 2");
 				await Buddy.Coroutines.Coroutine.Sleep(2000);
 				if(!Core.Player.HasAura(222))
 				{

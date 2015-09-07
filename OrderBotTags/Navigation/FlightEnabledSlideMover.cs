@@ -68,6 +68,14 @@
 
             this.innerMover = innerMover;
             this.flightMovementArgs = flightMovementArgs;
+
+            ff14bot.NeoProfiles.GameEvents.OnMapChanged += GameEventsOnMapChanged;
+        }
+
+        void GameEventsOnMapChanged(object sender, EventArgs e)
+        {
+            ShouldFly = false;
+            Logging.Write("Set default value for flying to false until we can determine if we can fly in this zone.");
         }
 
         public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
@@ -174,9 +182,7 @@
                     Logging.Write("Resumed Landing Unstuck Coroutine");
                     landingStopwatch.Restart();
                 }
-            }
-
-            ShouldFly = false;
+            }           
         }
 
         public bool CanFly
@@ -215,6 +221,7 @@
             {
                 disposed = true;
                 Navigator.PlayerMover = innerMover;
+                ff14bot.NeoProfiles.GameEvents.OnMapChanged -= GameEventsOnMapChanged;
             }
         }
     }

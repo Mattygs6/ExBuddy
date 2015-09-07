@@ -93,7 +93,7 @@ namespace ExBuddy.OrderBotTags
 
         public static bool Sprint()
         {
-            if (Actionmanager.IsSprintReady && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
+            if (Actionmanager.IsSprintReady && !Core.Player.IsCasting &&!Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
             {
                 Actionmanager.Sprint();
             }

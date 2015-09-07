@@ -44,15 +44,6 @@ namespace ff14bot.NeoProfiles
         // TODO make path cache have sliding expiration timeouts
         private static readonly HashSet<FlightPath> Paths = new HashSet<FlightPath>(EqualityComparer<FlightPath>.Default);
 
-        public static FlightPathTo New(Vector3 destination)
-        {
-            var fp = new FlightPathTo { Target = destination };
-
-            // TODO: apply defaults.
-
-            return fp;
-        }
-
         public static FlightPathTo New(IFlightVars flightVars, Vector3 destination, bool dismountAtDestination = false)
         {
             var fp = new FlightPathTo
@@ -187,16 +178,12 @@ namespace ff14bot.NeoProfiles
                 Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 3.0)) + Smoothing, 1.0)), 1.0);
             desiredNumberOfPoints = Math.Min(desiredNumberOfPoints, Math.Floor(distance));
 
-            var distancePerWaypoint = distance / (float)desiredNumberOfPoints;
-
             // Height will be "Forced height" or no greater than 1 / (the greater of 1 and the inverse parabolic magnitude of the distance and also not more than 100
             var height = Math.Max(ForcedAltitude, Math.Min(distance / Math.Max(1, InverseParabolicMagnitude), 100.0f));
 
             Vector3 hit;
             Vector3 distances;
             var useStraight = UseStraightPath && !WorldManager.Raycast(from, target, out hit, out distances);
-            var previousWaypoint = from;
-            var cleanWaypoints = 0;
 
             for (var i = 0.0f + (1.0f / ((float)desiredNumberOfPoints)); i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
@@ -207,51 +194,9 @@ namespace ff14bot.NeoProfiles
                 }
                 else
                 {
-                    waypoint = StraightPath(from, target, height, i);
-                    ////waypoints.Add(waypoint);
-
-                    //var collisions = new Collisions(waypoint, target - waypoint);
-                    var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint * 4.0f);
-
-                    Vector3 deviationWaypoint;
-                    var result = collisions.CollisionResult(out deviationWaypoint);
-                    if (result != CollisionFlags.None)
-                    {
-                        // DO THINGS! // check landing + buffer zone of 2.0f
-                        if (result.HasFlag(CollisionFlags.Forward)
-                            && collisions.PlayerCollider.ForwardHit.Distance3D(target) > Radius + 1.0f)
-                        {
-                            if (result.HasFlag(CollisionFlags.Error))
-                            {
-                                var alternateWaypoint = waypoint.AddRandomDirection(50);
-                                while (!alternateWaypoint.IsSafeSphere() || WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
-                                {
-                                    alternateWaypoint = waypoint.AddRandomDirection(50);
-                                }
-
-                                deviationWaypoint = alternateWaypoint;
-                                // this is fatal, but for now we should just watch what it does!.
-                                Logging.Write(Colors.Red, "Unable to find flight path, fatal error");
-                            }
-
-                            deviationWaypoint = deviationWaypoint.HeightCorrection();
-                            previousWaypoint = from = deviationWaypoint;
-                            waypoints.Add(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
-
-
-                            desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
-                            i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
-                            cleanWaypoints = 0;
-
-                            distance = from.Distance3D(target);
-                            distancePerWaypoint = distance / (float)desiredNumberOfPoints;
-
-                            continue;
-                        }
-                    }
+                    waypoint = SampleParabola(from, target, height, i);
                 }
 
-                cleanWaypoints++;
                 int waypointsRemaining;
                 if ((waypointsRemaining = (int)desiredNumberOfPoints - waypoints.Count) > 5)
                 {
@@ -262,7 +207,6 @@ namespace ff14bot.NeoProfiles
                     waypoint = waypoint.HeightCorrection(waypointsRemaining);
                 }
 
-                previousWaypoint = waypoint;
                 waypoints.Add(new FlightPoint { Location = waypoint });
 
                 // Lets give it time to breathe. This helps since creating more than 200 waypoints can take longer than a tick

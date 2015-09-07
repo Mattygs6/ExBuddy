@@ -147,10 +147,10 @@
         [DefaultValue(10)]
         public int InverseParabolicMagnitude { get; set; }
 
-        [DefaultValue(0.0f)]
+        [DefaultValue(0.2f)]
         public float Smoothing { get; set; }
 
-        [DefaultValue(0.0f)]
+        [DefaultValue(8.0f)]
         public float ForcedAltitude { get; set; }
 
         [DefaultValue(false)]

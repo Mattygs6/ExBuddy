@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Highland Wheat</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 2");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(221))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(221, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<RunCode name="Gear"/>
+		<If Condition="not IsOnMap(398)">
+      <LogMessage Message="Teleporting to gather Highland Wheat."/>
+			<TeleportTo Name="TailFeather" AetheryteId="73" />
+		</If>
+		<!-- TODO: do we still need the while? -->
+		<While condition="True">
+			<GatherCollectable AlwaysGather="true" Radius="2" gatherIncrease="Quality">
+				<GatherObjects>
+					<GatherObject>Lush Vegetation Patch</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Highland Wheat</ItemName>
+				</ItemNames>
+				<GatherRotation>regularnode</GatherRotation>
+				<GatherSpots>
+				</GatherSpots>
+				<HotSpots>
+					<HotSpot Radius="60" XYZ="684.2095, -54.03824, -99.61548"/>
+          <HotSpot Radius="5" XYZ="691.6384, -9.980272, -92.40458"/>
+          <HotSpot Radius="5" XYZ="783.6976, -15.80534, -61.08333"/>
+          <HotSpot Radius="60" XYZ="801.3475, -39.33683, -102.0378"/>
+          <HotSpot Radius="5" XYZ="842.686, 24.45577, -168.2902"/>
+          <HotSpot Radius="60" XYZ="737.582, -20.59698, -265.3565"/>
+				</HotSpots>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

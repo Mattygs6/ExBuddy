@@ -281,7 +281,8 @@
         {
             await CommonTasks.HandleLoading();
 
-            return HandleCondition()
+            return await HandleDeath()
+                || HandleCondition()
                 || await CastTruth()
                 || HandleReset()
                 || await MoveToHotSpot()
@@ -291,6 +292,11 @@
                 || await MoveToGatherSpot()
                 || await GatherSequence()
                 || (await MoveFromGatherSpot() && ResetOrDone());
+        }
+
+        private async Task<bool> HandleDeath()
+        {
+            return false;
         }
 
         private async Task<bool> GatherSequence()

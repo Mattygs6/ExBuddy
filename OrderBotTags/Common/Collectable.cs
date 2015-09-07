@@ -14,5 +14,9 @@
 
         [Clio.XmlEngine.XmlAttribute("Value")]
         public int Value { get; set; }
+
+        [Clio.XmlEngine.XmlAttribute("PlusPlus")]
+        public int PlusPlus { get; set; }
+
     }
 }

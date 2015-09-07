@@ -1,36 +1,65 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Profile>
-	<Name>Collectable: Free Range Collect</Name>
+	<Name>Collectable: Modified Free Range Collect</Name>
 	<KillRadius>50</KillRadius>
+		<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
 	<Order>
+		<RunCode name="Gear"/>
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
 			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
 			CordialType="Cordial">
 				<Collectables>
-					<!-- 450 -->
-					<Collectable Name="Cuprite" Value="450" />
-					<Collectable Name="Red Quartz" Value="450" />
-					<Collectable Name="Light Kidney Ore" Value="450" />
-					<Collectable Name="Abalathian Mistletoe" Value="450" />
-					<Collectable Name="Heavens Lemon" Value="450" />
-					<Collectable Name="Morel" Value="450" />
-					<!-- 470 -->
-					<Collectable Name="Adamantite Ore" Value="470" />
-					<Collectable Name="Chysahl Greens" Value="470" />
-					<!-- 550 -->
-					<Collectable Name="Radiant Fire Moraine" Value="550" />
-					<Collectable Name="Bright Fire Rock" Value="550" />
-					<Collectable Name="Fire Moraine" Value="550" />
-					<Collectable Name="Radiant Lightning Moraine" Value="550" />
-					<Collectable Name="Bright Lightning Rock" Value="550" />
-					<Collectable Name="Lightning Moraine" Value="550" />
-					<Collectable Name="Clary Sage" Value="550" />
-					<Collectable Name="Furymint" Value="550" />
-					<Collectable Name="Highland Oregano" Value="550" />
-					<Collectable Name="Black Soil" Value="550" />
-					<Collectable Name="Peat Moss" Value="550" />
-					<Collectable Name="Granular Clay" Value="550" />
+					<Collectable Name="Cuprite" Value="0" PlusPlus="1" />
+          <!--Collectable Name="Red Quartz" Value="0" PlusPlus="0"/-->
+					<Collectable Name="Light Kidney Ore" Value="0" PlusPlus="0" />
+					<Collectable Name="Abalathian Mistletoe" Value="0" PlusPlus="0" />
+					<Collectable Name="Heavens Lemon" Value="0" PlusPlus="0" />
+          <Collectable Name="Chalcocite" Value="0" PlusPlus="0" />
+					<Collectable Name="Morel" Value="0" PlusPlus="0" />
+					<Collectable Name="Yellow Copper Ore" Value="0" PlusPlus="0" />
+          <Collectable Name="Old World Fig" Value="0" PlusPlus="0" />
+					<Collectable Name="Adamantite Ore" Value="0" PlusPlus="0" />
+					<Collectable Name="Chysahl Greens" Value="0" PlusPlus="0" />
+          <Collectable Name="Green Quartz" Value="0" PlusPlus="0" />
+          <Collectable Name="Abalathian Rock Salt" Value="0" PlusPlus="2"/>
+					<Collectable Name="Radiant Fire Moraine" Value="0" PlusPlus="0" />
+					<Collectable Name="Bright Fire Rock" Value="0" PlusPlus="0" />
+					<Collectable Name="Fire Moraine" Value="0" PlusPlus="0" />
+					<Collectable Name="Radiant Lightning Moraine" Value="0" PlusPlus="0" />
+					<Collectable Name="Bright Lightning Rock" Value="0" PlusPlus="0" />
+					<Collectable Name="Lightning Moraine" Value="0" PlusPlus="0" />
+					<Collectable Name="Clary Sage" Value="0" PlusPlus="0" />
+					<Collectable Name="Furymint" Value="0" PlusPlus="0" />
+					<Collectable Name="Highland Oregano" Value="0" PlusPlus="0" />
+					<Collectable Name="Black Soil" Value="0" PlusPlus="0" />
+					<Collectable Name="Peat Moss" Value="0" PlusPlus="0" />
+					<Collectable Name="Granular Clay" Value="0" PlusPlus="0" />
 				</Collectables>
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>

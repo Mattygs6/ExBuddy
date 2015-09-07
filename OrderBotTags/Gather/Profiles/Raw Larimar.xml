@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Raw Larimar</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<CodeChunk name="Gear">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<RunCode name="Gear"/>
+		<If Condition="not IsOnMap(397)">
+      <LogMessage Message="Teleporting to gather Raw Larimar."/>
+			<TeleportTo Name="Falcon's Nest" AetheryteId="71" />
+      <WaitTimer WaitTime="8"/>
+      <FlightPathTo XYZ="536.7352, 261.1154, 671.7322" Radius="3.0" MountId="45" DismountAtDestination="false" /> 
+		</If>
+		<!-- TODO: do we still need the while? -->
+		<While condition="True">
+			<GatherCollectable AlwaysGather="true" Radius="2">
+				<GatherObjects>
+					<GatherObject>Mineral Deposit</GatherObject>
+				</GatherObjects>
+				<ItemNames>
+					<ItemName>Raw Larimar</ItemName>
+				</ItemNames>
+				<GatherRotation>regularnode</GatherRotation>
+				<GatherSpots>
+				</GatherSpots>
+				<HotSpots>
+					<HotSpot Radius="60" XYZ="531.2146, 166.2135, -529.1529"/>
+          <HotSpot Radius="60" XYZ="313.528, 169.8225, -550.0534"/>
+          <HotSpot Radius="60" XYZ="465.4539, 157.9809, -431.6133"/>
+				</HotSpots>
+			</GatherCollectable>
+		</While>
+	</Order>
+</Profile>

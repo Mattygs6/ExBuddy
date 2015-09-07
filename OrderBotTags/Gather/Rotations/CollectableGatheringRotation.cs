@@ -78,51 +78,31 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
-            var exCount = 0;
             int swingsRemaining;
             while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
             {
-                try
+                swingsRemaining--;
+                while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
                 {
-                    swingsRemaining--;
-                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
-                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
+                    if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
                     {
-                        if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
-                        {
-                            RaptureAtkUnitManager.Update();
-                            MasterpieceWindow = await GetValidMasterPieceWindow(3000);
-                        }
-
-                        if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
-                        {
-                            Logging.Write("Clicked Collect");
-                            MasterpieceWindow.SendAction(1, 1, 0);
-                        }
-
-                        await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
+                        RaptureAtkUnitManager.Update();
+                        MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                     }
 
-                    Logging.Write("Clicked Yes");
-                    ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-                    await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen);
-                }
-                catch (Exception ex)
-                {
-                    if (++exCount < 3)
+                    if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
                     {
-                        Logging.Write("An Exception has occured, but is not yet fatal to our task. Count: " + exCount);
-                        Logging.WriteException(ex);
-                        Logging.Write("Attempting to continue");
+                        Logging.Write("Clicked Collect");
+                        MasterpieceWindow.SendAction(1, 1, 0);
                     }
-                    else
-                    {
-                        TreeRoot.Stop("Too many exceptions");
-                        throw;
-                    }
+
+                    await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
                 }
 
-                await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                Logging.Write("Clicked Yes");
+                ff14bot.RemoteWindows.SelectYesNoItem.Yes();
+
+                await Coroutine.Wait(5000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;
@@ -159,87 +139,66 @@
 
         protected async Task Discerning(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
         }
 
         protected async Task DiscerningMethodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task DiscerningImpulsive(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
-            Logging.Write("Casting Impulsive Appraisal!");
             await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task DiscerningUtmostMethodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Discerning Eye!");
             await tag.Cast(Ability.DiscerningEye);
-            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task UtmostImpulsive(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
-            Logging.Write("Casting Impulsive Appraisal!");
             await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task UtmostMethodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task Impulsive(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Impulsive Appraisal!");
             await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task Methodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task SingleMindImpulsive(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Single Mind!");
             await tag.Cast(Ability.SingleMind);
-            Logging.Write("Casting Impulsive Appraisal!");
             await tag.Cast(Ability.ImpulsiveAppraisal);
         }
 
         protected async Task SingleMindMethodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Single Mind!");
             await tag.Cast(Ability.SingleMind);
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
 
         protected async Task SingleMindUtmostMethodical(GatherCollectableTag tag)
         {
-            Logging.Write("Casting Single Mind!");
             await tag.Cast(Ability.SingleMind);
-            Logging.Write("Casting Utmost Caution!");
             await tag.Cast(Ability.UtmostCaution);
-            Logging.Write("Casting Methodical Appraisal!");
             await tag.Cast(Ability.MethodicalAppraisal);
         }
     }

@@ -1,11 +1,14 @@
 namespace ExBuddy.OrderBotTags
 {
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ff14bot;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
+    using ff14bot.Objects;
 
     internal static class Actions
     {
@@ -14,12 +17,28 @@ namespace ExBuddy.OrderBotTags
             bool result;
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
-                while (GatheringManager.ShouldPause(DataManager.SpellCache[spellId]))
+                SpellData spellData;
+                while (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]))
                 {
                     await Coroutine.Yield();
                 }
                 //await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
                 result = Actionmanager.DoAction(spellId, Core.Player);
+
+                if (result)
+                {
+                    Logging.Write(
+                                Colors.DarkKhaki,
+                                "ExBuddy: Casted Aura -> {0}",
+                                spellData.Name);
+                }
+                else
+                {
+                    Logging.Write(
+                                Colors.Red,
+                                "ExBuddy: Failed to cast Aura -> {0}",
+                                spellData.Name);
+                }
 
                 //Wait till we have the aura
                 await Coroutine.Wait(2500, () => Core.Player.HasAura(auraId));
@@ -44,12 +63,28 @@ namespace ExBuddy.OrderBotTags
         internal static async Task<bool> Cast(uint id, int delay)
         {
             //Wait till we can cast the spell
-            while (GatheringManager.ShouldPause(DataManager.SpellCache[id]))
+            SpellData spellData;
+            while (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]))
             {
                 await Coroutine.Yield();
             }
             //await Coroutine.Wait(2500, () => Actionmanager.CanCast(id, Core.Player));
             var result = Actionmanager.DoAction(id, Core.Player);
+
+            if (result)
+            {
+                Logging.Write(
+                            Colors.SpringGreen,
+                            "ExBuddy: Casted Ability -> {0}",
+                            spellData.Name);
+            }
+            else
+            {
+                Logging.Write(
+                            Colors.Red,
+                            "ExBuddy: Failed to cast Ability -> {0}",
+                            spellData.Name);
+            }
 
             //Wait till we can cast again
             await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));

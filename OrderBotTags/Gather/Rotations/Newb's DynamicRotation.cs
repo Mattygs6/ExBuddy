@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
-using ff14bot;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    [GatheringRotation("NewbCollect", 0, 24)]
-    public sealed class Collect115GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
+    [GatheringRotation("NewbsCollect", 0, 24)]
+    public sealed class NewbsCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
@@ -316,6 +315,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 Logging.Write("Exiting Rotation: Get Three");
                 return true;
             }
+
             return false;
         }
 

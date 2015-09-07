@@ -75,6 +75,13 @@
     <Compile Include="Gather\GatherSpotType.cs" />
     <Compile Include="Gather\CordialTime.cs" />
     <Compile Include="Gather\CordialType.cs" />
+    <Compile Include="Gather\Rotations\Collect115GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect240DynamicGatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect345GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect450GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect470GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect550GatheringRotation.cs" />
+    <Compile Include="Gather\Rotations\Collect570GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\CollectableGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringRotation.cs" />

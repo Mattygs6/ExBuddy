@@ -38,7 +38,11 @@
 
         private readonly Stopwatch totalLandingStopwatch = new Stopwatch();
 
+        private readonly Stopwatch takeoffStopwatch = new Stopwatch();
+
         private Task landingTask;
+
+        private Task takeoffTask;
 
         private Coroutine coroutine;
 
@@ -118,14 +122,36 @@
                 {
                     if (!ff14bot.Managers.MovementManager.IsFlying)
                     {
+                        if (!takeoffStopwatch.IsRunning)
+                        {
+                            takeoffStopwatch.Restart();
+                        }
+
+                        if (takeoffTask == null)
+                        {
+                            Logging.Write("Started Takeoff Task");
+                            takeoffTask = Task.Factory.StartNew(
+                                () =>
+                                {
+                                    while (!MovementManager.IsFlying)
+                                    {
+                                        Thread.Sleep(50);
+                                    }
+
+                                    Logging.Write(Colors.DeepSkyBlue, "Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
+                                    takeoffStopwatch.Reset();
+                                    takeoffTask = null;
+                                });
+                        }
+
                         if (coroutine == null || coroutine.IsFinished)
                         {
-                            Logging.Write("Created new TakeOff Coroutine");
+                            Logging.Write("Created new Takeoff Coroutine");
                             coroutine = new Coroutine(() => CommonTasks.TakeOff());
                         }
 
                         coroutine.Resume();
-                        Logging.Write("Resumed TakeOff Coroutine");
+                        Logging.Write("Resumed Takeoff Coroutine");
                     }
                 }
             }

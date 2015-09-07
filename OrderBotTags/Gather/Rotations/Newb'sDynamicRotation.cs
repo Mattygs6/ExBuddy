@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using ff14bot;
 using ff14bot.Helpers;
 using ff14bot.Managers;
 
@@ -316,6 +315,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 Logging.Write("Exiting Rotation: Get Three");
                 return true;
             }
+
             return false;
         }
 

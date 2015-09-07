@@ -33,7 +33,7 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="RebornBuddy">
-      <HintPath>..\..\..\..\..\Game Data\RB\RebornBuddy.exe</HintPath>
+      <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

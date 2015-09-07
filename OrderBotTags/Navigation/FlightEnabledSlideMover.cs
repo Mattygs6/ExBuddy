@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -35,6 +36,10 @@
 
         private readonly Stopwatch landingStopwatch = new Stopwatch();
 
+        private readonly Stopwatch totalLandingStopwatch = new Stopwatch();
+
+        private Task landingTask;
+
         private Coroutine coroutine;
 
         private Coroutine landingCoroutine;
@@ -63,7 +68,6 @@
 
             this.innerMover = innerMover;
             this.flightMovementArgs = flightMovementArgs;
-            this.ShouldFly = true;
         }
 
         public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
@@ -104,28 +108,55 @@
             {
                 lock (obj)
                 {
-                    if (coroutine == null || coroutine.IsFinished)
+                    if (!ff14bot.Managers.MovementManager.IsFlying)
                     {
-                        Logging.Write("Created new TakeOff Coroutine");
-                        coroutine = new Coroutine(() => CommonTasks.TakeOff());
-                    }
+                        if (coroutine == null || coroutine.IsFinished)
+                        {
+                            Logging.Write("Created new TakeOff Coroutine");
+                            coroutine = new Coroutine(() => CommonTasks.TakeOff());
+                        }
 
-                    coroutine.Resume();
-                    Logging.Write("Resumed TakeOff Coroutine");
+                        coroutine.Resume();
+                        Logging.Write("Resumed TakeOff Coroutine");
+                    }
                 }
             }
         }
 
         public void ForceLanding()
         {
-            if (!landingStopwatch.IsRunning)
-            {
-                landingStopwatch.Restart();
-            }
-
             if (MovementManager.IsFlying)
             {
-                if (landingStopwatch.ElapsedMilliseconds < 1000)
+                if (!landingStopwatch.IsRunning)
+                {
+                    landingStopwatch.Restart();
+                }
+
+                if (!totalLandingStopwatch.IsRunning)
+                {
+                    totalLandingStopwatch.Restart();
+                }
+
+                if (landingTask == null)
+                {
+                    Logging.Write("Started Landing Task");
+                    landingTask = Task.Factory.StartNew(
+                        () =>
+                        {
+                            while (MovementManager.IsFlying)
+                            {
+                                Thread.Sleep(50);
+                            }
+
+                            Logging.Write(Colors.DeepSkyBlue, "Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
+                            totalLandingStopwatch.Reset();
+                            landingStopwatch.Reset();
+
+                            landingTask = null;
+                        });
+                }
+
+                if (landingStopwatch.ElapsedMilliseconds < 1500)
                 {
                     MovementManager.StartDescending();
                 }
@@ -145,20 +176,7 @@
                 }
             }
 
-            if (MovementManager.IsFlying)
-            {
-                Task.Factory.StartNew(
-                    () =>
-                    {
-                        while (MovementManager.IsFlying)
-                        {
-                            Thread.Sleep(200);
-                        }
-
-                        landingStopwatch.Reset();
-                    });
-            }
-
+            ShouldFly = false;
         }
 
         public bool CanFly

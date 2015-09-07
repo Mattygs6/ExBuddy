@@ -43,8 +43,9 @@
         {
             this.Radius = 2.7f;
             this.InverseParabolicMagnitude = 10;
-            this.Smoothing = 0.1f;
+            this.Smoothing = 0.2f;
             this.LogWaypoints = true;
+            this.ForcedAltitude = 8.0f;
         }
 
         public float Radius { get; set; }

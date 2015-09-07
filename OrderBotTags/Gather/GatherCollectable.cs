@@ -385,7 +385,6 @@
                             typeof(UnspoiledGatheringRotation) ,
                             typeof(DefaultCollectGatheringRotation),
                             typeof(Collect115GatheringRotation),
-                            typeof(Collect240DynamicGatheringRotation),
                             typeof(Collect345GatheringRotation),
                             typeof(Collect450GatheringRotation),
                             typeof(Collect470GatheringRotation),

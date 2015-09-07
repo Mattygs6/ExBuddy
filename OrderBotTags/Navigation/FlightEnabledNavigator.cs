@@ -40,7 +40,7 @@
 
         private readonly IFlightNavigationArgs flightNavigationArgs;
 
-        
+
 
         public FlightEnabledNavigator(INavigationProvider innerNavigator)
             : this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs())
@@ -84,7 +84,7 @@
             CurrentPath.Clear();
             CurrentPath.Index = 0;
 
-            origin = finalDestination = requestedDestination  = Vector3.Zero;
+            origin = finalDestination = requestedDestination = Vector3.Zero;
             generatingPath = false;
             pathGeneratorStopwatch.Reset();
 
@@ -120,27 +120,27 @@
                         finalDestination);
                     GeneratePath(origin, finalDestination).ContinueWith(
                         success =>
+                        {
+                            if (success.Result)
                             {
-                                if (success.Result)
-                                {
-                                    Logging.WriteDiagnostic(
-                                        Colors.DeepSkyBlue,
-                                        "Generated path to {0} using {1} hops in {2} ms",
-                                        finalDestination,
-                                        CurrentPath.Count,
-                                        pathGeneratorStopwatch.Elapsed);
-                                }
-                                else
-                                {
-                                    Logging.WriteDiagnostic(
-                                        Colors.Red,
-                                        "No viable path found to {0} from {1}",
-                                        finalDestination,
-                                        origin);
-                                }
+                                Logging.WriteDiagnostic(
+                                    Colors.DeepSkyBlue,
+                                    "Generated path to {0} using {1} hops in {2} ms",
+                                    finalDestination,
+                                    CurrentPath.Count,
+                                    pathGeneratorStopwatch.Elapsed);
+                            }
+                            else
+                            {
+                                Logging.WriteDiagnostic(
+                                    Colors.Red,
+                                    "No viable path found to {0} from {1}",
+                                    finalDestination,
+                                    origin);
+                            }
 
-                                generatingPath = false;
-                            });
+                            generatingPath = false;
+                        });
                     return MoveResult.GeneratingPath;
                 }
 
@@ -191,27 +191,27 @@
                         finalDestination);
                     GeneratePath(origin, finalDestination).ContinueWith(
                         success =>
+                        {
+                            if (success.Result)
                             {
-                                if (success.Result)
-                                {
-                                    Logging.WriteDiagnostic(
-                                        Colors.DeepSkyBlue,
-                                        "Generated path to {0} using {1} hops in {2} ms",
-                                        finalDestination,
-                                        CurrentPath.Count,
-                                        pathGeneratorStopwatch.Elapsed);
-                                }
-                                else
-                                {
-                                    Logging.WriteDiagnostic(
-                                        Colors.Red,
-                                        "No viable path found to {0} from {1}",
-                                        finalDestination,
-                                        origin);
-                                }
+                                Logging.WriteDiagnostic(
+                                    Colors.DeepSkyBlue,
+                                    "Generated path to {0} using {1} hops in {2} ms",
+                                    finalDestination,
+                                    CurrentPath.Count,
+                                    pathGeneratorStopwatch.Elapsed);
+                            }
+                            else
+                            {
+                                Logging.WriteDiagnostic(
+                                    Colors.Red,
+                                    "No viable path found to {0} from {1}",
+                                    finalDestination,
+                                    origin);
+                            }
 
-                                generatingPath = false;
-                            });
+                            generatingPath = false;
+                        });
                     return MoveResult.GeneratingPath;
                 }
 
@@ -356,73 +356,60 @@
 
             var distancePerWaypoint = distance / (float)desiredNumberOfPoints;
 
-            // Height will be "Forced height" or no greater than 1 / (the greater of 1 and the inverse parabolic magnitude of the distance and also not more than 100
-            //var height = Math.Max(flightNavigationArgs.ForcedAltitude, Math.Min(distance / Math.Max(1, flightNavigationArgs.InverseParabolicMagnitude), 100.0f));
-
             Vector3 hit;
             Vector3 distances;
-            var useStraight = !WorldManager.Raycast(from, target, out hit, out distances);
             var previousWaypoint = from;
             var cleanWaypoints = 0;
 
             for (var i = 0.0f + (1.0f / ((float)desiredNumberOfPoints)); i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
-                Vector3 waypoint;
-                if (useStraight)
-                {
-                    waypoint = StraightPath(from, target, i);
-                }
-                else
-                {
-                    waypoint = StraightPath(from, target, i);
-                    ////waypoints.Add(waypoint);
 
-                    //var collisions = new Collisions(waypoint, target - waypoint);
-                    var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint * (i < 0.9f ? 4.0f : 2.5f));
+                var waypoint = StraightPath(@from, target, i);
 
-                    Vector3 deviationWaypoint;
-                    var result = collisions.CollisionResult(out deviationWaypoint);
-                    if (result != CollisionFlags.None)
+                var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint * (i < 0.9f ? 4.0f : 2.5f));
+
+                Vector3 deviationWaypoint;
+                var result = collisions.CollisionResult(out deviationWaypoint);
+                if (result != CollisionFlags.None)
+                {
+                    // DO THINGS! // check landing + buffer zone of 2.0f
+                    if (result.HasFlag(CollisionFlags.Forward)
+                        && collisions.PlayerCollider.ForwardHit.Distance3D(target) > flightNavigationArgs.Radius + 1.0f)
                     {
-                        // DO THINGS! // check landing + buffer zone of 2.0f
-                        if (result.HasFlag(CollisionFlags.Forward)
-                            && collisions.PlayerCollider.ForwardHit.Distance3D(target) > flightNavigationArgs.Radius + 1.0f)
+                        if (result.HasFlag(CollisionFlags.Error))
                         {
-                            if (result.HasFlag(CollisionFlags.Error))
+                            var alternateWaypoint = waypoint.AddRandomDirection(40);
+                            while (!alternateWaypoint.IsSafeSphere() || WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
                             {
-                                var alternateWaypoint = waypoint.AddRandomDirection(40);
-                                while (!alternateWaypoint.IsSafeSphere() || WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
-                                {
-                                    alternateWaypoint = waypoint.AddRandomDirection(40);
-                                }
-
-                                deviationWaypoint = alternateWaypoint;
-                                // this is fatal, but for now we should just watch what it does!.
-                                Logging.Write(Colors.Red, "Unable to find flight path, fatal error");
+                                alternateWaypoint = waypoint.AddRandomDirection(40);
                             }
 
-                            deviationWaypoint = deviationWaypoint.HeightCorrection(8);
-                            previousWaypoint = from = deviationWaypoint;
-                            CurrentPath.Add(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
-
-
-                            desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
-                            i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
-                            cleanWaypoints = 0;
-
-                            distance = from.Distance3D(target);
-                            distancePerWaypoint = distance / (float)desiredNumberOfPoints;
-
-                            continue;
+                            deviationWaypoint = alternateWaypoint;
+                            // this is fatal, but for now we should just watch what it does!.
+                            Logging.Write(Colors.Red, "Unable to find flight path, fatal error");
                         }
+
+                        deviationWaypoint = deviationWaypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
+                        previousWaypoint = from = deviationWaypoint;
+                        CurrentPath.Add(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
+
+
+                        desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
+                        i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
+                        cleanWaypoints = 0;
+
+                        distance = from.Distance3D(target);
+                        distancePerWaypoint = distance / (float)desiredNumberOfPoints;
+
+                        continue;
                     }
                 }
 
                 cleanWaypoints++;
                 int waypointsRemaining;
-                if ((waypointsRemaining = (int)desiredNumberOfPoints - CurrentPath.Count) > 8)
+                if ((waypointsRemaining = (int)desiredNumberOfPoints - CurrentPath.Count) > flightNavigationArgs.ForcedAltitude)
                 {
-                    waypoint = waypoint.HeightCorrection(8);
+                    waypoint = waypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
                 }
                 else
                 {
@@ -432,7 +419,7 @@
                 previousWaypoint = waypoint;
                 CurrentPath.Add(new FlightPoint { Location = waypoint });
             }
-            
+
 
             return true;
         }
@@ -463,7 +450,7 @@
                                    "Moving to next hop: ", CurrentPath.Current.Location, " (", name, ") D: ",
                                    location.Distance(CurrentPath.Current.Location)
                                };
-            
+
             Logging.WriteDiagnostic(Colors.DeepSkyBlue, string.Concat(objArray));
             //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
             playerMover.MoveTowards(CurrentPath.Current.Location);

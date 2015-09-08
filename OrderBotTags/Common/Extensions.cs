@@ -104,8 +104,9 @@
 
         public static bool IsGround(this Vector3 vector, float range = 3.0f)
         {
+            // TODO: probably need to make diagonal checks
             range = range <= 0 ? 0.1f : range;
-            Vector3 above = new Vector3(vector.X, vector.Y + 0.3f, vector.Z);
+            Vector3 above = new Vector3(vector.X, vector.Y + 1.0f, vector.Z);
             Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
             Vector3 hit, distances;
             if (WorldManager.Raycast(above, below, out hit, out distances))

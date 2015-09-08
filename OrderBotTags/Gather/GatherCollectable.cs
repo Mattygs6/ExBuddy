@@ -662,7 +662,7 @@
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            if (Node.CanGather)
+            if (Node != null && Node.CanGather)
             {
                 return false;
             }

@@ -23,14 +23,26 @@ namespace ExBuddy.OrderBotTags
 
             if (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount)
             {
-                if (mountId > 0)
+                while (!Core.Player.IsMounted)
                 {
-                    await CommonTasks.MountUp(mountId);
+                    if (mountId > 0)
+                    {
+                        if (!await CommonTasks.MountUp(mountId))
+                        {
+                            if (!await CommonTasks.MountUp(1))
+                            {
+                                await CommonTasks.MountUp(45);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        await CommonTasks.MountUp();
+                    }
+
+                    await Coroutine.Yield();
                 }
-                else
-                {
-                    await CommonTasks.MountUp();
-                }
+
             }
 
             await MoveToNoMount(destination, useMesh, radius, name, stopInRange);

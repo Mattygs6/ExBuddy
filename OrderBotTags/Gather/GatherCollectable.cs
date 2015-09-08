@@ -1313,7 +1313,9 @@
 
         internal bool IsUnspoiled()
         {
-            return Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0;
+            // Temporary until we decide if legendary have any diff properties or if we should treat them the same.
+            return Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0
+                   || Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
         }
     }
 }

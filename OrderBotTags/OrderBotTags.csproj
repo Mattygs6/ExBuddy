@@ -85,7 +85,7 @@
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringSkillOrderGatheringRotation.cs" />
-    <Compile Include="Gather\Rotations\Newb%27sDynamicRotation.cs" />
+    <Compile Include="Gather\Rotations\NewbsDynamicRotation.cs" />
     <Compile Include="Gather\Rotations\SmartGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\SmartQualityGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\TopsoilGatheringRotation.cs" />
@@ -106,7 +106,6 @@
     <Compile Include="Navigation\FlightEnabledNavigator.cs" />
     <Compile Include="Navigation\FlightEnabledSlideMover.cs" />
     <Compile Include="Navigation\FlightPoint.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gather\Profiles\Cyclops Onion.xml" />
@@ -133,6 +132,7 @@
   <ItemGroup>
     <Folder Include="Gather\Interfaces\" />
     <Folder Include="Interfaces\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

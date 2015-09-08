@@ -36,18 +36,18 @@
 			CordialType="Cordial">
 				<Collectables>
 					<Collectable Name="Cuprite" Value="0" PlusPlus="1" />
-          <!--Collectable Name="Red Quartz" Value="0" PlusPlus="0"/-->
+					<!--Collectable Name="Red Quartz" Value="0" PlusPlus="0"/-->
 					<Collectable Name="Light Kidney Ore" Value="0" PlusPlus="0" />
 					<Collectable Name="Abalathian Mistletoe" Value="0" PlusPlus="0" />
 					<Collectable Name="Heavens Lemon" Value="0" PlusPlus="0" />
-          <Collectable Name="Chalcocite" Value="0" PlusPlus="0" />
+					<Collectable Name="Chalcocite" Value="0" PlusPlus="0" />
 					<Collectable Name="Morel" Value="0" PlusPlus="0" />
 					<Collectable Name="Yellow Copper Ore" Value="0" PlusPlus="0" />
-          <Collectable Name="Old World Fig" Value="0" PlusPlus="0" />
+					<Collectable Name="Old World Fig" Value="0" PlusPlus="0" />
 					<Collectable Name="Adamantite Ore" Value="0" PlusPlus="0" />
 					<Collectable Name="Chysahl Greens" Value="0" PlusPlus="0" />
-          <Collectable Name="Green Quartz" Value="0" PlusPlus="0" />
-          <Collectable Name="Abalathian Rock Salt" Value="0" PlusPlus="2"/>
+					<Collectable Name="Green Quartz" Value="0" PlusPlus="0" />
+					<Collectable Name="Abalathian Rock Salt" Value="0" PlusPlus="2"/>
 					<Collectable Name="Radiant Fire Moraine" Value="0" PlusPlus="0" />
 					<Collectable Name="Bright Fire Rock" Value="0" PlusPlus="0" />
 					<Collectable Name="Fire Moraine" Value="0" PlusPlus="0" />
@@ -60,6 +60,8 @@
 					<Collectable Name="Black Soil" Value="0" PlusPlus="0" />
 					<Collectable Name="Peat Moss" Value="0" PlusPlus="0" />
 					<Collectable Name="Granular Clay" Value="0" PlusPlus="0" />
+					<Collectable Name="Porcini" Value="0" PlusPlus="0" />
+					<Collectable Name="Chives" Value="0" PlusPlus="0" />
 				</Collectables>
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>

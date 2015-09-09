@@ -377,7 +377,7 @@
 
             var dict =
                 instances.ToDictionary(
-                    k => k.Attributes.Name, v => v);
+                    k => k.Attributes.Name, v => v, StringComparer.InvariantCultureIgnoreCase);
 
             return dict;
 

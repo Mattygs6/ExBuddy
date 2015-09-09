@@ -55,7 +55,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             {
                 Logging.Write(
                     Colors.Chartreuse,
-                    "GatherCollectable: Using Gp since we have gathered {0] nodes at max Gp.",
+                    "GatherCollectable: Using Gp since we have gathered {0} nodes at max Gp.",
                     tag.NodesGatheredAtMaxGp);
 
                 return true;

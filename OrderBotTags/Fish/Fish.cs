@@ -845,7 +845,7 @@ namespace ExBuddy.OrderBotTags
                                     r =>
                                     {
                                         PostKeyPress(this.ConfirmKey);
-                                        baitCount++;
+                                        baitAttempts++;
                                     })),
                             new WaitContinue(
                                 TimeSpan.FromMilliseconds(this.BaitDelay),
@@ -868,13 +868,13 @@ namespace ExBuddy.OrderBotTags
                                             r =>
                                             {
                                                 Log("Lost focus on the bait window, select bait manually.");
-                                                Log("Attempting to re-apply bait in 30 seconds.");
+                                                Log("Attempting to re-apply bait in 10 seconds.");
 
                                                 // reset bait count
                                                 baitCount = this.GetBaitCount();
                                             }),
                                         new WaitContinue(
-                                            30,
+                                            10,
                                             ret => IsCorrectBaitSelected,
                                             new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))),
                                 new ActionAlwaysSucceed()))));

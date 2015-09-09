@@ -118,29 +118,7 @@
                         WorldManager.ZoneId,
                         origin,
                         finalDestination);
-                    GeneratePath(origin, finalDestination).ContinueWith(
-                        success =>
-                        {
-                            if (success.Result)
-                            {
-                                Logging.WriteDiagnostic(
-                                    Colors.DeepSkyBlue,
-                                    "Generated path to {0} using {1} hops in {2} ms",
-                                    finalDestination,
-                                    CurrentPath.Count,
-                                    pathGeneratorStopwatch.Elapsed);
-                            }
-                            else
-                            {
-                                Logging.WriteDiagnostic(
-                                    Colors.Red,
-                                    "No viable path found to {0} from {1}",
-                                    finalDestination,
-                                    origin);
-                            }
-
-                            generatingPath = false;
-                        });
+                    GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
                     return MoveResult.GeneratingPath;
                 }
 
@@ -189,29 +167,7 @@
                         WorldManager.ZoneId,
                         origin,
                         finalDestination);
-                    GeneratePath(origin, finalDestination).ContinueWith(
-                        success =>
-                        {
-                            if (success.Result)
-                            {
-                                Logging.WriteDiagnostic(
-                                    Colors.DeepSkyBlue,
-                                    "Generated path to {0} using {1} hops in {2} ms",
-                                    finalDestination,
-                                    CurrentPath.Count,
-                                    pathGeneratorStopwatch.Elapsed);
-                            }
-                            else
-                            {
-                                Logging.WriteDiagnostic(
-                                    Colors.Red,
-                                    "No viable path found to {0} from {1}",
-                                    finalDestination,
-                                    origin);
-                            }
-
-                            generatingPath = false;
-                        });
+                    GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
                     return MoveResult.GeneratingPath;
                 }
 
@@ -300,6 +256,30 @@
             await FindWaypoints(start, end);
 
             return true;
+        }
+
+        private void HandlePathGenerationResult(Task<bool> task)
+        {
+            if (task.Result)
+            {
+                Logging.WriteDiagnostic(
+                    Colors.DeepSkyBlue,
+                    "Generated path to {0} using {1} hops in {2} ms",
+                    finalDestination,
+                    CurrentPath.Count,
+                    pathGeneratorStopwatch.Elapsed);
+            }
+            else
+            {
+                Logging.WriteDiagnostic(
+                    Colors.Red,
+                    "No viable path found to {0} from {1}",
+                    finalDestination,
+                    origin);
+            }
+
+            pathGeneratorStopwatch.Reset();
+            generatingPath = false;
         }
 
         public static Vector3 SampleParabola(Vector3 start, Vector3 end, float height, float t)
@@ -427,12 +407,20 @@
         private MoveResult MoveToNextHop(string name)
         {
             Vector3 location = Core.Me.Location;
-            double distanceToNextHop = location.Distance3D(CurrentPath.Current.Location);
+            Vector3 hit;
+            if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
+            {
+                Logging.WriteDiagnostic(Colors.PaleVioletRed, "Collision detected! Generating new path!");
+                this.Clear();
+                return MoveResult.GeneratingPath;
+            }
+
+            double distanceToNextHop = location.Distance3D(CurrentPath.Current);
 
             if (distanceToNextHop >= this.PathPrecision)
             {
                 //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
-                playerMover.MoveTowards(CurrentPath.Current.Location);
+                playerMover.MoveTowards(CurrentPath.Current);
                 return MoveResult.Moved;
             }
 
@@ -445,15 +433,20 @@
                 return MoveResult.ReachedDestination;
             }
 
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = string.Concat(" (", name, ")");
+            }
+
             var objArray = new object[]
                                {
-                                   "Moving to next hop: ", CurrentPath.Current.Location, " (", name, ") D: ",
-                                   location.Distance(CurrentPath.Current.Location)
+                                   "Moving to next hop: ", CurrentPath.Current, name, "D: ",
+                                   location.Distance(CurrentPath.Current)
                                };
 
             Logging.WriteDiagnostic(Colors.DeepSkyBlue, string.Concat(objArray));
             //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
-            playerMover.MoveTowards(CurrentPath.Current.Location);
+            playerMover.MoveTowards(CurrentPath.Current);
             return MoveResult.Moved;
         }
 

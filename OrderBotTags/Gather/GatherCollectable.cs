@@ -1028,7 +1028,7 @@
             if (!GatheringManager.WindowOpen)
             {
                 OnResetCachedDone();
-                return true;
+                return false;
             }
 
             if (!await ResolveGatherItem())
@@ -1093,10 +1093,16 @@
 
         internal async Task<bool> ResolveGatherItem()
         {
+            if (!GatheringManager.WindowOpen)
+            {
+                return false;
+            }
+
             var previousGatherItem = GatherItem;
             GatherItemIsFallback = false;
             GatherItem = null;
             CollectableItem = null;
+
             var windowItems = GatheringManager.GatheringWindowItems;
 
             // TODO: move method to common so we use it on fish too
@@ -1250,7 +1256,12 @@
         {
             if (!gatherRotation.CanBeOverriden || DisableRotationOverride)
             {
-                return;
+                if (!GatherItem.IsUnknown)
+                {
+                    return;
+                }
+                
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
             }
 
             var rotationAndTypes = Rotations

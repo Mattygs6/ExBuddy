@@ -3,7 +3,6 @@
     using System;
     using System.ComponentModel;
     using System.IO;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -91,6 +90,7 @@
             {
                 Logging.Write(Colors.DeepSkyBlue, "Disposing the GaiaNavigator");
                 nav.Dispose();
+                Navigator.NavigationProvider = null;
             }
         }
 

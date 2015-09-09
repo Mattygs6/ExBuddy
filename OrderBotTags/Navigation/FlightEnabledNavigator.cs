@@ -3,8 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Media;
+
+    using Buddy.Coroutines;
 
     using Clio.Common;
     using Clio.Utilities;
@@ -40,8 +43,6 @@
 
         private readonly IFlightNavigationArgs flightNavigationArgs;
 
-
-
         public FlightEnabledNavigator(INavigationProvider innerNavigator)
             : this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs())
         {
@@ -54,7 +55,9 @@
             this.flightNavigationArgs = flightNavigationArgs;
             Navigator.NavigationProvider = this;
             Navigator.PlayerMover = playerMover;
-            CurrentPath = new IndexedList<FlightPoint>(128);
+            CurrentPath = new IndexedList<FlightPoint>(32);
+
+            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Replacing Navigator with Flight Navigator.");
         }
 
         public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
@@ -253,9 +256,7 @@
             CurrentPath.Clear();
             CurrentPath.Index = 0;
 
-            await FindWaypoints(start, end);
-
-            return true;
+            return await FindWaypoints(start, end);
         }
 
         private void HandlePathGenerationResult(Task<bool> task)
@@ -346,7 +347,8 @@
 
                 var waypoint = StraightPath(@from, target, i);
 
-                var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint * (i < 0.9f ? 4.0f : 2.5f));
+                // TODO: look into capping distance per waypoint, then also the modifier distance
+                var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint *  2f);
 
                 Vector3 deviationWaypoint;
                 var result = collisions.CollisionResult(out deviationWaypoint);
@@ -358,15 +360,34 @@
                     {
                         if (result.HasFlag(CollisionFlags.Error))
                         {
-                            var alternateWaypoint = waypoint.AddRandomDirection(40);
-                            while (!alternateWaypoint.IsSafeSphere() || WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
+                            var alternateCount = 0;
+                            // Go in random direction up to the distance of a normal waypoint.
+                            var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint / (float)Math.Sqrt(3));
+                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
                             {
-                                alternateWaypoint = waypoint.AddRandomDirection(40);
+                                if (alternateCount > 20)
+                                {
+                                    Logging.Write(Colors.Red, "Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
+                                    this.Clear();
+                                    Navigator.NavigationProvider = innerNavigator;
+#pragma warning disable 4014
+                                    Task.Factory.StartNew(
+#pragma warning restore 4014
+                                        () =>
+                                            {
+                                                Thread.Sleep(10000);
+                                                Logging.Write(
+                                                    Colors.DeepSkyBlue,
+                                                    "Resetting NavigationProvider to Flight Navigator.");
+                                                Navigator.NavigationProvider = this;
+                                            });
+                                    return false;
+                                }
+                                alternateWaypoint = previousWaypoint.AddRandomDirection(10);
+                                alternateCount++;
                             }
 
                             deviationWaypoint = alternateWaypoint;
-                            // this is fatal, but for now we should just watch what it does!.
-                            Logging.Write(Colors.Red, "Unable to find flight path, fatal error");
                         }
 
                         deviationWaypoint = deviationWaypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
@@ -400,6 +421,21 @@
                 CurrentPath.Add(new FlightPoint { Location = waypoint });
             }
 
+
+            return true;
+        }
+
+        private async Task<bool> MoveToNoFlight(Vector3 location)
+        {
+            MoveResult result = MoveResult.GeneratingPath;
+            while (Core.Player.Location.Distance3D(location) > PathPrecision || result != MoveResult.ReachedDestination || result != MoveResult.Done)
+            {
+                generatingPath = true;
+                result = this.innerNavigator.MoveTo(location, "Temporary Waypoint");
+                await Coroutine.Yield();
+            }
+
+            generatingPath = false;
 
             return true;
         }
@@ -455,6 +491,7 @@
             if (!disposed)
             {
                 disposed = true;
+                Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Putting original Navigator back!");
                 Navigator.NavigationProvider = innerNavigator;
                 pathGeneratorStopwatch.Stop();
                 playerMover.Dispose();

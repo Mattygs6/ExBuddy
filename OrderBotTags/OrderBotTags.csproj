@@ -72,6 +72,13 @@
     <Compile Include="Common\StealthMoveToTag.cs" />
     <Compile Include="Common\Collectable.cs" />
     <Compile Include="Common\Behaviors.cs" />
+    <Compile Include="Fish\Extensions.cs" />
+    <Compile Include="Fish\Fish.cs" />
+    <Compile Include="Fish\FishResult.cs" />
+    <Compile Include="Fish\FishSpot.cs" />
+    <Compile Include="Fish\Keeper.cs" />
+    <Compile Include="Fish\KeeperAction.cs" />
+    <Compile Include="Fish\VirtualKeys.cs" />
     <Compile Include="Gather\GatherIncrease.cs" />
     <Compile Include="Gather\GatherSpotType.cs" />
     <Compile Include="Gather\CordialTime.cs" />
@@ -110,6 +117,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Fish\Example\Fishing_Forager_Supra_Lucis.xml" />
+    <Content Include="Fish\Example\Fishing_IlluminatiPerch.xml" />
+    <Content Include="Fish\Example\Fishing_Leveling_1-60.xml" />
+    <Content Include="Fish\Example\Fishing_WarmwaterBichir.xml" />
     <Content Include="Gather\Profiles\Cyclops Onion.xml" />
     <Content Include="Gather\Profiles\FreeRangeCollectAll.xml" />
     <Content Include="Gather\Profiles\Hardsilver Ore.xml" />

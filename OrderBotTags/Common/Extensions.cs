@@ -139,7 +139,7 @@
             return vector;
         }
 
-        public static bool IsSafeSphere(this Vector3 vector, float range = 5.0f)
+        public static bool IsSafeSphere(this Vector3 vector, float range = 3.0f)
         {
             range = range <= 0 ? 0.1f : range;
             Vector3 above = new Vector3(vector.X, vector.Y + range, vector.Z);

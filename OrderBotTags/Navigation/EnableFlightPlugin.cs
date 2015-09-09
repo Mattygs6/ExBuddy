@@ -96,6 +96,7 @@
 
         public override void OnShutdown()
         {
+            TreeRoot.OnStop -= cleanup;
             DoCleanup();
         }
 
@@ -108,6 +109,7 @@
         {
             TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
             TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+            TreeRoot.OnStop -= cleanup;
             DoCleanup();
         }
 

@@ -1103,7 +1103,7 @@
             GatherItem = null;
             CollectableItem = null;
 
-            var windowItems = GatheringManager.GatheringWindowItems;
+            var windowItems = GatheringManager.GatheringWindowItems.ToArray();
 
             // TODO: move method to common so we use it on fish too
             if (InventoryItemCount() >= 100)
@@ -1276,7 +1276,7 @@
 
             var rotation = rotationAndTypes.FirstOrDefault();
 
-            if (rotation == null)
+            if (rotation == null || object.ReferenceEquals(rotation.Rotation, gatherRotation))
             {
                 return;
             }

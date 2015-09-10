@@ -1,10 +1,13 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
+    using System;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ff14bot;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public abstract class GatheringRotation : IGatheringRotation
@@ -64,11 +67,6 @@
             {
                 swingsRemaining--;
 
-                if (!await tag.ResolveGatherItem())
-                {
-                    return false;
-                }
-
                 while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
                 {
                     await Coroutine.Yield();
@@ -84,7 +82,21 @@
                     }
                 }
 
-                tag.GatherItem.GatherItem();
+                if (!await tag.ResolveGatherItem())
+                {
+                    return false;
+                }
+
+                try
+                {
+                    tag.GatherItem.GatherItem();
+                }
+                catch (NullReferenceException)
+                {
+                    Logging.WriteDiagnostic(
+                        Colors.PaleVioletRed,
+                        "GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
+                }
 
                 await Coroutine.Wait(2500, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }

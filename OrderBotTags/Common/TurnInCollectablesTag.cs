@@ -348,11 +348,11 @@
             {
                 if (itemLevel >= 10)
                 {
-                    indexOffset = (int)(8 + Math.Abs(classIndex - 10) * 2);
+                    indexOffset = (8 + Math.Abs((int)classIndex - 10) * 2);
                 }
                 else
                 {
-                    indexOffset = (int)(62 + Math.Abs(classIndex - 10) * 6);
+                    indexOffset = 62 + Math.Abs((int)classIndex - 10) * 6;
                     indexOffset += Math.Abs(itemLevel - 10) / 2;
                 }
             }
@@ -360,11 +360,11 @@
             {
                 if (itemLevel >= 10)
                 {
-                    indexOffset = (int)Math.Abs(classIndex - 7);
+                    indexOffset = Math.Abs((int)classIndex - 7);
                 }
                 else
                 {
-                    indexOffset = (int)(14 + Math.Abs(classIndex - 7) * 6);
+                    indexOffset = 14 + Math.Abs((int)classIndex - 7) * 6;
                     indexOffset += Math.Abs(itemLevel - 10) / 2;
                 }
             }

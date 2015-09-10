@@ -87,15 +87,9 @@
                     return false;
                 }
 
-                try
+                if (!tag.GatherItem.TryGatherItem())
                 {
-                    tag.GatherItem.GatherItem();
-                }
-                catch (NullReferenceException)
-                {
-                    Logging.WriteDiagnostic(
-                        Colors.PaleVioletRed,
-                        "GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
+                    return false;
                 }
 
                 await Coroutine.Wait(2500, () => swingsRemaining == GatheringManager.SwingsRemaining);

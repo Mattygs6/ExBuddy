@@ -18,9 +18,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await Coroutine.Yield();
             }
 
-            tag.GatherItem.GatherItem();
-
-            return await base.Prepare(tag);
+            return tag.GatherItem.TryGatherItem() && await base.Prepare(tag);
         }
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)

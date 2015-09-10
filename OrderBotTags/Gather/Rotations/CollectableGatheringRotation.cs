@@ -57,7 +57,10 @@
                     await Coroutine.Yield();
                 }
 
-                tag.GatherItem.GatherItem();
+                if (!tag.GatherItem.TryGatherItem())
+                {
+                    return false;
+                }
             }
             while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null);
 

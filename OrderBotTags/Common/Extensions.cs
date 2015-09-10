@@ -102,6 +102,29 @@
             return defaultValue;
         }
 
+        public static bool TryGatherItem(this GatheringItem gatheringItem)
+        {
+            try
+            {
+                return gatheringItem.GatherItem();
+            }
+            catch (NullReferenceException)
+            {
+                Logging.WriteDiagnostic(
+                    Colors.PaleVioletRed,
+                    "GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
+
+                return false;
+            }
+        }
+
+        public static Vector3 CorrectLanding(this Vector3 vector, float radius = 2.7f)
+        {
+
+
+            return vector;
+        }
+
         public static bool IsGround(this Vector3 vector, float range = 3.0f)
         {
             // TODO: probably need to make diagonal checks

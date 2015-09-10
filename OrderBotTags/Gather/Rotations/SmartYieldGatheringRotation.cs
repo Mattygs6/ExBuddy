@@ -39,7 +39,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                         await Coroutine.Yield();
                     }
 
-                    tag.GatherItem.GatherItem();
+                    if (!tag.GatherItem.TryGatherItem())
+                    {
+                        return false;
+                    }
 
                     await tag.Cast(Ability.AdditionalAttempt);
                     return await base.ExecuteRotation(tag);

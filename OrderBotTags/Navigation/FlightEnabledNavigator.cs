@@ -369,6 +369,7 @@
                                 {
                                     Logging.Write(Colors.Red, "Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
                                     this.Clear();
+                                    
                                     Navigator.NavigationProvider = innerNavigator;
 #pragma warning disable 4014
                                     Task.Factory.StartNew(
@@ -476,7 +477,7 @@
 
             var objArray = new object[]
                                {
-                                   "Moving to next hop: ", CurrentPath.Current, name, "D: ",
+                                   "Moving to next hop: ", CurrentPath.Current, name, " D: ",
                                    location.Distance(CurrentPath.Current)
                                };
 

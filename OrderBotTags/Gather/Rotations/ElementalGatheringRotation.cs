@@ -43,7 +43,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
-            if (tag.GatherItem.ItemId < 20)
+            if (!tag.GatherItem.IsUnknown && tag.GatherItem.ItemId < 20)
             {
                 return 10000;
             }

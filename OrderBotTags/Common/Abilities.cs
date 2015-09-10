@@ -71,7 +71,7 @@
                                 {
                                     Ability
                                     .IncreaseGatherChance50,
-                                    295
+                                    294
                                 },
                                 {
                                     Ability

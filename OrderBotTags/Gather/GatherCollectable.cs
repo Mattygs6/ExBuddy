@@ -15,7 +15,6 @@
 
     using ExBuddy.OrderBotTags.Common;
     using ExBuddy.OrderBotTags.Gather.Rotations;
-    using ExBuddy.OrderBotTags.Navigation;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -33,7 +32,8 @@
     {
         internal static readonly Dictionary<string, IGatheringRotation> Rotations;
 
-        internal static readonly SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+        // TODO: set this on startup maybe?  was null
+        internal static SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         private bool isDone;
 
@@ -242,6 +242,10 @@
 
             startTime = DateTime.Now;
 
+            if (CordialSpellData == null)
+            {
+                CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+            }
         }
 
         protected override Composite CreateBehavior()
@@ -303,13 +307,13 @@
             if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location))
             {
                 //return lets try not caring if we succeed on the move
-                    await
-                    Behaviors.MoveTo(
-                        HotSpots.CurrentOrDefault,
-                        true,
-                        (uint)MountId,
-                        HotSpots.CurrentOrDefault.Radius * 0.75f,
-                        HotSpots.CurrentOrDefault.Name);
+                await
+                Behaviors.MoveTo(
+                    HotSpots.CurrentOrDefault,
+                    true,
+                    (uint)MountId,
+                    HotSpots.CurrentOrDefault.Radius * 0.75f,
+                    HotSpots.CurrentOrDefault.Name);
 
                 return true;
             }
@@ -575,7 +579,7 @@
                         {
                             Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
                             await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, HotSpots.CurrentOrDefault.Name);
-                            
+
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
                             continue;
@@ -1226,7 +1230,7 @@
                 {
                     return;
                 }
-                
+
                 Logging.Write(Colors.Chartreuse, "GatherCollectable: Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
             }
 

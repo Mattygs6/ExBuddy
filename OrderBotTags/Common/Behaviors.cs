@@ -23,7 +23,7 @@ namespace ExBuddy.OrderBotTags
             // ReSharper disable once InconsistentNaming
             var distance3d = Core.Player.Location.Distance3D(destination);
 
-            if ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround())
+            if (Actionmanager.CanMount != 0 && (!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround())
             {
                 while (!Core.Player.IsMounted)
                 {

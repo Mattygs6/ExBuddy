@@ -54,7 +54,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         private bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
         {
-            if ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6)
+            if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
             {
                 Logging.Write(
                     Colors.Chartreuse,

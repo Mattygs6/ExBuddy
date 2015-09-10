@@ -69,6 +69,7 @@
     <Compile Include="Common\FlightVars.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\ReturnStrategy.cs" />
+    <Compile Include="Common\TurnInCollectablesTag.cs" />
     <Compile Include="Common\StealthMoveToTag.cs" />
     <Compile Include="Common\Collectable.cs" />
     <Compile Include="Common\Behaviors.cs" />

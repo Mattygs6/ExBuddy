@@ -61,10 +61,6 @@
 
         private DateTime startTime;
 
-        private BotEvent cleanup;
-
-        private FlightEnabledNavigator navigator;
-
         static GatherCollectableTag()
         {
             Rotations = LoadRotationTypes();
@@ -93,7 +89,7 @@
         [XmlAttribute("AlwaysGather")]
         public bool AlwaysGather { get; set; }
 
-        [DefaultValue(CordialTime.BeforeGather)]
+        [DefaultValue(CordialTime.IfNeeded)]
         [XmlAttribute("CordialTime")]
         public CordialTime CordialTime { get; set; }
 
@@ -246,30 +242,6 @@
 
             startTime = DateTime.Now;
 
-            //navigator = new FlightEnabledNavigator(Navigator.NavigationProvider);
-
-            cleanup = bot =>
-            {
-                DoCleanup();
-                TreeRoot.OnStop -= cleanup;
-            };
-
-            TreeRoot.OnStop += cleanup;
-        }
-
-        protected override void OnDone()
-        {
-
-            TreeRoot.OnStop -= cleanup;
-            DoCleanup();
-        }
-
-        private void DoCleanup()
-        {
-            if (navigator != null)
-            {
-                navigator.Dispose();
-            }
         }
 
         protected override Composite CreateBehavior()
@@ -281,7 +253,7 @@
         {
             await CommonTasks.HandleLoading();
 
-            return await HandleDeath()
+            return HandleDeath()
                 || HandleCondition()
                 || await CastTruth()
                 || HandleReset()
@@ -294,8 +266,14 @@
                 || (await MoveFromGatherSpot() && ResetOrDone());
         }
 
-        private async Task<bool> HandleDeath()
+        private bool HandleDeath()
         {
+            if (Core.Player.IsDead && Poi.Current.Type != PoiType.Death)
+            {
+                Poi.Current = new Poi(Core.Player, PoiType.Death);
+                return true;
+            }
+
             return false;
         }
 
@@ -670,23 +648,36 @@
             return await GatherSpot.MoveFromSpot(this);
         }
 
-        private async Task<bool> BeforeGather()
+        private struct TimeToGather
         {
-            if (Poi.Current.Unit != Node)
-            {
-                Poi.Current = new Poi(Node, PoiType.Gather);
-            }
+            public int EorzeaMinutesTillDespawn;
 
-            //TODO: Fix the logic so it is easier to read
-            if (Core.Player.CurrentGP >= AdjustedWaitForGp)
-            {
-                return true;
-            }
+            public int RealSecondsTillStartGathering;
 
-            var eorzeaMinutesTillDespawn = int.MaxValue;
+            public int TicksTillStartGathering
+            {
+                get
+                {
+                    return RealSecondsTillStartGathering / 3;
+                }
+            }
+        }
+
+        private TimeToGather GetTimeToGather()
+        {
+            var eorzeaMinutesTillDespawn = (int)byte.MaxValue;
             if (IsUnspoiled())
             {
-                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+                if (WorldManager.ZoneId > 350)
+                {
+                    eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
+                }
+                else
+                {
+                    // We really don't know how much time is left on the node, but it does have at least the 5 more EM.
+                    eorzeaMinutesTillDespawn = 60 - WorldManager.EorzaTime.Minute;
+                }
+
             }
 
             if (IsEphemeral())
@@ -706,7 +697,28 @@
             var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
             var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
-            if (realSecondsTillStartGathering < 1)
+            return new TimeToGather
+                       {
+                           EorzeaMinutesTillDespawn = eorzeaMinutesTillDespawn,
+                           RealSecondsTillStartGathering = realSecondsTillStartGathering
+                       };
+        }
+
+        private async Task<bool> BeforeGather()
+        {
+            if (Poi.Current.Unit != Node)
+            {
+                Poi.Current = new Poi(Node, PoiType.Gather);
+            }
+
+            if (Core.Player.CurrentGP >= AdjustedWaitForGp)
+            {
+                return true;
+            }
+
+            var ttg = GetTimeToGather();
+
+            if (ttg.RealSecondsTillStartGathering < 1)
             {
                 if (gatherRotation.ShouldForceGather)
                 {
@@ -718,9 +730,7 @@
                 return true;
             }
 
-            var ticksTillStartGathering = realSecondsTillStartGathering / 3;
-
-            var gp = Math.Min(Core.Player.CurrentGP + ticksTillStartGathering * 5, Core.Player.MaxGP);
+            var gp = Math.Min(Core.Player.CurrentGP + ttg.TicksTillStartGathering * 5, Core.Player.MaxGP);
 
             if (CordialType <= CordialType.None)
             {
@@ -746,7 +756,7 @@
                 return true;
             }
 
-            if (gp >= AdjustedWaitForGp && !CordialTime.HasFlag(CordialTime.BeforeGather))
+            if (gp >= AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.IfNeeded))
             {
                 return await WaitForGpRegain();
             }
@@ -754,7 +764,7 @@
             if (gp + 300 >= AdjustedWaitForGp)
             {
                 // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
-                if (await UseCordial(CordialType.Cordial, realSecondsTillStartGathering) || CordialType == CordialType.Cordial)
+                if (await UseCordial(CordialType.Cordial, ttg.RealSecondsTillStartGathering) || CordialType == CordialType.Cordial)
                 {
                     if (gatherRotation.ShouldForceGather)
                     {
@@ -765,31 +775,10 @@
                 }
             }
 
+            ttg = GetTimeToGather();
             // Recalculate: could have no time left at this point
-            eorzeaMinutesTillDespawn = int.MaxValue;
-            if (IsUnspoiled())
-            {
-                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
-            }
 
-            if (IsEphemeral())
-            {
-                var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
-                var rounded = new DateTime(
-                    hoursFromNow.Year,
-                    hoursFromNow.Month,
-                    hoursFromNow.Day,
-                    hoursFromNow.Hour - (hoursFromNow.Hour % 4),
-                    0,
-                    0);
-
-                eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
-            }
-
-            realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
-
-            if (realSecondsTillStartGathering < 1)
+            if (ttg.RealSecondsTillStartGathering < 1)
             {
                 if (gatherRotation.ShouldForceGather)
                 {
@@ -801,13 +790,11 @@
                 return true;
             }
 
-            ticksTillStartGathering = realSecondsTillStartGathering / 3;
-
-            gp = Math.Min(Core.Player.CurrentGP + ticksTillStartGathering * 5, Core.Player.MaxGP);
+            gp = Math.Min(Core.Player.CurrentGP + ttg.TicksTillStartGathering * 5, Core.Player.MaxGP);
 
             if (gp + 400 >= AdjustedWaitForGp)
             {
-                if (await UseCordial(CordialType.HiCordial, realSecondsTillStartGathering))
+                if (await UseCordial(CordialType.HiCordial, ttg.RealSecondsTillStartGathering))
                 {
                     if (gatherRotation.ShouldForceGather)
                     {
@@ -828,30 +815,9 @@
 
         private async Task<bool> WaitForGpRegain()
         {
-            var eorzeaMinutesTillDespawn = int.MaxValue;
-            if (IsUnspoiled())
-            {
-                eorzeaMinutesTillDespawn = 55 - WorldManager.EorzaTime.Minute;
-            }
+            var ttg = GetTimeToGather();
 
-            if (IsEphemeral())
-            {
-                var hoursFromNow = WorldManager.EorzaTime.AddHours(4);
-                var rounded = new DateTime(
-                    hoursFromNow.Year,
-                    hoursFromNow.Month,
-                    hoursFromNow.Day,
-                    hoursFromNow.Hour - (hoursFromNow.Hour % 4),
-                    0,
-                    0);
-
-                eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
-            }
-
-            var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
-            var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
-
-            if (realSecondsTillStartGathering < 1)
+            if (ttg.RealSecondsTillStartGathering < 1)
             {
                 if (gatherRotation.ShouldForceGather)
                 {
@@ -866,12 +832,12 @@
             if (Core.Player.CurrentGP < AdjustedWaitForGp)
             {
                 Logging.Write(
-                    "Waiting for GP, Seconds Until Gathering: " + realSecondsTillStartGathering + ", Current GP: "
+                    "Waiting for GP, Seconds Until Gathering: " + ttg.RealSecondsTillStartGathering + ", Current GP: "
                     + Core.Player.CurrentGP + ", WaitForGP: " + AdjustedWaitForGp);
                 await
                 Coroutine.Wait(
-                    TimeSpan.FromSeconds(realSecondsTillStartGathering),
-                    () => Core.Player.CurrentGP >= AdjustedWaitForGp);
+                    TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
+                    () => Core.Player.CurrentGP >= AdjustedWaitForGp || Core.Player.CurrentGP == Core.Player.MaxGP);
             }
 
             return true;
@@ -1103,7 +1069,7 @@
             GatherItem = null;
             CollectableItem = null;
 
-            var windowItems = GatheringManager.GatheringWindowItems;
+            var windowItems = GatheringManager.GatheringWindowItems.ToArray();
 
             // TODO: move method to common so we use it on fish too
             if (InventoryItemCount() >= 100)
@@ -1276,7 +1242,7 @@
 
             var rotation = rotationAndTypes.FirstOrDefault();
 
-            if (rotation == null)
+            if (rotation == null || object.ReferenceEquals(rotation.Rotation, gatherRotation))
             {
                 return;
             }

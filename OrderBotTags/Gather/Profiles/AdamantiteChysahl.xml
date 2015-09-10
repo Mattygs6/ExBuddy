@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Profile [
-	<!ENTITY Collect_Adamantite "0">
-	<!ENTITY Collect_Chysahl "0">
+	<!ENTITY Collect_Adamantite "1">
+	<!ENTITY Collect_Chysahl "1">
+	<!ENTITY TurnInAfterLoop "0">
 ]>
 <Profile>
 	<Name>Collectable: Adamantite Ore + Chysahl Greens</Name>
@@ -67,7 +68,7 @@
 				</If>
 				<RunCode name="BTN"/>
 				<If condition="&Collect_Chysahl; != 0">
-					<GatherCollectable loops="1" spawnTimeout="200">
+					<GatherCollectable loops="1" spawnTimeout="200" cordialType="Cordial">
 						<GatherObjects>
 							<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
 						</GatherObjects>
@@ -81,7 +82,7 @@
 					</GatherCollectable>
 				</If>
 				<If condition="&Collect_Chysahl; == 0">
-					<GatherCollectable loops="1" spawnTimeout="200" gatherIncrease="Quality">
+					<GatherCollectable loops="1" spawnTimeout="200" gatherIncrease="Quality" cordialType="Cordial">
 						<GatherObjects>
 							<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
 						</GatherObjects>
@@ -104,7 +105,7 @@
 				</If>
 				<RunCode name="MIN"/>
 				<If condition="&Collect_Adamantite; != 0">
-					<GatherCollectable loops="1" spawnTimeout="200">
+					<GatherCollectable loops="1" spawnTimeout="200" cordialType="Cordial">
 						<GatherObjects>
 							<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 						</GatherObjects>
@@ -123,7 +124,7 @@
 					</GatherCollectable>
 				</If>
 				<If condition="&Collect_Adamantite; == 0">
-					<GatherCollectable loops="1" spawnTimeout="200">
+					<GatherCollectable loops="1" spawnTimeout="200" cordialType="Cordial">
 						<GatherObjects>
 							<GatherObject>Unspoiled Mineral Deposit</GatherObject>
 						</GatherObjects>

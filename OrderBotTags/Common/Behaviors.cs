@@ -7,6 +7,8 @@ namespace ExBuddy.OrderBotTags
 
     using Clio.Utilities;
 
+    using ExBuddy.OrderBotTags.Navigation;
+
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
@@ -51,7 +53,14 @@ namespace ExBuddy.OrderBotTags
             {
                 if (MovementManager.IsFlying)
                 {
-                    Navigator.Stop();
+                    if (Navigator.PlayerMover is FlightEnabledSlideMover)
+                    {
+                        Navigator.Stop();
+                    }
+                    else
+                    {
+                        MovementManager.StartDescending();
+                    }
                 }
                 else
                 {
@@ -73,13 +82,13 @@ namespace ExBuddy.OrderBotTags
                 var moveResult = MoveResult.GeneratingPath;
                 while ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
                 {
+                    moveResult = Navigator.MoveTo(destination, name);
+                    await Coroutine.Yield();
+
                     if (distance > sprintDistance)
                     {
                         Sprint();
                     }
-
-                    moveResult = Navigator.MoveTo(destination, name);
-                    await Coroutine.Yield();
                 }
 
                 Navigator.Stop();
@@ -88,13 +97,13 @@ namespace ExBuddy.OrderBotTags
             {
                 while ((distance = Core.Player.Location.Distance3D(destination)) > radius)
                 {
+                    Navigator.PlayerMover.MoveTowards(destination);
+                    await Coroutine.Yield();
+
                     if (distance > sprintDistance)
                     {
                         Sprint();
                     }
-
-                    Navigator.PlayerMover.MoveTowards(destination);
-                    await Coroutine.Yield();
                 }
 
                 Navigator.PlayerMover.MoveStop();

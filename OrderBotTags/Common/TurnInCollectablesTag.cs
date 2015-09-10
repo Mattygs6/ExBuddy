@@ -120,6 +120,13 @@
             }
         }
 
+        protected override void OnResetCachedDone()
+        {
+            isDone = false;
+            item = null;
+            index = 0;
+        }
+
         protected override Composite CreateBehavior()
         {
             return

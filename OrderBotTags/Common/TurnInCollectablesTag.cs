@@ -110,6 +110,16 @@
             window.SendAction(2, 1, 2, 1, index);
         }
 
+        protected override void OnDone()
+        {
+            // TODO: close method
+            var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
+            if (window != null)
+            {
+                window.SendAction(1, 3, uint.MaxValue);
+            }
+        }
+
         protected override Composite CreateBehavior()
         {
             return
@@ -188,6 +198,7 @@
 
             Logging.Write(Colors.Red, "Too many attempts");
 
+            window.SendAction(1, 3, uint.MaxValue);
             isDone = true;
             return true;
         }

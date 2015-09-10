@@ -655,7 +655,9 @@
 
         private struct TimeToGather
         {
+#pragma warning disable 414
             public int EorzeaMinutesTillDespawn;
+#pragma warning restore 414
 
             public int RealSecondsTillStartGathering;
 
@@ -1105,10 +1107,7 @@
                     new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex)
                         .ToArray();
 
-                GatherItem = IsUnspoiled()
-                    ? items.FirstOrDefault(i => i.Chance == 25 && i.Amount > 0)
-                    : items.FirstOrDefault(i => i.IsUnknown && i.Amount > 0);
-                
+                GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
                 if (GatherItem != null)
                 {
@@ -1185,9 +1184,7 @@
                     new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex)
                         .ToArray();
 
-                GatherItem = IsUnspoiled()
-                    ? items.FirstOrDefault(i => i.Chance == 25 && i.Amount > 0)
-                    : items.FirstOrDefault(i => i.IsUnknown && i.Amount > 0);
+                GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
                 if (GatherItem != null)
                 {

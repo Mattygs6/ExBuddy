@@ -1,13 +1,10 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public abstract class GatheringRotation : IGatheringRotation

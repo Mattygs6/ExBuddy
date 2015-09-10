@@ -9,6 +9,7 @@
     using Clio.Common;
     using Clio.Utilities;
 
+    using ff14bot;
     using ff14bot.Helpers;
     using ff14bot.Managers;
 
@@ -100,6 +101,32 @@
             }
 
             return defaultValue;
+        }
+
+        public static bool IsUnknownChance(this GatheringItem gatheringItem)
+        {
+            if (gatheringItem.IsUnknown || gatheringItem.Chance == 25)
+            {
+                return true;
+            }
+
+            var lastSpellId = Actionmanager.LastSpellId;
+            if (gatheringItem.Chance == 30 && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance5])
+            {
+                return true;
+            }
+
+            if (gatheringItem.Chance == 40 && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance15])
+            {
+                return true;
+            }
+
+            if (gatheringItem.Chance == 75 && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance50])
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static bool TryGatherItem(this GatheringItem gatheringItem)

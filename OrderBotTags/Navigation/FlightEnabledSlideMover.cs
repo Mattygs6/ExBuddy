@@ -238,7 +238,7 @@
         {
             return MovementManager.IsFlying
                     || (Actionmanager.CanMount == 0 && ((destination.Distance3D(GameObjectManager.LocalPlayer.Location)
-                    >= CharacterSettings.Instance.MountDistance) && CharacterSettings.Instance.UseMount) || !destination.IsGround());
+                    >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()));
         }
 
         public void Dispose()

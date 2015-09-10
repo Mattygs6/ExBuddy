@@ -383,7 +383,8 @@
                             typeof(TopsoilGatheringRotation),
                             typeof(MapGatheringRotation),
                             typeof(SmartQualityGatheringRotation),
-                            typeof(SmartYieldGatheringRotation)
+                            typeof(SmartYieldGatheringRotation),
+                            typeof(YieldAndQualityGatheringRotation)
                        };
         }
 

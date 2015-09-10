@@ -4,6 +4,7 @@
     {
         Quality,
         Yield,
+        YieldAndQuality,
         Auto
     }
 }

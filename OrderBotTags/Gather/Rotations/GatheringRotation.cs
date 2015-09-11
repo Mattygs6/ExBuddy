@@ -106,7 +106,7 @@
                 await
                     Coroutine.Wait(
                         2500,
-                        () => GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]));
+                        () => !GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]));
             }
 
             return true;

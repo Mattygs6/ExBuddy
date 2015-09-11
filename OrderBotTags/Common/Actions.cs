@@ -25,7 +25,7 @@ namespace ExBuddy.OrderBotTags
                     await
                         Coroutine.Wait(
                             2500,
-                            () => GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]));
+                            () => !GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]));
                 }
 
                 result = Actionmanager.DoAction(spellId, Core.Player);
@@ -72,7 +72,7 @@ namespace ExBuddy.OrderBotTags
                 await
                     Coroutine.Wait(
                         2500,
-                        () => GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]));
+                        () => !GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]));
             }
 
             var result = Actionmanager.DoAction(id, Core.Player);

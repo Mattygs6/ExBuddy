@@ -48,6 +48,8 @@
 
         private Coroutine landingCoroutine;
 
+        private bool isTakingOff;
+
         private bool disposed;
 
         protected internal bool ShouldFly { get; private set; }
@@ -106,17 +108,21 @@
 
         public void MoveTowards(Vector3 location)
         {
-            if (ShouldFly && !MovementManager.IsFlying)
+            if (ShouldFly && !MovementManager.IsFlying && !isTakingOff)
             {
-                EnsureFlying().Wait(2000);
+                isTakingOff = true;
+                EnsureFlying();
             }
 
-            innerMover.MoveTowards(location);
+            if (!isTakingOff)
+            {
+                innerMover.MoveTowards(location);
+            }
         }
 
-        public async Task EnsureFlying()
+        public void EnsureFlying()
         {
-            if (!ff14bot.Managers.MovementManager.IsFlying)
+            if (!ff14bot.Managers.MovementManager.IsFlying && Actionmanager.CanMount == 0)
             {
                 lock (obj)
                 {
@@ -135,23 +141,27 @@
                                 {
                                     while (!MovementManager.IsFlying)
                                     {
+                                        if (coroutine == null || coroutine.IsFinished)
+                                        {
+                                            Logging.Write("Created new Takeoff Coroutine");
+                                            coroutine = new Coroutine(() => CommonTasks.TakeOff());
+                                        }
+
+                                        if (!coroutine.IsFinished)
+                                        {
+                                            Logging.Write("Resumed Takeoff Coroutine");
+                                            coroutine.Resume();
+                                        }
+
                                         Thread.Sleep(50);
                                     }
 
                                     Logging.Write(Colors.DeepSkyBlue, "Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
+                                    isTakingOff = false;
                                     takeoffStopwatch.Reset();
                                     takeoffTask = null;
                                 });
                         }
-
-                        if (coroutine == null || coroutine.IsFinished)
-                        {
-                            Logging.Write("Created new Takeoff Coroutine");
-                            coroutine = new Coroutine(() => CommonTasks.TakeOff());
-                        }
-
-                        coroutine.Resume();
-                        Logging.Write("Resumed Takeoff Coroutine");
                     }
                 }
             }
@@ -238,7 +248,7 @@
         {
             return MovementManager.IsFlying
                     || (Actionmanager.CanMount == 0 && ((destination.Distance3D(GameObjectManager.LocalPlayer.Location)
-                    >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()));
+                    >= CharacterSettings.Instance.MountDistance) || !destination.IsGround()));
         }
 
         public void Dispose()

@@ -1,13 +1,10 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public abstract class GatheringRotation : IGatheringRotation
@@ -67,19 +64,13 @@
             {
                 swingsRemaining--;
 
-                while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                {
-                    await Coroutine.Yield();
-                }
+                await Wait();
 
                 if (GatheringManager.GatheringCombo == 4)
                 {
                     await tag.Cast(Ability.IncreaseGatherChanceQuality100);
 
-                    while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                    {
-                        await Coroutine.Yield();
-                    }
+                    await Wait();
                 }
 
                 if (!await tag.ResolveGatherItem())
@@ -92,7 +83,7 @@
                     return false;
                 }
 
-                await Coroutine.Wait(2500, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 
             return true;
@@ -106,6 +97,19 @@
             }
 
             return -1;
+        }
+
+        protected internal static async Task<bool> Wait()
+        {
+            if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+            {
+                await
+                    Coroutine.Wait(
+                        2500,
+                        () => !GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]));
+            }
+
+            return true;
         }
 
         protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)

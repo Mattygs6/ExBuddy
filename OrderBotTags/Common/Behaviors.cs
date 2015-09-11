@@ -1,7 +1,9 @@
 namespace ExBuddy.OrderBotTags
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -12,6 +14,7 @@ namespace ExBuddy.OrderBotTags
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.Navigation;
     using ff14bot.Settings;
@@ -108,6 +111,12 @@ namespace ExBuddy.OrderBotTags
 
                 Navigator.PlayerMover.MoveStop();
             }
+
+            return true;
+        }
+
+        public static async Task<bool> Unstuck()
+        {
 
             return true;
         }

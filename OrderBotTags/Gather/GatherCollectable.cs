@@ -383,7 +383,8 @@
                             typeof(TopsoilGatheringRotation),
                             typeof(MapGatheringRotation),
                             typeof(SmartQualityGatheringRotation),
-                            typeof(SmartYieldGatheringRotation)
+                            typeof(SmartYieldGatheringRotation),
+                            typeof(YieldAndQualityGatheringRotation)
                        };
         }
 
@@ -654,7 +655,9 @@
 
         private struct TimeToGather
         {
+#pragma warning disable 414
             public int EorzeaMinutesTillDespawn;
+#pragma warning restore 414
 
             public int RealSecondsTillStartGathering;
 
@@ -863,7 +866,7 @@
             if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
             {
                 gatherRotation = initialGatherRotation;
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + initialGatherRotation.Attributes.Name);
             }
 
             if (CordialTime.HasFlag(CordialTime.AfterGather))
@@ -1104,7 +1107,7 @@
                     new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex)
                         .ToArray();
 
-                GatherItem = items.FirstOrDefault(i => i.IsUnknown && i.Amount > 0);
+                GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
                 if (GatherItem != null)
                 {
@@ -1171,8 +1174,29 @@
                 windowItems.Where(i => i.IsFilled && !i.IsUnknown)
                     .OrderByDescending(i => i.ItemId)
                     .FirstOrDefault(i => i.ItemId < 20) // Try to gather cluster/crystal/shard
-                ?? windowItems.FirstOrDefault(i => !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
-                ?? windowItems.Where(i => !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).First(); // Take last item that is not unique or untradeable
+                ?? windowItems.FirstOrDefault(i => i.IsFilled && !i.IsUnknown && !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0) // Try to collect items you have that stack
+                ?? windowItems.Where(i => i.Amount > 0 && !i.ItemData.Unique && !i.ItemData.Untradeable).OrderByDescending(i => i.SlotIndex).FirstOrDefault(); // Take last item that is not unique or untradeable
+
+            // Seems we only have unknowns.
+            if (GatherItem == null)
+            {
+                var items =
+                    new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex)
+                        .ToArray();
+
+                GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
+
+                if (GatherItem != null)
+                {
+                    return true;
+                }
+
+                Logging.Write(
+                    Colors.PaleVioletRed,
+                    "GatherCollectable: Unable to find an item to gather, moving on.");
+
+                return false;
+            }
 
             if (previousGatherItem == null || previousGatherItem.ItemId != GatherItem.ItemId)
             {

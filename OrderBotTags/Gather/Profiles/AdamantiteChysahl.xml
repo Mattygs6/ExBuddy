@@ -101,7 +101,7 @@
 			<If condition="IsTimeBetween(10,12) or IsTimeBetween(22,24)">
 				<If condition="not IsOnMap(402)">
 					<TeleportTo name="Helix" aetheryteId="74" />
-					<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
+					<MoveTo XYZ="-731.6299, -186.9606, -599.0782"/>
 				</If>
 				<RunCode name="MIN"/>
 				<If condition="&Collect_Adamantite; != 0">

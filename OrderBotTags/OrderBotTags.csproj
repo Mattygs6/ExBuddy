@@ -94,7 +94,12 @@
     <Compile Include="Gather\Rotations\DefaultCollectGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringRotation.cs" />
     <Compile Include="Gather\Rotations\GatheringSkillOrderGatheringRotation.cs" />
+<<<<<<< HEAD
     <Compile Include="Gather\Rotations\NewbsDynamicRotation.cs" />
+=======
+    <Compile Include="Gather\Rotations\Newb%27s DynamicRotation.cs" />
+    <Compile Include="Gather\Rotations\YieldAndQualityGatheringRotation.cs" />
+>>>>>>> Matt's_Original/master
     <Compile Include="Gather\Rotations\SmartGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\SmartQualityGatheringRotation.cs" />
     <Compile Include="Gather\Rotations\TopsoilGatheringRotation.cs" />

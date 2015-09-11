@@ -3,8 +3,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Buddy.Coroutines;
-
     using ff14bot;
     using ff14bot.Managers;
 
@@ -19,10 +17,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return true;
             }
 
-            while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-            {
-                await Coroutine.Yield();
-            }
+            await Wait();
 
             var ward = WardSkills.FirstOrDefault(w => Actionmanager.CanCast(w, Core.Player));
             
@@ -43,7 +38,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
-            if (tag.GatherItem.ItemId < 20)
+            if (!tag.GatherItem.IsUnknown && tag.GatherItem.ItemId < 20)
             {
                 return 10000;
             }

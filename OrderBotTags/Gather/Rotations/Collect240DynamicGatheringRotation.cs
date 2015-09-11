@@ -4,7 +4,7 @@
 
     using ff14bot;
 
-    [GatheringRotation("Collect240Dynamic", 200, 28)]
+    //[GatheringRotation("Collect240Dynamic", 200, 28)]
     public sealed class Collect240DynamicGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> Prepare(GatherCollectableTag tag)

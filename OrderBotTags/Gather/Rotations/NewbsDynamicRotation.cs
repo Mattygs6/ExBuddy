@@ -108,7 +108,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
             if (rarity >= 150 && rarity <= 155)
             {
-                if (level >= 51)
+                if (level >= 50)
                 {
                     await CallRotation("Get Two", () => GetTwo(tag));
                 }
@@ -261,7 +261,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public async Task<bool> GetTwo(GatherCollectableTag tag)
         {
-            //Get Two - Level 51 Minimum
+            //Get Two - Level 50 Minimum
             await DiscerningMethodical(tag);
             await DiscerningMethodical(tag);
             await IncreaseChance(tag);

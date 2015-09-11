@@ -6,6 +6,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using ff14bot;
     using ff14bot.Managers;
 
+    // TODO: if can peek, then we need to allow it to redo beforegather logic
     //Name, RequiredGp, RequiredTime
     [GatheringRotation("DiscoverUnknowns", 250, 0)]
     public class DiscoverUnknownsGatheringRotation : GatheringRotation, IGetOverridePriority
@@ -14,7 +15,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         {
             if (tag.IsUnspoiled()
                 && Core.Player.CurrentGP >= 550
-                && GatheringManager.GatheringWindowItems.Count(i => i.IsUnknown && i.Amount > 0) > 1)
+                && GatheringManager.GatheringWindowItems.Count(i => i.Chance == 25 && i.Amount > 0) > 1)
             {
 
                 await tag.Cast(Ability.Toil);
@@ -25,7 +26,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
         {
-            if (tag.GatherItem.IsUnknown)
+            if (tag.GatherItem.IsUnknown || (tag.IsUnspoiled() && tag.GatherItem.Chance == 25))
             {
                 return int.MaxValue;
             }

@@ -1,12 +1,8 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Threading.Tasks;
-    using System.Windows.Media;
-
-    using Buddy.Coroutines;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
@@ -34,10 +30,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
                 if (Core.Player.CurrentGP >= 300 && level >= 25 && (level < 30 || Core.Player.MaxGP < 400))
                 {
-                    while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                    {
-                        await Coroutine.Yield();
-                    }
+                    await Wait();
 
                     if (!tag.GatherItem.TryGatherItem())
                     {
@@ -50,21 +43,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             }
 
             return true;
-        }
-
-        private bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
-        {
-            if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
-            {
-                Logging.Write(
-                    Colors.Chartreuse,
-                    "GatherCollectable: Using Gp since we have gathered {0} nodes at max Gp.",
-                    tag.NodesGatheredAtMaxGp);
-
-                return true;
-            }
-
-            return false;
         }
 
         int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)

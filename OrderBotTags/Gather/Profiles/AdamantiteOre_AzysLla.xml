@@ -41,7 +41,7 @@
 				<RunCode name="Gear"/>
 				<If Condition="not IsOnMap(402)">
 					<TeleportTo Name="Helix" AetheryteId="74" />
-					<MoveTo XYZ="-716.7953, -186.9606, -599.0761"/>
+					<MoveTo XYZ="-731.6299, -186.9606, -599.0782"/>
 				</If>
 				<If condition="&Collect_Adamantite; != 0">
 					<GatherCollectable loops="1" spawnTimeout="360">

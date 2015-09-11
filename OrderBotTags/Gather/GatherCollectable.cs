@@ -157,7 +157,6 @@
         [XmlAttribute("SkipWindowDelay")]
         public uint SkipWindowDelay { get; set; }
 
-        [DefaultValue(250)]
         [XmlAttribute("SpellDelay")]
         public int SpellDelay { get; set; }
 
@@ -221,7 +220,7 @@
 
         protected override void OnStart()
         {
-            SpellDelay = SpellDelay < 100 ? 100 : SpellDelay;
+            SpellDelay = SpellDelay < 0 ? 0 : SpellDelay;
             WindowDelay = WindowDelay < 500 ? 500 : WindowDelay;
 
             if (Distance > 3.5f)

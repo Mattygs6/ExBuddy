@@ -171,11 +171,20 @@
                 await Coroutine.Yield();
             }
 
+            if (SelectYesno.IsOpen)
+            {
+                Logging.Write(Colors.Red, "Full on scrips!");
+                SelectYesno.ClickNo();
+                window.SendAction(1, 3, uint.MaxValue);
+                isDone = true;
+                return true;
+            }
+
             var requestAttempts = 0;
             while (!Request.IsOpen && requestAttempts < 5)
             {
                 window.SendAction(2, 0, 0, 1, index);
-                await Coroutine.Wait(3000, () => Request.IsOpen);
+                await Coroutine.Wait(1500, () => Request.IsOpen);
                 requestAttempts++;
             }
 
@@ -202,9 +211,10 @@
                 index = 0;
                 return true;
             }
-
+            
             Logging.Write(Colors.Red, "Too many attempts");
 
+            SelectYesno.ClickNo();
             window.SendAction(1, 3, uint.MaxValue);
             isDone = true;
             return true;
@@ -293,20 +303,23 @@
             {
                 case 12774U:
                 case 12828U:
-                    index = 9;
+                    index = 9; // Tiny Axotl + Thunderbolt Eel
                     return false;
-                case 12900U:
+                case 12900U: // Chysahl Greens
                     index = 11;
                     return false;
-                case 12538U:
+                case 12538U: // Adamantite Ore
                     index = 13;
+                    return false;
+                case 12804U: // Illuminati Perch
+                    index = 62;
                     return false;
             }
 
             // No perfect algorithm for this, but will attempt.  Going to have to read the data from the window.
-
+            // for some reason, seafood has a repair class of cul... go figure.
             var classIndex = uint.MaxValue;
-            if (item.Item.RepairClass > 0)
+            if (item.Item.RepairClass > 0 && item.Item.EquipmentCatagory != ItemUiCategory.Seafood)
             {
                 classIndex = GetClassIndex((ClassJobType)item.Item.RepairClass);
             }

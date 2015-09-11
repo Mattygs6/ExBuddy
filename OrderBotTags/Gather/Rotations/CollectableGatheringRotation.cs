@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -78,10 +79,8 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
-            int swingsRemaining;
-            while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
+            while (GatheringManager.SwingsRemaining > 0)
             {
-                swingsRemaining--;
                 while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
                 {
                     if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
@@ -90,23 +89,50 @@
                         MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                     }
 
-                    if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                    while (!SelectYesNoItem.IsOpen)
                     {
-                        Logging.Write("Clicked Collect");
-                        MasterpieceWindow.SendAction(1, 1, 0);
-                    }
+                        var rarity = CurrentRarity;
+                        if (SelectYesNoItem.CollectabilityValue >= rarity)
+                        {
+                            await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue < rarity);
+                        }
 
-                    await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
+                        if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                        {
+                            MasterpieceWindow.SendAction(1, 1, 0);
+                        }
+
+                        await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
+                    }
                 }
+
+                await Coroutine.Yield();
+                var swingsRemaining = GatheringManager.SwingsRemaining - 1;
 
                 while (SelectYesNoItem.IsOpen)
                 {
-                    Logging.Write("Clicked Yes");
-                    ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-                    await Coroutine.Sleep(500);
+                    var rarity = CurrentRarity;
+                    if (SelectYesNoItem.CollectabilityValue < rarity)
+                    {
+                        await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue >= rarity);
+                    }
+
+                    Logging.Write(
+                        Colors.Chartreuse,
+                        "GatherCollectable: Collected item: {0}, value {1}",
+                        tag.GatherItem.ItemData.EnglishName,
+                        SelectYesNoItem.CollectabilityValue);
+
+                    SelectYesNoItem.Yes();
+                    await Coroutine.Wait(1000, () => !SelectYesNoItem.IsOpen);
                 }
-                
-                await Coroutine.Wait(5000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+
+                var ticks = 0;
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60)
+                {
+                    await Coroutine.Yield();
+                    ticks++;
+                }
             }
 
             return true;

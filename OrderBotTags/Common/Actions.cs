@@ -5,8 +5,6 @@ namespace ExBuddy.OrderBotTags
 
     using Buddy.Coroutines;
 
-    using ExBuddy.OrderBotTags.Gather.Rotations;
-
     using ff14bot;
     using ff14bot.Helpers;
     using ff14bot.Managers;
@@ -24,8 +22,8 @@ namespace ExBuddy.OrderBotTags
                 {
                     await
                         Coroutine.Wait(
-                            2500,
-                            () => !GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]));
+                            3500,
+                            () => !GatheringManager.ShouldPause(DataManager.SpellCache[spellId]));
                 }
 
                 result = Actionmanager.DoAction(spellId, Core.Player);
@@ -46,8 +44,15 @@ namespace ExBuddy.OrderBotTags
                 }
 
                 //Wait till we have the aura
-                await Coroutine.Wait(2500, () => Core.Player.HasAura(auraId));
-                await Coroutine.Sleep(delay);
+                await Coroutine.Wait(3500, () => Core.Player.HasAura(auraId));
+                if (delay > 0)
+                {
+                    await Coroutine.Sleep(delay);
+                }
+                else
+                {
+                    await Coroutine.Yield();
+                }
             }
             else
             {
@@ -71,8 +76,8 @@ namespace ExBuddy.OrderBotTags
             {
                 await
                     Coroutine.Wait(
-                        2500,
-                        () => !GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]));
+                        3500,
+                        () => !GatheringManager.ShouldPause(spellData));
             }
 
             var result = Actionmanager.DoAction(id, Core.Player);
@@ -93,8 +98,21 @@ namespace ExBuddy.OrderBotTags
             }
 
             //Wait till we can cast again
-            await GatheringRotation.Wait();
-            await Coroutine.Sleep(delay);
+            if (GatheringManager.ShouldPause(spellData))
+            {
+                await
+                    Coroutine.Wait(
+                        3500,
+                        () => !GatheringManager.ShouldPause(spellData));
+            }
+            if (delay > 0)
+            {
+                await Coroutine.Sleep(delay);
+            }
+            else
+            {
+                await Coroutine.Yield();
+            }
 
             return result;
         }

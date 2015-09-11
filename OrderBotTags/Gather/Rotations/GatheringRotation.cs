@@ -59,14 +59,11 @@
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
-            int swingsRemaining;
-            while ((swingsRemaining = GatheringManager.SwingsRemaining) > 0)
+            while (GatheringManager.SwingsRemaining > 0)
             {
-                swingsRemaining--;
-
                 await Wait();
 
-                if (GatheringManager.GatheringCombo == 4)
+                if (GatheringManager.GatheringCombo == 4 && GatheringManager.SwingsRemaining > 0)
                 {
                     await tag.Cast(Ability.IncreaseGatherChanceQuality100);
 
@@ -78,12 +75,19 @@
                     return false;
                 }
 
+                var swingsRemaining = GatheringManager.SwingsRemaining - 1;
+
                 if (!tag.GatherItem.TryGatherItem())
                 {
                     return false;
                 }
 
-                await Coroutine.Wait(3000, () => swingsRemaining == GatheringManager.SwingsRemaining);
+                var ticks = 0;
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60)
+                {
+                    await Coroutine.Yield();
+                    ticks++;
+                }
             }
 
             return true;
@@ -99,17 +103,22 @@
             return -1;
         }
 
-        protected internal static async Task<bool> Wait()
+        protected internal static async Task Wait()
         {
             if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
             {
-                await
-                    Coroutine.Wait(
-                        2500,
-                        () => !GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]));
-            }
+                var ticks = 0;
+                while (ticks < 60)
+                {
+                    if (!GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
+                    {
+                        break;
+                    }
 
-            return true;
+                    await Coroutine.Yield();
+                    ticks++;
+                }
+            }
         }
 
         protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)

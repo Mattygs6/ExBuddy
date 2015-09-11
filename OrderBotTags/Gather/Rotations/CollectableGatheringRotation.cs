@@ -52,10 +52,7 @@
 
             do
             {
-                while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                {
-                    await Coroutine.Yield();
-                }
+                await Wait();
 
                 if (!tag.GatherItem.TryGatherItem())
                 {
@@ -102,9 +99,13 @@
                     await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
                 }
 
-                Logging.Write("Clicked Yes");
-                ff14bot.RemoteWindows.SelectYesNoItem.Yes();
-
+                while (SelectYesNoItem.IsOpen)
+                {
+                    Logging.Write("Clicked Yes");
+                    ff14bot.RemoteWindows.SelectYesNoItem.Yes();
+                    await Coroutine.Sleep(500);
+                }
+                
                 await Coroutine.Wait(5000, () => swingsRemaining == GatheringManager.SwingsRemaining);
             }
 

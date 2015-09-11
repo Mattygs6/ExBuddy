@@ -65,7 +65,7 @@
             return navigator.innerNavigator as GaiaNavigator;
         }
 
-        public IndexedList<FlightPoint> CurrentPath { get; protected internal set; }
+        public IndexedList<FlightPoint> CurrentPath { get; internal set; }
 
         public double PathPrecisionSqr
         {

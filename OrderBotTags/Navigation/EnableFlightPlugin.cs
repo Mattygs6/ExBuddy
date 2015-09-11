@@ -89,8 +89,17 @@
             if (nav != null)
             {
                 Logging.Write(Colors.DeepSkyBlue, "Disposing the GaiaNavigator");
-                nav.Dispose();
-                Navigator.NavigationProvider = null;
+                try
+                {
+                    nav.Dispose();
+                }
+                catch (NullReferenceException)
+                {
+                }
+                finally
+                {
+                    Navigator.NavigationProvider = null;
+                }
             }
         }
 

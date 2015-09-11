@@ -2,8 +2,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Threading.Tasks;
 
-    using Buddy.Coroutines;
-
     using ff14bot;
     using ff14bot.Managers;
 
@@ -11,12 +9,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     [GatheringRotation("Unspoiled", 500, 23)]
     public sealed class UnspoiledGatheringRotation : GatheringRotation, IGetOverridePriority
     {
-       public override async Task<bool> Prepare(GatherCollectableTag tag)
+        public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
-            while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-            {
-                await Coroutine.Yield();
-            }
+            await Wait();
 
             return tag.GatherItem.TryGatherItem() && await base.Prepare(tag);
         }

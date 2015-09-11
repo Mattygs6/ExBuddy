@@ -5,6 +5,8 @@ namespace ExBuddy.OrderBotTags
 
     using Buddy.Coroutines;
 
+    using ExBuddy.OrderBotTags.Gather.Rotations;
+
     using ff14bot;
     using ff14bot.Helpers;
     using ff14bot.Managers;
@@ -18,11 +20,14 @@ namespace ExBuddy.OrderBotTags
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
                 SpellData spellData;
-                while (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]))
+                if (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]))
                 {
-                    await Coroutine.Yield();
+                    await
+                        Coroutine.Wait(
+                            2500,
+                            () => GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]));
                 }
-                //await Coroutine.Wait(2500, () => Actionmanager.CanCast(spellId, Core.Player));
+
                 result = Actionmanager.DoAction(spellId, Core.Player);
 
                 if (result)
@@ -62,11 +67,14 @@ namespace ExBuddy.OrderBotTags
         {
             //Wait till we can cast the spell
             SpellData spellData;
-            while (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]))
+            if (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]))
             {
-                await Coroutine.Yield();
+                await
+                    Coroutine.Wait(
+                        2500,
+                        () => GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]));
             }
-            //await Coroutine.Wait(2500, () => Actionmanager.CanCast(id, Core.Player));
+
             var result = Actionmanager.DoAction(id, Core.Player);
 
             if (result)
@@ -85,7 +93,7 @@ namespace ExBuddy.OrderBotTags
             }
 
             //Wait till we can cast again
-            await Coroutine.Wait(2500, () => Actionmanager.CanCast(Abilities.Map[Core.Player.CurrentJob][Ability.Preparation], Core.Player));
+            await GatheringRotation.Wait();
             await Coroutine.Sleep(delay);
 
             return result;

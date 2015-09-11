@@ -1,12 +1,8 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Threading.Tasks;
-    using System.Windows.Media;
-
-    using Buddy.Coroutines;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     //Name, RequiredGp, RequiredTime
@@ -34,10 +30,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
                 if (Core.Player.CurrentGP >= 300 && level >= 25 && (level < 30 || Core.Player.MaxGP < 400))
                 {
-                    while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                    {
-                        await Coroutine.Yield();
-                    }
+                    await Wait();
 
                     if (!tag.GatherItem.TryGatherItem())
                     {

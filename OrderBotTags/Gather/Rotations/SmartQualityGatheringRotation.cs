@@ -2,8 +2,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Threading.Tasks;
 
-    using Buddy.Coroutines;
-
     using ff14bot;
     using ff14bot.Managers;
 
@@ -20,10 +18,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
                 if (tag.GatherItem.Chance == 100 && Core.Player.CurrentGP >= 300 && GatheringManager.SwingsRemaining == 5)
                 {
-                    while (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-                    {
-                        await Coroutine.Yield();
-                    }
+                    await Wait();
 
                     if (!tag.GatherItem.TryGatherItem())
                     {

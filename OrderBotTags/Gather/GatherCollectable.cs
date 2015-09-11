@@ -866,7 +866,7 @@
             if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
             {
                 gatherRotation = initialGatherRotation;
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + GatherRotation);
+                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + initialGatherRotation.Attributes.Name);
             }
 
             if (CordialTime.HasFlag(CordialTime.AfterGather))

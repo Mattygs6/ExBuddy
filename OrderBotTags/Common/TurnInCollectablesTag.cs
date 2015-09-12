@@ -405,6 +405,9 @@
         [Clio.XmlEngine.XmlAttribute("Location")]
         public Location Location { get; set; }
 
+        [Clio.XmlEngine.XmlAttribute("ForcePurchase")]
+        public bool ForcePurchase { get; set; }
+
         [Clio.XmlEngine.XmlElement("Collectables")]
         public List<CollectableTurnIn> Collectables { get; set; }
 
@@ -582,7 +585,7 @@
             {
                 // target
                 var ticks = 0;
-                while (Core.Target == null && ticks < 10)
+                while (Core.Target == null && window == null && ticks < 10)
                 {
                     npc.Target();
                     await Coroutine.Yield();
@@ -599,7 +602,7 @@
 
                 // interact
                 ticks = 0;
-                while (!SelectIconString.IsOpen && ticks < 10)
+                while (!SelectIconString.IsOpen && window == null && ticks < 10)
                 {
                     npc.Interact();
                     await Coroutine.Wait(1000, () => SelectIconString.IsOpen);
@@ -651,6 +654,9 @@
                     return true;
                 }
 
+                // do this because if not we could get a trailblazer's scarf??
+                await Coroutine.Sleep(1000);
+
                 while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost)
                 {
                     ticks = 0;
@@ -668,6 +674,7 @@
                         return true;
                     }
 
+                    var scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType);
                     ticks = 0;
                     while (SelectYesno.IsOpen && ticks < 3)
                     {
@@ -691,6 +698,12 @@
                         purchaseItemData.EnglishName,
                         purchaseItemInfo.Cost,
                         purchaseItemInfo.ShopType);
+
+                    // wait until scrips changed
+                    await
+                        Coroutine.Wait(
+                            5000,
+                            () => Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) != scripsLeft);
                 }
 
                 await Coroutine.Yield();
@@ -1027,7 +1040,7 @@
                 }
             }
 
-            if (item == null && (!turnedItemsIn || await HandleSkipPurchase()))
+            if (item == null && ((!turnedItemsIn && !ForcePurchase) || await HandleSkipPurchase()))
             {
                 isDone = true;
                 return true;

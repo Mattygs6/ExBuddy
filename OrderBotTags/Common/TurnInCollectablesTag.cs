@@ -570,7 +570,6 @@
 
         private async Task<bool> PurchaseItems()
         {
-           
             var locationData = LocationMap[Location];
             if (GameObjectManager.LocalPlayer.Location.Distance(locationData.ShopNpcLocation) > 4)
             {
@@ -744,7 +743,7 @@
                 return false;
             }
 
-            if (item == null)
+            if (item == null || item.Item == null)
             {
                 SelectYesno.ClickNo();
                 if (window == null)
@@ -840,7 +839,7 @@
 
         private async Task<bool> MoveToNpc()
         {
-            if (item == null)
+            if (item == null || item.Item == null)
             {
                 return false;
             }
@@ -865,7 +864,7 @@
 
         private async Task<bool> InteractWithNpc()
         {
-            if(item == null)
+            if(item == null || item.Item == null)
             {
                 return false;
             }
@@ -893,7 +892,7 @@
 
         private async Task<bool> ResolveIndex()
         {
-            if (item == null)
+            if (item == null || item.Item == null)
             {
                 return false;
             }
@@ -1040,7 +1039,7 @@
                 }
             }
 
-            if (item == null && ((!turnedItemsIn && !ForcePurchase) || await HandleSkipPurchase()))
+            if ((item == null || item.Item == null) && ((!turnedItemsIn && !ForcePurchase) || await HandleSkipPurchase()))
             {
                 isDone = true;
                 return true;

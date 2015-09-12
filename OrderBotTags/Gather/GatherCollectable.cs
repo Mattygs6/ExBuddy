@@ -767,6 +767,24 @@
                 return await WaitForGpRegain();
             }
 
+            if (gp >= AdjustedWaitForGp)
+            {
+                var gpNeeded = AdjustedWaitForGp - (Core.Player.CurrentGP - (Core.Player.CurrentGP % 5));
+                var gpNeededTicks = gpNeeded / 5;
+                var gpNeededSeconds = gpNeededTicks * 3;
+
+                if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 3)
+                {
+                    Logging.WriteDiagnostic(
+                        Colors.Chartreuse,
+                        "GatherCollectable: GP recoring faster than cordial cooldown, waiting for GP. Seconds: {0}"
+                        + gpNeededSeconds);
+
+                    // no need to wait for cordial, we will have GP faster
+                    return await WaitForGpRegain();
+                }
+            }
+
             if (gp + 300 >= AdjustedWaitForGp)
             {
                 // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return

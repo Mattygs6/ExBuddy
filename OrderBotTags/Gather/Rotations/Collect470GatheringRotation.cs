@@ -49,19 +49,6 @@
 
             return -1;
         }
-
-        private async Task AppraiseAndRebuff(GatherCollectableTag tag)
-        {
-            await Impulsive(tag);
-
-            if (HasDiscerningEye)
-            {
-                await tag.Cast(Ability.SingleMind);
-            }
-            else
-            {
-                await tag.Cast(Ability.DiscerningEye);
-            }
-        }
+       
     }
 }

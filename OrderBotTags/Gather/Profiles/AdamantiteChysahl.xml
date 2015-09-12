@@ -147,7 +147,11 @@
 			</If>
 			<If condition="IsTimeBetween(0,8) or IsTimeBetween(12,20)">
 				<If condition="&TurnInAfterLoop; != 0">
-					<TurnInCollectables />
+					<TurnInCollectables>
+						<ShopPurchases>
+							<ShopPurchase shopItem="RedGatherToken" />
+						</ShopPurchases>
+					</TurnInCollectables>
 				</If>
 				<LogMessage message="Stop being so lazy!"/>
 				<WaitWhile condition="IsTimeBetween(0,8) or IsTimeBetween(12,20)"/>

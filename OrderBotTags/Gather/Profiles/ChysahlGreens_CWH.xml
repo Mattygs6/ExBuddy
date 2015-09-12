@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Profile [
 	<!ENTITY Collect_Chysahl "1">
+	<!ENTITY TurnInAfterLoop "1">
 ]>
 <Profile>
 	<Name>Collectable: Chysahl Greens</Name>
@@ -33,40 +34,52 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<If condition="not IsOnMap(397)">
-			<TeleportTo name="Falcon's Nest" aetheryteId="71" />
-			<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
-			<FlightPathTo XYZ="447.8192, 232.5399, 689.0173" DismountAtDestination="false" />
-		</If>
-		<RunCode name="Gear"/>
 		<While condition="True">
-			<If condition="&Collect_Chysahl; != 0">
-				<GatherCollectable loops="1" spawnTimeout="200">
-					<GatherObjects>
-						<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
-					</GatherObjects>
-					<Collectables>
-						<Collectable Name="Chysahl Greens" Value="470" />
-					</Collectables>
-					<GatherRotation>Collect470</GatherRotation>
-					<HotSpots>
-						<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
-					</HotSpots>
-				</GatherCollectable>
+			<If condition="IsTimeBetween(8,10) or IsTimeBetween(20,22)">
+				<RunCode name="Gear"/>
+				<If condition="not IsOnMap(397)">
+					<TeleportTo name="Falcon's Nest" aetheryteId="71" />
+					<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
+				</If>
+				<If condition="&Collect_Chysahl; != 0">
+					<GatherCollectable loops="1" spawnTimeout="360">
+						<GatherObjects>
+							<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+						</GatherObjects>
+						<Collectables>
+							<Collectable Name="Chysahl Greens" Value="470" />
+						</Collectables>
+						<GatherRotation>Collect470</GatherRotation>
+						<HotSpots>
+							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+						</HotSpots>
+					</GatherCollectable>
+				</If>
+				<If condition="&Collect_Chysahl; == 0">
+					<GatherCollectable loops="1" spawnTimeout="360" gatherIncrease="Quality">
+						<GatherObjects>
+							<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
+						</GatherObjects>
+						<ItemNames>
+							<ItemName>Chysahl Greens</ItemName>
+						</ItemNames>
+						<GatherRotation>Unspoiled</GatherRotation>
+						<HotSpots>
+							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+						</HotSpots>
+					</GatherCollectable>
+				</If>
 			</If>
-			<If condition="&Collect_Chysahl; == 0">
-				<GatherCollectable loops="1" spawnTimeout="200" gatherIncrease="Quality">
-					<GatherObjects>
-						<GatherObject>Unspoiled Lush Vegetation Patch</GatherObject>
-					</GatherObjects>
-					<ItemNames>
-						<ItemName>Chysahl Greens</ItemName>
-					</ItemNames>
-					<GatherRotation>Unspoiled</GatherRotation>
-					<HotSpots>
-						<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
-					</HotSpots>
-				</GatherCollectable>
+			<If condition="IsTimeBetween(22,8) or IsTimeBetween(10,20)">
+				<If condition="&TurnInAfterLoop; != 0">
+					<TurnInCollectables>
+						<ShopPurchases>
+							<ShopPurchase shopItem="RedGatherToken" />
+						</ShopPurchases>
+					</TurnInCollectables>
+				</If>
+				<LogMessage message="Stop being so lazy!"/>
+				<WaitWhile condition="IsTimeBetween(22,8) or IsTimeBetween(10,20)"/>
 			</If>
 		</While>
 	</Order>

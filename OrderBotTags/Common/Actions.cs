@@ -1,5 +1,6 @@
 namespace ExBuddy.OrderBotTags
 {
+    using System;
     using System.Threading.Tasks;
     using System.Windows.Media;
 

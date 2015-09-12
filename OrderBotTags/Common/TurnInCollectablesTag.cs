@@ -731,7 +731,7 @@
         {
             var ticks = 0;
             var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-            while (window == null && ticks < 10)
+            while (window == null && ticks < 60)
             {
                 RaptureAtkUnitManager.Update();
                 window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
@@ -739,7 +739,7 @@
                 ticks++;
             }
 
-            if (ticks >= 10)
+            if (ticks >= 60)
             {
                 return false;
             }

@@ -853,6 +853,9 @@
         {
             Poi.Clear("Gather Complete, Node is gone!");
 
+            // in case we failed our rotation
+            await CloseGatheringWindow();
+
             if (Core.Player.CurrentGP >= Core.Player.MaxGP - 30)
             {
                 NodesGatheredAtMaxGp++;
@@ -1303,7 +1306,7 @@
         {
             var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
 
-            while (window.IsValid)
+            while (window != null && window.IsValid)
             {
                 window.SendAction(1, 3, 0xFFFFFFFF);
                 await Coroutine.Yield();

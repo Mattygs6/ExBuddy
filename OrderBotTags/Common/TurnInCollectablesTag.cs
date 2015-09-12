@@ -775,6 +775,9 @@
             if (!Request.IsOpen)
             {
                 Logging.Write(Colors.Red, "An error has occured while turning in the item");
+                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
+                SelectYesno.ClickNo();
+                window.SendAction(1, 3, uint.MaxValue);
                 return true;
             }
 

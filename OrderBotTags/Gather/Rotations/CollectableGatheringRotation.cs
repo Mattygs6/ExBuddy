@@ -89,7 +89,7 @@
                         MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                     }
 
-                    while (!SelectYesNoItem.IsOpen)
+                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
                     {
                         var rarity = CurrentRarity;
                         if (SelectYesNoItem.CollectabilityValue >= rarity)

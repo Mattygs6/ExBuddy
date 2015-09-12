@@ -119,7 +119,7 @@
 
                     Logging.Write(
                         Colors.Chartreuse,
-                        "GatherCollectable: Collected item: {0}, value {1}",
+                        "GatherCollectable: Collected item: {0}, value: {1}",
                         tag.GatherItem.ItemData.EnglishName,
                         SelectYesNoItem.CollectabilityValue);
 

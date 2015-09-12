@@ -556,7 +556,7 @@
 
             await
                 Behaviors.MoveTo(
-                    locationData.NpcLocation,
+                    locationData.ShopNpcLocation,
                     radius: 4.0f,
                     name: Location + " ShopNpcId: " + locationData.ShopNpcId);
 
@@ -1027,7 +1027,7 @@
                 }
             }
 
-            if (item == null && !turnedItemsIn || await HandleSkipPurchase())
+            if (item == null && (!turnedItemsIn || await HandleSkipPurchase()))
             {
                 isDone = true;
                 return true;

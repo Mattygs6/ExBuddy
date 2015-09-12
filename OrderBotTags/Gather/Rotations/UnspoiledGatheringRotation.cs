@@ -38,7 +38,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
-            return false;
+            return true;
         }
 
         int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)

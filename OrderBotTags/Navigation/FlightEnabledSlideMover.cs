@@ -126,7 +126,7 @@
             {
                 lock (obj)
                 {
-                    if (!ff14bot.Managers.MovementManager.IsFlying)
+                    if (!MovementManager.IsFlying)
                     {
                         if (!takeoffStopwatch.IsRunning)
                         {
@@ -139,7 +139,7 @@
                             takeoffTask = Task.Factory.StartNew(
                                 () =>
                                 {
-                                    while (!MovementManager.IsFlying)
+                                    while (!MovementManager.IsFlying && Behaviors.ShouldContinue)
                                     {
                                         if (coroutine == null || coroutine.IsFinished)
                                         {
@@ -147,7 +147,7 @@
                                             coroutine = new Coroutine(() => CommonTasks.TakeOff());
                                         }
 
-                                        if (!coroutine.IsFinished)
+                                        if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
                                         {
                                             Logging.Write("Resumed Takeoff Coroutine");
                                             coroutine.Resume();
@@ -187,41 +187,50 @@
                     landingTask = Task.Factory.StartNew(
                         () =>
                         {
-                            while (MovementManager.IsFlying)
+                            try
                             {
-                                if (landingStopwatch.ElapsedMilliseconds < 2000)
+                                while (MovementManager.IsFlying && Behaviors.ShouldContinue)
                                 {
-                                    MovementManager.StartDescending();
-                                }
-                                else
-                                {
-                                    var move = Core.Player.Location.AddRandomDirection2D(5).GetFloor();
-                                    if (landingCoroutine == null || landingCoroutine.IsFinished)
+                                    if (landingStopwatch.ElapsedMilliseconds < 2000)
                                     {
-                                        MovementManager.StopDescending();
-                                        MovementManager.Jump();
-                                        landingCoroutine = new Coroutine(() => Behaviors.MoveToNoMount(move, false, 0.5f));
-                                        Logging.Write("Created new Landing Unstuck Coroutine, moving to {0}", move);
+                                        MovementManager.StartDescending();
+                                    }
+                                    else
+                                    {
+                                        var move = Core.Player.Location.AddRandomDirection2D(5).GetFloor();
+                                        if (landingCoroutine == null || landingCoroutine.IsFinished)
+                                        {
+                                            MovementManager.StopDescending();
+                                            MovementManager.Jump();
+                                            landingCoroutine =
+                                                new Coroutine(() => Behaviors.MoveToNoMount(move, false, 0.5f));
+                                            Logging.Write("Created new Landing Unstuck Coroutine, moving to {0}", move);
+                                        }
+
+                                        if (!landingCoroutine.IsFinished && MovementManager.IsFlying
+                                            && Behaviors.ShouldContinue)
+                                        {
+                                            Logging.Write("Resumed Landing Unstuck Coroutine");
+                                            landingCoroutine.Resume();
+                                            Thread.Sleep(50);
+                                        }
+                                        else
+                                        {
+                                            landingStopwatch.Restart();
+                                        }
                                     }
 
-                                    while (!landingCoroutine.IsFinished)
-                                    {
-                                        Logging.Write("Resumed Landing Unstuck Coroutine");
-                                        landingCoroutine.Resume();
-                                        Thread.Sleep(50);
-                                    }
-                                    
-                                    landingStopwatch.Restart();
+                                    Thread.Sleep(50);
                                 }
-
-                                Thread.Sleep(50);
                             }
+                            finally
+                            {
+                                Logging.Write(Colors.DeepSkyBlue, "Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
+                                totalLandingStopwatch.Reset();
+                                landingStopwatch.Reset();
 
-                            Logging.Write(Colors.DeepSkyBlue, "Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
-                            totalLandingStopwatch.Reset();
-                            landingStopwatch.Reset();
-
-                            landingTask = null;
+                                landingTask = null;
+                            }
                         });
                 }
             }           

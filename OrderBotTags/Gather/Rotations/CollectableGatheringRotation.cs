@@ -51,6 +51,7 @@
         {
             await tag.CastAura(Ability.CollectorsGlove, AbilityAura.CollectorsGlove);
 
+            var ticks = 0;
             do
             {
                 await Wait();
@@ -60,7 +61,12 @@
                     return false;
                 }
             }
-            while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null && Behaviors.ShouldContinue);
+            while (ticks++ < 10 && (MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null && Behaviors.ShouldContinue);
+
+            if (ticks >= 10)
+            {
+                Logging.WriteDiagnostic(Colors.Red, "Timed out during collectable preparation");
+            }
 
             return true;
         }
@@ -79,9 +85,10 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
-            while (GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
+            var rarity = CurrentRarity;
+            while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
             {
-                while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
+                while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
                 {
                     if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
                     {
@@ -89,39 +96,37 @@
                         MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                     }
 
-                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
+                    var itemRarity = rarity = CurrentRarity;
+                    if (SelectYesNoItem.CollectabilityValue >= itemRarity)
                     {
-                        var rarity = CurrentRarity;
-                        if (SelectYesNoItem.CollectabilityValue >= rarity)
-                        {
-                            await Coroutine.Wait(1000, () => SelectYesNoItem.CollectabilityValue < rarity);
-                        }
-
-                        if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
-                        {
-                            MasterpieceWindow.SendAction(1, 1, 0);
-                        }
-
-                        await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
+                        await Coroutine.Wait(1000, () => SelectYesNoItem.CollectabilityValue < itemRarity);
                     }
+
+                    if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                    {
+                        MasterpieceWindow.SendAction(1, 1, 0);
+                    }
+
+                    await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
                 }
 
                 await Coroutine.Yield();
                 var swingsRemaining = GatheringManager.SwingsRemaining - 1;
 
-                while (SelectYesNoItem.IsOpen && Behaviors.ShouldContinue)
+                while (SelectYesNoItem.IsOpen && rarity > 0 && Behaviors.ShouldContinue)
                 {
-                    var rarity = CurrentRarity;
-                    if (SelectYesNoItem.CollectabilityValue < rarity)
+                    var itemRarity = rarity = CurrentRarity;
+                    if (SelectYesNoItem.CollectabilityValue < itemRarity)
                     {
-                        await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue >= rarity);
+                        await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue >= itemRarity);
                     }
 
                     Logging.Write(
                         Colors.Chartreuse,
-                        "GatherCollectable: Collected item: {0}, value: {1}",
+                        "GatherCollectable: Collected item: {0}, value: {1} on {2} ET",
                         tag.GatherItem.ItemData.EnglishName,
-                        SelectYesNoItem.CollectabilityValue);
+                        SelectYesNoItem.CollectabilityValue,
+                        WorldManager.EorzaTime);
 
                     SelectYesNoItem.Yes();
                     await Coroutine.Wait(1000, () => !SelectYesNoItem.IsOpen);

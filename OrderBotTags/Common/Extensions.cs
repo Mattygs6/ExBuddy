@@ -295,11 +295,31 @@
 
         public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
         {
-
+            var side = range / Math.Sqrt(2);
             var random = new Vector3(
-                vector.X + (float)MathEx.Random(0.0, range),
-                vector.Y + (float)MathEx.Random(0.0, range),
-                vector.Z + (float)MathEx.Random(0.0, range));
+                vector.X + (float)MathEx.Random(-side, side),
+                vector.Y + (float)MathEx.Random(-side, side),
+                vector.Z + (float)MathEx.Random(-side, side));
+
+            Vector3 hit;
+            var ticks = 0;
+            while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 1000)
+            {
+                random = new Vector3(
+                    vector.X + (float)MathEx.Random(-side, side),
+                    vector.Y + (float)MathEx.Random(-side, side),
+                    vector.Z + (float)MathEx.Random(-side, side));
+            }
+
+            if (ticks >= 1000)
+            {
+                Logging.WriteDiagnostic(
+                    Colors.DarkKhaki,
+                    "ExBuddy: Attempted to add Random Direction from {0} but failed",
+                    vector);
+
+                return vector;
+            }
 
             Logging.WriteDiagnostic(
                 Colors.DarkKhaki,
@@ -312,10 +332,31 @@
 
         public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f)
         {
+            var side = range / Math.Sqrt(2);
             var random = new Vector3(
-                vector.X + (float)MathEx.Random(0.0, range),
+                vector.X + (float)MathEx.Random(-side, side),
                 vector.Y,
-                vector.Z + (float)MathEx.Random(0.0, range));
+                vector.Z + (float)MathEx.Random(-side, side));
+
+            Vector3 hit;
+            var ticks = 0;
+            while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 1000)
+            {
+                random = new Vector3(
+                    vector.X + (float)MathEx.Random(-side, side),
+                    vector.Y,
+                    vector.Z + (float)MathEx.Random(-side, side));
+            }
+
+            if (ticks >= 1000)
+            {
+                Logging.WriteDiagnostic(
+                    Colors.DarkKhaki,
+                    "ExBuddy: Attempted to add Random Direction from {0} but failed",
+                    vector);
+
+                return vector;
+            }
 
             Logging.WriteDiagnostic(
                 Colors.DarkKhaki,

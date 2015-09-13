@@ -59,7 +59,7 @@
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
-            while (GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
+            while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
             {
                 await Wait();
 

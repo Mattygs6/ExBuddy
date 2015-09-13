@@ -7,7 +7,6 @@
     using Clio.XmlEngine;
 
     using ff14bot;
-    using ff14bot.Managers;
 
     public interface IGatherSpot
     {
@@ -23,7 +22,7 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 
             return result;
         }
@@ -51,7 +50,7 @@
 
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, true, true);
+            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback, true);
 
             result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
@@ -89,7 +88,7 @@
             var result = true;
             if (ReturnToStealthLocation)
             {
-                result &= await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName);
+                result &= await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
             }
 
             if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
@@ -107,13 +106,13 @@
                 return false;
             }
 
-            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, "Stealth Location", true, true);
+            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, "Stealth Location", tag.MovementStopCallback, true);
 
             if (result)
             {
                 await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName);
+                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
             }
 
             return result;

@@ -5,6 +5,7 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -35,6 +36,11 @@
         // TODO: set this on startup maybe?  was null
         internal static SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
+        internal bool MovementStopCallback(float distance, float radius)
+        {
+            return distance <= radius || !WhileFunc() || Core.Player.IsDead;
+        }
+
         private bool isDone;
 
         private int loopCount;
@@ -57,7 +63,7 @@
 
         internal int NodesGatheredAtMaxGp;
 
-        private Func<bool> whileFunc;
+        internal Func<bool> WhileFunc;
 
         private DateTime startTime;
 
@@ -182,13 +188,13 @@
 
         private bool HandleCondition()
         {
-            if (whileFunc == null)
+            if (this.WhileFunc == null)
             {
-                whileFunc = ScriptManager.GetCondition(While);
+                this.WhileFunc = ScriptManager.GetCondition(While);
             }
 
             // If statement is true, return false so we can continue the routine
-            if (whileFunc())
+            if (this.WhileFunc())
             {
                 return false;
             }

@@ -28,7 +28,10 @@ namespace ExBuddy.OrderBotTags
         }
 
         public static bool ShouldContinue { get; set; }
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh = true, uint mountId = 0, float radius = 2.0f, string name = null, bool stopInRange = true, bool dismountAtDestination = false)
+
+        public static readonly Func<float, float, bool> DontStopInRange = (d, r) => false;
+
+        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh = true, uint mountId = 0, float radius = 2.0f, string name = null, Func<float, float, bool> stopCallback = null, bool dismountAtDestination = false)
         {
             // ReSharper disable once InconsistentNaming
             var distance3d = Core.Player.Location.Distance3D(destination);
@@ -57,7 +60,7 @@ namespace ExBuddy.OrderBotTags
 
             }
 
-            await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
+            await MoveToNoMount(destination, useMesh, radius, name, stopCallback);
 
             while (dismountAtDestination && Core.Player.IsMounted && ShouldContinue)
             {
@@ -83,14 +86,16 @@ namespace ExBuddy.OrderBotTags
             return true;
         }
 
-        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh = true, float radius = 2.0f, string name = null, bool stopInRange = true)
+        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh = true, float radius = 2.0f, string name = null, Func<float, float, bool> stopCallback = null)
         {
+            stopCallback = stopCallback ?? ((d, r) => d <= r);
+
             var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
             float distance;
             if (useMesh)
             {
                 var moveResult = MoveResult.GeneratingPath;
-                while (ShouldContinue && ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination))))
+                while (ShouldContinue && (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius) || (stopCallback == DontStopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination))))
                 {
                     moveResult = Navigator.MoveTo(destination, name);
                     await Coroutine.Yield();
@@ -105,7 +110,7 @@ namespace ExBuddy.OrderBotTags
             }
             else
             {
-                while (ShouldContinue && (distance = Core.Player.Location.Distance3D(destination)) > radius)
+                while (ShouldContinue && !stopCallback(distance = Core.Player.Location.Distance3D(destination), radius))
                 {
                     Navigator.PlayerMover.MoveTowards(destination);
                     await Coroutine.Yield();
@@ -131,7 +136,7 @@ namespace ExBuddy.OrderBotTags
 
         public static bool Sprint()
         {
-            if (Actionmanager.IsSprintReady && !Core.Player.IsCasting &&!Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
+            if (Actionmanager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
             {
                 Actionmanager.Sprint();
             }

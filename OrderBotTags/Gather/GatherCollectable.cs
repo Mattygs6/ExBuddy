@@ -318,8 +318,9 @@
                     true,
                     (uint)MountId,
                     HotSpots.CurrentOrDefault.Radius * 0.75f,
-                    HotSpots.CurrentOrDefault.Name);
+                    HotSpots.CurrentOrDefault.Name, MovementStopCallback);
 
+                startTime = DateTime.Now;
                 return true;
             }
 
@@ -474,6 +475,8 @@
             {
                 return false;
             }
+
+            startTime = DateTime.Now;
 
             if (HotSpots != null)
             {

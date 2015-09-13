@@ -692,10 +692,11 @@
 
                     Logging.Write(
                         Colors.SpringGreen,
-                        "Purchased item {0} for {1} {2} scrips!",
+                        "Purchased item {0} for {1} {2} scrips at {3} ET",
                         purchaseItemData.EnglishName,
                         purchaseItemInfo.Cost,
-                        purchaseItemInfo.ShopType);
+                        purchaseItemInfo.ShopType,
+                        WorldManager.EorzaTime);
 
                     // wait until scrips changed
                     await

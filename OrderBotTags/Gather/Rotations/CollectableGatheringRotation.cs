@@ -123,7 +123,7 @@
 
                     Logging.Write(
                         Colors.Chartreuse,
-                        "GatherCollectable: Collected item: {0}, value: {1} on {2} ET",
+                        "GatherCollectable: Collected item: {0}, value: {1} at {2} ET",
                         tag.GatherItem.ItemData.EnglishName,
                         SelectYesNoItem.CollectabilityValue,
                         WorldManager.EorzaTime);

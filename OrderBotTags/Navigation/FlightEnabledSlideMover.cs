@@ -105,7 +105,7 @@
             {
                 innerMover.MoveStop();
             }
-            
+
             if (!isLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(6)))
             {
                 isLanding = true;
@@ -129,54 +129,55 @@
 
         public void EnsureFlying()
         {
-            if (!ff14bot.Managers.MovementManager.IsFlying && Actionmanager.CanMount == 0)
+            if (!MovementManager.IsFlying && Actionmanager.CanMount == 0)
             {
-                lock (obj)
+                if (!takeoffStopwatch.IsRunning)
                 {
-                    if (!MovementManager.IsFlying)
-                    {
-                        if (!takeoffStopwatch.IsRunning)
-                        {
-                            takeoffStopwatch.Restart();
-                        }
-
-                        if (takeoffTask == null)
-                        {
-                            Logging.Write("Started Takeoff Task");
-                            takeoffTask = Task.Factory.StartNew(
-                                () =>
-                                {
-                                    try
-                                    {
-                                        while (!MovementManager.IsFlying && Behaviors.ShouldContinue)
-                                        {
-                                            if (coroutine == null || coroutine.IsFinished)
-                                            {
-                                                Logging.Write("Created new Takeoff Coroutine");
-                                                coroutine = new Coroutine(() => CommonTasks.TakeOff());
-                                            }
-
-                                            if (!coroutine.IsFinished && !MovementManager.IsFlying
-                                                && Behaviors.ShouldContinue)
-                                            {
-                                                Logging.Write("Resumed Takeoff Coroutine");
-                                                coroutine.Resume();
-                                            }
-
-                                            Thread.Sleep(66);
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        Logging.Write(Colors.DeepSkyBlue, "Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
-                                        takeoffStopwatch.Reset();
-                                        isTakingOff = false;
-                                        takeoffTask = null;
-                                    }
-                                });
-                        }
-                    }
+                    takeoffStopwatch.Restart();
                 }
+
+                if (takeoffTask == null)
+                {
+                    Logging.Write("Started Takeoff Task");
+                    takeoffTask = Task.Factory.StartNew(
+                        () =>
+                            {
+                                try
+                                {
+                                    while (!MovementManager.IsFlying && Behaviors.ShouldContinue)
+                                    {
+                                        if (coroutine == null || coroutine.IsFinished)
+                                        {
+                                            Logging.Write("Created new Takeoff Coroutine");
+                                            coroutine = new Coroutine(() => CommonTasks.TakeOff());
+                                        }
+
+                                        if (!coroutine.IsFinished && !MovementManager.IsFlying
+                                            && Behaviors.ShouldContinue)
+                                        {
+                                            Logging.Write("Resumed Takeoff Coroutine");
+                                            coroutine.Resume();
+                                        }
+
+                                        Thread.Sleep(66);
+                                    }
+                                }
+                                finally
+                                {
+                                    Logging.Write(
+                                        Colors.DeepSkyBlue,
+                                        "Takeoff took {0} ms or less",
+                                        takeoffStopwatch.Elapsed);
+                                    takeoffStopwatch.Reset();
+                                    isTakingOff = false;
+                                    takeoffTask = null;
+                                }
+                            });
+                }
+            }
+            else
+            {
+                isTakingOff = false;
             }
         }
 
@@ -199,52 +200,61 @@
                     Logging.Write("Started Landing Task");
                     landingTask = Task.Factory.StartNew(
                         () =>
-                        {
-                            try
                             {
-                                while (MovementManager.IsFlying && Behaviors.ShouldContinue)
+                                try
                                 {
-                                    if (landingStopwatch.ElapsedMilliseconds < 2000)
+                                    while (MovementManager.IsFlying && Behaviors.ShouldContinue)
                                     {
-                                        MovementManager.StartDescending();
-                                    }
-                                    else
-                                    {
-                                        if (landingCoroutine == null || landingCoroutine.IsFinished)
+                                        if (landingStopwatch.ElapsedMilliseconds < 2000)
                                         {
-                                            var move = Core.Player.Location.AddRandomDirection2D(5).GetFloor();
-                                            MovementManager.StopDescending();
-                                            MovementManager.Jump();
-                                            landingCoroutine =
-                                                new Coroutine(() => Behaviors.MoveToNoMount(move, false, 0.5f));
-                                            Logging.Write("Created new Landing Unstuck Coroutine, moving to {0}", move);
-                                        }
-
-                                        if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
-                                        {
-                                            Logging.Write("Resumed Landing Unstuck Coroutine");
-                                            landingCoroutine.Resume();
+                                            MovementManager.StartDescending();
                                         }
                                         else
                                         {
-                                            landingStopwatch.Restart();
-                                        }
-                                    }
+                                            if (landingCoroutine == null || landingCoroutine.IsFinished)
+                                            {
+                                                var move = Core.Player.Location.AddRandomDirection2D(5).GetFloor();
+                                                MovementManager.StopDescending();
+                                                MovementManager.Jump();
+                                                landingCoroutine =
+                                                    new Coroutine(() => Behaviors.MoveToNoMount(move, false, 0.5f));
+                                                Logging.Write(
+                                                    "Created new Landing Unstuck Coroutine, moving to {0}",
+                                                    move);
+                                            }
 
-                                    Thread.Sleep(66);
+                                            if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
+                                            {
+                                                Logging.Write("Resumed Landing Unstuck Coroutine");
+                                                landingCoroutine.Resume();
+                                            }
+                                            else
+                                            {
+                                                landingStopwatch.Restart();
+                                            }
+                                        }
+
+                                        Thread.Sleep(66);
+                                    }
                                 }
-                            }
-                            finally
-                            {
-                                Logging.Write(Colors.DeepSkyBlue, "Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
-                                totalLandingStopwatch.Reset();
-                                landingStopwatch.Reset();
-                                isLanding = false;
-                                landingTask = null;
-                            }
-                        });
+                                finally
+                                {
+                                    Logging.Write(
+                                        Colors.DeepSkyBlue,
+                                        "Landing took {0} ms or less",
+                                        totalLandingStopwatch.Elapsed);
+                                    totalLandingStopwatch.Reset();
+                                    landingStopwatch.Reset();
+                                    isLanding = false;
+                                    landingTask = null;
+                                }
+                            });
                 }
-            }           
+            }
+            else
+            {
+                isLanding = false;
+            }
         }
 
         public bool CanFly

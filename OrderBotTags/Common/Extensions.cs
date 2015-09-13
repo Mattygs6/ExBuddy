@@ -1,6 +1,7 @@
 ﻿namespace ExBuddy.OrderBotTags
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.SqlTypes;
     using System.Linq;
     using System.Reflection;
@@ -145,18 +146,11 @@
             }
         }
 
-        public static Vector3 CorrectLanding(this Vector3 vector, float radius = 2.7f)
-        {
-
-
-            return vector;
-        }
-
         public static bool IsGround(this Vector3 vector, float range = 3.0f)
         {
             // TODO: probably need to make diagonal checks
             range = range <= 0 ? 0.1f : range;
-            Vector3 above = new Vector3(vector.X, vector.Y + 1.0f, vector.Z);
+            Vector3 above = new Vector3(vector.X, vector.Y + 1.5f, vector.Z);
             Vector3 below = new Vector3(vector.X, vector.Y - range, vector.Z);
             Vector3 hit, distances;
             if (WorldManager.Raycast(above, below, out hit, out distances))
@@ -187,6 +181,48 @@
             }
 
             return vector;
+        }
+
+        public static Vector3 CorrectLanding(this Vector3 vector, float radius = 2.7f)
+        {
+            Vector3 hit;
+            Vector3 distances;
+            var side = radius / (float)Math.Sqrt(2);
+            
+            var vectorSouthEast = new Vector3(vector.X + side, vector.Y, vector.Z + side);
+            var vectorNorthEast = new Vector3(vector.X + side, vector.Y, vector.Z - side);
+            var vectorSouthWest = new Vector3(vector.X - side, vector.Y, vector.Z + side);
+            var vectorNorthWest = new Vector3(vector.X - side, vector.Y, vector.Z - side);
+
+            var myGround = vector.GetFloor();
+            var southEastGround = vectorSouthEast.GetFloor();
+            var northEastGround = vectorNorthEast.GetFloor();
+            var southWestGround = vectorSouthWest.GetFloor();
+            var northWestGround = vectorNorthWest.GetFloor();
+
+            float average;
+            var sd =
+                StandardDeviation(
+                    new[] { myGround, southEastGround, northEastGround, southWestGround, northWestGround }, out average);
+
+
+
+            return vector;
+        }
+
+        private static float StandardDeviation(IEnumerable<Vector3> vectors, out float average)
+        {
+            return StandardDeviation(vectors.Select(v => v.Magnitude).ToArray(), out average);
+        }
+
+        private static float StandardDeviation(IList<float> values, out float average)
+        {
+            average = values.Average();
+            var a = average;
+            var sumOfSquaresOfDiffs = values.Select(v => (v - a) * (v - a)).Sum();
+            var sd = Math.Sqrt(sumOfSquaresOfDiffs / values.Count);
+
+            return (float)sd;
         }
 
         public static bool IsSafeSphere(this Vector3 vector, float range = 3.0f)

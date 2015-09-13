@@ -60,7 +60,7 @@
                     return false;
                 }
             }
-            while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null);
+            while ((MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null && Behaviors.ShouldContinue);
 
             return true;
         }
@@ -79,9 +79,9 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
-            while (GatheringManager.SwingsRemaining > 0)
+            while (GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
             {
-                while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
+                while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
                 {
                     if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
                     {
@@ -89,12 +89,12 @@
                         MasterpieceWindow = await GetValidMasterPieceWindow(3000);
                     }
 
-                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0)
+                    while (!SelectYesNoItem.IsOpen && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
                     {
                         var rarity = CurrentRarity;
                         if (SelectYesNoItem.CollectabilityValue >= rarity)
                         {
-                            await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue < rarity);
+                            await Coroutine.Wait(1000, () => SelectYesNoItem.CollectabilityValue < rarity);
                         }
 
                         if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
@@ -102,14 +102,14 @@
                             MasterpieceWindow.SendAction(1, 1, 0);
                         }
 
-                        await Coroutine.Wait(3000, () => SelectYesNoItem.IsOpen);
+                        await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
                     }
                 }
 
                 await Coroutine.Yield();
                 var swingsRemaining = GatheringManager.SwingsRemaining - 1;
 
-                while (SelectYesNoItem.IsOpen)
+                while (SelectYesNoItem.IsOpen && Behaviors.ShouldContinue)
                 {
                     var rarity = CurrentRarity;
                     if (SelectYesNoItem.CollectabilityValue < rarity)
@@ -128,7 +128,7 @@
                 }
 
                 var ticks = 0;
-                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60)
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60 && Behaviors.ShouldContinue)
                 {
                     await Coroutine.Yield();
                     ticks++;

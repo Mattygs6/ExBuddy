@@ -59,7 +59,7 @@
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
-            while (GatheringManager.SwingsRemaining > 0)
+            while (GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
             {
                 await Wait();
 
@@ -83,7 +83,7 @@
                 }
 
                 var ticks = 0;
-                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60)
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60 && Behaviors.ShouldContinue)
                 {
                     await Coroutine.Yield();
                     ticks++;
@@ -108,7 +108,7 @@
             if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
             {
                 var ticks = 0;
-                while (ticks < 60)
+                while (ticks < 60 && Behaviors.ShouldContinue)
                 {
                     if (!GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
                     {

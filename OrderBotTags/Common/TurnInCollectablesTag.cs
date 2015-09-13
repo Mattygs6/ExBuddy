@@ -11,7 +11,6 @@
     using Buddy.Coroutines;
 
     using Clio.Utilities;
-    using Clio.XmlEngine;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -584,7 +583,7 @@
             {
                 // target
                 var ticks = 0;
-                while (Core.Target == null && window == null && ticks < 10)
+                while (Core.Target == null && window == null && ticks < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
                     await Coroutine.Yield();
@@ -601,7 +600,7 @@
 
                 // interact
                 ticks = 0;
-                while (!SelectIconString.IsOpen && window == null && ticks < 10)
+                while (!SelectIconString.IsOpen && window == null && ticks < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Interact();
                     await Coroutine.Wait(1000, () => SelectIconString.IsOpen);
@@ -626,7 +625,7 @@
                 }
 
                 ticks = 0;
-                while (SelectIconString.IsOpen && ticks < 5)
+                while (SelectIconString.IsOpen && ticks < 5 && Behaviors.ShouldContinue)
                 {
                     if (Location == Location.MorDhona)
                     {
@@ -656,10 +655,10 @@
                 // do this because if not we could get a trailblazer's scarf??
                 await Coroutine.Sleep(1000);
 
-                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost)
+                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
                 {
                     ticks = 0;
-                    while (!SelectYesno.IsOpen && ticks < 3)
+                    while (!SelectYesno.IsOpen && ticks < 3 && Behaviors.ShouldContinue)
                     {
                         window.SendAction(2, 0, 0, 1, purchaseItemInfo.Index);
                         await Coroutine.Wait(5000, () => SelectYesno.IsOpen);
@@ -675,7 +674,7 @@
 
                     var scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType);
                     ticks = 0;
-                    while (SelectYesno.IsOpen && ticks < 3)
+                    while (SelectYesno.IsOpen && ticks < 3 && Behaviors.ShouldContinue)
                     {
                         SelectYesno.ClickYes();
                         await Coroutine.Wait(5000, () => !SelectYesno.IsOpen);
@@ -730,7 +729,7 @@
         {
             var ticks = 0;
             var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-            while (window == null && ticks < 60)
+            while (window == null && ticks < 60 && Behaviors.ShouldContinue)
             {
                 RaptureAtkUnitManager.Update();
                 window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
@@ -765,7 +764,7 @@
             }
 
             var requestAttempts = 0;
-            while (!Request.IsOpen && requestAttempts < 5)
+            while (!Request.IsOpen && requestAttempts < 5 && Behaviors.ShouldContinue)
             {
                 window.SendAction(2, 0, 0, 1, index);
                 await Coroutine.Wait(1500, () => Request.IsOpen);
@@ -782,7 +781,7 @@
             }
 
             var attempts = 0;
-            while (Request.IsOpen && attempts < 5)
+            while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue)
             {
                 item.Handover();
                 await Coroutine.Sleep(1000);
@@ -817,7 +816,7 @@
 
             var casted = false;
             while (WorldManager.ZoneId != locationData.ZoneId && Core.Player.IsAlive
-                   && !Core.Player.InCombat)
+                   && !Core.Player.InCombat && Behaviors.ShouldContinue)
             {
                 if (!Core.Player.IsCasting && casted)
                 {

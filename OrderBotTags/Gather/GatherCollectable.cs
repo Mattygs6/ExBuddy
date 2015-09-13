@@ -436,7 +436,7 @@
                 return false;
             }
 
-            while (Core.Player.IsMounted)
+            while (Core.Player.IsMounted && Behaviors.ShouldContinue)
             {
                 await CommonTasks.StopAndDismount();
                 await Coroutine.Yield();
@@ -450,7 +450,7 @@
 
         private bool ResetOrDone()
         {
-            if (HotSpots == null || HotSpots.Count == 0)
+            if (HotSpots == null || HotSpots.Count == 0 || (Node != null && IsUnspoiled()))
             {
                 isDone = true;
             }
@@ -524,7 +524,7 @@
                 return false;
             }
 
-            while (true)
+            while (Behaviors.ShouldContinue)
             {
                 IEnumerable<GatheringPointObject> nodes = GameObjectManager.GetObjectsOfType<GatheringPointObject>().Where(gpo => gpo.CanGather).ToArray();
 
@@ -630,6 +630,8 @@
 
                 return true;
             }
+
+            return true;
         }
 
         private async Task<bool> MoveToGatherSpot()
@@ -974,7 +976,7 @@
                         }))
                     {
                         cordial.UseItem(Core.Player);
-                        Logging.Write("Using Cordial: " + cordialType);
+                        Logging.Write("Using " + cordialType);
                         return true;
                     }
                 }
@@ -990,9 +992,9 @@
         private async Task<bool> InteractWithNode()
         {
             var attempts = 0;
-            while (attempts < 3 && !GatheringManager.WindowOpen)
+            while (attempts < 3 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
             {
-                while (MovementManager.IsFlying)
+                while (MovementManager.IsFlying && Behaviors.ShouldContinue)
                 {
                     Navigator.Stop();
                     Actionmanager.Dismount();
@@ -1020,6 +1022,7 @@
 
             if (!GatheringManager.WindowOpen)
             {
+                await MoveFromGatherSpot();
                 OnResetCachedDone();
                 return false;
             }
@@ -1056,7 +1059,7 @@
 
         private async Task<bool> WaitForGatherWindowToClose()
         {
-            while (GatheringManager.WindowOpen)
+            while (GatheringManager.WindowOpen && Behaviors.ShouldContinue)
             {
                 await Coroutine.Yield();
             }
@@ -1324,7 +1327,7 @@
         {
             var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
 
-            while (window != null && window.IsValid)
+            while (window != null && window.IsValid && Behaviors.ShouldContinue)
             {
                 window.SendAction(1, 3, 0xFFFFFFFF);
                 await Coroutine.Yield();

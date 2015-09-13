@@ -25,6 +25,8 @@
 
     public sealed class FlightEnabledNavigator : INavigationProvider, IDisposable
     {
+        private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(5); 
+
         private bool disposed;
 
         private Vector3 origin;
@@ -351,7 +353,7 @@
                 var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint *  2f);
 
                 Vector3 deviationWaypoint;
-                var result = collisions.CollisionResult(out deviationWaypoint);
+                var result = collisions.CollisionResult(queuedFlightPoints.ToArray(), out deviationWaypoint);
                 if (result != CollisionFlags.None)
                 {
                     // DO THINGS! // check landing + buffer zone of 2.0f
@@ -363,7 +365,7 @@
                             var alternateCount = 0;
                             // Go in random direction up to the distance of a normal waypoint.
                             var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint / (float)Math.Sqrt(3));
-                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances))
+                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances) && Behaviors.ShouldContinue)
                             {
                                 if (alternateCount > 20)
                                 {
@@ -393,7 +395,7 @@
 
                         deviationWaypoint = deviationWaypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
                         previousWaypoint = from = deviationWaypoint;
-                        CurrentPath.Add(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
+                        QueueFlightPoint(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
 
 
                         desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
@@ -409,7 +411,7 @@
 
                 cleanWaypoints++;
                 int waypointsRemaining;
-                if ((waypointsRemaining = (int)desiredNumberOfPoints - CurrentPath.Count) > flightNavigationArgs.ForcedAltitude)
+                if ((waypointsRemaining = (int)desiredNumberOfPoints - FlightPointCount()) > flightNavigationArgs.ForcedAltitude)
                 {
                     waypoint = waypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
                 }
@@ -419,11 +421,39 @@
                 }
 
                 previousWaypoint = waypoint;
-                CurrentPath.Add(new FlightPoint { Location = waypoint });
+                QueueFlightPoint(waypoint);
             }
 
-
+            FlushQueuedFlightPoints();
             return true;
+        }
+
+        private int FlightPointCount()
+        {
+            return CurrentPath.Count + queuedFlightPoints.Count;
+        }
+
+        private void QueueFlightPoint(FlightPoint flightPoint)
+        {
+            queuedFlightPoints.Enqueue(flightPoint);
+
+            if (queuedFlightPoints.Count == 5)
+            {
+                CurrentPath.Add(queuedFlightPoints.Dequeue());
+            }
+        }
+
+        private void ClearQueuedFlightPoints()
+        {
+            queuedFlightPoints.Clear();
+        }
+
+        private void FlushQueuedFlightPoints()
+        {
+            while (queuedFlightPoints.Count > 0)
+            {
+                CurrentPath.Add(queuedFlightPoints.Dequeue());
+            }
         }
 
         private async Task<bool> MoveToNoFlight(Vector3 location)

@@ -230,7 +230,7 @@ namespace ff14bot.NeoProfiles
 
         public async Task<bool> EnsureMounted()
         {
-            while (!GameObjectManager.LocalPlayer.IsMounted)
+            while (!GameObjectManager.LocalPlayer.IsMounted && Behaviors.ShouldContinue)
             {
                 if (MountId > 0)
                 {
@@ -258,7 +258,7 @@ namespace ff14bot.NeoProfiles
 
         public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
         {
-            while (GameObjectManager.LocalPlayer.Location.Distance3D(to) > Radius)
+            while (GameObjectManager.LocalPlayer.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
             {
                 await EnsureFlying();
 
@@ -272,7 +272,7 @@ namespace ff14bot.NeoProfiles
         public async Task<bool> ForceLand()
         {
             landingStopwatch.Restart();
-            while (MovementManager.IsFlying)
+            while (MovementManager.IsFlying && Behaviors.ShouldContinue)
             {
                 MovementManager.StartDescending();
 

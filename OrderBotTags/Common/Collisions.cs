@@ -1,9 +1,13 @@
 ﻿namespace ExBuddy.OrderBotTags.Common
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using Clio.Common;
     using Clio.Utilities;
+
+    using ExBuddy.OrderBotTags.Navigation;
 
     using ff14bot.Helpers;
     using ff14bot.Managers;
@@ -104,9 +108,9 @@
             ForwardDown *= diagonalMagnitude;
         }
 
-        public bool FindClosestDeviation(out Vector3 travelDeviation)
+        public bool FindClosestDeviation(ICollection<FlightPoint> previousFlightPoints, out Vector3 travelDeviation)
         {
-            travelDeviation = Vector3.Zero;
+            var deviation = travelDeviation = Vector3.Zero;
             var valueFound = false;
 
             // Making the rays 1.5x as long as our detection range to ensure it is clear
@@ -122,7 +126,7 @@
             for (float i = 0.2f; i < 1; i += 0.2f)
             {
                 lastHit = hit;
-                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances))
+                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardRight;
@@ -130,7 +134,7 @@
                 }
 
                 lastHit = hit;
-                if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances))
+                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardLeft;
@@ -146,7 +150,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
@@ -154,7 +158,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -171,7 +175,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
@@ -179,7 +183,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -196,7 +200,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardLeft;
@@ -204,7 +208,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, travelDeviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardRight;
@@ -219,7 +223,8 @@
             }
             else
             {
-                var direction = travelDeviation - Position;
+                travelDeviation = deviation;
+                var direction = deviation - Position;
 
                 var dot = Vector3.Dot(forwardRay, direction);
                 var angle = MathEx.ToDegrees((float)Math.Acos(dot / (forwardRay.Magnitude * direction.Magnitude)));
@@ -270,7 +275,7 @@
             //this.DestinationCollider = new Collider(position + ray3, -ray3, forwardRange);
         }
 
-        public CollisionFlags CollisionResult(out Vector3 deviation)
+        public CollisionFlags CollisionResult(ICollection<FlightPoint> previousFlightPoints, out Vector3 deviation)
         {
             deviation = Vector3.Zero;
             
@@ -283,7 +288,7 @@
             //this.DestinationCollider.BuildCollider();
 
             Vector3 playerDeviation;
-            this.PlayerCollider.FindClosestDeviation(out playerDeviation);
+            this.PlayerCollider.FindClosestDeviation(previousFlightPoints, out playerDeviation);
             //Vector3 destinationDeviation;
             //this.DestinationCollider.FindClosestLateralDeviation(out destinationDeviation);
 

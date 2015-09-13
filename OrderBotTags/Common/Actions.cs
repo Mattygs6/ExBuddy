@@ -1,6 +1,5 @@
 namespace ExBuddy.OrderBotTags
 {
-    using System;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -15,7 +14,7 @@ namespace ExBuddy.OrderBotTags
     {
         internal static async Task<bool> CastAura(uint spellId, int delay, int auraId = -1)
         {
-            bool result;
+            var result = false;
             if (auraId == -1 || !Core.Player.HasAura(auraId))
             {
                 SpellData spellData;
@@ -28,7 +27,13 @@ namespace ExBuddy.OrderBotTags
                 }
 
                 result = Actionmanager.DoAction(spellId, Core.Player);
-
+                var ticks = 0;
+                while (result == false && ticks++ < 3 && Behaviors.ShouldContinue)
+                {
+                    result = Actionmanager.DoAction(spellId, Core.Player);
+                    await Coroutine.Yield();
+                }
+                
                 if (result)
                 {
                     Logging.Write(
@@ -55,10 +60,6 @@ namespace ExBuddy.OrderBotTags
                     await Coroutine.Yield();
                 }
             }
-            else
-            {
-                result = false;
-            }
 
             return result;
         }
@@ -82,6 +83,13 @@ namespace ExBuddy.OrderBotTags
             }
 
             var result = Actionmanager.DoAction(id, Core.Player);
+
+            var ticks = 0;
+            while (result == false && ticks++ < 3 && Behaviors.ShouldContinue)
+            {
+                result = Actionmanager.DoAction(id, Core.Player);
+                await Coroutine.Yield();
+            }
 
             if (result)
             {

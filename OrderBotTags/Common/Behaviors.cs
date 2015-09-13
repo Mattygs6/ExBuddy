@@ -1,9 +1,7 @@
 namespace ExBuddy.OrderBotTags
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -14,13 +12,22 @@ namespace ExBuddy.OrderBotTags
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.Navigation;
+    using ff14bot.NeoProfiles;
     using ff14bot.Settings;
 
     public static class Behaviors
     {
+        static Behaviors()
+        {
+            ShouldContinue = true;
+            TreeRoot.OnStart += bot => ShouldContinue = true;
+            TreeRoot.OnStop += bot => ShouldContinue = false;
+            //GameEvents.OnPlayerDied += (sender, args) => ShouldContinue = false;
+        }
+
+        public static bool ShouldContinue { get; set; }
         public static async Task<bool> MoveTo(Vector3 destination, bool useMesh = true, uint mountId = 0, float radius = 2.0f, string name = null, bool stopInRange = true, bool dismountAtDestination = false)
         {
             // ReSharper disable once InconsistentNaming
@@ -28,7 +35,7 @@ namespace ExBuddy.OrderBotTags
 
             if (Actionmanager.CanMount == 0 && ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()))
             {
-                while (!Core.Player.IsMounted)
+                while (!Core.Player.IsMounted && ShouldContinue)
                 {
                     if (mountId > 0)
                     {
@@ -52,7 +59,7 @@ namespace ExBuddy.OrderBotTags
 
             await MoveToNoMount(destination, useMesh, radius, name, stopInRange);
 
-            while (dismountAtDestination && Core.Player.IsMounted)
+            while (dismountAtDestination && Core.Player.IsMounted && ShouldContinue)
             {
                 if (MovementManager.IsFlying)
                 {
@@ -83,7 +90,7 @@ namespace ExBuddy.OrderBotTags
             if (useMesh)
             {
                 var moveResult = MoveResult.GeneratingPath;
-                while ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination)))
+                while (ShouldContinue && ((distance = Core.Player.Location.Distance3D(destination)) > radius || (!stopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination))))
                 {
                     moveResult = Navigator.MoveTo(destination, name);
                     await Coroutine.Yield();
@@ -98,7 +105,7 @@ namespace ExBuddy.OrderBotTags
             }
             else
             {
-                while ((distance = Core.Player.Location.Distance3D(destination)) > radius)
+                while (ShouldContinue && (distance = Core.Player.Location.Distance3D(destination)) > radius)
                 {
                     Navigator.PlayerMover.MoveTowards(destination);
                     await Coroutine.Yield();
@@ -117,7 +124,8 @@ namespace ExBuddy.OrderBotTags
 
         public static async Task<bool> Unstuck()
         {
-
+            // TODO: do things here for unstuck!
+            await CommonTasks.DescendTo(0);
             return true;
         }
 

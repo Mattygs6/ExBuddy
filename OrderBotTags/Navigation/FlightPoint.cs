@@ -8,6 +8,16 @@
 
         public bool IsDeviation;
 
+        public bool FuzzyEquals(FlightPoint other)
+        {
+            if (other == Vector3.Zero)
+            {
+                return false;
+            }
+
+            return other.Location.Distance3D(this.Location) < 0.8f;
+        }
+
         public override string ToString()
         {
             return this.Location + (IsDeviation ? " *D*" : string.Empty);

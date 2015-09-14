@@ -801,6 +801,12 @@ namespace ExBuddy.OrderBotTags.Common
 
             if (attempts < 5)
             {
+                Logging.Write(
+                    Colors.SpringGreen,
+                    "Turned in {0} at {1} ET",
+                    item.EnglishName,
+                    WorldManager.EorzaTime);
+
                 turnedItemsIn = true;
                 item = null;
                 index = 0;

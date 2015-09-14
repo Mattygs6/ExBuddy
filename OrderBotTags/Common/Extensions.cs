@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlTypes;
     using System.Linq;
     using System.Reflection;
     using System.Windows.Media;
@@ -13,6 +12,8 @@
     using ff14bot;
     using ff14bot.Helpers;
     using ff14bot.Managers;
+
+    using GreyMagic;
 
     public static partial class Extensions
     {
@@ -102,6 +103,25 @@
             }
 
             return defaultValue;
+        }
+
+        public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params uint[] param)
+        {
+            if (window == null || !window.IsValid)
+            {
+                return SendActionResult.InvalidWindow;
+            }
+
+            try
+            {
+                window.SendAction(pairCount, param);
+                return SendActionResult.Success;
+            }
+            catch (InjectionException ex)
+            {
+                Logging.WriteException(ex);
+                return SendActionResult.InjectionError;
+            }
         }
 
         public static bool IsUnknownChance(this GatheringItem gatheringItem)

@@ -71,6 +71,7 @@
     <Compile Include="Common\ObjectCache{T}.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\ReturnStrategy.cs" />
+    <Compile Include="Common\SendActionResult.cs" />
     <Compile Include="Common\TurnInCollectablesTag.cs" />
     <Compile Include="Common\StealthMoveToTag.cs" />
     <Compile Include="Common\Collectable.cs" />

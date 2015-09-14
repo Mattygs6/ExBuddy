@@ -1,4 +1,5 @@
-﻿namespace ExBuddy.OrderBotTags.Common
+﻿#pragma warning disable 1998
+namespace ExBuddy.OrderBotTags.Common
 {
     using System;
     using System.Collections.Generic;
@@ -151,6 +152,7 @@
     [Serializable]
     public class ShopPurchase
     {
+        [DefaultValue(ShopItem.HiCordial)]
         [Clio.XmlEngine.XmlAttribute("ShopItem")]
         public ShopItem ShopItem { get; set; }
 
@@ -440,7 +442,7 @@
                 return;
             }
 
-            window.SendAction(2, 1, 2, 1, index);
+            window.TrySendAction(2, 1, 2, 1, index);
         }
 
         protected override void OnDone()
@@ -448,13 +450,13 @@
             var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
             if (window != null)
             {
-                window.SendAction(1, 3, uint.MaxValue);
+                window.TrySendAction(1, 3, uint.MaxValue);
             }
 
             window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
             if (window != null)
             {
-                window.SendAction(1, 3, uint.MaxValue);
+                window.TrySendAction(1, 3, uint.MaxValue);
             }
         }
 
@@ -660,14 +662,14 @@
                     ticks = 0;
                     while (!SelectYesno.IsOpen && ticks < 3 && Behaviors.ShouldContinue)
                     {
-                        window.SendAction(2, 0, 0, 1, purchaseItemInfo.Index);
+                        window.TrySendAction(2, 0, 0, 1, purchaseItemInfo.Index);
                         await Coroutine.Wait(5000, () => SelectYesno.IsOpen);
                     }
 
                     if (ticks >= 3 || !SelectYesno.IsOpen)
                     {
                         Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
-                        window.SendAction(1, 3, uint.MaxValue);
+                        window.TrySendAction(1, 3, uint.MaxValue);
                         isDone = true;
                         return true;
                     }
@@ -685,7 +687,7 @@
                         Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
                         SelectYesno.ClickNo();
                         await Coroutine.Yield();
-                        window.SendAction(1, 3, uint.MaxValue);
+                        window.TrySendAction(1, 3, uint.MaxValue);
                         isDone = true;
                         return true;
                     }
@@ -710,7 +712,7 @@
 
             Logging.Write(Colors.SpringGreen, "Purchases complete.");
 
-            window.SendAction(1, 3, uint.MaxValue);
+            window.TrySendAction(1, 3, uint.MaxValue);
             isDone = true;
             return true;
         }
@@ -751,7 +753,7 @@
                     return false;
                 }
 
-                window.SendAction(1, 3, uint.MaxValue);
+                window.TrySendAction(1, 3, uint.MaxValue);
                 return false;
             }
 
@@ -760,14 +762,20 @@
                 Logging.Write(Colors.Red, "Full on scrips!");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, we are full on these scrips");
                 SelectYesno.ClickNo();
-                window.SendAction(1, 3, uint.MaxValue);
+                window.TrySendAction(1, 3, uint.MaxValue);
                 return true;
             }
 
             var requestAttempts = 0;
             while (!Request.IsOpen && requestAttempts < 5 && Behaviors.ShouldContinue)
             {
-                window.SendAction(2, 0, 0, 1, index);
+                
+                var result = window.TrySendAction(2, 0, 0, 1, index);
+                if (result == SendActionResult.InjectionError)
+                {
+                    await Coroutine.Sleep(1000);
+                }
+
                 await Coroutine.Wait(1500, () => Request.IsOpen);
                 requestAttempts++;
             }
@@ -777,7 +785,7 @@
                 Logging.Write(Colors.Red, "An error has occured while turning in the item");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
                 SelectYesno.ClickNo();
-                window.SendAction(1, 3, uint.MaxValue);
+                window.TrySendAction(1, 3, uint.MaxValue);
                 return true;
             }
 
@@ -803,7 +811,7 @@
             Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, something is wrong.");
             Request.Cancel();
             SelectYesno.ClickNo();
-            window.SendAction(1, 3, uint.MaxValue);
+            window.TrySendAction(1, 3, uint.MaxValue);
             return true;
         }
 
@@ -981,7 +989,7 @@
                     break;
             }
 
-            var indexOffset = 0;
+            int indexOffset;
 
             if (classIndex >= 8)
             {
@@ -1035,7 +1043,7 @@
                     item =
                         slots.FirstOrDefault(
                             i =>
-                            i.Collectability >= collectable.Value
+                            i.Collectability >= collectable.Value && i.Collectability <= collectable.MaxValueForTurnIn
                             && string.Equals(
                                 collectable.Name,
                                 i.EnglishName,

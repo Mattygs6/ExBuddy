@@ -1,4 +1,5 @@
-﻿namespace ExBuddy.OrderBotTags.Navigation
+﻿#pragma warning disable 1998
+namespace ExBuddy.OrderBotTags.Navigation
 {
     using System;
     using System.ComponentModel;
@@ -146,6 +147,7 @@
             }
         }
 
+        // ReSharper disable once UnusedParameter.Local
         public EnableFlightSettings(string path)
             : base(Path.Combine(CharacterSettingsDirectory, "EnableFlight.json"))
         {

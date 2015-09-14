@@ -295,7 +295,7 @@
 
         public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
         {
-            var side = range / Math.Sqrt(2);
+            var side = range / Math.Sqrt(3);
             var random = new Vector3(
                 vector.X + (float)MathEx.Random(-side, side),
                 vector.Y + (float)MathEx.Random(-side, side),

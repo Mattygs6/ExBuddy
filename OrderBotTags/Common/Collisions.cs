@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.Caching;
 
     using Clio.Common;
     using Clio.Utilities;
@@ -126,7 +127,7 @@
             for (float i = 0.2f; i < 1; i += 0.2f)
             {
                 lastHit = hit;
-                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardRight;
@@ -134,7 +135,7 @@
                 }
 
                 lastHit = hit;
-                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                 {
                     valueFound = true;
                     Flags |= CollisionFlags.ForwardLeft;
@@ -150,7 +151,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
@@ -158,7 +159,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -175,7 +176,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardUp;
@@ -183,7 +184,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardDown;
@@ -200,7 +201,7 @@
                 for (float i = 0.2f; i < 1; i += 0.2f)
                 {
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardLeft;
@@ -208,7 +209,7 @@
                     }
 
                     lastHit = hit;
-                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)))
+                    if (!WorldManager.Raycast(Position, deviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
                     {
                         valueFound = true;
                         Flags |= CollisionFlags.ForwardRight;

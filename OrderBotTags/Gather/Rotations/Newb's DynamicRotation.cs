@@ -4,7 +4,7 @@ using ff14bot.Managers;
 
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    [GatheringRotation("NewbsCollect", 0, 24)]
+    [GatheringRotation("NewbsCollect", 600, 24)]
     public sealed class NewbsCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)

@@ -800,7 +800,8 @@
             }
 
             Logging.Write(Colors.Red, "Too many attempts");
-
+            Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, something is wrong.");
+            Request.Cancel();
             SelectYesno.ClickNo();
             window.SendAction(1, 3, uint.MaxValue);
             return true;

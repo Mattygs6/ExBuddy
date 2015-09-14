@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.Caching;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Media;
@@ -25,7 +26,7 @@
 
     public sealed class FlightEnabledNavigator : INavigationProvider, IDisposable
     {
-        private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(5); 
+        private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(8); 
 
         private bool disposed;
 
@@ -325,13 +326,10 @@
                 MathEx.Lerp(value1.Z, value2.Z, amount));
         }
 
-
 #pragma warning disable 1998
         private async Task<bool> FindWaypoints(Vector3 from, Vector3 target)
 #pragma warning restore 1998
         {
-            //var totalDistance = from.Distance3D(target);
-
             var distance = from.Distance3D(target);
             var desiredNumberOfPoints =
                 Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 2.0)) + flightNavigationArgs.Smoothing, 1.0)), 1.0);
@@ -339,14 +337,11 @@
 
             var distancePerWaypoint = distance / (float)desiredNumberOfPoints;
 
-            Vector3 hit;
-            Vector3 distances;
             var previousWaypoint = from;
             var cleanWaypoints = 0;
 
             for (var i = 0.0f + (1.0f / ((float)desiredNumberOfPoints)); i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
-
                 var waypoint = StraightPath(@from, target, i);
 
                 // TODO: look into capping distance per waypoint, then also the modifier distance
@@ -362,9 +357,11 @@
                     {
                         if (result.HasFlag(CollisionFlags.Error))
                         {
+                            Vector3 hit;
+                            Vector3 distances;
                             var alternateCount = 0;
                             // Go in random direction up to the distance of a normal waypoint.
-                            var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint / (float)Math.Sqrt(3));
+                            var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint);
                             while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances) && Behaviors.ShouldContinue)
                             {
                                 if (alternateCount > 20)
@@ -437,7 +434,7 @@
         {
             queuedFlightPoints.Enqueue(flightPoint);
 
-            if (queuedFlightPoints.Count == 5)
+            if (queuedFlightPoints.Count == 8)
             {
                 CurrentPath.Add(queuedFlightPoints.Dequeue());
             }
@@ -477,11 +474,16 @@
             Vector3 hit;
             if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
             {
+                MemoryCache.Default.Add(
+                    CurrentPath.Current.Location.ToString(),
+                    CurrentPath.Current,
+                    DateTimeOffset.Now + TimeSpan.FromSeconds(10));
+
                 Logging.WriteDiagnostic(Colors.PaleVioletRed, "Collision detected! Generating new path!");
                 this.Clear();
                 return MoveResult.GeneratingPath;
             }
-
+            
             double distanceToNextHop = location.Distance3D(CurrentPath.Current);
 
             if (distanceToNextHop >= this.PathPrecision)

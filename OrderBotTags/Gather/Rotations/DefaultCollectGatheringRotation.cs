@@ -2,7 +2,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using ff14bot.Managers;
 
-    [GatheringRotation("DefaultCollect", 0, 30)]
+    [GatheringRotation("DefaultCollect", 600, 30)]
     public sealed class DefaultCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
     {
         int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)

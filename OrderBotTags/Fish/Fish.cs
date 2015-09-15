@@ -323,6 +323,16 @@ namespace ExBuddy.OrderBotTags
                 ticks = 0;
                 while (baitItem.Id != SelectedBaitItemId && ticks++ < 5 && Behaviors.ShouldContinue)
                 {
+                    if (ticks > 1)
+                    {
+                        Log("Looks like we may have lost control of the bait window, trying again. Attempt: " + ticks + "/5");
+
+                        DoAbility(Abilities.Bait);
+                        await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("Bait") == null);
+                        DoAbility(Abilities.Bait);
+                        await Coroutine.Wait(5000, () => (window = RaptureAtkUnitManager.GetWindowByName("Bait")) != null);
+                    }
+
                     await Coroutine.Sleep(BaitDelay);
 
                     await PostKeyPress(MoveCursorRightKey, BaitDelay);

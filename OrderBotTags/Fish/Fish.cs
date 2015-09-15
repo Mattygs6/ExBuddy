@@ -6,7 +6,10 @@ namespace ExBuddy.OrderBotTags
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using System.Windows.Media;
+
+    using Buddy.Coroutines;
 
     using Clio.Common;
     using Clio.Utilities;
@@ -72,6 +75,14 @@ namespace ExBuddy.OrderBotTags
 
         private const uint WM_KEYUP = 0x0101;
 
+        protected uint SelectedBaitItemId
+        {
+            get
+            {
+                return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x0103906C);
+            }
+        }
+
         protected bool HasPatience
         {
             get
@@ -121,9 +132,10 @@ namespace ExBuddy.OrderBotTags
         [DllImport("user32.dll")]
         protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-        protected static void PostKeyPress(VirtualKeys key)
+        protected static async Task PostKeyPress(VirtualKeys key, int delay)
         {
             PostKeyPress((int)key);
+            await Coroutine.Sleep(delay);
         }
 
         protected static void PostKeyPress(int key)
@@ -139,6 +151,34 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnStart()
         {
+            if (BaitId > 0)
+            {
+                baitItem = DataManager.ItemCache[BaitId];
+            }
+            else if (!string.IsNullOrWhiteSpace(Bait))
+            {
+                baitItem =
+                    DataManager.ItemCache.Values.Find(
+                        i => string.Equals(i.EnglishName, Bait, StringComparison.InvariantCultureIgnoreCase)
+                            || string.Equals(i.CurrentLocaleName, Bait, StringComparison.InvariantCultureIgnoreCase));
+
+                if (baitItem == null)
+                {
+                    isDone = true;
+                    Log("Error finding bait, doesn't match any item in the database. " + Bait, Colors.Red);
+                    return;
+                }
+            }
+
+            BaitDelay = BaitDelay < 100 ? 100 : BaitDelay;
+
+            if (baitItem != null && baitItem.Affinity != 19)
+            {
+                isDone = true;
+                Log("Error: item " + baitItem.EnglishName + " is not considered bait.");
+                return;
+            }
+
             if (this.Keepers == null)
             {
                 this.Keepers = new List<Keeper>();
@@ -157,11 +197,6 @@ namespace ExBuddy.OrderBotTags
             ShuffleFishSpots();
 
             sitRoll = SitRng.NextDouble();
-
-            if (IsBaitWindowOpen && CanDoAbility(Abilities.Bait))
-            {
-                DoAbility(Abilities.Bait);
-            }
 
             if (CanDoAbility(Abilities.Quit))
             {
@@ -201,9 +236,6 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnResetCachedDone()
         {
-            baitAttempts = 0;
-            baitChanged = false;
-            baitCount = GetBaitCount();
             isDone = false;
             mooch = 0;
             sitRoll = 1.0;
@@ -214,7 +246,6 @@ namespace ExBuddy.OrderBotTags
             isSitting = false;
             isFishIdentified = false;
             fishlimit = GetFishLimit();
-            currentBait = string.Empty;
             checkRelease = false;
 
             CharacterSettings.Instance.UseMount = initialMountSetting;
@@ -223,8 +254,6 @@ namespace ExBuddy.OrderBotTags
         protected override Composite CreateBehavior()
         {
             fishlimit = GetFishLimit();
-            baitCount = GetBaitCount();
-            baitAttempts = 0;
 
             return new PrioritySelector(
                 StateTransitionAlwaysSucceed,
@@ -237,10 +266,7 @@ namespace ExBuddy.OrderBotTags
                     CheckStealthComposite,
                     CheckWeatherComposite,
                 // Waits up to 10 hours, might want to rethink this one.
-                    EnsureBaitComposite,
-                    OpenBaitComposite,
-                    ApplyBaitComposite,
-                    CloseBaitComposite,
+                    new ActionRunCoroutine(ctx => HandleBait()),
                     InitFishSpotComposite,
                     CollectablesComposite,
                     ReleaseComposite,
@@ -255,6 +281,90 @@ namespace ExBuddy.OrderBotTags
                     ChumComposite,
                     CastComposite,
                     HookComposite));
+        }
+
+        private async Task<bool> HandleBait()
+        {
+            if (!IsBaitSpecified || IsCorrectBaitSelected)
+            {
+                // we don't need to worry about bait. Either not specified, or we already have the correct bait selected.
+                return false;
+            }
+
+            if (!HasSpecifiedBait)
+            {
+                Log("You do not have the specified bait: " + this.Bait, Colors.Red);
+                return isDone = true;
+            }
+
+            
+            if (IsBaitSpecified && !IsCorrectBaitSelected)
+            {
+                var window = RaptureAtkUnitManager.GetWindowByName("Bait");
+                if (window == null)
+                {
+                    DoAbility(Abilities.Bait);    
+                }
+
+                var ticks = 0;
+                while (window == null && ticks++ < 100 && Behaviors.ShouldContinue)
+                {
+                    window = RaptureAtkUnitManager.GetWindowByName("Bait");
+                    await Coroutine.Yield();
+                }
+
+                if (ticks >= 100)
+                {
+                    DoAbility(Abilities.Bait);
+                    Log("Timeout during bait selection.", Colors.Red);
+                    return isDone = true;
+                }
+
+                ticks = 0;
+                while (baitItem.Id != SelectedBaitItemId && ticks++ < 5 && Behaviors.ShouldContinue)
+                {
+                    await Coroutine.Sleep(BaitDelay);
+
+                    await PostKeyPress(MoveCursorRightKey, BaitDelay);
+
+                    await PostKeyPress(ConfirmKey, BaitDelay);
+
+                    var bait = GetBaitIds();
+                    var baitIndex = bait.IndexOf(baitItem.Id);
+
+                    var currentBaitIndex = bait.IndexOf(SelectedBaitItemId);
+
+                    if (baitIndex < currentBaitIndex)
+                    {
+                        baitIndex += bait.Count;
+                    }
+
+                    var diff = baitIndex - currentBaitIndex;
+
+                    while (diff-- > 0)
+                    {
+                        await PostKeyPress(MoveCursorRightKey, BaitDelay);
+                    }
+
+                    await PostKeyPress(ConfirmKey, BaitDelay);
+                    await Coroutine.Sleep(BaitDelay);
+                }
+
+                if (ticks >= 5)
+                {
+                    DoAbility(Abilities.Bait);
+                    Log("Timeout during bait selection.", Colors.Red);
+                    return isDone = true;
+                }
+
+                DoAbility(Abilities.Bait);
+                await Coroutine.Sleep(BaitDelay);
+
+                // If we are dead or should stop, return true.  Otherwise return false so we continue to fish!
+                return !Behaviors.ShouldContinue;
+            }
+
+            return false;
         }
 
         protected Composite GoFish(params Composite[] children)
@@ -276,10 +386,6 @@ namespace ExBuddy.OrderBotTags
             @"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        protected static Regex BaitRegex = new Regex(
-            @"You apply an{0,1} (.+) to your line.",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         protected static FishResult FishResult = new FishResult();
 
         private Func<bool> conditionFunc;
@@ -289,13 +395,7 @@ namespace ExBuddy.OrderBotTags
 
         private BotEvent cleanup;
 
-        private string currentBait;
-
-        private int baitCount;
-
-        private bool baitChanged;
-
-        private int baitAttempts;
+        private Item baitItem;
 
         private bool checkRelease;
 
@@ -349,7 +449,10 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("Bait")]
         public string Bait { get; set; }
 
-        [DefaultValue(1200)]
+        [XmlAttribute("BaitId")]
+        public uint BaitId { get; set; }
+
+        [DefaultValue(125)]
         [XmlAttribute("BaitDelay")]
         public int BaitDelay { get; set; }
 
@@ -427,7 +530,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Version(3, 0, 7, 201508254);
+                return new Version(3, 0, 7, 201509150);
             }
         }
 
@@ -439,17 +542,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return
-                    InventoryManager.FilledSlots.Any(
-                        i => string.Equals(i.Name, this.Bait, StringComparison.InvariantCultureIgnoreCase));
-            }
-        }
-
-        private bool IsBaitWindowOpen
-        {
-            get
-            {
-                return RaptureAtkUnitManager.Controls.Any(c => c.Name == "Bait" && c.IsValid);
+                return baitItem.ItemCount() > 0;
             }
         }
 
@@ -457,7 +550,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return !string.IsNullOrEmpty(this.Bait);
+                return baitItem != null;
             }
         }
 
@@ -465,7 +558,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return string.Equals(currentBait, this.Bait, StringComparison.InvariantCultureIgnoreCase);
+                return baitItem.Id == SelectedBaitItemId;
             }
         }
 
@@ -796,105 +889,6 @@ namespace ExBuddy.OrderBotTags
             }
         }
 
-        protected Composite EnsureBaitComposite
-        {
-            get
-            {
-                return new Decorator(
-                    ret => IsBaitSpecified && !HasSpecifiedBait,
-                    new Sequence(
-                        new Action(r => { Log("You do not have the specified bait: " + this.Bait); }),
-                        IsDoneAction));
-            }
-        }
-
-        protected Composite OpenBaitComposite
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret =>
-                        IsBaitSpecified && !IsBaitWindowOpen && !IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
-                        new Sequence(
-                            new Action(r => { DoAbility(Abilities.Bait); }),
-                            new Wait(3, ret => IsBaitWindowOpen, new ActionAlwaysSucceed())));
-            }
-        }
-
-        protected Composite ApplyBaitComposite
-        {
-            get
-            {
-                return new Decorator(
-                    ret => IsBaitSpecified && IsBaitWindowOpen && !IsCorrectBaitSelected,
-                    new PrioritySelector(
-                        new Decorator(
-                            ret => baitCount < 0,
-                            new Sequence(
-                                new Action(
-                                    r => { Log("Unable to find specified bait -> " + this.Bait + ", ending profile"); }),
-                                IsDoneAction)),
-                        new Sequence(
-                            new Wait(
-                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
-                                new Action(r => PostKeyPress(this.MoveCursorRightKey))),
-                            new Wait(
-                                TimeSpan.FromMilliseconds(Math.Max(100, this.BaitDelay / 10)),
-                                new Action(
-                                    r =>
-                                    {
-                                        PostKeyPress(this.ConfirmKey);
-                                        baitAttempts++;
-                                    })),
-                            new WaitContinue(
-                                TimeSpan.FromMilliseconds(this.BaitDelay),
-                                ret => IsCorrectBaitSelected,
-                                new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })),
-                            new PrioritySelector(
-                                new Decorator(ret => baitChanged, new Action(r => { baitChanged = false; })),
-                                new Decorator(
-                                    ret => baitCount == 1 && HasSpecifiedBait,
-                                    new Action(
-                                        r =>
-                                        {
-                                            currentBait = this.Bait;
-                                            Log("Correct Bait Selected -> " + this.Bait);
-                                        })),
-                                new Decorator(
-                                    ret => baitAttempts > 2,
-                                    new Sequence(
-                                        new Action(
-                                            r =>
-                                            {
-                                                Log("Lost focus on the bait window, select bait manually.");
-                                                Log("Attempting to re-apply bait in 10 seconds.");
-
-                                                // reset bait count
-                                                baitCount = this.GetBaitCount();
-                                            }),
-                                        new WaitContinue(
-                                            10,
-                                            ret => IsCorrectBaitSelected,
-                                            new Action(r => { Log("Correct Bait Selected -> " + this.Bait); })))),
-                                new ActionAlwaysSucceed()))));
-            }
-        }
-
-        protected Composite CloseBaitComposite
-        {
-            get
-            {
-                return
-                    new Decorator(
-                        ret =>
-                        IsBaitSpecified && IsBaitWindowOpen && IsCorrectBaitSelected && CanDoAbility(Abilities.Bait),
-                        new Sequence(
-                            new Action(r => { DoAbility(Abilities.Bait); }),
-                            new Wait(5, ret => !IsBaitWindowOpen, new ActionAlwaysSucceed())));
-            }
-        }
-
         #endregion
 
         #region Composites
@@ -1043,18 +1037,23 @@ namespace ExBuddy.OrderBotTags
             isSitting = false;
         }
 
-        protected virtual int GetBaitCount()
+        protected virtual IList<uint> GetBaitIds()
+        {
+            var result = GetBaitInWindowOrder().GroupBy(i => i.RawItemId).Select(i => i.Key).ToArray();
+
+            return result;
+        } 
+
+        protected virtual IList<BagSlot> GetBaitInWindowOrder()
         {
             var result =
-                InventoryManager.FilledSlots.Where(
-                    bs => bs.Item.Affinity == 19 && bs.Item.RequiredLevel <= Core.Player.ClassLevel)
-                    .GroupBy(
-                        bs => bs.RawItemId,
-                        (key, groupedItems) => new { ItemId = key, Count = groupedItems.Sum(gi => gi.Count) })
+                InventoryManager.FilledSlots.Where(i => i.Item.Affinity == 19)
+                    .OrderBy(i => i.Item.ItemLevel)
+                    .ThenBy(i => i.RawItemId)
                     .ToArray();
 
-            return result.Length;
-        }
+            return result;
+        } 
 
         protected virtual int GetFishLimit()
         {
@@ -1077,18 +1076,6 @@ namespace ExBuddy.OrderBotTags
                 mooch = 0;
                 Log("Resetting mooch level.");
             }
-        }
-
-        protected string GetCurrentBait(string message)
-        {
-            if (BaitRegex.IsMatch(message))
-            {
-                var match = BaitRegex.Match(message);
-
-                return match.Groups[1].Value;
-            }
-
-            return "Parse Error";
         }
 
         protected void SetFishResult(string message)
@@ -1116,15 +1103,6 @@ namespace ExBuddy.OrderBotTags
 
         protected void ReceiveMessage(object sender, ChatEventArgs e)
         {
-            if (e.ChatLogEntry.MessageType == MessageType.SystemMessages
-                && e.ChatLogEntry.Contents.StartsWith("You apply"))
-            {
-                currentBait = GetCurrentBait(e.ChatLogEntry.Contents);
-                baitCount--;
-                baitChanged = true;
-                Log("Applied Bait -> " + currentBait);
-            }
-
             if (e.ChatLogEntry.MessageType == (MessageType)2115 && e.ChatLogEntry.Contents.StartsWith("You land"))
             {
                 SetFishResult(e.ChatLogEntry.Contents);

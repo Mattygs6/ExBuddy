@@ -14,11 +14,12 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.Enums;
     using ff14bot.Managers;
     using ff14bot.Navigation;
-    using ff14bot.NeoProfiles;
+    //using ff14bot.NeoProfiles;
     using ff14bot.Settings;
 
     public static class Behaviors
     {
+        private static bool shouldContinue;
         static Behaviors()
         {
             ShouldContinue = true;
@@ -27,7 +28,18 @@ namespace ExBuddy.OrderBotTags
             //GameEvents.OnPlayerDied += (sender, args) => ShouldContinue = false;
         }
 
-        public static bool ShouldContinue { get; set; }
+        public static bool ShouldContinue
+        {
+            get
+            {
+                return Core.Player.IsAlive && shouldContinue;
+            }
+
+            set
+            {
+                shouldContinue = value;
+            }
+        }
 
         public static readonly Func<float, float, bool> DontStopInRange = (d, r) => false;
 

@@ -85,7 +85,7 @@ namespace ExBuddy.OrderBotTags.Common
         {
             get
             {
-                return Core.Memory.Read<int>(BasePointer);
+                return Core.Memory.NoCacheRead<int>(BasePointer);
             }
         }
 
@@ -93,7 +93,7 @@ namespace ExBuddy.OrderBotTags.Common
         {
             get
             {
-                return Core.Memory.Read<int>(BasePointer + 8);
+                return Core.Memory.NoCacheRead<int>(BasePointer + 8);
             }
         }
 
@@ -101,7 +101,7 @@ namespace ExBuddy.OrderBotTags.Common
         {
             get
             {
-                return Core.Memory.Read<int>(BasePointer + 16);
+                return Core.Memory.NoCacheRead<int>(BasePointer + 16);
             }
         }
 
@@ -109,7 +109,7 @@ namespace ExBuddy.OrderBotTags.Common
         {
             get
             {
-                return Core.Memory.Read<int>(BasePointer + 24);
+                return Core.Memory.NoCacheRead<int>(BasePointer + 24);
             }
         }
 
@@ -790,6 +790,7 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             var attempts = 0;
+            var itemName = item.Item.EnglishName;
             while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue)
             {
                 item.Handover();
@@ -804,7 +805,7 @@ namespace ExBuddy.OrderBotTags.Common
                 Logging.Write(
                     Colors.SpringGreen,
                     "Turned in {0} at {1} ET",
-                    item.EnglishName,
+                    itemName,
                     WorldManager.EorzaTime);
 
                 turnedItemsIn = true;

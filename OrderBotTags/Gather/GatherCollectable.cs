@@ -390,7 +390,8 @@
                             typeof(MapGatheringRotation),
                             typeof(SmartQualityGatheringRotation),
                             typeof(SmartYieldGatheringRotation),
-                            typeof(YieldAndQualityGatheringRotation)
+                            typeof(YieldAndQualityGatheringRotation),
+                            typeof(NewbCollectGatheringRotation)
                        };
         }
 

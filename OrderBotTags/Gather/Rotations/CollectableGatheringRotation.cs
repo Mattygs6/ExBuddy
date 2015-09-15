@@ -172,6 +172,20 @@
             return atkControl;
         }
 
+        protected async Task AppraiseAndRebuff(GatherCollectableTag tag)
+        {
+            await Impulsive(tag);
+
+            if (HasDiscerningEye)
+            {
+                await tag.Cast(Ability.SingleMind);
+            }
+            else
+            {
+                await tag.Cast(Ability.DiscerningEye);
+            }
+        }
+
         protected async Task Discerning(GatherCollectableTag tag)
         {
             await tag.Cast(Ability.DiscerningEye);
@@ -194,6 +208,11 @@
             await tag.Cast(Ability.DiscerningEye);
             await tag.Cast(Ability.UtmostCaution);
             await tag.Cast(Ability.MethodicalAppraisal);
+        }
+
+        protected async Task UtmostCaution(GatherCollectableTag tag)
+        {
+            await tag.Cast(Ability.UtmostCaution);
         }
 
         protected async Task UtmostImpulsive(GatherCollectableTag tag)

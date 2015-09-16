@@ -798,6 +798,15 @@ namespace ExBuddy.OrderBotTags.Common
                 return true;
             }
 
+            if (item == null || item.Item == null)
+            {
+                Logging.Write(Colors.Red, "The item has become null between the time we resolved it and tried to turn it in...");
+                item = null;
+                index = 0;
+                await Coroutine.Yield();
+                return true;
+            }
+
             var attempts = 0;
             var itemName = item.Item.EnglishName;
             while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue && item.Item != null)
@@ -817,10 +826,10 @@ namespace ExBuddy.OrderBotTags.Common
                     itemName,
                     WorldManager.EorzaTime);
 
-                await Coroutine.Yield();
                 turnedItemsIn = true;
                 item = null;
                 index = 0;
+                await Coroutine.Yield();
                 return true;
             }
 

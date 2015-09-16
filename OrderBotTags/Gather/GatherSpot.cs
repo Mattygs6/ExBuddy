@@ -6,6 +6,8 @@
     using Clio.Utilities;
     using Clio.XmlEngine;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot;
 
     public interface IGatherSpot

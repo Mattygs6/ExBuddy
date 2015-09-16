@@ -1,6 +1,7 @@
-﻿namespace ExBuddy.OrderBotTags
+﻿namespace ExBuddy.OrderBotTags.Common
 {
     using System.Collections.Generic;
+
     using ff14bot.Enums;
 
     internal static class Abilities

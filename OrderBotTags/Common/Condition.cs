@@ -1,4 +1,4 @@
-﻿namespace ff14bot.Managers
+﻿namespace ExBuddy.OrderBotTags.Common
 {
     using System;
     using System.Collections.Concurrent;
@@ -38,13 +38,13 @@
         {
             get
             {
-                if(!isValid)
+                if(!this.isValid)
                 {
                     this.Timer.Change(1,-1);
                     return false;
                 }
 
-                return isValid;
+                return this.isValid;
             }
         }
 

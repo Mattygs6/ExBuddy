@@ -3,6 +3,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     using System.Linq;
     using System.Threading.Tasks;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot;
     using ff14bot.Managers;
 

@@ -4,6 +4,8 @@
 
     using Buddy.Coroutines;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot;
     using ff14bot.Managers;
 

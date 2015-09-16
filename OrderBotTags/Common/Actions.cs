@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags
+namespace ExBuddy.OrderBotTags.Common
 {
     using System.Threading.Tasks;
     using System.Windows.Media;

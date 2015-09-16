@@ -15,6 +15,8 @@ namespace ExBuddy.OrderBotTags
     using Clio.Utilities;
     using Clio.XmlEngine;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
@@ -71,15 +73,23 @@ namespace ExBuddy.OrderBotTags
             Patience2 = 4106
         }
 
-        private const uint WM_KEYDOWN = 0x100;
+        private const uint WmKeydown = 0x100;
 
-        private const uint WM_KEYUP = 0x0101;
+        private const uint WmKeyup = 0x0101;
 
         protected uint SelectedBaitItemId
         {
             get
             {
                 return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x0103906C);
+            }
+        }
+
+        protected uint CurrentCollectableItemId
+        {
+            get
+            {
+                return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x00FDD298) % 500000;
             }
         }
 
@@ -130,6 +140,7 @@ namespace ExBuddy.OrderBotTags
 
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("user32.dll")]
+        // ReSharper disable once InconsistentNaming
         protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
         protected static async Task PostKeyPress(VirtualKeys key, int delay)
@@ -140,8 +151,8 @@ namespace ExBuddy.OrderBotTags
 
         protected static void PostKeyPress(int key)
         {
-            PostMessage(Core.Memory.Process.MainWindowHandle, WM_KEYDOWN, new IntPtr(key), IntPtr.Zero);
-            PostMessage(Core.Memory.Process.MainWindowHandle, WM_KEYUP, new IntPtr(key), IntPtr.Zero);
+            PostMessage(Core.Memory.Process.MainWindowHandle, WmKeydown, new IntPtr(key), IntPtr.Zero);
+            PostMessage(Core.Memory.Process.MainWindowHandle, WmKeyup, new IntPtr(key), IntPtr.Zero);
         }
 
         public static bool IsFishing()
@@ -151,6 +162,7 @@ namespace ExBuddy.OrderBotTags
 
         protected override void OnStart()
         {
+            Item baitItem = null;
             if (BaitId > 0)
             {
                 baitItem = DataManager.ItemCache[BaitId];
@@ -170,6 +182,16 @@ namespace ExBuddy.OrderBotTags
                 }
             }
 
+            if (baitItem != null)
+            {
+                if (Baits == null)
+                {
+                    Baits = new List<Bait>();
+                }
+
+                Baits.Insert(0, new Bait { Id = baitItem.Id, Name = baitItem.EnglishName, BaitItem = baitItem, Condition = "True" });
+            }
+
             BaitDelay = BaitDelay < 100 ? 100 : BaitDelay;
 
             if (baitItem != null && baitItem.Affinity != 19)
@@ -184,10 +206,17 @@ namespace ExBuddy.OrderBotTags
                 this.Keepers = new List<Keeper>();
             }
 
-            ////if (this.Collectables == null)
-            ////{
-            ////    this.Collectables = new List<Collectable>();
-            ////}
+            if (Collect && this.Collectables == null)
+            {
+                this.Collectables = new List<Collectable>
+                {
+                    new Collectable
+                        {
+                            Name = string.Empty,
+                            Value = (int)this.CollectabilityValue
+                        }
+                };
+            }
 
             GamelogManager.MessageRecevied += ReceiveMessage;
             FishSpots.IsCyclic = true;
@@ -265,10 +294,10 @@ namespace ExBuddy.OrderBotTags
                     DismountComposite,
                     CheckStealthComposite,
                     CheckWeatherComposite,
-                // Waits up to 10 hours, might want to rethink this one.
+                    // Waits up to 10 hours, might want to rethink this one.
                     new ActionRunCoroutine(ctx => HandleBait()),
                     InitFishSpotComposite,
-                    CollectablesComposite,
+                    new ActionRunCoroutine(ctx => HandleCollectable()),
                     ReleaseComposite,
                     MoochComposite,
                     FishCountLimitComposite,
@@ -291,90 +320,171 @@ namespace ExBuddy.OrderBotTags
                 return false;
             }
 
+            if (FishingManager.State != FishingState.None && FishingManager.State != FishingState.PoleReady)
+            {
+                // we are not in the proper state to modify our bait. continue.
+                return false;
+            }
+
             if (!HasSpecifiedBait)
             {
                 Log("You do not have the specified bait: " + this.Bait, Colors.Red);
                 return isDone = true;
             }
 
-            
-            if (IsBaitSpecified && !IsCorrectBaitSelected)
+
+            var window = RaptureAtkUnitManager.GetWindowByName("Bait");
+            if (window == null)
             {
-                var window = RaptureAtkUnitManager.GetWindowByName("Bait");
-                if (window == null)
-                {
-                    DoAbility(Abilities.Bait);    
-                }
-
-                var ticks = 0;
-                while (window == null && ticks++ < 100 && Behaviors.ShouldContinue)
-                {
-                    window = RaptureAtkUnitManager.GetWindowByName("Bait");
-                    await Coroutine.Yield();
-                }
-
-                if (ticks >= 100)
-                {
-                    DoAbility(Abilities.Bait);
-                    Log("Timeout during bait selection.", Colors.Red);
-                    return isDone = true;
-                }
-
-                ticks = 0;
-                while (baitItem.Id != SelectedBaitItemId && ticks++ < 5 && Behaviors.ShouldContinue)
-                {
-                    if (ticks > 1)
-                    {
-                        Log("Looks like we may have lost control of the bait window, trying again. Attempt: " + ticks + "/5");
-
-                        DoAbility(Abilities.Bait);
-                        await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("Bait") == null);
-                        DoAbility(Abilities.Bait);
-                        await Coroutine.Wait(5000, () => (window = RaptureAtkUnitManager.GetWindowByName("Bait")) != null);
-                    }
-
-                    await Coroutine.Sleep(BaitDelay);
-
-                    await PostKeyPress(MoveCursorRightKey, BaitDelay);
-
-                    await PostKeyPress(ConfirmKey, BaitDelay);
-
-                    var bait = GetBaitIds();
-                    var baitIndex = bait.IndexOf(baitItem.Id);
-
-                    var currentBaitIndex = bait.IndexOf(SelectedBaitItemId);
-
-                    if (baitIndex < currentBaitIndex)
-                    {
-                        baitIndex += bait.Count;
-                    }
-
-                    var diff = baitIndex - currentBaitIndex;
-
-                    while (diff-- > 0)
-                    {
-                        await PostKeyPress(MoveCursorRightKey, BaitDelay);
-                    }
-
-                    await PostKeyPress(ConfirmKey, BaitDelay);
-                    await Coroutine.Sleep(BaitDelay);
-                }
-
-                if (ticks >= 5)
-                {
-                    DoAbility(Abilities.Bait);
-                    Log("Timeout during bait selection.", Colors.Red);
-                    return isDone = true;
-                }
-
                 DoAbility(Abilities.Bait);
-                await Coroutine.Sleep(BaitDelay);
-
-                // If we are dead or should stop, return true.  Otherwise return false so we continue to fish!
-                return !Behaviors.ShouldContinue;
             }
 
-            return false;
+            var ticks = 0;
+            while (window == null && ticks++ < 100 && Behaviors.ShouldContinue)
+            {
+                window = RaptureAtkUnitManager.GetWindowByName("Bait");
+                await Coroutine.Yield();
+            }
+
+            if (ticks >= 100)
+            {
+                DoAbility(Abilities.Bait);
+                Log("Timeout during bait selection.", Colors.Red);
+                return isDone = true;
+            }
+
+            var baitItem = OrderBotTags.Bait.FindMatch(Baits).BaitItem;
+
+            ticks = 0;
+            while (!IsCorrectBaitSelected && ticks++ < 5 && Behaviors.ShouldContinue)
+            {
+                if (ticks > 1)
+                {
+                    Log("Looks like we may have lost control of the bait window, trying again. Attempt: " + ticks + "/5");
+
+                    DoAbility(Abilities.Bait);
+                    await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("Bait") == null);
+                    DoAbility(Abilities.Bait);
+                    await Coroutine.Wait(5000, () => (window = RaptureAtkUnitManager.GetWindowByName("Bait")) != null);
+                }
+
+                await Coroutine.Sleep(BaitDelay);
+
+                await PostKeyPress(MoveCursorRightKey, BaitDelay);
+
+                await PostKeyPress(ConfirmKey, BaitDelay);
+
+                await Coroutine.Sleep(BaitDelay);
+
+                var bait = GetBaitIds();
+                var baitIndex = bait.IndexOf(baitItem.Id);
+
+                var currentBaitIndex = bait.IndexOf(SelectedBaitItemId);
+
+                if (baitIndex < currentBaitIndex)
+                {
+                    baitIndex += bait.Count;
+                }
+
+                var diff = baitIndex - currentBaitIndex;
+
+                while (diff-- > 0)
+                {
+                    await PostKeyPress(MoveCursorRightKey, BaitDelay);
+                }
+
+                await PostKeyPress(ConfirmKey, BaitDelay);
+                await Coroutine.Sleep(BaitDelay);
+            }
+
+            if (ticks >= 5)
+            {
+                DoAbility(Abilities.Bait);
+                Log("Timeout during bait selection.", Colors.Red);
+                return isDone = true;
+            }
+
+            DoAbility(Abilities.Bait);
+            await Coroutine.Sleep(BaitDelay);
+
+            Log("Using bait -> " + baitItem.EnglishName);
+
+            return true;
+        }
+
+        private async Task<bool> HandleCollectable()
+        {
+            if (Collectables == null || !SelectYesNoItem.IsOpen)
+            {
+                //we are not collecting or the window isn't open yet
+                return false;
+            }
+
+            await Coroutine.Wait(5000, () => SelectYesNoItem.CollectabilityValue > 20);
+
+            var required = CollectabilityValue;
+            if (!string.IsNullOrWhiteSpace(Collectables.First().Name))
+            {
+                var item = DataManager.GetItem(CurrentCollectableItemId);
+                if (item == null
+                    || !Collectables.Any(
+                        c => string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    var ticks = 0;
+                    while ((item == null
+                            || !Collectables.Any(
+                                c =>
+                                string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
+                           && ticks++ < 60 && Behaviors.ShouldContinue)
+                    {
+                        item = DataManager.GetItem(CurrentCollectableItemId);
+                        await Coroutine.Yield();
+                    }
+
+                    // handle timeout
+                    if (ticks >= 60)
+                    {
+                        required = (uint)Collectables.Select(c => c.Value).Max();
+                    }
+                }
+
+                if (item != null)
+                {
+                    // handle normal
+
+                    var collectable = Collectables.FirstOrDefault(c => string.Equals(c.Name, item.EnglishName));
+
+                    if (collectable != null)
+                    {
+                        required = (uint)collectable.Value;
+                    }
+                }
+            }
+
+            // handle
+
+            var value = SelectYesNoItem.CollectabilityValue;
+            
+            Log(
+                string.Format(
+                    "Collectible caught with value: {0} required: {1}",
+                    value,
+                    required));
+
+            if (value >= required)
+            {
+                Log("Collecting -> Value: " + value, Colors.Green);
+                SelectYesNoItem.Yes();
+            }
+            else
+            {
+                Log("Declining -> Value: " + value, Colors.Red);
+                SelectYesNoItem.No();
+            }
+
+            await Coroutine.Wait(2000, () => !SelectYesNoItem.IsOpen);
+
+            return true;
         }
 
         protected Composite GoFish(params Composite[] children)
@@ -405,8 +515,6 @@ namespace ExBuddy.OrderBotTags
 
         private BotEvent cleanup;
 
-        private Item baitItem;
-
         private bool checkRelease;
 
         private bool isSitting;
@@ -431,11 +539,14 @@ namespace ExBuddy.OrderBotTags
 
         #region Public Properties
 
+        [XmlElement("Baits")]
+        public List<Bait> Baits { get; set; }
+
         [XmlElement("Keepers")]
         public List<Keeper> Keepers { get; set; }
 
-        ////[XmlElement("Collectables")]
-        ////public List<Collectable> Collectables { get; set; }
+        [XmlElement("Collectables")]
+        public List<Collectable> Collectables { get; set; }
 
         [XmlElement("FishSpots")]
         public IndexedList<FishSpot> FishSpots { get; set; }
@@ -462,7 +573,7 @@ namespace ExBuddy.OrderBotTags
         [XmlAttribute("BaitId")]
         public uint BaitId { get; set; }
 
-        [DefaultValue(125)]
+        [DefaultValue(130)]
         [XmlAttribute("BaitDelay")]
         public int BaitDelay { get; set; }
 
@@ -504,15 +615,7 @@ namespace ExBuddy.OrderBotTags
         public bool Collect { get; set; }
 
         [XmlAttribute("CollectabilityValue")]
-        public int UCollectabilityValue { get; set; }
-
-        public uint CollectabilityValue
-        {
-            get
-            {
-                return Convert.ToUInt32(UCollectabilityValue);
-            }
-        }
+        public uint CollectabilityValue { get; set; }
 
         [DefaultValue(Abilities.None)]
         [XmlAttribute("Patience")]
@@ -552,7 +655,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return baitItem.ItemCount() > 0;
+                return OrderBotTags.Bait.FindMatch(Baits).BaitItem.ItemCount() > 0;
             }
         }
 
@@ -560,7 +663,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return baitItem != null;
+                return Baits != null && Baits.Count > 0;
             }
         }
 
@@ -568,7 +671,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return baitItem.Id == SelectedBaitItemId;
+                return OrderBotTags.Bait.FindMatch(Baits).BaitItem.Id == SelectedBaitItemId;
             }
         }
 
@@ -589,7 +692,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Decorator(
-                    ret => Collect && SelectYesNoItem.IsOpen,
+                    ret => Collectables != null && SelectYesNoItem.IsOpen,
                     new Wait(
                         10,
                         ret => SelectYesNoItem.CollectabilityValue > Math.Max(20, CollectabilityValue / 6),
@@ -699,7 +802,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Decorator(
-                    ret => CanDoAbility(Abilities.CollectorsGlove) && Collect ^ HasCollectorsGlove,
+                    ret => CanDoAbility(Abilities.CollectorsGlove) && Collectables != null ^ HasCollectorsGlove,
                     new Sequence(
                         new Action(
                             r =>
@@ -777,7 +880,7 @@ namespace ExBuddy.OrderBotTags
                         Patience > Abilities.None
                         && (FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady)
                         && !HasPatience && CanDoAbility(Patience)
-                        && (Core.Player.CurrentGP >= 600 || Core.Player.CurrentGPPercent == 100.0f),
+                        && (Core.Player.CurrentGP >= 600 || Core.Player.CurrentGPPercent > 99.0f),
                         new Sequence(
                             new Action(
                                 r =>
@@ -1052,7 +1155,7 @@ namespace ExBuddy.OrderBotTags
             var result = GetBaitInWindowOrder().GroupBy(i => i.RawItemId).Select(i => i.Key).ToArray();
 
             return result;
-        } 
+        }
 
         protected virtual IList<BagSlot> GetBaitInWindowOrder()
         {
@@ -1063,7 +1166,7 @@ namespace ExBuddy.OrderBotTags
                     .ToArray();
 
             return result;
-        } 
+        }
 
         protected virtual int GetFishLimit()
         {

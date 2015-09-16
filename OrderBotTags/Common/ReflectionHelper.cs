@@ -1,12 +1,12 @@
-﻿namespace ExBuddy.OrderBotTags
+﻿namespace ExBuddy.OrderBotTags.Common
 {
-	using System;
-	using System.Collections.Concurrent;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Reflection;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
-	/// <summary>
+    /// <summary>
 	///     The reflection helper.
 	/// </summary>
 	public static class ReflectionHelper

@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.OrderBotTags
+﻿namespace ExBuddy.OrderBotTags.Common
 {
     using System;
     using System.ComponentModel;

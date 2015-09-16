@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags
+namespace ExBuddy.OrderBotTags.Common
 {
     using System;
     using System.Threading.Tasks;
@@ -14,8 +14,8 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.Enums;
     using ff14bot.Managers;
     using ff14bot.Navigation;
-    //using ff14bot.NeoProfiles;
     using ff14bot.Settings;
+    //using ff14bot.NeoProfiles;
 
     public static class Behaviors
     {

@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags
+namespace ExBuddy.OrderBotTags.Common
 {
     public enum SendActionResult
     {

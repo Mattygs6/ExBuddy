@@ -2,28 +2,41 @@
     <Name>Fishing: Warmwater Bichir</Name>
     <KillRadius>50</KillRadius>
     <CodeChunks>
-      <!-- Change gearset to your characters gear set number -->
-      <CodeChunk name="Gear">
+      <CodeChunk Name="Gear">
         <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
       </CodeChunk>
     </CodeChunks>
     <Order>
-      <RunCode name="Gear"/>
-      <WaitTimer waitTime="3"/>
-      <If condition="not IsOnMap(398)">
-        <TeleportTo name="Anyx Trine" aetheryteId="77" />
+      <RunCode Name="Gear"/>
+      <WaitTimer WaitTime="3"/>
+      <If Condition="not IsOnMap(398)">
+        <TeleportTo Name="Anyx Trine" AetheryteId="77" />
       </If>
       <!-- Suggested Bait to use: Purse Web Spider -->
       <!-- MinFish/MaxFish optional -->
-      <!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
-      <Fish mooch="1" moochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" minFish="25" maxFish="35" collect="true" collectabilityValue="683" patience="Patience"
-            confirmKey="Return" moveCursorRightKey="Right"
-            bait="Purse Web Spider">
+      <Fish Mooch="1" MoochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" MinFish="25" MaxFish="35" Patience="Patience"
+      ConfirmKey="Return" MoveCursorRightKey="Right" BaitDelay="150">
+        <Baits>
+          <Bait name="Stonefly Nymph" condition="Core.Player.HasAura(850) and (IsTimeBetween(21,24) or IsTimeBetween(0,3))"/>
+          <Bait name="Brute Leech" condition="Core.Player.ClassLevel == 60 and (IsTimeBetween(21,24) or IsTimeBetween(0,3))"/>
+		  <Bait name="Purse Web Spider" condition="IsTimeBetween(21,24) or IsTimeBetween(0,3)"/>
+		  <Bait name="Bladed Steel Jig" condition="Core.Player.ClassLevel == 60"/>
+		  <Bait name="Goblin Jig" condition="Core.Player.ClassLevel &gt; 57"/>
+		  <Bait name="Stonefly Nymph"/>
+		  <Bait name="Purse Web Spider"/>
+        </Baits>
+        <Collectables>
+			<Collectable name="Warmwater Bichir" value="683" />
+			<Collectable name="Whilom Catfish" value="459" />
+        </Collectables>
         <FishSpots>
-            <FishSpot xyz="-14.78379, -120.2278, 475.5101" heading="1.038874" />
-            <FishSpot xyz="-1.21394, -133.5867, 528.3554" heading="4.874345" />
-            <FishSpot xyz="-22.95019, -132.913, 572.4873" heading="1.78024" />
-            <FishSpot xyz="-16.89699, -128.5408, 503.4377" heading="1.409534" />
+            <FishSpot XYZ="-14.75379, -120.2178, 475.6101" Heading="1.028874" />
+            <FishSpot XYZ="4.175021, -129.4321, 501.7516" Heading="4.810997" />
+            <FishSpot XYZ="-1.26394, -133.8867, 528.3754" Heading="4.874345" />
+            <FishSpot XYZ="-3.544607, -132.8926, 557.1637" Heading="4.846795" />
+            <FishSpot XYZ="-22.97019, -132.943, 572.0873" Heading="1.79024" />
+            <FishSpot XYZ="-18.72908, -132.1718, 527.8994" Heading="1.47436" />
+            <FishSpot XYZ="-16.89399, -128.5308, 503.5677" Heading="1.499534" />
         </FishSpots>
       </Fish>
     </Order>

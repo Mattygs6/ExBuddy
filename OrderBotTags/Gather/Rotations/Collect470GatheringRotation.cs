@@ -2,6 +2,8 @@
 {
     using System.Threading.Tasks;
 
+    using ExBuddy.OrderBotTags.Common;
+
     using ff14bot.Managers;
 
     [GatheringRotation("Collect470", 600, 30)]

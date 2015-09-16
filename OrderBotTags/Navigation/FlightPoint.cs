@@ -1,5 +1,7 @@
 ﻿namespace ExBuddy.OrderBotTags.Navigation
-{    
+{
+    using System;
+
     using Clio.Utilities;
 
     public struct FlightPoint
@@ -15,7 +17,8 @@
                 return false;
             }
 
-            return other.Location.Distance3D(this.Location) < 0.8f;
+            return other.Location.Distance3D(this.Location) < 0.8f
+                   || (Math.Abs(other.Location.X - this.Location.X) < float.Epsilon && Math.Abs(other.Location.Z - this.Location.Z) < float.Epsilon);
         }
 
         public override string ToString()

@@ -89,7 +89,7 @@ namespace ExBuddy.OrderBotTags.Common
             if (Actionmanager.CanMount == 0 && ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()))
             {
                 var ticks = 0;
-                while (!Core.Player.IsMounted && ticks++ < 5 && ShouldContinue)
+                while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
                 {
                     if (mountId > 0)
                     {
@@ -108,7 +108,6 @@ namespace ExBuddy.OrderBotTags.Common
 
                     await Coroutine.Yield();
                 }
-
             }
 
             await MoveToNoMount(destination, useMesh, radius, name, stopCallback);
@@ -132,7 +131,7 @@ namespace ExBuddy.OrderBotTags.Common
                     Actionmanager.Dismount();
                 }
 
-                await Coroutine.Yield();
+                await Coroutine.Wait(1000, () => !Core.Player.IsMounted);
             }
 
             if (dismountTicks >= 10)

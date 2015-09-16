@@ -86,7 +86,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             {
                 if (level >= 57)
                 {
-                    await CallRotation("Get One+", () => GetOnePlusPlusAlternate(tag));
+                    await CallRotation("Get One Alternate", () => GetOnePlusPlusAlternate(tag));
                 }
 
                 if (level >= 53)
@@ -134,7 +134,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             {
                 if (level >= 57)
                 {
-                    await CallRotation("Get Two+", () => GetTwoPlusPlusAlternate(tag));
+                    await CallRotation("Get Two Alternate", () => GetTwoPlusPlusAlternate(tag));
                 }
 
                 else
@@ -235,11 +235,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public async Task<bool> GetOnePlusPlusAlternate(GatherCollectableTag tag)
         {
-            //Get One++ Alternative - Level 57 Minimum
-            Logging.Write("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One+ for now... :'(");
-            await UtmostCaution(tag);
-            await AppraiseAndRebuff(tag);
-            await Methodical(tag);
+            //Get One++ Alternative - Level 53 Minimum
+            Logging.Write("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One for now... :'(");
+            await DiscerningMethodical(tag);
+            await UtmostMethodical(tag);
             await UtmostMethodical(tag);
             await IncreaseChance(tag);
             return true;
@@ -280,11 +279,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         public async Task<bool> GetTwoPlusPlusAlternate(GatherCollectableTag tag)
         {
-            //Get Two++ - Level 57 Minimum
-            Logging.Write("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two+ for now... :'(");
-            await Discerning(tag);
-            await AppraiseAndRebuff(tag);
-            await Methodical(tag);
+            //Get Two++ Alternative - Level 50 Minimum
+            Logging.Write("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two for now... :'(");
+            await DiscerningMethodical(tag);
+            await DiscerningMethodical(tag);
             await IncreaseChance(tag);
             return true;
         }

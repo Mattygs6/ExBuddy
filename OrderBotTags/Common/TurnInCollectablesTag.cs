@@ -402,6 +402,8 @@ namespace ExBuddy.OrderBotTags.Common
 
         private uint index;
 
+        private LocationData locationData;
+
         [DefaultValue(Location.Idyllshire)]
         [Clio.XmlEngine.XmlAttribute("Location")]
         public Location Location { get; set; }
@@ -443,6 +445,11 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             window.TrySendAction(2, 1, 2, 1, index);
+        }
+
+        protected override void OnStart()
+        {
+            locationData = LocationMap[Location];
         }
 
         protected override void OnDone()
@@ -488,7 +495,7 @@ namespace ExBuddy.OrderBotTags.Common
 
             return await ResolveItem()
                 || HandleDeath()
-                || await TeleportToLocation()
+                || await Behaviors.TeleportTo(locationData)
                 || await MoveToNpc()
                 || await InteractWithNpc()
                 || await ResolveIndex()
@@ -551,7 +558,6 @@ namespace ExBuddy.OrderBotTags.Common
 
         private async Task<bool> MoveToShopNpc()
         {
-            var locationData = LocationMap[Location];
             if (GameObjectManager.LocalPlayer.Location.Distance(locationData.ShopNpcLocation) <= 4)
             {
                 // we are already there, continue
@@ -571,7 +577,6 @@ namespace ExBuddy.OrderBotTags.Common
 
         private async Task<bool> PurchaseItems()
         {
-            var locationData = LocationMap[Location];
             if (GameObjectManager.LocalPlayer.Location.Distance(locationData.ShopNpcLocation) > 4)
             {
                 // too far away, should go back to MoveToNpc
@@ -822,40 +827,6 @@ namespace ExBuddy.OrderBotTags.Common
             return true;
         }
 
-        private async Task<bool> TeleportToLocation()
-        {
-            var locationData = LocationMap[Location];
-            if (WorldManager.ZoneId == locationData.ZoneId)
-            {
-                // continue we are in the zone.
-                return false;
-            }
-
-            var casted = false;
-            while (WorldManager.ZoneId != locationData.ZoneId && Core.Player.IsAlive
-                   && !Core.Player.InCombat && Behaviors.ShouldContinue)
-            {
-                if (!Core.Player.IsCasting && casted)
-                {
-                    break;
-                }
-
-                if (!Core.Player.IsCasting && !CommonBehaviors.IsLoading)
-                {
-                    WorldManager.TeleportById(locationData.AetheryteId);
-                    await Coroutine.Sleep(500);
-                }
-
-                casted = casted || Core.Player.IsCasting;
-                await Coroutine.Yield();
-            }
-
-            await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
-            await Coroutine.Wait(5000, () => !CommonBehaviors.IsLoading);
-
-            return false;
-        }
-
         private async Task<bool> MoveToNpc()
         {
             if (item == null || item.Item == null)
@@ -863,7 +834,6 @@ namespace ExBuddy.OrderBotTags.Common
                 return false;
             }
 
-            var locationData = LocationMap[Location];
             if (GameObjectManager.LocalPlayer.Location.Distance(locationData.NpcLocation) <= 4)
             {
                 // we are already there, continue
@@ -888,7 +858,6 @@ namespace ExBuddy.OrderBotTags.Common
                 return false;
             }
 
-            var locationData = LocationMap[Location];
             if (GameObjectManager.LocalPlayer.Location.Distance(locationData.NpcLocation) > 4)
             {
                 // too far away, should go back to MoveToNpc

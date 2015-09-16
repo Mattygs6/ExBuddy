@@ -67,6 +67,8 @@
 
         private DateTime startTime;
 
+        private Composite poiCoroutine;
+
         static GatherCollectableTag()
         {
             Rotations = LoadRotationTypes();
@@ -251,6 +253,14 @@
             {
                 CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
             }
+
+            poiCoroutine = new ActionRunCoroutine(ctx => ExecutePoiLogic());
+            TreeHooks.Instance.AddHook("PoiAction", poiCoroutine);
+        }
+
+        protected override void OnDone()
+        {
+            TreeHooks.Instance.RemoveHook("PoiAction", poiCoroutine);
         }
 
         protected override Composite CreateBehavior()
@@ -268,11 +278,31 @@
                 || HandleReset()
                 || await MoveToHotSpot()
                 || await FindNode()
-                || FindGatherSpot()
+                || await ResetOrDone();
+        }
+
+        private async Task<bool> ExecutePoiLogic()
+        {
+            if (Poi.Current.Type != PoiType.Gather)
+            {
+                return false;
+            }
+
+            var result = FindGatherSpot()
                 || ResolveGatherRotation()
-                || await MoveToGatherSpot()
-                || await GatherSequence()
-                || (await MoveFromGatherSpot() && ResetOrDone());
+                || await GatherSequence();
+
+            if (!result)
+            {
+                Poi.Clear("Something happened during gathering and we did not complete the sequence");    
+            }
+
+            if (Poi.Current.Type == PoiType.Gather && (!Poi.Current.Unit.IsValid || !Poi.Current.Unit.IsVisible))
+            {
+                Poi.Clear("Node is gone");
+            }
+
+            return result;
         }
 
         private bool HandleDeath()
@@ -288,12 +318,11 @@
 
         private async Task<bool> GatherSequence()
         {
-            if (!Node.CanGather || !(Node.Location.Distance3D(Core.Player.Location) <= Distance))
-            {
-                return false;
-            }
-
-            return await BeforeGather() && await Gather() && await AfterGather();
+            return await MoveToGatherSpot()
+                && await BeforeGather()
+                && await Gather()
+                && await AfterGather()
+                && await MoveFromGatherSpot();
         }
 
         private bool HandleReset()
@@ -456,9 +485,14 @@
                     Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
         }
 
-        private bool ResetOrDone()
+        private async Task<bool> ResetOrDone()
         {
-            if (HotSpots == null || HotSpots.Count == 0 || (Node != null && IsUnspoiled()))
+            while (Core.Player.InCombat && Behaviors.ShouldContinue)
+            {
+                await Coroutine.Yield();
+            }
+
+            if (!FreeRange && (HandleDeath() || HotSpots == null || HotSpots.Count == 0 || (Node != null && IsUnspoiled())))
             {
                 isDone = true;
             }
@@ -638,6 +672,11 @@
                     MovementManager.SetFacing2D(Node.Location);
                 }
 
+                if (Poi.Current.Unit != Node)
+                {
+                    Poi.Current = new Poi(Node, PoiType.Gather);
+                }
+
                 return true;
             }
 
@@ -646,22 +685,22 @@
 
         private async Task<bool> MoveToGatherSpot()
         {
-            if (FreeRange || !(Node.Location.Distance3D(Core.Player.Location) > Distance))
+            var distance = Poi.Current.Location.Distance3D(Core.Player.Location);
+            if (FreeRange)
             {
-                return false;
+                while(distance > Distance && distance <= Radius && Behaviors.ShouldContinue)
+                {
+                    await Coroutine.Yield();
+                    distance = Poi.Current.Location.Distance3D(Core.Player.Location);
+                }
             }
 
-            return await GatherSpot.MoveToSpot(this);
+            return distance <= Distance || await GatherSpot.MoveToSpot(this);
         }
 
         private async Task<bool> MoveFromGatherSpot()
         {
-            if ((Node != null && Node.CanGather) || GatherSpot == null)
-            {
-                return false;
-            }
-
-            return await GatherSpot.MoveFromSpot(this);
+            return GatherSpot == null ||  await GatherSpot.MoveFromSpot(this);
         }
 
         private struct TimeToGather
@@ -724,11 +763,6 @@
 
         private async Task<bool> BeforeGather()
         {
-            if (Poi.Current.Unit != Node)
-            {
-                Poi.Current = new Poi(Node, PoiType.Gather);
-            }
-
             if (Core.Player.CurrentGP >= AdjustedWaitForGp)
             {
                 return true;
@@ -881,8 +915,6 @@
 
         private async Task<bool> AfterGather()
         {
-            Poi.Clear("Gather Complete, Node is gone!");
-
             // in case we failed our rotation
             await CloseGatheringWindow();
 
@@ -945,15 +977,6 @@
                         return true;
                     }
                 }
-            }
-
-
-            if (FreeRange)
-            {
-                //TODO: check 
-                // We want to reset here if Free Range, but we need to implement looping and possibly hotspots
-                // OnResetCachedDone();
-                isDone = true;
             }
 
             return true;
@@ -1032,7 +1055,11 @@
 
             if (!GatheringManager.WindowOpen)
             {
-                await MoveFromGatherSpot();
+                if (!FreeRange)
+                {
+                    await MoveFromGatherSpot();
+                }
+                
                 OnResetCachedDone();
                 return false;
             }

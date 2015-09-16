@@ -7,19 +7,26 @@ namespace ExBuddy.OrderBotTags.Navigation
     using System.Threading.Tasks;
     using System.Windows.Media;
 
+    using Buddy.Coroutines;
+
     using ExBuddy.OrderBotTags.Common;
 
     using ff14bot;
     using ff14bot.AClasses;
     using ff14bot.Behavior;
+    using ff14bot.Enums;
     using ff14bot.Helpers;
+    using ff14bot.Managers;
     using ff14bot.Navigation;
+    using ff14bot.RemoteWindows;
 
     using TreeSharp;
 
     public class EnableFlightPlugin : BotPlugin
     {
         private Composite startCoroutine;
+
+        private Composite deathCoroutine;
 
         private FlightEnabledNavigator navigator;
 
@@ -39,8 +46,40 @@ namespace ExBuddy.OrderBotTags.Navigation
         {
             get
             {
-                return new Version(0, 9, 0);
+                return new Version(0, 9, 1);
             }
+        }
+
+        private async Task<bool> HandleDeath()
+        {
+            if (Poi.Current.Type != PoiType.Death)
+            {
+                // We are not dead, continue
+                return false;
+            }
+
+            var returnStrategy = Behaviors.GetReturnStrategy();
+
+            await Coroutine.Wait(3000, () => ClientGameUiRevive.ReviveState == ReviveState.Dead);
+
+            var ticks = 0;
+            while (ClientGameUiRevive.ReviveState == ReviveState.Dead && ticks++ < 5)
+            {
+                ClientGameUiRevive.Revive();
+                await
+                    Coroutine.Wait(
+                        5000,
+                        () =>
+                        ClientGameUiRevive.ReviveState != ReviveState.Dead);
+            }
+
+            await Coroutine.Wait(15000, () => ClientGameUiRevive.ReviveState == ReviveState.None);
+
+            Poi.Clear("We live!, now to get back to where we were. Using return strategy -> " + returnStrategy);
+
+            await returnStrategy.Execute();
+
+            return false;
         }
 
         private async Task<bool> Start()
@@ -113,12 +152,14 @@ namespace ExBuddy.OrderBotTags.Navigation
         public override void OnInitialize()
         {
             startCoroutine = new ActionRunCoroutine(ctx => Start());
+            deathCoroutine = new ActionRunCoroutine(ctx => HandleDeath());
         }
 
         public override void OnDisabled()
         {
             TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
             TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+            TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
             TreeRoot.OnStop -= cleanup;
             DoCleanup();
         }
@@ -126,12 +167,14 @@ namespace ExBuddy.OrderBotTags.Navigation
         public override void OnEnabled()
         {
             TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+            TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
             TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
         }
 
         private void OnHooksCleared(object sender, EventArgs args)
         {
             TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+            TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
         }
     }
 

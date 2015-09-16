@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.OrderBotTags.Common
+﻿namespace ff14bot.Managers
 {
     using System;
     using System.Collections.Concurrent;

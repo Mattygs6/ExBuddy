@@ -1,9 +1,9 @@
-﻿
-
-namespace ExBuddy.OrderBotTags.Common
+﻿namespace ExBuddy.OrderBotTags.Common
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -11,10 +11,9 @@ namespace ExBuddy.OrderBotTags.Common
 
     using ff14bot;
     using ff14bot.Behavior;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
-    using ff14bot.Navigation;
     using ff14bot.RemoteWindows;
-    using ff14bot.Settings;
 
     public interface IReturnStrategy
     {
@@ -37,7 +36,14 @@ namespace ExBuddy.OrderBotTags.Common
 
         public async Task<bool> Execute()
         {
+            Logging.Write(Colors.DarkKhaki, "ExBuddy: Could not find a return strategy for ZoneId: {0}", ZoneId);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return
+                "NoOp: Can't figure out what we are supposed to do, hopefully someone else can help us.";
         }
     }
 
@@ -95,43 +101,22 @@ namespace ExBuddy.OrderBotTags.Common
 
         public uint NpcId { get; set; }
 
-        public Vector3 XYZ { get; set; }
+        public Vector3 NpcLocation { get; set; }
 
         public async Task<bool> Execute()
         {
-            if (WorldManager.ZoneId != this.ZoneId)
-            {
-            ReturnTeleport:
-                WorldManager.TeleportById(this.AetheryteId);
-                if (await Coroutine.Wait(5000, () => Core.Player.IsCasting))
-                {
-                    await Coroutine.Wait(5000, () => !Core.Player.IsCasting);
-                    await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
-                    await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
-                }
-                else
-                {
-                    goto ReturnTeleport;
-                }
-            }
+            await Behaviors.TeleportTo(this);
 
-            await Behaviors.MoveTo(this.XYZ, true, radius: this.InteractDistance);
-            GameObjectManager.GetObjectByNPCId(this.NpcId).Target();
+            await Behaviors.MoveTo(NpcLocation, true, radius: InteractDistance);
+            GameObjectManager.GetObjectByNPCId(NpcId).Target();
             Core.Player.CurrentTarget.Interact();
 
             // Temporarily assume selectyesno until we see if we need it for anything but hinterlands
             await Coroutine.Wait(5000, () => SelectYesno.IsOpen);
             SelectYesno.ClickYes();
 
-            await Coroutine.Wait(3000, () => CommonBehaviors.IsLoading);
+            await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
             await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
-
-            if (Core.Player.Distance(this.InitialLocation) >= CharacterSettings.Instance.MountDistance)
-            {
-                Navigator.Stop();
-                Actionmanager.Mount();
-                await Coroutine.Sleep(1500);
-            }
 
             if (BotManager.Current.EnglishName != "Fate Bot")
             {
@@ -143,6 +128,15 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "NoAetheryteUseTransport: Death Location: {0}, AetheryteId: {1}, NpcLocation: {2}",
+                InitialLocation,
+                AetheryteId,
+                NpcLocation);
         }
     }
 
@@ -156,27 +150,7 @@ namespace ExBuddy.OrderBotTags.Common
 
         public async Task<bool> Execute()
         {
-            if (WorldManager.ZoneId != this.ZoneId)
-            {
-            ReturnTeleport:
-                WorldManager.TeleportById(this.AetheryteId);
-                if (await Coroutine.Wait(5000, () => Core.Player.IsCasting))
-                {
-                    await Coroutine.Wait(5000, () => !Core.Player.IsCasting);
-                    await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
-                    await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
-                }
-                else
-                {
-                    goto ReturnTeleport;
-                }
-            }
-
-            if (Core.Player.Distance(this.InitialLocation) >= CharacterSettings.Instance.MountDistance)
-            {
-                Actionmanager.Mount();
-                await Coroutine.Sleep(2000);
-            }
+            await Behaviors.TeleportTo(this);
 
             if (BotManager.Current.EnglishName != "Fate Bot")
             {
@@ -188,6 +162,14 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Default: Death Location: {0}, AetheryteId: {1}",
+                InitialLocation,
+                AetheryteId);
         }
     }
     

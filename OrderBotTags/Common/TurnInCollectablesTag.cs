@@ -796,12 +796,12 @@ namespace ExBuddy.OrderBotTags.Common
 
             var attempts = 0;
             var itemName = item.Item.EnglishName;
-            while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue)
+            while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue && item.Item != null)
             {
                 item.Handover();
                 await Coroutine.Sleep(1000);
                 Request.HandOver();
-                await Coroutine.Wait(5000, () => !Request.IsOpen);
+                await Coroutine.Wait(4000, () => !Request.IsOpen);
                 attempts++;
             }
 
@@ -813,6 +813,7 @@ namespace ExBuddy.OrderBotTags.Common
                     itemName,
                     WorldManager.EorzaTime);
 
+                await Coroutine.Yield();
                 turnedItemsIn = true;
                 item = null;
                 index = 0;

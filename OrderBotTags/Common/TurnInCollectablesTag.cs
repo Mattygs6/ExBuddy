@@ -766,6 +766,8 @@ namespace ExBuddy.OrderBotTags.Common
             {
                 Logging.Write(Colors.Red, "Full on scrips!");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, we are full on these scrips");
+                item = null;
+                index = 0;
                 SelectYesno.ClickNo();
                 window.TrySendAction(1, 3, uint.MaxValue);
                 return true;
@@ -789,6 +791,8 @@ namespace ExBuddy.OrderBotTags.Common
             {
                 Logging.Write(Colors.Red, "An error has occured while turning in the item");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
+                item = null;
+                index = 0;
                 SelectYesno.ClickNo();
                 window.TrySendAction(1, 3, uint.MaxValue);
                 return true;

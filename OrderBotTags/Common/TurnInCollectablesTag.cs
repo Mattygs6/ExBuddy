@@ -585,11 +585,34 @@ namespace ExBuddy.OrderBotTags.Common
 
             var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
             var npc = GameObjectManager.GetObjectByNPCId(locationData.ShopNpcId);
+            ShopType shopType = ShopType.BlueGatherer;
             AtkAddonControl window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
             foreach (var purchaseItem in itemsToPurchase)
             {
-                // target
+                var purchaseItemInfo = ShopItemMap[purchaseItem.ShopItem];
+                var purchaseItemData = purchaseItemInfo.ItemData;
                 var ticks = 0;
+
+                if (shopType != purchaseItemInfo.ShopType && window != null)
+                {
+                    ticks = 0;
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                    while (window != null && window.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
+                    {
+                        var result = window.TrySendAction(1, 3, uint.MaxValue);
+                        if (result == SendActionResult.InjectionError)
+                        {
+                            await Coroutine.Sleep(500);
+                        }
+
+                        await Coroutine.Wait(500, () => window == null || !window.IsValid);
+                    }
+                }
+
+                shopType = purchaseItemInfo.ShopType;
+
+                // target
+                ticks = 0;
                 while (Core.Target == null && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
@@ -620,8 +643,6 @@ namespace ExBuddy.OrderBotTags.Common
                     return true;
                 }
 
-                var purchaseItemInfo = ShopItemMap[purchaseItem.ShopItem];
-                var purchaseItemData = purchaseItemInfo.ItemData;
 
                 if (Location == Location.MorDhona &&
                     (purchaseItemInfo.ShopType == ShopType.RedCrafter

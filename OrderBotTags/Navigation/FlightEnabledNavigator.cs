@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.Caching;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -280,6 +281,22 @@
                 return GeneratePathResult.Success;
             }
 
+            Logging.Write(Colors.Red, "Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
+            Clear();
+
+            Navigator.NavigationProvider = innerNavigator;
+#pragma warning disable 4014
+            Task.Factory.StartNew(
+#pragma warning restore 4014
+                () =>
+                {
+                    Thread.Sleep(10000);
+                    Logging.Write(
+                        Colors.DeepSkyBlue,
+                        "Resetting NavigationProvider to Flight Navigator.");
+                    Navigator.NavigationProvider = this;
+                });
+
             return GeneratePathResult.Failed;
         }
 
@@ -298,7 +315,7 @@
                 case GeneratePathResult.SuccessUseExisting:
                     Logging.WriteDiagnostic(
                         Colors.MediumSpringGreen,
-                        "Using existing path to {0} using {1} hops in {2} ms",
+                        "Found existing path to {0} using {1} hops in {2} ms",
                         finalDestination,
                         CurrentPath.Count,
                         pathGeneratorStopwatch.Elapsed);

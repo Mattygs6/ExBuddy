@@ -280,6 +280,7 @@ namespace ExBuddy.OrderBotTags.Navigation
                                         Index = 0;
                                         return false;
                                     }
+
                                     foreach (var fp in queuedFlightPoints)
                                     {
                                         MemoryCache.Default.Add(
@@ -359,7 +360,7 @@ namespace ExBuddy.OrderBotTags.Navigation
             }
 
             FlushQueuedFlightPoints();
-            return true;
+            return Count > 0;
         }
 
         public bool Equals(FlightPath other)

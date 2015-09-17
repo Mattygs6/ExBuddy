@@ -104,6 +104,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             if (tag.CollectableItem.PlusPlus == 1)
             {
                 await CallRotation("Get One++", () => GetOnePlusPlus(tag));
+                return true;
             }
 
             if (rarity >= 150 && rarity <= 155)

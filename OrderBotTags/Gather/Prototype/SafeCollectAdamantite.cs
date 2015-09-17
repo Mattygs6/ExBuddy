@@ -11,6 +11,8 @@
     using Clio.Utilities;
     using Clio.XmlEngine;
 
+    using ExBuddy.OrderBotTags.Navigation;
+
     using ff14bot;
     using ff14bot.Enums;
     using ff14bot.Helpers;

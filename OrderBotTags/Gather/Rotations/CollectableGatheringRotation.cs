@@ -65,7 +65,7 @@
             }
             while (ticks++ < 10 && (MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null && Behaviors.ShouldContinue);
 
-            if (ticks >= 10)
+            if (ticks > 10)
             {
                 Logging.WriteDiagnostic(Colors.Red, "Timed out during collectable preparation");
             }
@@ -135,10 +135,9 @@
                 }
 
                 var ticks = 0;
-                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60 && Behaviors.ShouldContinue)
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks++ < 60 && Behaviors.ShouldContinue)
                 {
                     await Coroutine.Yield();
-                    ticks++;
                 }
             }
 

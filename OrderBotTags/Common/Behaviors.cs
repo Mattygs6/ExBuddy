@@ -134,7 +134,7 @@ namespace ExBuddy.OrderBotTags.Common
                 await Coroutine.Wait(1000, () => !Core.Player.IsMounted);
             }
 
-            if (dismountTicks >= 10)
+            if (dismountTicks > 10)
             {
                 Logging.Write(Colors.Red, "Failed to dismount after MoveTo task.");
                 return false;

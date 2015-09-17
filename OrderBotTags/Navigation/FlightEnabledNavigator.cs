@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.Caching;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -58,7 +57,7 @@
             this.flightNavigationArgs = flightNavigationArgs;
             Navigator.NavigationProvider = this;
             Navigator.PlayerMover = playerMover;
-            CurrentPath = new IndexedList<FlightPoint>(32);
+            CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
 
             Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Replacing Navigator with Flight Navigator.");
         }
@@ -68,7 +67,7 @@
             return navigator.innerNavigator as GaiaNavigator;
         }
 
-        public IndexedList<FlightPoint> CurrentPath { get; internal set; }
+        public FlightPath CurrentPath { get; internal set; }
 
         public double PathPrecisionSqr
         {
@@ -254,32 +253,63 @@
             return true;
         }
 
-        private async Task<bool> GeneratePath(Vector3 start, Vector3 end)
+        enum GeneratePathResult
         {
-            CurrentPath.Clear();
-            CurrentPath.Index = 0;
-
-            return await FindWaypoints(start, end);
+            Failed,
+            Success,
+            SuccessUseExisting
         }
 
-        private void HandlePathGenerationResult(Task<bool> task)
+        private async Task<GeneratePathResult> GeneratePath(Vector3 start, Vector3 end)
         {
-            if (task.Result)
+            CurrentPath = new FlightPath(start, end, flightNavigationArgs);
+
+            FlightPath path;
+            if (FlightPath.Paths.TryGetValue(CurrentPath.Key, out path))
             {
-                Logging.WriteDiagnostic(
-                    Colors.DeepSkyBlue,
-                    "Generated path to {0} using {1} hops in {2} ms",
-                    finalDestination,
-                    CurrentPath.Count,
-                    pathGeneratorStopwatch.Elapsed);
+                CurrentPath = path;
+
+                return GeneratePathResult.SuccessUseExisting;
             }
-            else
+
+
+            if (await CurrentPath.BuildPath())
             {
-                Logging.WriteDiagnostic(
-                    Colors.Red,
-                    "No viable path found to {0} from {1}",
-                    finalDestination,
-                    origin);
+                FlightPath.Paths[CurrentPath.Key] = CurrentPath;
+
+                return GeneratePathResult.Success;
+            }
+
+            return GeneratePathResult.Failed;
+        }
+
+        private void HandlePathGenerationResult(Task<GeneratePathResult> task)
+        {
+            switch (task.Result)
+            {
+                case GeneratePathResult.Success:
+                    Logging.WriteDiagnostic(
+                        Colors.DeepSkyBlue,
+                        "Generated path to {0} using {1} hops in {2} ms",
+                        finalDestination,
+                        CurrentPath.Count,
+                        pathGeneratorStopwatch.Elapsed);
+                    break;
+                case GeneratePathResult.SuccessUseExisting:
+                    Logging.WriteDiagnostic(
+                        Colors.MediumSpringGreen,
+                        "Using existing path to {0} using {1} hops in {2} ms",
+                        finalDestination,
+                        CurrentPath.Count,
+                        pathGeneratorStopwatch.Elapsed);
+                    break;
+                case GeneratePathResult.Failed:
+                    Logging.WriteDiagnostic(
+                        Colors.Red,
+                        "No viable path found to {0} from {1}",
+                        finalDestination,
+                        origin);
+                    break;
             }
 
             pathGeneratorStopwatch.Reset();
@@ -326,131 +356,9 @@
                 MathEx.Lerp(value1.Z, value2.Z, amount));
         }
 
-#pragma warning disable 1998
-        private async Task<bool> FindWaypoints(Vector3 from, Vector3 target)
-#pragma warning restore 1998
-        {
-            var distance = from.Distance3D(target);
-            var desiredNumberOfPoints =
-                Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 2.0)) + flightNavigationArgs.Smoothing, 1.0)), 1.0);
-            desiredNumberOfPoints = Math.Min(desiredNumberOfPoints, Math.Floor(distance));
-
-            var distancePerWaypoint = distance / (float)desiredNumberOfPoints;
-
-            var previousWaypoint = from;
-            var cleanWaypoints = 0;
-
-            for (var i = 0.0f + (1.0f / ((float)desiredNumberOfPoints)); i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
-            {
-                var waypoint = StraightPath(@from, target, i);
-
-                // TODO: look into capping distance per waypoint, then also the modifier distance
-                var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint *  2f);
-
-                Vector3 deviationWaypoint;
-                var result = collisions.CollisionResult(queuedFlightPoints.ToArray(), out deviationWaypoint);
-                if (result != CollisionFlags.None)
-                {
-                    // DO THINGS! // check landing + buffer zone of 2.0f
-                    if (result.HasFlag(CollisionFlags.Forward)
-                        && collisions.PlayerCollider.ForwardHit.Distance3D(target) > flightNavigationArgs.Radius + 1.0f)
-                    {
-                        if (result.HasFlag(CollisionFlags.Error))
-                        {
-                            Vector3 hit;
-                            Vector3 distances;
-                            var alternateCount = 0;
-                            // Go in random direction up to the distance of a normal waypoint.
-                            var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint);
-                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances) && Behaviors.ShouldContinue)
-                            {
-                                if (alternateCount > 20)
-                                {
-                                    Logging.Write(Colors.Red, "Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
-                                    this.Clear();
-                                    
-                                    Navigator.NavigationProvider = innerNavigator;
-#pragma warning disable 4014
-                                    Task.Factory.StartNew(
-#pragma warning restore 4014
-                                        () =>
-                                            {
-                                                Thread.Sleep(10000);
-                                                Logging.Write(
-                                                    Colors.DeepSkyBlue,
-                                                    "Resetting NavigationProvider to Flight Navigator.");
-                                                Navigator.NavigationProvider = this;
-                                            });
-                                    return false;
-                                }
-                                alternateWaypoint = previousWaypoint.AddRandomDirection(10);
-                                alternateCount++;
-                            }
-
-                            deviationWaypoint = alternateWaypoint;
-                        }
-
-                        deviationWaypoint = deviationWaypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
-                        previousWaypoint = from = deviationWaypoint;
-                        QueueFlightPoint(new FlightPoint { Location = deviationWaypoint, IsDeviation = true });
-
-
-                        desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
-                        i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
-                        cleanWaypoints = 0;
-
-                        distance = from.Distance3D(target);
-                        distancePerWaypoint = distance / (float)desiredNumberOfPoints;
-
-                        continue;
-                    }
-                }
-
-                cleanWaypoints++;
-                int waypointsRemaining;
-                if ((waypointsRemaining = (int)desiredNumberOfPoints - FlightPointCount()) > flightNavigationArgs.ForcedAltitude)
-                {
-                    waypoint = waypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
-                }
-                else
-                {
-                    waypoint = waypoint.HeightCorrection(waypointsRemaining);
-                }
-
-                previousWaypoint = waypoint;
-                QueueFlightPoint(waypoint);
-            }
-
-            FlushQueuedFlightPoints();
-            return true;
-        }
-
         private int FlightPointCount()
         {
             return CurrentPath.Count + queuedFlightPoints.Count;
-        }
-
-        private void QueueFlightPoint(FlightPoint flightPoint)
-        {
-            queuedFlightPoints.Enqueue(flightPoint);
-
-            if (queuedFlightPoints.Count == 8)
-            {
-                CurrentPath.Add(queuedFlightPoints.Dequeue());
-            }
-        }
-
-        private void ClearQueuedFlightPoints()
-        {
-            queuedFlightPoints.Clear();
-        }
-
-        private void FlushQueuedFlightPoints()
-        {
-            while (queuedFlightPoints.Count > 0)
-            {
-                CurrentPath.Add(queuedFlightPoints.Dequeue());
-            }
         }
 
         private async Task<bool> MoveToNoFlight(Vector3 location)

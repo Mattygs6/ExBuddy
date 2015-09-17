@@ -162,7 +162,7 @@ namespace ExBuddy.OrderBotTags.Common
     }
 
     [Clio.XmlEngine.XmlElement("TurnInCollectables")]
-    public class TurnInCollectablesTag : ProfileBehavior
+    public class TurnInCollectablesTag : ExProfileBehavior
     {
         private static readonly Dictionary<ShopItem, ShopItemInfo> ShopItemMap = new Dictionary<ShopItem, ShopItemInfo>
             {
@@ -558,7 +558,7 @@ namespace ExBuddy.OrderBotTags.Common
 
         private async Task<bool> MoveToShopNpc()
         {
-            if (GameObjectManager.LocalPlayer.Location.Distance(locationData.ShopNpcLocation) <= 4)
+            if (Me.Location.Distance(locationData.ShopNpcLocation) <= 4)
             {
                 // we are already there, continue
                 return false;
@@ -577,7 +577,7 @@ namespace ExBuddy.OrderBotTags.Common
 
         private async Task<bool> PurchaseItems()
         {
-            if (GameObjectManager.LocalPlayer.Location.Distance(locationData.ShopNpcLocation) > 4)
+            if (Me.Location.Distance(locationData.ShopNpcLocation) > 4)
             {
                 // too far away, should go back to MoveToNpc
                 return true;
@@ -590,15 +590,14 @@ namespace ExBuddy.OrderBotTags.Common
             {
                 // target
                 var ticks = 0;
-                while (Core.Target == null && window == null && ticks < 10 && Behaviors.ShouldContinue)
+                while (Core.Target == null && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
                     await Coroutine.Yield();
-                    ticks++;
                 }
 
                 // check for timeout
-                if (ticks >= 10)
+                if (ticks > 10)
                 {
                     Logging.WriteDiagnostic(Colors.Red, "Timeout targeting npc.");
                     isDone = true;
@@ -607,14 +606,14 @@ namespace ExBuddy.OrderBotTags.Common
 
                 // interact
                 ticks = 0;
-                while (!SelectIconString.IsOpen && window == null && ticks < 10 && Behaviors.ShouldContinue)
+                while (!SelectIconString.IsOpen && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Interact();
                     await Coroutine.Wait(1000, () => SelectIconString.IsOpen);
                 }
 
                 // check for timeout
-                if (ticks >= 10)
+                if (ticks > 10)
                 {
                     Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
                     isDone = true;
@@ -624,15 +623,16 @@ namespace ExBuddy.OrderBotTags.Common
                 var purchaseItemInfo = ShopItemMap[purchaseItem.ShopItem];
                 var purchaseItemData = purchaseItemInfo.ItemData;
 
-                if (purchaseItemInfo.ShopType == ShopType.RedCrafter
-                    || purchaseItemInfo.ShopType == ShopType.RedGatherer)
+                if (Location == Location.MorDhona &&
+                    (purchaseItemInfo.ShopType == ShopType.RedCrafter
+                    || purchaseItemInfo.ShopType == ShopType.RedGatherer))
                 {
                     Logging.Write(Colors.PaleVioletRed, "Unable to purchase item {0} in MorDhona, set location to Idyllshire.", purchaseItemData.EnglishName);
                     continue;
                 }
 
                 ticks = 0;
-                while (SelectIconString.IsOpen && ticks < 5 && Behaviors.ShouldContinue)
+                while (SelectIconString.IsOpen && ticks++ < 5 && Behaviors.ShouldContinue)
                 {
                     if (Location == Location.MorDhona)
                     {
@@ -648,30 +648,33 @@ namespace ExBuddy.OrderBotTags.Common
                         Coroutine.Wait(
                             5000,
                             () => (window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency")) != null);
-                    ticks++;
                 }
 
-                if (ticks >= 5 || window == null)
+                if (ticks > 5 || window == null)
                 {
                     Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
-                    SelectIconString.ClickLineEquals(SelectIconString.Lines().Last());
+                    if (SelectIconString.IsOpen)
+                    {
+                        SelectIconString.ClickLineEquals(SelectIconString.Lines().Last());
+                    }
+
                     isDone = true;
                     return true;
                 }
 
-                // do this because if not we could get a trailblazer's scarf??
-                await Coroutine.Sleep(1000);
+                await Coroutine.Sleep(500);
 
                 while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
                 {
                     ticks = 0;
-                    while (!SelectYesno.IsOpen && ticks < 3 && Behaviors.ShouldContinue)
+                    while (!SelectYesno.IsOpen && ticks++ < 50 && Behaviors.ShouldContinue)
                     {
+                        await Coroutine.Yield();
                         window.TrySendAction(2, 0, 0, 1, purchaseItemInfo.Index);
-                        await Coroutine.Wait(5000, () => SelectYesno.IsOpen);
+                        await Coroutine.Wait(200, () => SelectYesno.IsOpen);
                     }
 
-                    if (ticks >= 3 || !SelectYesno.IsOpen)
+                    if (ticks > 50 || !SelectYesno.IsOpen)
                     {
                         Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
                         window.TrySendAction(1, 3, uint.MaxValue);
@@ -681,13 +684,14 @@ namespace ExBuddy.OrderBotTags.Common
 
                     var scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType);
                     ticks = 0;
-                    while (SelectYesno.IsOpen && ticks < 3 && Behaviors.ShouldContinue)
+                    while (SelectYesno.IsOpen && ticks++ < 10 && Behaviors.ShouldContinue)
                     {
+                        await Coroutine.Yield();
                         SelectYesno.ClickYes();
-                        await Coroutine.Wait(5000, () => !SelectYesno.IsOpen);
+                        await Coroutine.Wait(1000, () => !SelectYesno.IsOpen);
                     }
 
-                    if (ticks >= 3 || SelectYesno.IsOpen)
+                    if (ticks > 10 || SelectYesno.IsOpen)
                     {
                         Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
                         SelectYesno.ClickNo();
@@ -716,7 +720,12 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             Logging.Write(Colors.SpringGreen, "Purchases complete.");
-
+            SelectYesno.ClickNo();
+            if (SelectIconString.IsOpen)
+            {
+                SelectIconString.ClickLineEquals(SelectIconString.Lines().Last());    
+            }
+            
             window.TrySendAction(1, 3, uint.MaxValue);
             isDone = true;
             return true;
@@ -724,9 +733,9 @@ namespace ExBuddy.OrderBotTags.Common
 
         private bool HandleDeath()
         {
-            if (Core.Player.IsDead && Poi.Current.Type != PoiType.Death)
+            if (Me.IsDead && Poi.Current.Type != PoiType.Death)
             {
-                Poi.Current = new Poi(Core.Player, PoiType.Death);
+                Poi.Current = new Poi(Me, PoiType.Death);
                 return true;
             }
 
@@ -737,15 +746,14 @@ namespace ExBuddy.OrderBotTags.Common
         {
             var ticks = 0;
             var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-            while (window == null && ticks < 60 && Behaviors.ShouldContinue)
+            while (window == null && ticks++ < 60 && Behaviors.ShouldContinue)
             {
                 RaptureAtkUnitManager.Update();
                 window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
                 await Coroutine.Yield();
-                ticks++;
             }
 
-            if (ticks >= 60)
+            if (ticks > 60)
             {
                 return false;
             }
@@ -758,7 +766,19 @@ namespace ExBuddy.OrderBotTags.Common
                     return false;
                 }
 
-                window.TrySendAction(1, 3, uint.MaxValue);
+                ticks = 0;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                while (window != null && window.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
+                {
+                    var result = window.TrySendAction(1, 3, uint.MaxValue);
+                    if (result == SendActionResult.InjectionError)
+                    {
+                        await Coroutine.Sleep(500);
+                    }
+
+                    await Coroutine.Wait(500, () => window == null || !window.IsValid);
+                }
+                
                 return false;
             }
 
@@ -774,17 +794,16 @@ namespace ExBuddy.OrderBotTags.Common
             }
 
             var requestAttempts = 0;
-            while (!Request.IsOpen && requestAttempts < 5 && Behaviors.ShouldContinue)
+            while (!Request.IsOpen && requestAttempts++ < 20 && Behaviors.ShouldContinue)
             {
-                
+                await Coroutine.Yield();
                 var result = window.TrySendAction(2, 0, 0, 1, index);
                 if (result == SendActionResult.InjectionError)
                 {
-                    await Coroutine.Sleep(1000);
+                    await Coroutine.Sleep(500);
                 }
 
-                await Coroutine.Wait(1500, () => Request.IsOpen);
-                requestAttempts++;
+                await Coroutine.Wait(500, () => Request.IsOpen);
             }
 
             if (!Request.IsOpen)
@@ -809,16 +828,15 @@ namespace ExBuddy.OrderBotTags.Common
 
             var attempts = 0;
             var itemName = item.Item.EnglishName;
-            while (Request.IsOpen && attempts < 5 && Behaviors.ShouldContinue && item.Item != null)
+            while (Request.IsOpen && attempts++ < 5 && Behaviors.ShouldContinue && item.Item != null)
             {
                 item.Handover();
-                await Coroutine.Sleep(1000);
+                await Coroutine.Wait(1000, () => Request.HandOverButtonClickable);
                 Request.HandOver();
-                await Coroutine.Wait(4000, () => !Request.IsOpen);
-                attempts++;
+                await Coroutine.Wait(1000, () => !Request.IsOpen);
             }
 
-            if (attempts < 5)
+            if (attempts < 6)
             {
                 Logging.Write(
                     Colors.SpringGreen,
@@ -848,7 +866,7 @@ namespace ExBuddy.OrderBotTags.Common
                 return false;
             }
 
-            if (GameObjectManager.LocalPlayer.Location.Distance(locationData.NpcLocation) <= 4)
+            if (Me.Location.Distance(locationData.NpcLocation) <= 4)
             {
                 // we are already there, continue
                 return false;
@@ -872,7 +890,7 @@ namespace ExBuddy.OrderBotTags.Common
                 return false;
             }
 
-            if (GameObjectManager.LocalPlayer.Location.Distance(locationData.NpcLocation) > 4)
+            if (Me.Location.Distance(locationData.NpcLocation) > 4)
             {
                 // too far away, should go back to MoveToNpc
                 return true;

@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Security.Cryptography;
+    using System.Text;
     using System.Windows.Media;
 
     using Clio.Common;
@@ -332,7 +333,7 @@
                     vector.Z + (float)MathEx.Random(-side, side));
             }
 
-            if (ticks >= 1000)
+            if (ticks > 1000)
             {
                 Logging.WriteDiagnostic(
                     Colors.DarkKhaki,
@@ -369,7 +370,7 @@
                     vector.Z + (float)MathEx.Random(-side, side));
             }
 
-            if (ticks >= 1000)
+            if (ticks > 1000)
             {
                 Logging.WriteDiagnostic(
                     Colors.DarkKhaki,
@@ -387,6 +388,19 @@
 
             return random;
         }
+
+        public static Guid ToGuid(this string input)
+        {
+            var provider = new MD5CryptoServiceProvider();
+
+            var inputBytes = Encoding.Default.GetBytes(input);
+
+            var hashBytes = provider.ComputeHash(inputBytes);
+
+            var hashGuid = new Guid(hashBytes);
+
+            return hashGuid;
+        } 
 
         public static void Shuffle<T>(this IList<T> list)
         {

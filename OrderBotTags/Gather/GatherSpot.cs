@@ -3,6 +3,8 @@
     using System.ComponentModel;
     using System.Threading.Tasks;
 
+    using Buddy.Coroutines;
+
     using Clio.Utilities;
     using Clio.XmlEngine;
 
@@ -24,7 +26,12 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+            var result = await Behaviors.MoveTo(
+                NodeLocation,
+                UseMesh,
+                radius: tag.Distance,
+                name: tag.Node.EnglishName,
+                stopCallback: tag.MovementStopCallback);
 
             return result;
         }
@@ -52,7 +59,15 @@
 
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            var result = await Behaviors.MoveTo(NodeLocation, UseMesh, (uint)tag.MountId, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback, true);
+            var result = await Behaviors.MoveTo(
+                NodeLocation,
+                UseMesh,
+                radius: tag.Distance,
+                name: tag.Node.EnglishName,
+                stopCallback: tag.MovementStopCallback,
+                dismountAtDestination: true);
+
+            await Coroutine.Yield();
 
             result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
@@ -108,10 +123,17 @@
                 return false;
             }
 
-            var result = await Behaviors.MoveTo(StealthLocation, UseMesh, (uint)tag.MountId, tag.Radius, "Stealth Location", tag.MovementStopCallback, true);
+            var result = await Behaviors.MoveTo(
+                StealthLocation,
+                UseMesh,
+                radius: tag.Radius,
+                name: "Stealth Location",
+                stopCallback: tag.MovementStopCallback,
+                dismountAtDestination: true);
 
             if (result)
             {
+                await Coroutine.Yield();
                 await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
                 result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);

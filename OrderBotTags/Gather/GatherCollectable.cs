@@ -5,7 +5,6 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
@@ -29,7 +28,7 @@
     using TreeSharp;
 
     [XmlElement("GatherCollectable")]
-    public sealed class GatherCollectableTag : FlightVars
+    public sealed class GatherCollectableTag : ExProfileBehavior
     {
         internal static readonly Dictionary<string, IGatheringRotation> Rotations;
 
@@ -38,7 +37,7 @@
 
         internal bool MovementStopCallback(float distance, float radius)
         {
-            return distance <= radius || !WhileFunc() || Core.Player.IsDead;
+            return distance <= radius || !WhileFunc() || Me.IsDead;
         }
 
         private bool isDone;
@@ -89,7 +88,7 @@
                 var requiredGp = gatherRotation == null ? 0 : gatherRotation.Attributes.RequiredGp;
 
                 // Return the lower of your MaxGP rounded down to the nearest 50.
-                return Math.Min(Core.Player.MaxGP - (Core.Player.MaxGP % 50), requiredGp);
+                return Math.Min(Me.MaxGP - (Me.MaxGP % 50), requiredGp);
             }
         }
 
@@ -117,6 +116,10 @@
 
         [XmlElement("GatheringSkillOrder")]
         public GatheringSkillOrder GatheringSkillOrder { get; set; }
+
+        [DefaultValue(3.0f)]
+        [XmlAttribute("Radius")]
+        public float Radius { get; set; }
 
         // I want this to be an attribute, but for backwards compatibilty, we will use element
         [DefaultValue(-1)]
@@ -307,9 +310,9 @@
 
         private bool HandleDeath()
         {
-            if (Core.Player.IsDead && Poi.Current.Type != PoiType.Death)
+            if (Me.IsDead && Poi.Current.Type != PoiType.Death)
             {
-                Poi.Current = new Poi(Core.Player, PoiType.Death);
+                Poi.Current = new Poi(Me, PoiType.Death);
                 return true;
             }
 
@@ -327,7 +330,7 @@
 
         private bool HandleReset()
         {
-            if (Node == null || (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(Core.Player.Location) > Radius))))
+            if (Node == null || (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(Me.Location) > Radius))))
             {
                 return false;
             }
@@ -338,16 +341,15 @@
 
         private async Task<bool> MoveToHotSpot()
         {
-            if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Core.Player.Location))
+            if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Me.Location))
             {
                 //return lets try not caring if we succeed on the move
                 await
                 Behaviors.MoveTo(
                     HotSpots.CurrentOrDefault,
-                    true,
-                    (uint)MountId,
-                    HotSpots.CurrentOrDefault.Radius * 0.75f,
-                    HotSpots.CurrentOrDefault.Name, MovementStopCallback);
+                    radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
+                    name: HotSpots.CurrentOrDefault.Name,
+                    stopCallback: MovementStopCallback);
 
                 startTime = DateTime.Now;
                 return true;
@@ -464,16 +466,16 @@
         private async Task<bool> CastTruth()
         {
             if (MovementManager.IsFlying
-                || Core.Player.ClassLevel < 46
-                || Core.Player.HasAura((int)
-                        (Core.Player.CurrentJob == ClassJobType.Miner
+                || Me.ClassLevel < 46
+                || Me.HasAura((int)
+                        (Me.CurrentJob == ClassJobType.Miner
                              ? AbilityAura.TruthOfMountains
                              : AbilityAura.TruthOfForests)))
             {
                 return false;
             }
 
-            while (Core.Player.IsMounted && Behaviors.ShouldContinue)
+            while (Me.IsMounted && Behaviors.ShouldContinue)
             {
                 await CommonTasks.StopAndDismount();
                 await Coroutine.Yield();
@@ -482,12 +484,12 @@
             return await
                 CastAura(
                     Ability.Truth,
-                    Core.Player.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+                    Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
         }
 
         private async Task<bool> ResetOrDone()
         {
-            while (Core.Player.InCombat && Behaviors.ShouldContinue)
+            while (Me.InCombat && Behaviors.ShouldContinue)
             {
                 await Coroutine.Yield();
             }
@@ -545,7 +547,7 @@
                 return false;
             }
 
-            if (GatherSpots != null && Node.Location.Distance3D(Core.Player.Location) > Distance)
+            if (GatherSpots != null && Node.Location.Distance3D(Me.Location) > Distance)
             {
                 GatherSpot = GatherSpots.OrderBy(gs => gs.NodeLocation.Distance3D(Node.Location)).FirstOrDefault(gs => gs.NodeLocation.Distance3D(Node.Location) <= Distance);
             }
@@ -579,7 +581,7 @@
                         nodes = nodes.Where(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
                     }
 
-                    foreach (var node in nodes.OrderBy(gpo => gpo.Location.Distance2D(Core.Player.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location)).Skip(1))
+                    foreach (var node in nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location)).Skip(1))
                     {
                         if (!Blacklist.Contains(node.ObjectId, BlacklistFlags.Interact))
                         {
@@ -592,13 +594,13 @@
 
                 if (FreeRange)
                 {
-                    nodes = nodes.Where(gpo => gpo.Distance2D(Core.Player.Location) < Radius);
+                    nodes = nodes.Where(gpo => gpo.Distance2D(Me.Location) < Radius);
                 }
                 else
                 {
                     if (HotSpots != null)
                     {
-                        nodes = nodes.OrderBy(gpo => gpo.Location.Distance2D(Core.Player.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
+                        nodes = nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location)).Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
                     }
                 }
 
@@ -616,13 +618,16 @@
                 {
                     if (HotSpots != null)
                     {
-                        var myLocation = Core.Player.Location;
+                        var myLocation = Me.Location;
                         if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
                             && GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
                                    .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
                         {
                             Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
-                            await Behaviors.MoveTo(HotSpots.CurrentOrDefault, true, (uint)MountId, Radius, HotSpots.CurrentOrDefault.Name);
+                            await Behaviors.MoveTo(
+                                HotSpots.CurrentOrDefault,
+                                radius: Radius,
+                                name: HotSpots.CurrentOrDefault.Name);
 
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
@@ -652,7 +657,7 @@
                 {
                     Logging.Write(Colors.PaleVioletRed, "Node on blacklist, waiting until we move out of range or it clears.");
 
-                    if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Core.Player.Location) > Radius))
+                    if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius))
                     {
                         if (!entry.IsFinished)
                         {
@@ -685,13 +690,13 @@
 
         private async Task<bool> MoveToGatherSpot()
         {
-            var distance = Poi.Current.Location.Distance3D(Core.Player.Location);
+            var distance = Poi.Current.Location.Distance3D(Me.Location);
             if (FreeRange)
             {
                 while(distance > Distance && distance <= Radius && Behaviors.ShouldContinue)
                 {
                     await Coroutine.Yield();
-                    distance = Poi.Current.Location.Distance3D(Core.Player.Location);
+                    distance = Poi.Current.Location.Distance3D(Me.Location);
                 }
             }
 
@@ -763,7 +768,7 @@
 
         private async Task<bool> BeforeGather()
         {
-            if (Core.Player.CurrentGP >= AdjustedWaitForGp)
+            if (Me.CurrentGP >= AdjustedWaitForGp)
             {
                 return true;
             }
@@ -782,7 +787,7 @@
                 return true;
             }
 
-            var gp = Math.Min(Core.Player.CurrentGP + ttg.TicksTillStartGathering * 5, Core.Player.MaxGP);
+            var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
 
             if (CordialType <= CordialType.None)
             {
@@ -815,7 +820,7 @@
 
             if (gp >= AdjustedWaitForGp)
             {
-                var gpNeeded = AdjustedWaitForGp - (Core.Player.CurrentGP - (Core.Player.CurrentGP % 5));
+                var gpNeeded = AdjustedWaitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
                 var gpNeededTicks = gpNeeded / 5;
                 var gpNeededSeconds = gpNeededTicks * 3;
 
@@ -823,8 +828,8 @@
                 {
                     Logging.WriteDiagnostic(
                         Colors.Chartreuse,
-                        "GatherCollectable: GP recoring faster than cordial cooldown, waiting for GP. Seconds: {0}"
-                        + gpNeededSeconds);
+                        "GatherCollectable: GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}",
+                        gpNeededSeconds);
 
                     // no need to wait for cordial, we will have GP faster
                     return await WaitForGpRegain();
@@ -860,7 +865,7 @@
                 return true;
             }
 
-            gp = Math.Min(Core.Player.CurrentGP + ttg.TicksTillStartGathering * 5, Core.Player.MaxGP);
+            gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
 
             if (gp + 400 >= AdjustedWaitForGp)
             {
@@ -899,15 +904,15 @@
                 return true;
             }
 
-            if (Core.Player.CurrentGP < AdjustedWaitForGp)
+            if (Me.CurrentGP < AdjustedWaitForGp)
             {
                 Logging.Write(
-                    "Waiting for GP, Seconds Until Gathering: " + ttg.RealSecondsTillStartGathering + ", Current GP: "
-                    + Core.Player.CurrentGP + ", WaitForGP: " + AdjustedWaitForGp);
+                    "Waiting for GP, Time till node is gone(sec): " + ttg.RealSecondsTillStartGathering + ", Current GP: "
+                    + Me.CurrentGP + ", WaitForGP: " + AdjustedWaitForGp);
                 await
                 Coroutine.Wait(
                     TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
-                    () => Core.Player.CurrentGP >= AdjustedWaitForGp || Core.Player.CurrentGP == Core.Player.MaxGP);
+                    () => Me.CurrentGP >= AdjustedWaitForGp || Me.CurrentGP == Me.MaxGP);
             }
 
             return true;
@@ -918,7 +923,7 @@
             // in case we failed our rotation
             await CloseGatheringWindow();
 
-            if (Core.Player.CurrentGP >= Core.Player.MaxGP - 30)
+            if (Me.CurrentGP >= Me.MaxGP - 30)
             {
                 NodesGatheredAtMaxGp++;
             }
@@ -937,7 +942,7 @@
             {
                 if (CordialType == CordialType.Auto)
                 {
-                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 550)
+                    if (Me.MaxGP - Me.CurrentGP > 550)
                     {
                         if (await UseCordial(CordialType.HiCordial))
                         {
@@ -945,7 +950,7 @@
                         }
                     }
 
-                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 390)
+                    if (Me.MaxGP - Me.CurrentGP > 390)
                     {
                         if (await UseCordial(CordialType.Cordial))
                         {
@@ -956,7 +961,7 @@
 
                 if (CordialType == CordialType.HiCordial)
                 {
-                    if (Core.Player.MaxGP - Core.Player.CurrentGP > 430)
+                    if (Me.MaxGP - Me.CurrentGP > 430)
                     {
                         if (await UseCordial(CordialType.HiCordial))
                         {
@@ -970,7 +975,7 @@
                     }
                 }
 
-                if (CordialType == CordialType.Cordial && Core.Player.MaxGP - Core.Player.CurrentGP > 330)
+                if (CordialType == CordialType.Cordial && Me.MaxGP - Me.CurrentGP > 330)
                 {
                     if (await UseCordial(CordialType.Cordial))
                     {
@@ -993,22 +998,22 @@
                 if (cordial != null)
                 {
                     Logging.Write(
-                        "Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Core.Player.CurrentGP);
+                        "Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Me.CurrentGP);
                     if (await Coroutine.Wait(
                         TimeSpan.FromSeconds(maxTimeoutSeconds),
                         () =>
                         {
-                            if (Core.Player.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
+                            if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
                             {
                                 Logging.Write("Dismounting to use cordial.");
                                 Actionmanager.Dismount();
                                 return false;
                             }
 
-                            return cordial.CanUse(Core.Player);
+                            return cordial.CanUse(Me);
                         }))
                     {
-                        cordial.UseItem(Core.Player);
+                        cordial.UseItem(Me);
                         Logging.Write("Using " + cordialType);
                         return true;
                     }

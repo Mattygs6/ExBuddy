@@ -22,7 +22,6 @@ namespace ExBuddy.OrderBotTags
     using ff14bot.Enums;
     using ff14bot.Helpers;
     using ff14bot.Managers;
-    using ff14bot.NeoProfiles;
     using ff14bot.RemoteWindows;
     using ff14bot.Settings;
 
@@ -31,7 +30,7 @@ namespace ExBuddy.OrderBotTags
     using Action = TreeSharp.Action;
 
     [XmlElement("Fish")]
-    public class FishTag : ProfileBehavior
+    public class FishTag : ExProfileBehavior
     {
         [Serializable]
         public enum Abilities
@@ -98,7 +97,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 // Gathering Fortune Up (Fishing)
-                return Core.Player.HasAura(850);
+                return Me.HasAura(850);
             }
         }
 
@@ -107,7 +106,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 // Snagging
-                return Core.Player.HasAura(761);
+                return Me.HasAura(761);
             }
         }
 
@@ -116,7 +115,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 // Collector's Glove
-                return Core.Player.HasAura(805);
+                return Me.HasAura(805);
             }
         }
 
@@ -125,7 +124,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 // Chum
-                return Core.Player.HasAura(763);
+                return Me.HasAura(763);
             }
         }
 
@@ -134,7 +133,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 // Fish Eyes
-                return Core.Player.HasAura(762);
+                return Me.HasAura(762);
             }
         }
 
@@ -346,7 +345,7 @@ namespace ExBuddy.OrderBotTags
                 await Coroutine.Yield();
             }
 
-            if (ticks >= 100)
+            if (ticks > 100)
             {
                 DoAbility(Abilities.Bait);
                 Log("Timeout during bait selection.", Colors.Red);
@@ -397,7 +396,7 @@ namespace ExBuddy.OrderBotTags
                 await Coroutine.Sleep(BaitDelay);
             }
 
-            if (ticks >= 5)
+            if (ticks > 5)
             {
                 DoAbility(Abilities.Bait);
                 Log("Timeout during bait selection.", Colors.Red);
@@ -442,7 +441,7 @@ namespace ExBuddy.OrderBotTags
                     }
 
                     // handle timeout
-                    if (ticks >= 60)
+                    if (ticks > 60)
                     {
                         required = (uint)Collectables.Select(c => c.Value).Max();
                     }
@@ -492,7 +491,7 @@ namespace ExBuddy.OrderBotTags
             return
                 new PrioritySelector(
                     new Decorator(
-                        ret => Vector3.Distance(Core.Player.Location, FishSpots.CurrentOrDefault.XYZ) < 2,
+                        ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.XYZ) < 2,
                         new PrioritySelector(children)));
         }
 
@@ -683,7 +682,7 @@ namespace ExBuddy.OrderBotTags
         {
             get
             {
-                return new Decorator(ret => Core.Player.IsMounted, CommonBehaviors.Dismount());
+                return new Decorator(ret => Me.IsMounted, CommonBehaviors.Dismount());
             }
         }
 
@@ -880,7 +879,7 @@ namespace ExBuddy.OrderBotTags
                         Patience > Abilities.None
                         && (FishingManager.State == FishingState.None || FishingManager.State == FishingState.PoleReady)
                         && !HasPatience && CanDoAbility(Patience)
-                        && (Core.Player.CurrentGP >= 600 || Core.Player.CurrentGPPercent > 99.0f),
+                        && (Me.CurrentGP >= 600 || Me.CurrentGPPercent > 99.0f),
                         new Sequence(
                             new Action(
                                 r =>
@@ -990,7 +989,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Decorator(
-                    ret => this.Stealth && !Core.Player.HasAura(47),
+                    ret => this.Stealth && !Me.HasAura(47),
                     new Sequence(
                         new Action(
                             r =>
@@ -1051,7 +1050,7 @@ namespace ExBuddy.OrderBotTags
             get
             {
                 return new Decorator(
-                    ret => Vector3.Distance(Core.Player.Location, FishSpots.CurrentOrDefault.XYZ) > 1,
+                    ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.XYZ) > 1,
                     CommonBehaviors.MoveAndStop(ret => FishSpots.CurrentOrDefault.XYZ, 1, true));
             }
         }
@@ -1080,12 +1079,12 @@ namespace ExBuddy.OrderBotTags
 
         protected bool CanDoAbility(Abilities ability)
         {
-            return Actionmanager.CanCast((uint)ability, Core.Player);
+            return Actionmanager.CanCast((uint)ability, Me);
         }
 
         protected bool DoAbility(Abilities ability)
         {
-            return Actionmanager.DoAction((uint)ability, Core.Player);
+            return Actionmanager.DoAction((uint)ability, Me);
         }
 
         #endregion
@@ -1129,11 +1128,11 @@ namespace ExBuddy.OrderBotTags
 
             if (i2 > 50)
             {
-                Core.Player.SetFacing(FishSpots.Current.Heading - (float)i);
+                Me.SetFacing(FishSpots.Current.Heading - (float)i);
             }
             else
             {
-                Core.Player.SetFacing(FishSpots.Current.Heading + (float)i);
+                Me.SetFacing(FishSpots.Current.Heading + (float)i);
             }
         }
 

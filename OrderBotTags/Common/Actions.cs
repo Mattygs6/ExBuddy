@@ -28,7 +28,7 @@ namespace ExBuddy.OrderBotTags.Common
 
                 result = Actionmanager.DoAction(spellId, Core.Player);
                 var ticks = 0;
-                while (result == false && ticks++ < 3 && Behaviors.ShouldContinue)
+                while (result == false && ticks++ < 5 && Behaviors.ShouldContinue)
                 {
                     result = Actionmanager.DoAction(spellId, Core.Player);
                     await Coroutine.Yield();
@@ -85,7 +85,7 @@ namespace ExBuddy.OrderBotTags.Common
             var result = Actionmanager.DoAction(id, Core.Player);
 
             var ticks = 0;
-            while (result == false && ticks++ < 3 && Behaviors.ShouldContinue)
+            while (result == false && ticks++ < 5 && Behaviors.ShouldContinue)
             {
                 result = Actionmanager.DoAction(id, Core.Player);
                 await Coroutine.Yield();

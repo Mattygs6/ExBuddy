@@ -57,9 +57,22 @@
         public float ForcedAltitude { get; set; }
 
         public bool LogWaypoints { get; set; }
+
+        public override string ToString()
+        {
+            return string.Concat(
+                "R->",
+                Radius,
+                "IPM->",
+                InverseParabolicMagnitude,
+                "S->",
+                Smoothing,
+                "Alt->",
+                ForcedAltitude);
+        }
     }
 
-    public abstract class FlightVars : ProfileBehavior, IFlightVars
+    public abstract class FlightVars : ExProfileBehavior, IFlightVars
     {
         [DefaultValue(3.0f)]
         [XmlAttribute("Radius")]

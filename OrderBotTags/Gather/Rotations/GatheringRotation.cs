@@ -85,10 +85,9 @@
                 }
 
                 var ticks = 0;
-                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks < 60 && Behaviors.ShouldContinue)
+                while (swingsRemaining != GatheringManager.SwingsRemaining && ticks++ < 60 && Behaviors.ShouldContinue)
                 {
                     await Coroutine.Yield();
-                    ticks++;
                 }
             }
 
@@ -110,7 +109,7 @@
             if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
             {
                 var ticks = 0;
-                while (ticks < 60 && Behaviors.ShouldContinue)
+                while (ticks++ < 60 && Behaviors.ShouldContinue)
                 {
                     if (!GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
                     {
@@ -118,7 +117,6 @@
                     }
 
                     await Coroutine.Yield();
-                    ticks++;
                 }
             }
         }

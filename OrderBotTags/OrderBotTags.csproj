@@ -66,6 +66,7 @@
     <Compile Include="Common\Actions.cs" />
     <Compile Include="Common\Collisions.cs" />
     <Compile Include="Common\Condition.cs" />
+    <Compile Include="Common\ExProfileBehavior.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\FlightVars.cs" />
     <Compile Include="Common\ObjectCache{T}.cs" />
@@ -117,7 +118,9 @@
     <Compile Include="Gather\GatherCollectable.cs" />
     <Compile Include="Gather\IGatheringRotation.cs" />
     <Compile Include="Gather\Prototype\SafeCollectAdamantite.cs" />
-    <Compile Include="Imported\FlightPathTo.cs" />
+    <Compile Include="Navigation\FlightPath.cs" />
+    <Compile Include="Navigation\FlightPathTo.cs" />
+    <Compile Include="Navigation\AsyncHelper.cs" />
     <Compile Include="Navigation\EnableFlightPlugin.cs" />
     <Compile Include="Navigation\FlightEnabledNavigator.cs" />
     <Compile Include="Navigation\FlightEnabledSlideMover.cs" />
@@ -152,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gather\Interfaces\" />
+    <Folder Include="Imported\" />
     <Folder Include="Interfaces\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

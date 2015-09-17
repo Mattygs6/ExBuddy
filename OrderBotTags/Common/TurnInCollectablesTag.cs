@@ -616,7 +616,7 @@ namespace ExBuddy.OrderBotTags.Common
                 while (Core.Target == null && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
-                    await Coroutine.Yield();
+                    await Coroutine.Wait(1000, () => Core.Target != null);
                 }
 
                 // check for timeout
@@ -683,7 +683,7 @@ namespace ExBuddy.OrderBotTags.Common
                     return true;
                 }
 
-                await Coroutine.Sleep(500);
+                await Coroutine.Sleep(600);
 
                 while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
                 {
@@ -697,7 +697,7 @@ namespace ExBuddy.OrderBotTags.Common
 
                     if (ticks > 50 || !SelectYesno.IsOpen)
                     {
-                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
+                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase of {0}", purchaseItemData.EnglishName);
                         window.TrySendAction(1, 3, uint.MaxValue);
                         isDone = true;
                         return true;
@@ -714,7 +714,7 @@ namespace ExBuddy.OrderBotTags.Common
 
                     if (ticks > 10 || SelectYesno.IsOpen)
                     {
-                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase");
+                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase of {0}", purchaseItemData.EnglishName);
                         SelectYesno.ClickNo();
                         await Coroutine.Yield();
                         window.TrySendAction(1, 3, uint.MaxValue);
@@ -737,7 +737,7 @@ namespace ExBuddy.OrderBotTags.Common
                             () => Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) != scripsLeft);
                 }
 
-                await Coroutine.Yield();
+                await Coroutine.Sleep(1000);
             }
 
             Logging.Write(Colors.SpringGreen, "Purchases complete.");

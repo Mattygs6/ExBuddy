@@ -16,7 +16,6 @@ namespace ExBuddy.OrderBotTags.Navigation
     using ff14bot.Behavior;
     using ff14bot.Enums;
     using ff14bot.Helpers;
-    using ff14bot.Managers;
     using ff14bot.Navigation;
     using ff14bot.RemoteWindows;
 
@@ -46,7 +45,7 @@ namespace ExBuddy.OrderBotTags.Navigation
         {
             get
             {
-                return new Version(0, 9, 1);
+                return new Version(0, 9, 2);
             }
         }
 
@@ -197,16 +196,16 @@ namespace ExBuddy.OrderBotTags.Navigation
             
         }
 
-        [DefaultValue(2.7f)]
+        [DefaultValue(2.9f)]
         public float Radius { get; set; }
 
-        [DefaultValue(10)]
+        [DefaultValue(6)]
         public int InverseParabolicMagnitude { get; set; }
 
         [DefaultValue(0.2f)]
         public float Smoothing { get; set; }
 
-        [DefaultValue(8.0f)]
+        [DefaultValue(6.0f)]
         public float ForcedAltitude { get; set; }
 
         [DefaultValue(false)]

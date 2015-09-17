@@ -5,9 +5,7 @@ namespace ExBuddy.OrderBotTags.Navigation
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Caching;
-    using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -16,9 +14,7 @@ namespace ExBuddy.OrderBotTags.Navigation
 
     using ExBuddy.OrderBotTags.Common;
 
-    using ff14bot.Helpers;
     using ff14bot.Managers;
-    using ff14bot.Navigation;
 
     public class StraightOrParabolicFlightPath : FlightPath
     {
@@ -30,30 +26,6 @@ namespace ExBuddy.OrderBotTags.Navigation
         public StraightOrParabolicFlightPath(Vector3 start, Vector3 end, IFlightNavigationArgs flightNavigationArgs)
             : base(start, end, flightNavigationArgs)
         {
-        }
-
-        public static Vector3 Arc(Vector3 start, Vector3 end, float height, float t)
-        {
-            Vector3 direction3 = end - start;
-            Vector3 computed = start + t * direction3;
-            if (Math.Abs(start.Y - end.Y) < 3.0f)
-            {
-                //start and end are roughly level, pretend they are - simpler solution with less steps
-                computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
-            }
-            else
-            {
-                //start and end are not level, gets more complicated
-                Vector3 direction2 = end - new Vector3(start.X, end.Y, start.Z);
-                Vector3 right = Vector3.Cross(direction3, direction2);
-                Vector3 up = Vector3.Cross(right, direction3); // Should this be direction2?
-                if (end.Y > start.Y) up = -up;
-                up.Normalize();
-
-                computed.Y += ((float)(Math.Sin(t * (float)Math.PI)) * height) * up.Y;
-            }
-
-            return computed;
         }
 
         protected override async Task<bool> Build()
@@ -122,7 +94,7 @@ namespace ExBuddy.OrderBotTags.Navigation
         private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(8);
 
         public FlightPath(Vector3 start, Vector3 end, ushort zoneId = 0)
-            : this(start, end, new FlightNavigationArgs())
+            : this(start, end, new FlightNavigationArgs(), zoneId)
         {
         }
 
@@ -147,7 +119,7 @@ namespace ExBuddy.OrderBotTags.Navigation
             {
                 if (this.key == Guid.Empty)
                 {
-                    this.key = string.Concat("S: ", this.startCenterOfCube, ", E: ", this.endCenterOfCube, "Z: ", this.zoneId, ", Args: ", this.flightNavigationArgs).ToGuid();
+                    this.key = String.Concat("S: ", this.startCenterOfCube, ", E: ", this.endCenterOfCube, "Z: ", this.zoneId, ", Args: ", this.flightNavigationArgs).ToGuid();
                 }
 
                 return this.key;
@@ -216,6 +188,30 @@ namespace ExBuddy.OrderBotTags.Navigation
             return GetKey(new FlightPath(start, end, args));
         }
 
+        public static Vector3 Arc(Vector3 start, Vector3 end, float height, float t)
+        {
+            Vector3 direction3 = end - start;
+            Vector3 computed = start + t * direction3;
+            if (Math.Abs(start.Y - end.Y) < 3.0f)
+            {
+                //start and end are roughly level, pretend they are - simpler solution with less steps
+                computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
+            }
+            else
+            {
+                //start and end are not level, gets more complicated
+                Vector3 direction2 = end - new Vector3(start.X, end.Y, start.Z);
+                Vector3 right = Vector3.Cross(direction3, direction2);
+                Vector3 up = Vector3.Cross(right, direction3); // Should this be direction2?
+                if (end.Y > start.Y) up = -up;
+                up.Normalize();
+
+                computed.Y += ((float)(Math.Sin(t * (float)Math.PI)) * height) * up.Y;
+            }
+
+            return computed;
+        }
+
         public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
         {
             return new Vector3(
@@ -226,9 +222,14 @@ namespace ExBuddy.OrderBotTags.Navigation
 
         public async Task<bool> BuildPath()
         {
-            Clear();
-            Index = 0;
-            return await Build();
+            this.Clear();
+            this.Index = 0;
+            return await this.Build();
+        }
+
+        protected static Vector3 Straight(Vector3 start, Vector3 end, float height, float t)
+        {
+            return Lerp(start, end, t);
         }
 
         protected virtual async Task<bool> Build()
@@ -237,51 +238,68 @@ namespace ExBuddy.OrderBotTags.Navigation
             var uncorrectedErrors = 0;
             var from = Start;
             var target = End;
-            var distance = from.Distance3D(target);
+            var distance = Distance;
             var desiredNumberOfPoints =
-                Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 2.0)) + flightNavigationArgs.Smoothing, 1.0)), 1.0);
+                Math.Max(Math.Floor(distance * Math.Min((1 / Math.Pow(distance, 1.0 / 2.0)) + this.flightNavigationArgs.Smoothing, 1.0)), 1.0);
             desiredNumberOfPoints = Math.Min(desiredNumberOfPoints, Math.Floor(distance));
+
+            var height = Math.Max(this.ForcedAltitude, Math.Min(Distance / Math.Max(1, this.InverseParabolicMagnitude), 100.0f));
 
             var distancePerWaypoint = distance / (float)desiredNumberOfPoints;
 
             var previousWaypoint = from;
             var cleanWaypoints = 0;
 
+            Func<Vector3, Vector3, float, float, Vector3> createWaypointFunc = Straight;
+
             for (var i = 0.0f + (1.0f / ((float)desiredNumberOfPoints)); i <= 1.0f; i += (1.0f / ((float)desiredNumberOfPoints)))
             {
-                var waypoint = Lerp(from, target, i);
+                Vector3 hit;
+                if (cleanWaypoints == 0)
+                {
+                    var useStraight = !WorldManager.Raycast(from, target, out hit);
+
+                    if (useStraight)
+                    {
+                        createWaypointFunc = Straight;
+                    }
+                    else
+                    {
+                        createWaypointFunc = Arc;
+                    }
+                }
+
+                var waypoint = createWaypointFunc(@from, target, height, i);
 
                 // TODO: look into capping distance per waypoint, then also the modifier distance
                 var collisions = new Collisions(previousWaypoint, waypoint - previousWaypoint, distancePerWaypoint * 2f);
 
                 Vector3 deviationWaypoint;
-                var result = collisions.CollisionResult(queuedFlightPoints.ToArray(), out deviationWaypoint);
+                var result = collisions.CollisionResult(this.queuedFlightPoints.ToArray(), out deviationWaypoint);
                 if (result != CollisionFlags.None)
                 {
                     // DO THINGS! // check landing + buffer zone of 2.0f
                     if (result.HasFlag(CollisionFlags.Forward)
-                        && collisions.PlayerCollider.ForwardHit.Distance3D(target) > flightNavigationArgs.Radius + 1.0f)
+                        && collisions.PlayerCollider.ForwardHit.Distance3D(target) > this.flightNavigationArgs.Radius + 1.0f)
                     {
                         if (result.HasFlag(CollisionFlags.Error))
                         {
-                            Vector3 hit;
-                            Vector3 distances;
                             var alternateCount = 0;
                             // Go in random direction up to the distance of a normal waypoint.
                             var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint);
-                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit, out distances) && Behaviors.ShouldContinue)
+                            while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit) && Behaviors.ShouldContinue)
                             {
                                 if (alternateCount > 20)
                                 {
                                     if (uncorrectedErrors >= MaxUncorrectedErrors)
                                     {
-                                        ClearQueuedFlightPoints();
-                                        Clear();
-                                        Index = 0;
+                                        this.ClearQueuedFlightPoints();
+                                        this.Clear();
+                                        this.Index = 0;
                                         return false;
                                     }
 
-                                    foreach (var fp in queuedFlightPoints)
+                                    foreach (var fp in this.queuedFlightPoints)
                                     {
                                         MemoryCache.Default.Add(
                                             fp.Location.ToString(),
@@ -291,14 +309,15 @@ namespace ExBuddy.OrderBotTags.Navigation
 
                                     previousWaypoint = from = this.Last();
 
-                                    desiredNumberOfPoints = desiredNumberOfPoints + queuedFlightPoints.Count;
+                                    desiredNumberOfPoints = desiredNumberOfPoints + this.queuedFlightPoints.Count;
                                     i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
                                     cleanWaypoints = 0;
 
                                     distance = from.Distance3D(target);
                                     distancePerWaypoint = distance / (float)desiredNumberOfPoints;
+                                    height = Math.Max(this.ForcedAltitude, Math.Min(distance / Math.Max(1, this.InverseParabolicMagnitude), 100.0f));
 
-                                    ClearQueuedFlightPoints();
+                                    this.ClearQueuedFlightPoints();
 
                                     uncorrectedErrors++;
                                     break;
@@ -322,7 +341,7 @@ namespace ExBuddy.OrderBotTags.Navigation
                             preHeightCorrect,
                             DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-                        deviationWaypoint = deviationWaypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
+                        deviationWaypoint = deviationWaypoint.HeightCorrection(this.flightNavigationArgs.ForcedAltitude);
                         previousWaypoint = from = deviationWaypoint;
 
                         var flightPoint = new FlightPoint { Location = deviationWaypoint, IsDeviation = true };
@@ -331,7 +350,7 @@ namespace ExBuddy.OrderBotTags.Navigation
                             flightPoint,
                             DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-                        QueueFlightPoint(flightPoint);
+                        this.QueueFlightPoint(flightPoint);
 
                         desiredNumberOfPoints = desiredNumberOfPoints - cleanWaypoints;
                         i = 0.0f + (1.0f / ((float)desiredNumberOfPoints));
@@ -339,6 +358,7 @@ namespace ExBuddy.OrderBotTags.Navigation
 
                         distance = from.Distance3D(target);
                         distancePerWaypoint = distance / (float)desiredNumberOfPoints;
+                        height = Math.Max(this.ForcedAltitude, Math.Min(distance / Math.Max(1, this.InverseParabolicMagnitude), 100.0f));
 
                         continue;
                     }
@@ -346,9 +366,9 @@ namespace ExBuddy.OrderBotTags.Navigation
 
                 cleanWaypoints++;
                 int waypointsRemaining;
-                if ((waypointsRemaining = (int)desiredNumberOfPoints - FlightPointCount()) > flightNavigationArgs.ForcedAltitude)
+                if ((waypointsRemaining = (int)desiredNumberOfPoints - this.FlightPointCount()) > this.flightNavigationArgs.ForcedAltitude)
                 {
-                    waypoint = waypoint.HeightCorrection(flightNavigationArgs.ForcedAltitude);
+                    waypoint = waypoint.HeightCorrection(this.flightNavigationArgs.ForcedAltitude);
                 }
                 else
                 {
@@ -356,11 +376,11 @@ namespace ExBuddy.OrderBotTags.Navigation
                 }
 
                 previousWaypoint = waypoint;
-                QueueFlightPoint(waypoint);
+                this.QueueFlightPoint(waypoint);
             }
 
-            FlushQueuedFlightPoints();
-            return Count > 0;
+            this.FlushQueuedFlightPoints();
+            return this.Count > 0;
         }
 
         public bool Equals(FlightPath other)
@@ -370,17 +390,17 @@ namespace ExBuddy.OrderBotTags.Navigation
 
         public bool Equals(Vector3 start, Vector3 end, IFlightNavigationArgs args)
         {
-            if (Math.Abs(this.flightNavigationArgs.ForcedAltitude - args.ForcedAltitude) > float.Epsilon)
+            if (Math.Abs(this.flightNavigationArgs.ForcedAltitude - args.ForcedAltitude) > Single.Epsilon)
             {
                 return false;
             }
 
-            if (Math.Abs(this.flightNavigationArgs.Smoothing - args.Smoothing) > float.Epsilon)
+            if (Math.Abs(this.flightNavigationArgs.Smoothing - args.Smoothing) > Single.Epsilon)
             {
                 return false;
             }
 
-            if (Math.Abs(this.flightNavigationArgs.InverseParabolicMagnitude - args.InverseParabolicMagnitude) > float.Epsilon)
+            if (Math.Abs(this.flightNavigationArgs.InverseParabolicMagnitude - args.InverseParabolicMagnitude) > Single.Epsilon)
             {
                 return false;
             }
@@ -395,29 +415,29 @@ namespace ExBuddy.OrderBotTags.Navigation
 
         private int FlightPointCount()
         {
-            return Count + queuedFlightPoints.Count;
+            return this.Count + this.queuedFlightPoints.Count;
         }
 
         private void QueueFlightPoint(FlightPoint flightPoint)
         {
-            queuedFlightPoints.Enqueue(flightPoint);
+            this.queuedFlightPoints.Enqueue(flightPoint);
 
-            if (queuedFlightPoints.Count == 8)
+            if (this.queuedFlightPoints.Count == 8)
             {
-                Add(queuedFlightPoints.Dequeue());
+                this.Add(this.queuedFlightPoints.Dequeue());
             }
         }
 
         private void ClearQueuedFlightPoints()
         {
-            queuedFlightPoints.Clear();
+            this.queuedFlightPoints.Clear();
         }
 
         private void FlushQueuedFlightPoints()
         {
-            while (queuedFlightPoints.Count > 0)
+            while (this.queuedFlightPoints.Count > 0)
             {
-                Add(queuedFlightPoints.Dequeue());
+                this.Add(this.queuedFlightPoints.Dequeue());
             }
         }
     }

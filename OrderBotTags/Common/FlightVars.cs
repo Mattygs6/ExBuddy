@@ -42,7 +42,7 @@
         public FlightNavigationArgs()
         {
             this.Radius = 2.7f;
-            this.InverseParabolicMagnitude = 10;
+            this.InverseParabolicMagnitude = 6;
             this.Smoothing = 0.2f;
             this.LogWaypoints = true;
             this.ForcedAltitude = 8.0f;
@@ -78,11 +78,11 @@
         [XmlAttribute("Radius")]
         public float Radius { get; set; }
 
-        [DefaultValue(10)]
+        [DefaultValue(6)]
         [XmlAttribute("InverseParabolicMagnitude")]
         public int InverseParabolicMagnitude { get; set; }
 
-        [DefaultValue(0.0f)]
+        [DefaultValue(0.05f)]
         [XmlAttribute("Smoothing")]
         public float Smoothing { get; set; }
 
@@ -90,7 +90,7 @@
         [XmlAttribute("MountId")]
         public int MountId { get; set; }
 
-        [DefaultValue(0.0f)]
+        [DefaultValue(3.0f)]
         [XmlAttribute("ForcedAltitude")]
         public float ForcedAltitude { get; set; }
 

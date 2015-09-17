@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--User Configuration-->
+<!DOCTYPE Profile [
+	<!ENTITY Location "Idyllshire">
+	<!--
+		Idyllshire
+		MorDhona - limited options for purchases, some purchase might not work or you might end up with the wrong item (untested)
+	-->
+	
+	<!--
+	    CrpDelineation
+        BsmDelineation
+        ArmDelineation
+        GsmDelineation
+        LtwDelineation
+        WvrDelineation
+        AlcDelineation
+        CulDelineation
+        RedCrafterToken
+        RedGatherToken
+        HiCordial
+        BlueToken
+        BruteLeech
+        CraneFly
+        KukuruPowder
+        BouillonCube
+        BeanSauce
+        BeanPaste
+	-->
+	<!ENTITY ShopPurchase1 "BlueToken">
+	<!ENTITY ShopPurchase1_Count "900">
+	<!ENTITY ShopPurchase2 "HiCordial">
+	<!ENTITY ShopPurchase2_Count "10">
+	<!ENTITY ShopPurchase3 "BruteLeech">
+	<!ENTITY ShopPurchase3_Count "0">
+]>
+<Profile>
+	<Name>ExBuddy: Turn in Collectables</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<!-- if forcePurchase="true" it will go purchase items even if no turn ins available -->
+		<TurnInCollectables location="&Location;" forcePurchase="false">
+			<Collectables>
+				<CollectableTurnIn name="Abalathian Mistletoe" value="450" />
+				<CollectableTurnIn name="Adamantite Ore" value="470" maxValueForTurnIn="529" />
+				<CollectableTurnIn name="Chysahl Greens" value="470" maxValueForTurnIn="529" />
+				<CollectableTurnIn name="Cuprite" value="450" />
+				<CollectableTurnIn name="Morel" value="450" />
+				<CollectableTurnIn name="Illuminati Perch" value="826" />
+			</Collectables>
+			<ShopPurchases>
+				<ShopPurchase shopItem="&ShopPurchase1;" maxCount="&ShopPurchase1_Count;"/>
+				<ShopPurchase shopItem="&ShopPurchase2;" maxCount="&ShopPurchase2_Count;"/>
+				<ShopPurchase shopItem="&ShopPurchase3;" maxCount="&ShopPurchase3_Count;"/>
+			</ShopPurchases>
+		</TurnInCollectables>
+	</Order>
+</Profile>

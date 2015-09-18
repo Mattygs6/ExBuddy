@@ -11,7 +11,6 @@ namespace ExBuddy.Plugins.EnableFlight
 
     using ExBuddy.Helpers;
     using ExBuddy.Navigation;
-    using ExBuddy.OrderBotTags.Behaviors;
 
     using ff14bot;
     using ff14bot.AClasses;

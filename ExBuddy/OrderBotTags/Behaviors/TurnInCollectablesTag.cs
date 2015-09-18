@@ -10,13 +10,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
     using Buddy.Coroutines;
 
-    using Clio.Utilities;
     using Clio.XmlEngine;
 
-    using ExBuddy.Enums;
     using ExBuddy.Helpers;
     using ExBuddy.OrderBotTags.Behaviors.Objects;
     using ExBuddy.OrderBotTags.Objects;
+    using ExBuddy.RemoteWindows;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -55,16 +54,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
         [Clio.XmlEngine.XmlElement("ShopPurchases")]
         public List<ShopPurchase> ShopPurchases { get; set; }
 
-        public static uint GetClassIndex(ClassJobType classJobType)
-        {
-            return (uint)classJobType - 8;
-        }
-
-        public static void SelectClass(ClassJobType classJobType)
-        {
-            SelectClass(GetClassIndex(classJobType));
-        }
-
         // Not needed but just because we can
         public static void SelectClass(uint index)
         {
@@ -92,16 +81,19 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         protected override void OnDone()
         {
-            var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-            if (window != null)
+            if (MasterPieceSupply.IsOpen)
             {
-                window.TrySendAction(1, 3, uint.MaxValue);
+                MasterPieceSupply.Close();
             }
 
-            window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
-            if (window != null)
+            if (ShopExchangeCurrency.IsOpen)
             {
-                window.TrySendAction(1, 3, uint.MaxValue);
+                ShopExchangeCurrency.Close();
+            }
+
+            if (SelectIconString.IsOpen)
+            {
+                SelectIconString.ClickSlot(uint.MaxValue);
             }
         }
 
@@ -224,34 +216,23 @@ namespace ExBuddy.OrderBotTags.Behaviors
             var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
             var npc = GameObjectManager.GetObjectByNPCId(locationData.ShopNpcId);
             var shopType = ShopType.BlueGatherer;
-            var window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
+            var shopExchangeCurrency = new ShopExchangeCurrency();
             foreach (var purchaseItem in itemsToPurchase)
             {
                 var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
                 var purchaseItemData = purchaseItemInfo.ItemData;
-                var ticks = 0;
 
-                if (shopType != purchaseItemInfo.ShopType && window != null)
+                
+                if (shopType != purchaseItemInfo.ShopType && shopExchangeCurrency.IsValid)
                 {
-                    ticks = 0;
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                    while (window != null && window.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
-                    {
-                        var result = window.TrySendAction(1, 3, uint.MaxValue);
-                        if (result == SendActionResult.InjectionError)
-                        {
-                            await Coroutine.Sleep(500);
-                        }
-
-                        await Coroutine.Wait(500, () => window == null || !window.IsValid);
-                    }
+                    await shopExchangeCurrency.CloseInstanceGently();
                 }
 
                 shopType = purchaseItemInfo.ShopType;
 
                 // target
-                ticks = 0;
-                while (Core.Target == null && (window == null || !window.IsValid) && ticks++ < 10 && Behaviors.ShouldContinue)
+                var ticks = 0;
+                while (Core.Target == null && !shopExchangeCurrency.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
                     await Coroutine.Wait(1000, () => Core.Target != null);
@@ -267,7 +248,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 // interact
                 ticks = 0;
-                while (!SelectIconString.IsOpen && (window == null || !window.IsValid) && ticks++ < 10 && Behaviors.ShouldContinue)
+                while (!SelectIconString.IsOpen && !shopExchangeCurrency.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Interact();
                     await Coroutine.Wait(1000, () => SelectIconString.IsOpen);
@@ -303,18 +284,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
                         SelectIconString.ClickSlot((uint)purchaseItemInfo.ShopType);
                     }
 
-                    await
-                        Coroutine.Wait(
-                            5000,
-                            () => (window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency")) != null);
+                    await shopExchangeCurrency.Refresh(5000);
                 }
 
-                if (ticks > 5 || window == null || !window.IsValid)
+                if (ticks > 5 || !shopExchangeCurrency.IsValid)
                 {
                     Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
                     if (SelectIconString.IsOpen)
                     {
-                        SelectIconString.ClickLineEquals(SelectIconString.Lines().Last());
+                        SelectIconString.ClickSlot(uint.MaxValue);
                     }
 
                     isDone = true;
@@ -322,57 +300,34 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 }
 
                 await Coroutine.Sleep(600);
-
-                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
+                int scripsLeft;
+                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && (scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
                 {
-                    ticks = 0;
-                    while (!SelectYesno.IsOpen && ticks++ < 50 && Behaviors.ShouldContinue)
-                    {
-                        await Coroutine.Yield();
-                        window.TrySendAction(2, 0, 0, 1, purchaseItemInfo.Index);
-                        await Coroutine.Wait(200, () => SelectYesno.IsOpen);
-                    }
-
-                    if (ticks > 50 || !SelectYesno.IsOpen)
+                    if (!await shopExchangeCurrency.PurchaseItem(purchaseItemInfo.Index, 20))
                     {
                         Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase of {0}", purchaseItemData.EnglishName);
-                        window.TrySendAction(1, 3, uint.MaxValue);
+                        shopExchangeCurrency.CloseInstance();
                         isDone = true;
                         return true;
                     }
-
-                    var scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType);
-                    ticks = 0;
-                    while (SelectYesno.IsOpen && ticks++ < 10 && Behaviors.ShouldContinue)
-                    {
-                        await Coroutine.Yield();
-                        SelectYesno.ClickYes();
-                        await Coroutine.Wait(1000, () => !SelectYesno.IsOpen);
-                    }
-
-                    if (ticks > 10 || SelectYesno.IsOpen)
-                    {
-                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase of {0}", purchaseItemData.EnglishName);
-                        SelectYesno.ClickNo();
-                        await Coroutine.Yield();
-                        window.TrySendAction(1, 3, uint.MaxValue);
-                        isDone = true;
-                        return true;
-                    }
-
-                    Logging.Write(
-                        Colors.SpringGreen,
-                        "Purchased item {0} for {1} {2} scrips at {3} ET",
-                        purchaseItemData.EnglishName,
-                        purchaseItemInfo.Cost,
-                        purchaseItemInfo.ShopType,
-                        WorldManager.EorzaTime);
 
                     // wait until scrips changed
+                    var left = scripsLeft;
                     await
                         Coroutine.Wait(
                             5000,
-                            () => Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType) != scripsLeft);
+                            () => (scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) != left);
+
+                    Logging.Write(
+                        Colors.SpringGreen,
+                        "Purchased item {0} for {1} {2} scrips at {3} ET; Remaining Scrips: {4}",
+                        purchaseItemData.EnglishName,
+                        purchaseItemInfo.Cost,
+                        purchaseItemInfo.ShopType,
+                        WorldManager.EorzaTime,
+                        scripsLeft);
+
+                    await Coroutine.Yield();
                 }
 
                 await Coroutine.Sleep(1000);
@@ -382,10 +337,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
             SelectYesno.ClickNo();
             if (SelectIconString.IsOpen)
             {
-                SelectIconString.ClickLineEquals(SelectIconString.Lines().Last());    
+                SelectIconString.ClickSlot(uint.MaxValue);
             }
-            
-            window.TrySendAction(1, 3, uint.MaxValue);
+
+            shopExchangeCurrency.CloseInstance();
             isDone = true;
             return true;
         }
@@ -403,16 +358,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         private async Task<bool> HandOver()
         {
-            var ticks = 0;
-            var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-            while (window == null && ticks++ < 60 && Behaviors.ShouldContinue)
-            {
-                RaptureAtkUnitManager.Update();
-                window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-                await Coroutine.Yield();
-            }
-
-            if (ticks > 60)
+            var masterpieceSupply = new MasterPieceSupply();
+            if (!masterpieceSupply.IsValid && !await masterpieceSupply.Refresh(2000))
             {
                 return false;
             }
@@ -420,25 +367,21 @@ namespace ExBuddy.OrderBotTags.Behaviors
             if (item == null || item.Item == null)
             {
                 SelectYesno.ClickNo();
-                if (window == null)
-                {
-                    return false;
-                }
-
-                ticks = 0;
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                while (window != null && window.IsValid && ticks++ < 10 && Behaviors.ShouldContinue)
-                {
-                    var result = window.TrySendAction(1, 3, uint.MaxValue);
-                    if (result == SendActionResult.InjectionError)
-                    {
-                        await Coroutine.Sleep(500);
-                    }
-
-                    await Coroutine.Wait(500, () => window == null || !window.IsValid);
-                }
+                await masterpieceSupply.CloseInstanceGently(15);
                 
                 return false;
+            }
+
+            var itemName = item.Item.EnglishName;
+
+            if (!await masterpieceSupply.TurnIn(index, item))
+            {
+                Logging.Write(Colors.Red, "An error has occured while turning in the item");
+                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
+                item = null;
+                index = 0;
+                SelectYesno.ClickNo();
+                return true;
             }
 
             if (SelectYesno.IsOpen)
@@ -448,73 +391,23 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 item = null;
                 index = 0;
                 SelectYesno.ClickNo();
-                window.TrySendAction(1, 3, uint.MaxValue);
                 return true;
             }
 
-            var requestAttempts = 0;
-            while (!Request.IsOpen && requestAttempts++ < 20 && Behaviors.ShouldContinue)
-            {
-                await Coroutine.Yield();
-                var result = window.TrySendAction(2, 0, 0, 1, index);
-                if (result == SendActionResult.InjectionError)
-                {
-                    await Coroutine.Sleep(500);
-                }
+            Logging.Write(
+                Colors.SpringGreen,
+                "Turned in {0} at {1} ET",
+                itemName,
+                WorldManager.EorzaTime);
 
-                await Coroutine.Wait(500, () => Request.IsOpen);
-            }
+            turnedItemsIn = true;
 
-            if (!Request.IsOpen)
+            index = 0;
+            if (!await Coroutine.Wait(1000, () => item == null))
             {
-                Logging.Write(Colors.Red, "An error has occured while turning in the item");
-                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
                 item = null;
-                index = 0;
-                SelectYesno.ClickNo();
-                window.TrySendAction(1, 3, uint.MaxValue);
-                return true;
             }
 
-            if (item == null || item.Item == null)
-            {
-                Logging.Write(Colors.Red, "The item has become null between the time we resolved it and tried to turn it in...");
-                item = null;
-                index = 0;
-                await Coroutine.Yield();
-                return true;
-            }
-
-            var attempts = 0;
-            var itemName = item.Item.EnglishName;
-            while (Request.IsOpen && attempts++ < 5 && Behaviors.ShouldContinue && item.Item != null)
-            {
-                item.Handover();
-                await Coroutine.Wait(1000, () => Request.HandOverButtonClickable);
-                Request.HandOver();
-                await Coroutine.Wait(1000, () => !Request.IsOpen);
-            }
-
-            if (attempts < 6)
-            {
-                Logging.Write(
-                    Colors.SpringGreen,
-                    "Turned in {0} at {1} ET",
-                    itemName,
-                    WorldManager.EorzaTime);
-
-                turnedItemsIn = true;
-                item = null;
-                index = 0;
-                await Coroutine.Yield();
-                return true;
-            }
-
-            Logging.Write(Colors.Red, "Too many attempts");
-            Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, something is wrong.");
-            Request.Cancel();
-            SelectYesno.ClickNo();
-            window.TrySendAction(1, 3, uint.MaxValue);
             return true;
         }
 
@@ -555,7 +448,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return true;
             }
 
-            if (GameObjectManager.Target != null && RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply") != null)
+            if (GameObjectManager.Target != null && MasterPieceSupply.IsOpen)
             {
                 // already met conditions
                 return false;
@@ -598,24 +491,24 @@ namespace ExBuddy.OrderBotTags.Behaviors
             var classIndex = uint.MaxValue;
             if (item.Item.RepairClass > 0 && item.Item.EquipmentCatagory != ItemUiCategory.Seafood)
             {
-                classIndex = GetClassIndex((ClassJobType)item.Item.RepairClass);
+                classIndex = MasterPieceSupply.GetClassIndex((ClassJobType)item.Item.RepairClass);
             }
             else
             {
                 switch (item.Item.EquipmentCatagory)
                 {
                     case ItemUiCategory.Seafood:
-                        classIndex = GetClassIndex(ClassJobType.Fisher);
+                        classIndex = MasterPieceSupply.GetClassIndex(ClassJobType.Fisher);
                         break;
                     case ItemUiCategory.Stone:
                     case ItemUiCategory.Metal:
                     case ItemUiCategory.Bone:
-                        classIndex = GetClassIndex(ClassJobType.Miner);
+                        classIndex = MasterPieceSupply.GetClassIndex(ClassJobType.Miner);
                         break;
                     case ItemUiCategory.Reagent:
                     case ItemUiCategory.Ingredient:
                     case ItemUiCategory.Lumber:
-                        classIndex = GetClassIndex(ClassJobType.Botanist);
+                        classIndex = MasterPieceSupply.GetClassIndex(ClassJobType.Botanist);
                         break;
                 }
 
@@ -718,14 +611,19 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 }
             }
 
-            if ((item == null || item.Item == null) && ((!turnedItemsIn && !ForcePurchase) || await HandleSkipPurchase()))
+            if (item != null && item.Item != null)
             {
-                isDone = true;
-                return true;
+                Logging.Write(Colors.SpringGreen, "TurnInCollectables: Attempting to turn in item {0} -> {1}", item.EnglishName, item.Pointer);
+                return false;
             }
 
-            // if we do resolve the item, return false so we just move on.
-            return false;
+            if ((turnedItemsIn || ForcePurchase) && !await HandleSkipPurchase())
+            {
+                return false;
+            }
+
+            isDone = true;
+            return true;
         }
     }
 }

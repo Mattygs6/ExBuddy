@@ -12,7 +12,6 @@
 
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
-    using ExBuddy.OrderBotTags.Behaviors;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -213,6 +212,7 @@
                                                 landingStopwatch.Reset();
                                                 isLanding = false;
                                                 landingTask = null;
+                                                return;
                                             }
 
                                             if (landingCoroutine == null || landingCoroutine.IsFinished)

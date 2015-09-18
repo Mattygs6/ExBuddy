@@ -223,8 +223,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
             var npc = GameObjectManager.GetObjectByNPCId(locationData.ShopNpcId);
-            ShopType shopType = ShopType.BlueGatherer;
-            AtkAddonControl window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
+            var shopType = ShopType.BlueGatherer;
+            var window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency");
             foreach (var purchaseItem in itemsToPurchase)
             {
                 var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
@@ -251,7 +251,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 // target
                 ticks = 0;
-                while (Core.Target == null && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
+                while (Core.Target == null && (window == null || !window.IsValid) && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Target();
                     await Coroutine.Wait(1000, () => Core.Target != null);
@@ -267,7 +267,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 // interact
                 ticks = 0;
-                while (!SelectIconString.IsOpen && window == null && ticks++ < 10 && Behaviors.ShouldContinue)
+                while (!SelectIconString.IsOpen && (window == null || !window.IsValid) && ticks++ < 10 && Behaviors.ShouldContinue)
                 {
                     npc.Interact();
                     await Coroutine.Wait(1000, () => SelectIconString.IsOpen);
@@ -309,7 +309,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                             () => (window = RaptureAtkUnitManager.GetWindowByName("ShopExchangeCurrency")) != null);
                 }
 
-                if (ticks > 5 || window == null)
+                if (ticks > 5 || window == null || !window.IsValid)
                 {
                     Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
                     if (SelectIconString.IsOpen)

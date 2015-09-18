@@ -1,0 +1,283 @@
+﻿namespace ExBuddy.OrderBotTags.Gather.Prototype
+{
+    using System;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    using Buddy.Coroutines;
+
+    using Clio.Utilities;
+    using Clio.XmlEngine;
+
+    using ExBuddy.OrderBotTags.Behaviors;
+
+    using ff14bot;
+    using ff14bot.Enums;
+    using ff14bot.Helpers;
+    using ff14bot.Managers;
+    using ff14bot.Navigation;
+    using ff14bot.NeoProfiles;
+    using ff14bot.Objects;
+    using ff14bot.Settings;
+
+    using TreeSharp;
+
+    [XmlElement("SafeCollectAdamantite")]
+    public class SafeCollectAdamantite : ProfileBehavior
+    {
+        enum Auras : short
+        {
+            None = -1,
+            TruthOfMountains = 222,
+            DiscerningEye = 757,
+            CollectorsGlove = 805
+        }
+
+        enum Abilities : short
+        {
+            None = -1,
+            Stealth = 229,
+            SharpVision = 235,
+            TruthOfMountains = 238,
+            CollectorsGlove = 4074,
+            MethodicalAppraisal = 4075,
+            ImpulsiveAppraisal = 4077,
+            DiscerningEye = 4078,
+            SingleMind = 4084
+        }
+
+        private bool isDone;
+
+        public override bool IsDone
+        {
+            get
+            {
+                return isDone;
+            }
+        }
+
+        [DefaultValue(true)]
+        [XmlAttribute("ReturnToSafeLocation")]
+        public bool ReturnToSafeLocation { get; set; }
+
+        [DefaultValue(45)]
+        [XmlAttribute("MountId")]
+        public int MountId { get; set; }
+
+        [DefaultValue(true)]
+        [XmlAttribute("LogWaypoints")]
+        public bool LogWaypoints { get; set; }
+
+        [DefaultValue(5)]
+        [XmlAttribute("Slot")]
+        public int Slot { get; set; }
+
+        protected override void OnResetCachedDone()
+        {
+            isDone = false;
+        }
+
+        protected override Composite CreateBehavior()
+        {
+            return new ActionRunCoroutine(ctx => Gather());
+        }
+
+        private async Task<bool> Gather()
+        {
+            var node =
+                GameObjectManager.GetObjectsOfType<GatheringPointObject>()
+                    .FirstOrDefault(
+                        gpo =>
+                        gpo.EnglishName == "Unspoiled Mineral Deposit"
+                        && gpo.IsVisible && gpo.IsValid);
+
+            if (node == null)
+            {
+                return false;
+            }
+
+            MovementManager.SetFacing2D(node.Location);
+            var safeSpot = GetSafeSpot(Core.Player.Heading);
+
+            if (WorldManager.CanFly)
+            {
+                var fp = new FlightPathTo
+                             {
+                                 Target = safeSpot.Item1,
+                                 Radius = 3.0f,
+                                 ForcedAltitude = 5.0f,
+                                 MountId = MountId,
+                                 Smoothing = 0.2f,
+                                 ForceLanding = true,
+                                 LogWaypoints = LogWaypoints
+                             };
+                fp.Start();
+                await fp.Fly();
+                await Coroutine.Wait(Timeout.Infinite, () => fp.IsDone);
+            }
+            else
+            {
+                if (!Core.Player.IsMounted && Core.Player.Distance(safeSpot.Item1) >= CharacterSettings.Instance.MountDistance)
+                {
+                    Navigator.Stop();
+                    Actionmanager.Mount();
+                    await Coroutine.Sleep(1500);
+                }
+
+                while (Core.Player.Location.Distance2D(safeSpot.Item1) > 2)
+                {
+                    Navigator.PlayerMover.MoveTowards(safeSpot.Item1);
+                }
+
+                Navigator.PlayerMover.MoveStop();
+            }
+
+            await CastAura(Abilities.Stealth);
+            await CastAura(Abilities.TruthOfMountains, Auras.TruthOfMountains);
+            await CastAura(Abilities.CollectorsGlove, Auras.CollectorsGlove);
+
+            //Move to node
+            await Coroutine.Wait(
+                20000,
+                () =>
+                    {
+                        var result = Navigator.NavigationProvider.MoveTo(safeSpot.Item2);
+
+                        return result == MoveResult.Done || result == MoveResult.ReachedDestination;
+                    });
+
+            Poi.Current = new Poi(node, PoiType.Gather);
+            Poi.Current.Unit.Interact();
+
+            await Coroutine.Wait(5000, () => GatheringManager.WindowOpen);
+
+            await Coroutine.Sleep(1000);
+            GatheringManager.GetGatheringItemByIndex((uint)Slot).GatherItem();
+
+            await Coroutine.Sleep(4000);
+            GatheringManager.GetGatheringItemByIndex((uint)Slot).GatherItem();
+
+            await Coroutine.Sleep(500);
+            RaptureAtkUnitManager.Update();
+            await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("GatheringMasterpiece") != null);
+
+            await Cast(Abilities.DiscerningEye);
+
+            await AppraiseAndRebuff();
+            await AppraiseAndRebuff();
+
+            await Cast(Abilities.MethodicalAppraisal);
+
+            if (Core.Player.CurrentGP >= 50)
+            {
+                await Cast(Abilities.SharpVision);
+            }
+
+            while (GatheringManager.SwingsRemaining > 0)
+            {
+                await Coroutine.Sleep(500);
+
+                RaptureAtkUnitManager.Update();
+
+                await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("GatheringMasterpiece") != null);
+                while (!ff14bot.RemoteWindows.SelectYesNoItem.IsOpen)
+                {
+                    RaptureAtkUnitManager.GetWindowByName("GatheringMasterpiece").SendAction(1, 1, 0);
+                    await Coroutine.Wait(1000, () => ff14bot.RemoteWindows.SelectYesNoItem.IsOpen);
+                }
+
+                ff14bot.RemoteWindows.SelectYesNoItem.Yes();
+                await Coroutine.Wait(5000, () => !ff14bot.RemoteWindows.SelectYesNoItem.IsOpen);
+
+                await Coroutine.Sleep(500);
+            }
+
+            Poi.Clear("Gather Complete!");
+
+            if (ReturnToSafeLocation)
+            {
+                await Coroutine.Wait(
+                    20000,
+                    () =>
+                    {
+                        var result = Navigator.NavigationProvider.MoveTo(safeSpot.Item1);
+
+                        return result == MoveResult.Done || result == MoveResult.ReachedDestination;
+                    });
+            }
+
+            isDone = true;
+            return true;
+        }
+
+        private Tuple<Vector3, Vector3> GetSafeSpot(float heading)
+        {
+            if (heading >= 5.7 || heading < 1.5)
+            {
+                return new Tuple<Vector3, Vector3>(new Vector3(89.52304f, -1.827069f, -791.0764f), new Vector3(79.85004f, -0.2340581f, -805.6276f));
+            }
+            if (heading >= 1.5 && heading < 3.6)
+            {
+                return new Tuple<Vector3, Vector3>(new Vector3(70.86564f, -0.4920825f, -858.0936f), new Vector3(71.80842f, -0.29418f, -856.2421f));
+            }
+
+            // heading >= 3.6 && heading < 5.7
+
+            return new Tuple<Vector3, Vector3>(new Vector3(20.53567f, -1.213719f, -827.198f), new Vector3(24.25113f, -0.01400313f, -832.7057f));
+        }
+
+        private async Task<bool> CastAura(uint spellId, int auraId = -1)
+        {
+            bool result;
+            if (auraId == -1 || !Core.Player.HasAura(auraId))
+            {
+                await Coroutine.Wait(3000, () => Actionmanager.CanCast(spellId, Core.Player));
+                result = Actionmanager.DoAction(spellId, Core.Player);
+            }
+            else
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
+        private async Task<bool> CastAura(Abilities spellId, Auras auraId = Auras.None)
+        {
+            return await CastAura((uint)spellId, (int)auraId);
+        }
+
+        private async Task<bool> Cast(uint id)
+        {
+            //Wait till we can cast the spell
+            await Coroutine.Wait(5000, () => Actionmanager.CanCast(id, Core.Player));
+            var result = Actionmanager.DoAction(id, Core.Player);
+            //Wait till we can cast methodical again
+            await Coroutine.Wait(5000, () => Actionmanager.CanCast(4075, Core.Player));
+            //Wait for aura?
+            await Coroutine.Sleep(300);
+            return result;
+        }
+
+        private async Task<bool> Cast(Abilities id)
+        {
+            return await Cast((uint)id);
+        }
+
+        private async Task AppraiseAndRebuff()
+        {
+            await Cast(Abilities.ImpulsiveAppraisal);
+
+            if (Core.Player.HasAura((int)Auras.DiscerningEye))
+            {
+                await Cast(Abilities.SingleMind);
+            }
+            else
+            {
+                await Cast(Abilities.DiscerningEye);
+            }
+        }
+    }
+}

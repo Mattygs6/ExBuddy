@@ -3,15 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skywatcher", "Skywatcher\Skywatcher.csproj", "{F5F305C3-7C56-441E-8D33-C19BEC93ED24}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBotTags", "OrderBotTags\OrderBotTags.csproj", "{ACC43719-0C5A-411C-B95A-C8C84CFDA457}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skywatcher.Test", "Skywatcher.Test\Skywatcher.Test.csproj", "{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageManager", "MessageManager\MessageManager.csproj", "{37958371-F1AB-45EA-B5CB-C4F09DDDFFFB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{93408F57-5E7C-4472-B90B-E050490A3309}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExBuddy", "ExBuddy\ExBuddy.csproj", "{F09A01D8-DEFF-4A41-8951-1077E1B69BEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,26 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F5F305C3-7C56-441E-8D33-C19BEC93ED24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5F305C3-7C56-441E-8D33-C19BEC93ED24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5F305C3-7C56-441E-8D33-C19BEC93ED24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5F305C3-7C56-441E-8D33-C19BEC93ED24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACC43719-0C5A-411C-B95A-C8C84CFDA457}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D430EA9-7617-4B4B-B6FD-2AC65A1F6DED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37958371-F1AB-45EA-B5CB-C4F09DDDFFFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37958371-F1AB-45EA-B5CB-C4F09DDDFFFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37958371-F1AB-45EA-B5CB-C4F09DDDFFFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37958371-F1AB-45EA-B5CB-C4F09DDDFFFB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93408F57-5E7C-4472-B90B-E050490A3309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93408F57-5E7C-4472-B90B-E050490A3309}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93408F57-5E7C-4472-B90B-E050490A3309}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93408F57-5E7C-4472-B90B-E050490A3309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F09A01D8-DEFF-4A41-8951-1077E1B69BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F09A01D8-DEFF-4A41-8951-1077E1B69BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F09A01D8-DEFF-4A41-8951-1077E1B69BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F09A01D8-DEFF-4A41-8951-1077E1B69BEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--User Configuration-->
+<!DOCTYPE Profile [
+	<!ENTITY Cluster_Wind "0"><!-- Todo: add aethersands and clusters etc -->
+
+	<!ENTITY Miner "1">	
+	<!ENTITY Botanist "1">
+
+	<!ENTITY TeleportLoc "Limsa Lominsa"><!--Name of location to teleport to-->
+	<!ENTITY TeleportID "8"><!--ID of the above location-->
+]>
+<!--End User Configuration-->
+
+<Profile>
+	<Name>Collectable: Ephemeral All</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<CodeChunk name="MIN">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 21");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(222))
+				{
+					var result = true;
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						await CommonTasks.StopAndDismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(238, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+		<CodeChunk name="BTN">
+			<![CDATA[
+				ff14bot.Managers.ChatManager.SendChat("/gs change 20");
+				await Buddy.Coroutines.Coroutine.Sleep(2000);
+				if(!Core.Player.HasAura(221))
+				{
+					var result = true;
+
+					if (MovementManager.IsFlying)
+					{
+						result = await CommonTasks.Land();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					if (result && Core.Player.IsMounted)
+					{
+						Actionmanager.Dismount();
+						await Buddy.Coroutines.Coroutine.Sleep(1000);
+					}
+					
+					ff14bot.Managers.Actionmanager.DoAction(221, Core.Player);
+					await Buddy.Coroutines.Coroutine.Sleep(2000);
+				}
+			]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<!-- TODO: Change this to cluster or aehtersand amounts -->
+		<While condition="True">
+			<If condition="IsTimeBetween(20,24) and &Botanist; == 1">
+				<If condition="not IsOnMap(401)">
+					<TeleportTo name="Camp Cloudtop" aetheryteId="72" />
+					<MoveTo XYZ="-609.702, -122.2933, 562.6233"/>
+				</If>
+				<RunCode Name="BTN"/>
+				<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" GatherStrategy="TouchAndGo"
+				CordialType="Cordial" CordialTime="AfterGather">
+					<Collectables>
+						<Collectable Name="Clary Sage" Value="550" />
+						<Collectable Name="Furymint" Value="550" />
+						<Collectable Name="Highland Oregano" Value="345" />
+					</Collectables>
+					<ItemNames>
+						<ItemName>Timeworn Dragonskin Map</ItemName>
+					</ItemNames>
+					<GatherRotation>DefaultCollect</GatherRotation>
+					<HotSpots>
+						<HotSpots Radius="8" X="201.771225" Y="-130.10" Z="638.003845" />
+						<HotSpots Radius="35" X="100.314888" Y="-128.57" Z="646.588" /> <!-- need to change this hotspot -->
+						<HotSpots Radius="35" X="105.406548" Y="-129.2863" Z="581.5691" />
+					</HotSpots>
+				</GatherCollectable>
+			</If>
+		</While>
+		<!-- Will get to this later -->
+		<LogMessage Message="All tasks complete!"/>
+		<TeleportTo Name="&TeleportLoc;" AetheryteId="&TeleportID;" />
+	</Order>
+</Profile>

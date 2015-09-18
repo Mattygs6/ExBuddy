@@ -75,7 +75,6 @@
 
         public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            // TODO: Make dynamic rotation
             await DiscerningMethodical(tag);
             await DiscerningMethodical(tag);
             await DiscerningMethodical(tag);

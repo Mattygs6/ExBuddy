@@ -647,7 +647,7 @@
                                 HotSpots.CurrentOrDefault,
                                 radius: Radius,
                                 name: HotSpots.CurrentOrDefault.Name);
-
+                            
                             retryCenterHotspot = false;
                             await Coroutine.Yield();
                             continue;

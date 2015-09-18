@@ -11,7 +11,6 @@ namespace ExBuddy.Helpers
 
     using ExBuddy.Interfaces;
     using ExBuddy.Navigation;
-    using ExBuddy.OrderBotTags.Behaviors;
     using ExBuddy.OrderBotTags.Behaviors.Objects;
 
     using ff14bot;

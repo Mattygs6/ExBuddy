@@ -15,7 +15,6 @@ namespace ExBuddy.Navigation
 
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
-    using ExBuddy.OrderBotTags.Behaviors;
 
     using ff14bot.Managers;
 
@@ -227,6 +226,14 @@ namespace ExBuddy.Navigation
             Clear();
             Index = 0;
             return await Build();
+        }
+
+        public void Reset()
+        {
+            if (Index != 0)
+            {
+                Index = 0;
+            }
         }
 
         protected static Vector3 Straight(Vector3 start, Vector3 end, float height, float t)

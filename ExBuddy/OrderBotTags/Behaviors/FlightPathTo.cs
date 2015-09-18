@@ -97,6 +97,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     await MoveToWithinRadius(flightPath.Current, Radius);
                 }
                 while (flightPath.Next());
+
+                flightPath.Reset();
             }
             else
             {

@@ -13,9 +13,7 @@
     using Clio.Common;
     using Clio.Utilities;
 
-    using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
-    using ExBuddy.OrderBotTags.Behaviors;
 
     using ff14bot;
     using ff14bot.Enums;
@@ -28,8 +26,6 @@
 
     public sealed class FlightEnabledNavigator : INavigationProvider, IDisposable
     {
-        private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(8); 
-
         private bool disposed;
 
         private Vector3 origin;
@@ -89,8 +85,7 @@
 
         public bool Clear()
         {
-            CurrentPath.Clear();
-            CurrentPath.Index = 0;
+            CurrentPath.Reset();
 
             origin = finalDestination = requestedDestination = Vector3.Zero;
             generatingPath = false;
@@ -142,7 +137,7 @@
 
             requestedDestination = Vector3.Zero;
             playerMover.MoveStop();
-            CurrentPath.Clear();
+            CurrentPath.Reset();
 
             return MoveResult.Done;
         }
@@ -191,7 +186,7 @@
 
             requestedDestination = Vector3.Zero;
             playerMover.MoveStop();
-            CurrentPath.Clear();
+            CurrentPath.Reset();
 
             return MoveResult.Done;
         }

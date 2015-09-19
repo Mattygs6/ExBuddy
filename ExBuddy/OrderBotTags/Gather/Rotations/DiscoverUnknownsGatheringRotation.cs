@@ -2,12 +2,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Windows.Media;
 
     using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
 
     using ff14bot;
+    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     // TODO: if can peek, then we need to allow it to redo beforegather logic
@@ -17,11 +19,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
     {
         public override async Task<bool> Prepare(GatherCollectableTag tag)
         {
+            var unknownItems = GatheringManager.GatheringWindowItems.Where(i => i.IsUnknownChance() && i.Amount > 0).ToArray();
+
             if (tag.IsUnspoiled()
                 && Core.Player.CurrentGP >= 550
-                && GatheringManager.GatheringWindowItems.Count(i => i.Chance == 25 && i.Amount > 0) > 1)
+                && unknownItems.Length > 1)
             {
-
                 await tag.Cast(Ability.Toil);
             }
             

@@ -111,6 +111,8 @@
     <Compile Include="Interfaces\IGatheringRotation.cs" />
     <Compile Include="RemoteAgents\Agent{T}.cs" />
     <Compile Include="RemoteAgents\Desynthesis.cs" />
+    <Compile Include="RemoteWindows\Gathering.cs" />
+    <Compile Include="RemoteWindows\GatheringMasterpiece.cs" />
     <Compile Include="RemoteWindows\MasterPieceSupply.cs" />
     <Compile Include="RemoteWindows\ShopExchangeCurrency.cs" />
     <Compile Include="RemoteWindows\Window{T}.cs" />

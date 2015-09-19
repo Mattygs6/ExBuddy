@@ -32,14 +32,25 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
         protected override async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
-            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            var level = Core.Player.ClassLevel;
+            if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 95)
             {
-                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                return await tag.Cast(Ability.IncreaseGatherChance5);
+                await tag.Cast(Ability.IncreaseGatherChance15);
+            }
+
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            {
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                }
+
+                await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return true;

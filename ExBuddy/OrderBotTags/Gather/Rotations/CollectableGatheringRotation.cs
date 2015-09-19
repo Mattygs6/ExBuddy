@@ -1,13 +1,13 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ExBuddy.Helpers;
+    using ExBuddy.RemoteWindows;
 
     using ff14bot;
     using ff14bot.Helpers;
@@ -16,7 +16,7 @@
 
     public abstract class CollectableGatheringRotation : GatheringRotation
     {
-        protected AtkAddonControl MasterpieceWindow;
+        protected static GatheringMasterpiece MasterpieceWindow = new GatheringMasterpiece();
 
         public override bool ShouldForceGather
         {
@@ -32,12 +32,7 @@
         {
             get
             {
-                if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
-                {
-                    return Core.Memory.Read<int>(MasterpieceWindow.Pointer + 0x000001C4);
-                }
-
-                return 0;
+                return MasterpieceWindow.CurrentRarity;
             }
         }
 
@@ -63,7 +58,7 @@
                     return false;
                 }
             }
-            while (ticks++ < 10 && (MasterpieceWindow = await GetValidMasterPieceWindow(3000)) == null && Behaviors.ShouldContinue);
+            while (ticks++ < 10 && !await MasterpieceWindow.Refresh(3000) && Behaviors.ShouldContinue);
 
             if (ticks > 10)
             {
@@ -91,10 +86,9 @@
             {
                 while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
                 {
-                    if (MasterpieceWindow == null || !MasterpieceWindow.IsValid)
+                    if (!MasterpieceWindow.IsValid)
                     {
-                        RaptureAtkUnitManager.Update();
-                        MasterpieceWindow = await GetValidMasterPieceWindow(3000);
+                        await MasterpieceWindow.Refresh(3000);
                     }
 
                     var itemRarity = rarity = CurrentRarity;
@@ -103,9 +97,9 @@
                         await Coroutine.Wait(1000, () => SelectYesNoItem.CollectabilityValue < itemRarity);
                     }
 
-                    if (MasterpieceWindow != null && MasterpieceWindow.IsValid)
+                    if (MasterpieceWindow.IsValid)
                     {
-                        MasterpieceWindow.SendAction(1, 1, 0);
+                        MasterpieceWindow.Collect();
                     }
 
                     await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
@@ -145,31 +139,28 @@
 
         protected override async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
-            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            var level = Core.Player.ClassLevel;
+            if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 95)
             {
-                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                return await tag.Cast(Ability.IncreaseGatherChance5);
+                await tag.Cast(Ability.IncreaseGatherChance15);
+            }
+
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
+            {
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+                {
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                }
+
+                await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return false;
-        }
-
-        protected virtual async Task<AtkAddonControl> GetValidMasterPieceWindow(int timeoutMs)
-        {
-            AtkAddonControl atkControl = null;
-            await
-                Coroutine.Wait(
-                    timeoutMs,
-                    () =>
-                    (atkControl =
-                     RaptureAtkUnitManager.Controls.FirstOrDefault(c => c.Name == "GatheringMasterpiece" && c.IsValid))
-                    != null);
-
-            return atkControl;
         }
 
         protected async Task AppraiseAndRebuff(GatherCollectableTag tag)

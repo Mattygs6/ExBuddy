@@ -6,7 +6,7 @@
 
     public abstract class ExProfileBehavior : ProfileBehavior
     {
-        protected static LocalPlayer Me
+        protected internal static LocalPlayer Me
         {
             get
             {

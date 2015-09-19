@@ -125,29 +125,30 @@
 
         protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)
         {
-            if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51)
+            var level = Core.Player.ClassLevel;
+            if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)
             {
-                return await tag.Cast(Ability.IncreaseGatherChance50);
+                await tag.Cast(Ability.IncreaseGatherChance50);
             }
 
-            if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86)
+            if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86 && level > 4)
             {
-                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                return await tag.Cast(Ability.IncreaseGatherChance15);
+                await tag.Cast(Ability.IncreaseGatherChance15);
             }
 
-            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96)
+            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96 && level > 3)
             {
-                if (Core.Player.ClassLevel >= 23 && GatheringManager.SwingsRemaining == 1)
+                if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                return await tag.Cast(Ability.IncreaseGatherChance5);
+                await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return true;

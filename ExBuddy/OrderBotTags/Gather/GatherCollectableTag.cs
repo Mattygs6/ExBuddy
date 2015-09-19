@@ -20,6 +20,7 @@
     using ExBuddy.OrderBotTags.Behaviors;
     using ExBuddy.OrderBotTags.Gather.Rotations;
     using ExBuddy.OrderBotTags.Objects;
+    using ExBuddy.RemoteWindows;
 
     using ff14bot;
     using ff14bot.Behavior;
@@ -1239,11 +1240,6 @@
             {
                 Poi.Clear("Skipping this node, no items we want to gather.");
 
-                if (SkipWindowDelay > 0)
-                {
-                    await Coroutine.Sleep((int)SkipWindowDelay);
-                }
-
                 await CloseGatheringWindow();
 
                 return false;
@@ -1386,15 +1382,9 @@
             return InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems);
         }
 
-        internal async Task CloseGatheringWindow()
+        internal async Task<bool> CloseGatheringWindow()
         {
-            var window = RaptureAtkUnitManager.GetWindowByName("Gathering");
-
-            while (window != null && window.IsValid && Behaviors.ShouldContinue)
-            {
-                window.SendAction(1, 3, 0xFFFFFFFF);
-                await Coroutine.Yield();
-            }
+            return await Gathering.CloseGently((byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)), (ushort)SkipWindowDelay);
         }
 
         internal bool IsEphemeral()

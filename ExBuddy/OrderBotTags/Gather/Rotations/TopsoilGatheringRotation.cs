@@ -19,9 +19,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return -1;
             }
 
-            // Only override if we can't gather dark matter clusters if they are on our list.
-            if (!tag.ItemNames.Contains("Dark Matter Cluster", StringComparer.InvariantCultureIgnoreCase)
-                || GatheringManager.GatheringWindowItems.All(i => i.ItemId != 10335))
+            // Dont' override if we can gather dark matter clusters and they are on our list.
+            if (tag.ItemNames.Contains("Dark Matter Cluster", StringComparer.InvariantCultureIgnoreCase)
+                && GatheringManager.GatheringWindowItems.Any(i => i.ItemId == 10335))
             {
                 return -1;
             }

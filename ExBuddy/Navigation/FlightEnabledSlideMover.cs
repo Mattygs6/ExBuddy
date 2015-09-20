@@ -224,13 +224,7 @@
                                         {
                                             if (totalLandingStopwatch.ElapsedMilliseconds > 20000)
                                             {
-                                                Logger.Error(
-                                                    "Landing failed. Passing back control.");
-
-                                                totalLandingStopwatch.Reset();
-                                                landingStopwatch.Reset();
-                                                isLanding = false;
-                                                landingTask = null;
+                                                Logger.Error("Landing failed. Passing back control.");
                                                 return;
                                             }
 

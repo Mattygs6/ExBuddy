@@ -599,7 +599,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (item != null && item.Item != null)
             {
-                Logger.Info("Attempting to turn in item {0} -> {1}", item.EnglishName, item.Pointer);
+                Logger.Info("Attempting to turn in item {0} -> 0x{1}", item.EnglishName, item.Pointer.ToString("X8"));
                 return false;
             }
 

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
@@ -62,7 +61,7 @@
 
             if (ticks > 10)
             {
-                Logging.WriteDiagnostic(Colors.Red, "Timed out during collectable preparation");
+                tag.Logger.Error("Timed out during collectable preparation");
             }
 
             return true;
@@ -75,7 +74,6 @@
             await DiscerningMethodical(tag);
 
             await IncreaseChance(tag);
-
             return true;
         }
 
@@ -116,9 +114,8 @@
                         await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue >= itemRarity);
                     }
 
-                    Logging.Write(
-                        Colors.Chartreuse,
-                        "GatherCollectable: Collected item: {0}, value: {1} at {2} ET",
+                    tag.Logger.Info(
+                        "Collected item: {0}, value: {1} at {2} ET",
                         tag.GatherItem.ItemData.EnglishName,
                         SelectYesNoItem.CollectabilityValue,
                         WorldManager.EorzaTime);
@@ -145,9 +142,11 @@
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
                     await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return true;
                 }
 
                 await tag.Cast(Ability.IncreaseGatherChance15);
+                return true;
             }
 
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
@@ -155,12 +154,14 @@
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
                     await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return true;
                 }
 
                 await tag.Cast(Ability.IncreaseGatherChance5);
+                return true;
             }
 
-            return false;
+            return true;
         }
 
         protected async Task AppraiseAndRebuff(GatherCollectableTag tag)

@@ -54,24 +54,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
         [Clio.XmlEngine.XmlElement("ShopPurchases")]
         public List<ShopPurchase> ShopPurchases { get; set; }
 
-        // Not needed but just because we can
-        public static void SelectClass(uint index)
+        protected override Color Info
         {
-            var window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
-
-            if (window == null)
+            get
             {
-                RaptureAtkUnitManager.Update();
-                window = RaptureAtkUnitManager.GetWindowByName("MasterPieceSupply");
+                return Colors.MediumSpringGreen;
             }
-
-            if (window == null || !window.IsValid)
-            {
-                Logging.WriteDiagnostic(Colors.Red, "TurnInCollectables: MasterPieceSupply window unavailable.");
-                return;
-            }
-
-            window.TrySendAction(2, 1, 2, 1, index);
         }
 
         protected override void OnStart()
@@ -140,7 +128,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
         {
             if (ShopPurchases == null || ShopPurchases.Count == 0 || ShopPurchases.All(s => !ShouldPurchaseItem(s)))
             {
-                Logging.Write("No items to purchase");
+                Logger.Info("No items to purchase");
                 isDone = true;
                 return true;
             }
@@ -170,16 +158,16 @@ namespace ExBuddy.OrderBotTags.Behaviors
             switch (info.ShopType)
             {
                 case ShopType.BlueCrafter:
-                    if (Scrips.BlueCrafter < info.Cost) return false;
+                    if (Memory.Scrips.BlueCrafter < info.Cost) return false;
                     break;
                 case ShopType.RedCrafter:
-                    if (Scrips.RedCrafter < info.Cost) return false;
+                    if (Memory.Scrips.RedCrafter < info.Cost) return false;
                     break;
                 case ShopType.BlueGatherer:
-                    if (Scrips.BlueGatherer < info.Cost) return false;
+                    if (Memory.Scrips.BlueGatherer < info.Cost) return false;
                     break;
                 case ShopType.RedGatherer:
-                    if (Scrips.RedGatherer < info.Cost) return false;
+                    if (Memory.Scrips.RedGatherer < info.Cost) return false;
                     break;
             }
 
@@ -241,7 +229,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 // check for timeout
                 if (ticks > 10)
                 {
-                    Logging.WriteDiagnostic(Colors.Red, "Timeout targeting npc.");
+                    Logger.Error("Timeout targeting npc.");
                     isDone = true;
                     return true;
                 }
@@ -257,7 +245,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 // check for timeout
                 if (ticks > 10)
                 {
-                    Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
+                    Logger.Error("Timeout interacting with npc.");
                     isDone = true;
                     return true;
                 }
@@ -267,7 +255,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     (purchaseItemInfo.ShopType == ShopType.RedCrafter
                     || purchaseItemInfo.ShopType == ShopType.RedGatherer))
                 {
-                    Logging.Write(Colors.PaleVioletRed, "Unable to purchase item {0} in MorDhona, set location to Idyllshire.", purchaseItemData.EnglishName);
+                    Logger.Warn("Unable to purchase item {0} in MorDhona, set location to Idyllshire.", purchaseItemData.EnglishName);
                     continue;
                 }
 
@@ -289,7 +277,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 if (ticks > 5 || !shopExchangeCurrency.IsValid)
                 {
-                    Logging.WriteDiagnostic(Colors.Red, "Timeout interacting with npc.");
+                    Logger.Error("Timeout interacting with npc.");
                     if (SelectIconString.IsOpen)
                     {
                         SelectIconString.ClickSlot(uint.MaxValue);
@@ -301,11 +289,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 await Coroutine.Sleep(600);
                 int scripsLeft;
-                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && (scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
+                while (purchaseItemData.ItemCount() < purchaseItem.MaxCount && (scripsLeft = Memory.Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) >= purchaseItemInfo.Cost && Behaviors.ShouldContinue)
                 {
                     if (!await shopExchangeCurrency.PurchaseItem(purchaseItemInfo.Index, 20))
                     {
-                        Logging.WriteDiagnostic(Colors.Red, "Timeout during purchase of {0}", purchaseItemData.EnglishName);
+                        Logger.Error("Timeout during purchase of {0}", purchaseItemData.EnglishName);
                         shopExchangeCurrency.CloseInstance();
                         isDone = true;
                         return true;
@@ -316,10 +304,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     await
                         Coroutine.Wait(
                             5000,
-                            () => (scripsLeft = Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) != left);
+                            () => (scripsLeft = Memory.Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) != left);
 
-                    Logging.Write(
-                        Colors.SpringGreen,
+                    Logger.Info(
                         "Purchased item {0} for {1} {2} scrips at {3} ET; Remaining Scrips: {4}",
                         purchaseItemData.EnglishName,
                         purchaseItemInfo.Cost,
@@ -333,7 +320,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 await Coroutine.Sleep(1000);
             }
 
-            Logging.Write(Colors.SpringGreen, "Purchases complete.");
+            Logger.Info("Purchases complete.");
             SelectYesno.ClickNo();
             if (SelectIconString.IsOpen)
             {
@@ -376,7 +363,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (!await masterpieceSupply.TurnIn(index, item))
             {
-                Logging.Write(Colors.Red, "An error has occured while turning in the item");
+                Logger.Error("An error has occured while turning in the item");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
                 item = null;
                 index = 0;
@@ -386,7 +373,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (SelectYesno.IsOpen)
             {
-                Logging.Write(Colors.Red, "Full on scrips!");
+                Logger.Error("Full on scrips!");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, we are full on these scrips");
                 item = null;
                 index = 0;
@@ -394,8 +381,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return true;
             }
 
-            Logging.Write(
-                Colors.SpringGreen,
+            Logger.Info(
                 "Turned in {0} at {1} ET",
                 itemName,
                 WorldManager.EorzaTime);
@@ -514,9 +500,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 if (classIndex == uint.MaxValue)
                 {
-                    Logging.Write(
-                        Colors.Red,
-                        "TurnInCollectables: Error, could not resolve class type for item: " + item.Item.EnglishName);
+                    Logger.Error("Error, could not resolve class type for item: " + item.Item.EnglishName);
                     isDone = true;
                     return true;
                 }
@@ -613,7 +597,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (item != null && item.Item != null)
             {
-                Logging.Write(Colors.SpringGreen, "TurnInCollectables: Attempting to turn in item {0} -> {1}", item.EnglishName, item.Pointer);
+                Logger.Info("Attempting to turn in item {0} -> {1}", item.EnglishName, item.Pointer);
                 return false;
             }
 

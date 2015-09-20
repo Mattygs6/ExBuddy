@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\Memory.cs" />
+    <Compile Include="Interfaces\ILogColors.cs" />
+    <Compile Include="Logging\LogColors.cs" />
     <Compile Include="Enums\CordialTime.cs" />
     <Compile Include="Enums\CordialType.cs" />
     <Compile Include="Enums\SendActionResult.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="Helpers\Actions.cs" />
     <Compile Include="Helpers\AsyncHelper.cs" />
     <Compile Include="Helpers\Behaviors.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Interfaces\IGetOverridePriority.cs" />
     <Compile Include="Interfaces\IFlightEnabledPlayerMover.cs" />
     <Compile Include="Navigation\FlightMovementArgs.cs" />
@@ -74,7 +78,6 @@
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopItemInfo.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopPurchase.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopType.cs" />
-    <Compile Include="Helpers\Scrips.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
     <Compile Include="Navigation\Collisions.cs" />
     <Compile Include="Helpers\Condition.cs" />
@@ -111,6 +114,7 @@
     <Compile Include="Interfaces\IGatheringRotation.cs" />
     <Compile Include="RemoteAgents\Agent{T}.cs" />
     <Compile Include="RemoteAgents\Desynthesis.cs" />
+    <Compile Include="RemoteWindows\Bait.cs" />
     <Compile Include="RemoteWindows\Gathering.cs" />
     <Compile Include="RemoteWindows\GatheringMasterpiece.cs" />
     <Compile Include="RemoteWindows\MasterPieceSupply.cs" />

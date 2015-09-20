@@ -100,11 +100,20 @@
             this Type type,
             Func<TAttribute, TResult> func, TResult defaultValue = default(TResult)) where TAttribute : Attribute
         {
-            var attr = ReflectionHelper.CustomAttributes<TAttribute>.NotInherited[type.GUID].FirstOrDefault();
-
-            if (attr != null)
+            IList<TAttribute> attrList;
+            if (!ReflectionHelper.CustomAttributes<TAttribute>.NotInherited.TryGetValue(type.GUID, out attrList))
             {
-                return func(attr);
+                ReflectionHelper.CustomAttributes<TAttribute>.RegisterType(type);
+            }
+
+            if (ReflectionHelper.CustomAttributes<TAttribute>.NotInherited.TryGetValue(type.GUID, out attrList))
+            {
+                var attr = attrList.FirstOrDefault();
+
+                if (attr != null)
+                {
+                    return func(attr);
+                }
             }
 
             return defaultValue;
@@ -124,7 +133,8 @@
             }
             catch (InjectionException ex)
             {
-                Logging.WriteException(ex);
+                // TODO: global log
+                //Logging.WriteException(ex);
                 return SendActionResult.InjectionError;
             }
         }
@@ -163,9 +173,10 @@
             }
             catch (NullReferenceException)
             {
-                Logging.WriteDiagnostic(
-                    Colors.PaleVioletRed,
-                    "GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
+                // TODO: Global logger
+                //Logging.WriteDiagnostic(
+                  //  Colors.PaleVioletRed,
+                    //"GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
 
                 return false;
             }
@@ -336,19 +347,21 @@
 
             if (ticks > 1000)
             {
-                Logging.WriteDiagnostic(
-                    Colors.DarkKhaki,
-                    "ExBuddy: Attempted to add Random Direction from {0} but failed",
-                    vector);
+                // TODO Global logger
+                ////Logging.WriteDiagnostic(
+                ////    Colors.DarkKhaki,
+                ////    "ExBuddy: Attempted to add Random Direction from {0} but failed",
+                ////    vector);
 
                 return vector;
             }
 
-            Logging.WriteDiagnostic(
-                Colors.DarkKhaki,
-                "ExBuddy: Adding Random Direction.  from {0} to {1}",
-                vector,
-                random);
+            // TODO Global logger
+            ////Logging.WriteDiagnostic(
+            ////    Colors.DarkKhaki,
+            ////    "ExBuddy: Adding Random Direction.  from {0} to {1}",
+            ////    vector,
+            ////    random);
 
             return random;
         }
@@ -373,19 +386,21 @@
 
             if (ticks > 1000)
             {
-                Logging.WriteDiagnostic(
-                    Colors.DarkKhaki,
-                    "ExBuddy: Attempted to add Random Direction from {0} but failed",
-                    vector);
+                // TODO Global logger
+                ////Logging.WriteDiagnostic(
+                ////    Colors.DarkKhaki,
+                ////    "ExBuddy: Attempted to add Random Direction from {0} but failed",
+                ////    vector);
 
                 return vector;
             }
 
-            Logging.WriteDiagnostic(
-                Colors.DarkKhaki,
-                "ExBuddy: Adding Random Direction2D.  from {0} to {1}",
-                vector,
-                random);
+            // TODO Global logger
+            ////Logging.WriteDiagnostic(
+            ////    Colors.DarkKhaki,
+            ////    "ExBuddy: Adding Random Direction2D.  from {0} to {1}",
+            ////    vector,
+            ////    random);
 
             return random;
         }

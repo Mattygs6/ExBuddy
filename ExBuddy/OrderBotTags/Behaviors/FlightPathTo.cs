@@ -13,7 +13,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
     using ExBuddy.Navigation;
 
     using ff14bot.Behavior;
-    using ff14bot.Helpers;
     using ff14bot.Interfaces;
     using ff14bot.Managers;
     using ff14bot.Navigation;
@@ -29,6 +28,14 @@ namespace ExBuddy.OrderBotTags.Behaviors
         private readonly IPlayerMover playerMover = new SlideMover();
 
         public override bool IsDone { get { return isDone; } }
+
+        protected override Color Info
+        {
+            get
+            {
+                return Colors.DeepSkyBlue;
+            }
+        }
 
         [XmlAttribute("XYZ")]
         public Vector3 Target { get; set; }
@@ -46,7 +53,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (distance < Radius)
             {
-                Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Already in range -> Start: {0}, End: {1}", flightPath.Start, flightPath.End);
+                Logger.Info("Already in range -> Start: {0}, End: {1}", flightPath.Start, flightPath.End);
                 isDone = true;
                 return true;
             }
@@ -55,18 +62,16 @@ namespace ExBuddy.OrderBotTags.Behaviors
             if (FlightPath.Paths.TryGetValue(flightPath.Key, out path))
             {
                 flightPath = path;
-                Logging.Write(
-                    Colors.DeepSkyBlue,
-                    "FlightPathTo: Using existing FlightPath {0} from {1} to {2}",
+                Logger.Info(
+                    "Using existing FlightPath {0} from {1} to {2}",
                     flightPath.Key,
                     flightPath.Start,
                     flightPath.End);
             }
             else
             {
-                Logging.Write(
-                    Colors.DeepSkyBlue,
-                    "FlightPathTo: Building new FlightPath {0} from {1} to {2}",
+                Logger.Info(
+                    "Building new FlightPath {0} from {1} to {2}",
                     flightPath.Key,
                     flightPath.Start,
                     flightPath.End);
@@ -85,11 +90,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     {
                         if (flightPath.Current.IsDeviation)
                         {
-                            Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Deviating from course to waypoint: {0}", flightPath.Current);
+                            Logger.Info("Deviating from course to waypoint: {0}", flightPath.Current);
                         }
                         else
                         {
-                            Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: Moving to waypoint: {0}", flightPath.Current);
+                            Logger.Info("Moving to waypoint: {0}", flightPath.Current);
                         }
 
                     }
@@ -102,7 +107,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
             }
             else
             {
-                Logging.Write(Colors.DeepSkyBlue, "FlightPathTo: No viable path computed for {0}.", Target);
+                Logger.Info("No viable path computed for {0}.", Target);
             }
 
             if (ForceLanding)
@@ -172,7 +177,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 await Coroutine.Yield();
             }
 
-            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Landing took {0} ms", landingStopwatch.Elapsed);
+            Logger.Info("Landing took {0} ms", landingStopwatch.Elapsed);
 
             landingStopwatch.Reset();
 

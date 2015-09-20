@@ -58,7 +58,8 @@
 
         public virtual async Task<bool> ExecuteRotation(GatherCollectableTag tag)
         {
-            return await IncreaseChance(tag);
+            await IncreaseChance(tag);
+            return true;
         }
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
@@ -128,27 +129,27 @@
             var level = Core.Player.ClassLevel;
             if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)
             {
-                await tag.Cast(Ability.IncreaseGatherChance50);
+                return await tag.Cast(Ability.IncreaseGatherChance50);
             }
 
             if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86 && level > 4)
             {
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                await tag.Cast(Ability.IncreaseGatherChance15);
+                return await tag.Cast(Ability.IncreaseGatherChance15);
             }
 
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96 && level > 3)
             {
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                await tag.Cast(Ability.IncreaseGatherChance5);
+                return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return true;

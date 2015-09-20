@@ -37,20 +37,20 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             {
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                await tag.Cast(Ability.IncreaseGatherChance15);
+                return await tag.Cast(Ability.IncreaseGatherChance15);
             }
 
             if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
             {
                 if (level >= 23 && GatheringManager.SwingsRemaining == 1)
                 {
-                    await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+                    return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
                 }
 
-                await tag.Cast(Ability.IncreaseGatherChance5);
+                return await tag.Cast(Ability.IncreaseGatherChance5);
             }
 
             return true;

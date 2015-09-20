@@ -20,7 +20,8 @@ namespace ExBuddy
 
         public async Task<bool> ReturnToZone()
         {
-            Logging.Write(Colors.DarkKhaki, "ExBuddy: Could not find a return strategy for ZoneId: {0}", this.ZoneId);
+            // TODO Global logger
+            ////Logging.Write(Colors.DarkKhaki, "ExBuddy: Could not find a return strategy for ZoneId: {0}", this.ZoneId);
             return true;
         }
 

@@ -33,6 +33,7 @@
 
     using TreeSharp;
 
+    // TODO: switch to new logger
     [XmlElement("GatherCollectable")]
     public sealed class GatherCollectableTag : ExProfileBehavior
     {

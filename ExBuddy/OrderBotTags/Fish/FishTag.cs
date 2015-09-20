@@ -35,6 +35,8 @@ namespace ExBuddy.OrderBotTags.Fish
     [XmlElement("Fish")]
     public class FishTag : ExProfileBehavior
     {
+        private readonly RemoteWindows.Bait baitWindow = new RemoteWindows.Bait();
+
         [Serializable]
         public enum Abilities
         {
@@ -92,6 +94,14 @@ namespace ExBuddy.OrderBotTags.Fish
             get
             {
                 return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x00FDD298) % 500000;
+            }
+        }
+
+        protected override Color Info
+        {
+            get
+            {
+                return Colors.Gold;
             }
         }
 
@@ -183,7 +193,7 @@ namespace ExBuddy.OrderBotTags.Fish
                 if (baitItem == null)
                 {
                     isDone = true;
-                    Log("Error finding bait, doesn't match any item in the database. " + Bait, Colors.Red);
+                    Logger.Error("Error finding '{0}', doesn't match any item in the database. " + Bait);
                     return;
                 }
             }
@@ -203,7 +213,7 @@ namespace ExBuddy.OrderBotTags.Fish
             if (baitItem != null && baitItem.Affinity != 19)
             {
                 isDone = true;
-                Log("Error: item " + baitItem.EnglishName + " is not considered bait.");
+                Logger.Error("Error: '{0}' is not considered bait.", baitItem.EnglishName);
                 return;
             }
 
@@ -262,7 +272,7 @@ namespace ExBuddy.OrderBotTags.Fish
             }
             catch (Exception ex)
             {
-                Log(ex.Message);
+                Logger.Error(ex.Message);
             }
 
             isFishing = false;
@@ -334,44 +344,39 @@ namespace ExBuddy.OrderBotTags.Fish
 
             if (!HasSpecifiedBait)
             {
-                Log("You do not have the specified bait: " + Bait, Colors.Red);
+                Logger.Error("You do not have the specified bait: " + Bait);
                 return isDone = true;
             }
 
 
-            var window = RaptureAtkUnitManager.GetWindowByName("Bait");
-            if (window == null)
+            baitWindow.Refresh();
+            if (!baitWindow.IsValid)
             {
                 DoAbility(Abilities.Bait);
             }
 
-            var ticks = 0;
-            while (window == null && ticks++ < 100 && Behaviors.ShouldContinue)
-            {
-                window = RaptureAtkUnitManager.GetWindowByName("Bait");
-                await Coroutine.Yield();
-            }
+            await baitWindow.Refresh(3000);
 
-            if (ticks > 100)
+            if (!baitWindow.IsValid)
             {
                 DoAbility(Abilities.Bait);
-                Log("Timeout during bait selection.", Colors.Red);
+                Logger.Error("Timeout during bait selection.");
                 return isDone = true;
             }
 
             var baitItem = Fish.Bait.FindMatch(Baits).BaitItem;
 
-            ticks = 0;
+            var ticks = 0;
             while (!IsCorrectBaitSelected && ticks++ < 5 && Behaviors.ShouldContinue)
             {
                 if (ticks > 1)
                 {
-                    Log("Looks like we may have lost control of the bait window, trying again. Attempt: " + ticks + "/5");
+                    Logger.Warn("Looks like we may have lost control of the bait window, trying again. Attempt: {0}/5", ticks);
 
                     DoAbility(Abilities.Bait);
-                    await Coroutine.Wait(5000, () => RaptureAtkUnitManager.GetWindowByName("Bait") == null);
+                    await Coroutine.Wait(5000, () => !baitWindow.IsValid);
                     DoAbility(Abilities.Bait);
-                    await Coroutine.Wait(5000, () => (window = RaptureAtkUnitManager.GetWindowByName("Bait")) != null);
+                    await baitWindow.Refresh(5000);
                 }
 
                 await Coroutine.Sleep(BaitDelay);
@@ -406,14 +411,14 @@ namespace ExBuddy.OrderBotTags.Fish
             if (ticks > 5)
             {
                 DoAbility(Abilities.Bait);
-                Log("Timeout during bait selection.", Colors.Red);
+                Logger.Error("Timeout during bait selection.");
                 return isDone = true;
             }
 
             DoAbility(Abilities.Bait);
             await Coroutine.Sleep(BaitDelay);
 
-            Log("Using bait -> " + baitItem.EnglishName);
+            Logger.Info("Using bait -> " + baitItem.EnglishName);
 
             return true;
         }
@@ -429,6 +434,7 @@ namespace ExBuddy.OrderBotTags.Fish
             await Coroutine.Wait(5000, () => SelectYesNoItem.CollectabilityValue > 20);
 
             var required = CollectabilityValue;
+            var itemName = string.Empty;
             if (!string.IsNullOrWhiteSpace(Collectables.First().Name))
             {
                 var item = DataManager.GetItem(CurrentCollectableItemId);
@@ -457,7 +463,7 @@ namespace ExBuddy.OrderBotTags.Fish
                 if (item != null)
                 {
                     // handle normal
-
+                    itemName = item.EnglishName;
                     var collectable = Collectables.FirstOrDefault(c => string.Equals(c.Name, item.EnglishName));
 
                     if (collectable != null)
@@ -470,21 +476,15 @@ namespace ExBuddy.OrderBotTags.Fish
             // handle
 
             var value = SelectYesNoItem.CollectabilityValue;
-            
-            Log(
-                string.Format(
-                    "Collectible caught with value: {0} required: {1}",
-                    value,
-                    required));
 
             if (value >= required)
             {
-                Log("Collecting -> Value: " + value, Colors.Green);
+                Logger.Info("Collecting {0} -> Value: {1}, Required: {2}", itemName, value, required);
                 SelectYesNoItem.Yes();
             }
             else
             {
-                Log("Declining -> Value: " + value, Colors.Red);
+                Logger.Info("Declining {0} -> Value: {1}, Required: {2}", itemName, value, required);
                 SelectYesNoItem.No();
             }
 
@@ -693,41 +693,6 @@ namespace ExBuddy.OrderBotTags.Fish
             }
         }
 
-        protected Composite CollectablesComposite
-        {
-            get
-            {
-                return new Decorator(
-                    ret => Collectables != null && SelectYesNoItem.IsOpen,
-                    new Wait(
-                        10,
-                        ret => SelectYesNoItem.CollectabilityValue > Math.Max(20, CollectabilityValue / 6),
-                        new Sequence(
-                            new Action(
-                                r =>
-                                {
-                                    var value = SelectYesNoItem.CollectabilityValue;
-                                    Log(
-                                        string.Format(
-                                            "Collectible caught with value: {0} required: {1}",
-                                            value.ToString(),
-                                            CollectabilityValue));
-
-                                    if (value >= CollectabilityValue)
-                                    {
-                                        Log("Collecting -> Value: " + value, Colors.Green);
-                                        SelectYesNoItem.Yes();
-                                    }
-                                    else
-                                    {
-                                        Log("Declining -> Value: " + value, Colors.Red);
-                                        SelectYesNoItem.No();
-                                    }
-                                }),
-                            new Sleep(1111))));
-            }
-        }
-
         protected Composite FishCountLimitComposite
         {
             get
@@ -760,7 +725,7 @@ namespace ExBuddy.OrderBotTags.Fish
                                 r =>
                                 {
                                     isSitting = true;
-                                    Log("Sitting " + FishSpots.CurrentOrDefault);
+                                    Logger.Info("Sitting " + FishSpots.CurrentOrDefault);
                                     ChatManager.SendChat("/sit");
                                 })));
             }
@@ -785,7 +750,7 @@ namespace ExBuddy.OrderBotTags.Fish
                         {
                             FaceFishSpot();
                             isFishing = true;
-                            Log("Will fish for " + fishlimit + " fish before moving again.");
+                            Logger.Info("Will fish for " + fishlimit + " fish before moving again.");
                             spotinit = true;
                         }));
             }
@@ -798,7 +763,7 @@ namespace ExBuddy.OrderBotTags.Fish
                 return new Decorator(
                     ret => Weather != null && Weather != WorldManager.CurrentWeather,
                     new Sequence(
-                        new Action(r => { Log("Waiting for the proper weather..."); }),
+                        new Action(r => { Logger.Info("Waiting for the proper weather..."); }),
                         new Wait(36000, ret => Weather == WorldManager.CurrentWeather, new ActionAlwaysSucceed())));
             }
         }
@@ -813,7 +778,7 @@ namespace ExBuddy.OrderBotTags.Fish
                         new Action(
                             r =>
                             {
-                                Log("Casting Collector's Glove");
+                                Logger.Info("Casting Collector's Glove");
                                 DoAbility(Abilities.CollectorsGlove);
                             }),
                         new Sleep(2, 3)));
@@ -830,7 +795,7 @@ namespace ExBuddy.OrderBotTags.Fish
                         new Action(
                             r =>
                             {
-                                Log("Toggle Snagging");
+                                Logger.Info("Toggle Snagging");
                                 DoAbility(Abilities.Snagging);
                             }),
                         new Sleep(2, 3)));
@@ -855,11 +820,11 @@ namespace ExBuddy.OrderBotTags.Fish
                                     mooch++;
                                     if (MoochLevel > 1)
                                     {
-                                        Log("Mooching, this is mooch " + mooch + " of " + MoochLevel + " mooches.");
+                                        Logger.Info("Mooching, this is mooch " + mooch + " of " + MoochLevel + " mooches.");
                                     }
                                     else
                                     {
-                                        Log("Mooching, this will be the only mooch.");
+                                        Logger.Info("Mooching, this will be the only mooch.");
                                     }
                                 }),
                             new Sleep(2, 2)));
@@ -892,7 +857,7 @@ namespace ExBuddy.OrderBotTags.Fish
                                 r =>
                                 {
                                     DoAbility(Patience);
-                                    Log("Patience activated");
+                                    Logger.Info("Patience activated");
                                 }),
                             new Sleep(1, 2)));
             }
@@ -929,7 +894,7 @@ namespace ExBuddy.OrderBotTags.Fish
                                             && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
                                         {
                                             DoAbility(Abilities.Release);
-                                            Log("Released " + FishResult.Name);
+                                            Logger.Info("Released " + FishResult.Name);
                                         }
 
                                         checkRelease = false;
@@ -973,7 +938,7 @@ namespace ExBuddy.OrderBotTags.Fish
                             if (HasPatience && CanDoAbility(Hookset))
                             {
                                 DoAbility(Hookset);
-                                Log("Using (" + Hookset + ")");
+                                Logger.Info("Using (" + Hookset + ")");
                             }
                             else
                             {
@@ -986,7 +951,7 @@ namespace ExBuddy.OrderBotTags.Fish
                                 fishcount++;
                             }
 
-                            Log("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
+                            Logger.Info("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
                         }));
             }
         }
@@ -1030,8 +995,8 @@ namespace ExBuddy.OrderBotTags.Fish
                         new Action(
                             r =>
                             {
-                                Log("The fish are amiss at all of the FishSpots.");
-                                Log(
+                                Logger.Warn("The fish are amiss at all of the FishSpots.");
+                                Logger.Warn(
                                     "This zone has been blacklisted, please fish somewhere else and then restart the profile.");
                             }),
                         IsDoneAction));
@@ -1072,7 +1037,7 @@ namespace ExBuddy.OrderBotTags.Fish
                             LastFishTimeout,
                             ret => FishingManager.State < FishingState.Bite,
                             new Sequence(
-                                new PrioritySelector(CollectablesComposite, ReleaseComposite, new ActionAlwaysSucceed()),
+                                new PrioritySelector(new ActionRunCoroutine(ctx => HandleCollectable()), ReleaseComposite, new ActionAlwaysSucceed()),
                                 new Sleep(2, 3),
                                 new Action(r => DoAbility(Abilities.Quit)),
                                 new Sleep(2, 3),
@@ -1146,9 +1111,9 @@ namespace ExBuddy.OrderBotTags.Fish
         protected virtual void ChangeFishSpot()
         {
             FishSpots.Next();
-            Log("Changing FishSpots...");
+            Logger.Info("Changing FishSpots...");
             fishcount = 0;
-            Log("Resetting fish count...");
+            Logger.Info("Resetting fish count...");
             fishlimit = GetFishLimit();
             sitRoll = SitRng.NextDouble();
             spotinit = false;
@@ -1184,7 +1149,7 @@ namespace ExBuddy.OrderBotTags.Fish
             if (Shuffle && FishSpots.Index == 0)
             {
                 FishSpots.Shuffle();
-                Log("Shuffled fish spots");
+                Logger.Info("Shuffled fish spots");
             }
         }
 
@@ -1193,7 +1158,7 @@ namespace ExBuddy.OrderBotTags.Fish
             if (mooch != 0)
             {
                 mooch = 0;
-                Log("Resetting mooch level.");
+                Logger.Info("Resetting mooch level.");
             }
         }
 
@@ -1232,7 +1197,7 @@ namespace ExBuddy.OrderBotTags.Fish
                     "You do not sense any fish here.",
                     StringComparison.InvariantCultureIgnoreCase))
             {
-                Log("You do not sense any fish here, trying next location.");
+                Logger.Info("You do not sense any fish here, trying next location.");
 
                 if (CanDoAbility(Abilities.Quit))
                 {
@@ -1246,7 +1211,7 @@ namespace ExBuddy.OrderBotTags.Fish
                 && e.ChatLogEntry.Contents
                 == "The fish sense something amiss. Perhaps it is time to try another location.")
             {
-                Log("The fish sense something amiss!");
+                Logger.Info("The fish sense something amiss!");
                 amissfish++;
 
                 if (CanDoAbility(Abilities.Quit))
@@ -1256,16 +1221,6 @@ namespace ExBuddy.OrderBotTags.Fish
 
                 ChangeFishSpot();
             }
-        }
-
-        protected void Log(string message, Color color)
-        {
-            Logging.Write(color, string.Format("[Fish v{0}] {1}", Version, message));
-        }
-
-        protected void Log(string message)
-        {
-            Log(message, Colors.Gold);
         }
 
         #endregion

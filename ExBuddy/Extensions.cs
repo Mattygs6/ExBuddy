@@ -408,7 +408,7 @@
             return hashGuid;
         } 
 
-        public static void Shuffle<T>(this IList<T> list)
+        public static IList<T> Shuffle<T>(this IList<T> list)
         {
             if (list.Count > 1)
             {
@@ -433,6 +433,8 @@
                     }
                 }
             }
+
+            return list;
         }
     }
 }

@@ -93,6 +93,14 @@ namespace ExBuddy.Helpers
                 if (mountId == 0)
                 {
                     mountId = CharacterSettings.Instance.MountId;
+                    if (mountId == uint.MaxValue)
+                    {
+                        var mount = Actionmanager.AvailableMounts.Shuffle().FirstOrDefault();
+                        if (mount != null)
+                        {
+                            mountId = mount.Id;
+                        }
+                    }
                     var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
                     if (playerMover != null)
                     {

@@ -2,16 +2,15 @@
 {
     using System;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using ExBuddy.Enums;
     using ExBuddy.Helpers;
+    using ExBuddy.Logging;
 
     using ff14bot;
     using ff14bot.Behavior;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public abstract class Window<T> where T : Window<T>, new()
@@ -93,9 +92,16 @@
 
         public SendActionResult CloseInstance()
         {
-            Logging.Write(Colors.DarkKhaki, "ExBuddy: Attempting to close the '{0}' window", Name);
+            Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
 
-            return TrySendAction(1, 3, uint.MaxValue);
+            var result = TrySendAction(1, 3, uint.MaxValue);
+
+            if (result == SendActionResult.Success)
+            {
+                Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+            }
+
+            return result;
         }
 
         public async Task<bool> CloseInstanceGently(byte maxTicks = 10, ushort interval = 200)

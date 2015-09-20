@@ -4,15 +4,17 @@
     using System.Globalization;
     using System.Reflection;
 
+    using Clio.Utilities;
     using Clio.XmlEngine;
 
     using ExBuddy.Interfaces;
     using Logging = ff14bot.Helpers.Logging;
 
-    public class Logger
+    public sealed class Logger
     {
-        private static readonly Version Version;
-        private readonly string name;
+        public static readonly LogColors Colors = new LogColors();
+        public static readonly Logger Instance = new Logger(new LogColors(), "ExBuddy");
+        internal static readonly Version Version;
         private readonly ILogColors logColors;
 
         static Logger()
@@ -41,19 +43,47 @@
         {
         }
 
-        public Logger(ILogColors logColors)
+        public Logger(ILogColors logColors, string name = null, bool includeVersion = false)
         {
-            var type = logColors.GetType();
-            this.name = type.GetCustomAttributePropertyValue<XmlElementAttribute, string>(attr => attr.Name, type.Name);
             this.logColors = logColors;
+            IncludeVersion = includeVersion;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                Name = name;
+                return;
+            }
+
+            var type = logColors.GetType();
+            Name = type.GetCustomAttributePropertyValue<XmlElementAttribute, string>(attr => attr.Name, type.Name);
         }
+
+        public bool IncludeVersion { get; private set; }
+
+        public string Name { get; private set; }
 
         private string Prefix
         {
             get
             {
-                return string.Format("[{0} v{1}] ", name, Version);
+                if (IncludeVersion)
+                {
+                    return string.Format("[{0} v{1}] ", Name, Version);
+                }
+
+                return string.Format("[{0}] ", Name);
             }
+        }
+
+        public void Verbose(string message)
+        {
+            Logging.WriteVerbose(logColors.Info, Prefix + message);
+        }
+
+        [StringFormatMethod("format")]
+        public void Verbose(string format, params object[] args)
+        {
+            Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
         }
 
         public void Info(string message)
@@ -61,6 +91,7 @@
             Logging.Write(logColors.Info, Prefix + message);
         }
 
+        [StringFormatMethod("format")]
         public void Info(string format, params object[] args)
         {
             Logging.Write(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
@@ -71,6 +102,7 @@
             Logging.Write(logColors.Warn, Prefix + message);
         }
 
+        [StringFormatMethod("format")]
         public void Warn(string format, params object[] args)
         {
             Logging.Write(logColors.Warn, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
@@ -81,6 +113,7 @@
             Logging.Write(logColors.Error, Prefix + message);
         }
 
+        [StringFormatMethod("format")]
         public void Error(string format, params object[] args)
         {
             Logging.Write(logColors.Error, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));

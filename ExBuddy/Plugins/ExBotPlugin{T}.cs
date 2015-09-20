@@ -1,5 +1,7 @@
-﻿namespace ExBuddy.OrderBotTags.Behaviors
+﻿namespace ExBuddy.Plugins
 {
+    using System;
+    using System.Linq;
     using System.Windows.Media;
 
     using ExBuddy.Attributes;
@@ -7,29 +9,52 @@
     using ExBuddy.Interfaces;
     using ExBuddy.Logging;
 
+    using ff14bot.AClasses;
     using ff14bot.Managers;
-    using ff14bot.NeoProfiles;
     using ff14bot.Objects;
 
-    public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
+    public abstract class ExBotPlugin<T> : BotPlugin, ILogColors where T : ExBotPlugin<T>
     {
         protected internal readonly Logger Logger;
 
-        static ExProfileBehavior()
+        static ExBotPlugin()
         {
             ReflectionHelper.CustomAttributes<LoggerNameAttribute>.RegisterByAssembly();
         }
 
-        protected ExProfileBehavior()
+        protected ExBotPlugin()
         {
-            Logger = new Logger(this, includeVersion: true);
+            Logger = new Logger(this);
         }
 
-        protected internal static LocalPlayer Me
+        public static bool IsEnabled
+        {
+            get
+            {
+                return PluginManager.Plugins.Any(p => p.Plugin.GetType() == typeof(T));
+            }
+        }
+
+        protected static LocalPlayer Me
         {
             get
             {
                 return GameObjectManager.LocalPlayer;
+            }
+        }
+        public override string Author
+        {
+            get
+            {
+                return "ExMatt";
+            }
+        }
+
+        public override Version Version
+        {
+            get
+            {
+                return Logger.Version;
             }
         }
 
@@ -56,7 +81,6 @@
                 return Logger.Colors.Info;
             }
         }
-
 
         Color ILogColors.Error
         {

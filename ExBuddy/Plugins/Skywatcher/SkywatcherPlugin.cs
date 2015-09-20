@@ -3,20 +3,19 @@
     using System;
     using System.Linq;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
 
-    using ff14bot.Interfaces;
     using ff14bot.Managers;
 
-    public class SkywatcherPlugin : IBotPlugin
+    [LoggerName("Skywatcher")]
+    public class SkywatcherPlugin : ExBotPlugin<SkywatcherPlugin>
     {
         // 1 eorzea hour > 175 seconds > 2.91 minutes
         public const double RefreshRate = 3600 * 1000 * (7.0 / 144.0);
 
         public static readonly DateTime EorzeaStartTime = new DateTime(2010, 7, 13);
-
-        public static bool IsEnabled { get; private set; }
 
         public static IWeatherProvider WeatherProvider { get; private set; }
 
@@ -136,91 +135,39 @@
 
         #region IBotPlugin
 
-        public bool Equals(IBotPlugin other)
-        {
-            return other.Name == Name;
-        }
-
-        public void OnButtonPress()
+        public override void OnButtonPress()
         {
             // TODO: Bring up timetable
         }
 
-        public void OnPulse()
-        {
-            // TODO: probably nothing
-        }
-
-        public void OnInitialize()
+        public override void OnInitialize()
         {
             WeatherProvider = new FF14AnglerWeatherProvider();
 
             Condition.AddNamespacesToScriptManager("ExBuddy.Plugins.Skywatcher");
         }
 
-        public void OnShutdown()
+        public override void OnShutdown()
         {
             WeatherProvider = null;
         }
 
-        public void OnEnabled()
+        public override void OnEnabled()
         {
-            IsEnabled = true;
             WeatherProvider.Enable();
         }
 
-        public void OnDisabled()
+        public override void OnDisabled()
         {
-            IsEnabled = false;
             WeatherProvider.Disable();
             // TODO: if timetable implemented, close window
         }
 
-        public string Author
-        {
-            get
-            {
-                return "ExMatt";
-            }
-        }
-
-        public Version Version
-        {
-            get
-            {
-                return new Version(1, 0);
-            }
-        }
-
-        public string Name
+        public override string Name
         {
             get
             {
                 return "Skywatcher";
-            }
-        }
-
-        public string Description
-        {
-            get
-            {
-                return "";
-            }
-        }
-
-        public bool WantButton
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public string ButtonText
-        {
-            get
-            {
-                return "Mooo!";
             }
         }
 

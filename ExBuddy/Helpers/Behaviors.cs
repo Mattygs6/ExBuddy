@@ -3,20 +3,19 @@ namespace ExBuddy.Helpers
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
     using Clio.Utilities;
 
     using ExBuddy.Interfaces;
+    using ExBuddy.Logging;
     using ExBuddy.Navigation;
     using ExBuddy.OrderBotTags.Behaviors.Objects;
 
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.Navigation;
     using ff14bot.Settings;
@@ -90,6 +89,15 @@ namespace ExBuddy.Helpers
 
             if (Actionmanager.CanMount == 0 && ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()))
             {
+                if (mountId == 0)
+                {
+                    var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
+                    if (playerMover != null)
+                    {
+                        mountId = (uint)playerMover.FlightMovementArgs.MountId;
+                    }
+                }
+
                 var ticks = 0;
                 while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
                 {
@@ -138,7 +146,7 @@ namespace ExBuddy.Helpers
 
             if (dismountTicks > 10)
             {
-                Logging.Write(Colors.Red, "Failed to dismount after MoveTo task.");
+                Logger.Instance.Error("Failed to dismount after MoveTo task.");
                 return false;
             }
 
@@ -261,7 +269,6 @@ namespace ExBuddy.Helpers
 
         public static async Task<bool> Unstuck()
         {
-            // TODO: do things here for unstuck!
             await CommonTasks.DescendTo(0);
             return true;
         }

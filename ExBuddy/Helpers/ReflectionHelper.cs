@@ -10,7 +10,7 @@
 	///     The reflection helper.
 	/// </summary>
 	public static class ReflectionHelper
-	{
+    {
 		/// <summary>
 		/// The custom attributes.
 		/// </summary>
@@ -97,7 +97,19 @@
 				}
 			}
 
-			#endregion
+		    public static void RegisterByAssembly(Assembly assembly = null, Func<Type, bool> predicate = null )
+		    {
+		        assembly = assembly ?? Assembly.GetExecutingAssembly();
+
+		        if (predicate == null)
+		        {
+		            predicate = t => t.GetCustomAttribute<TAttribute>() != null;
+		        }
+
+		        RegisterTypes(assembly.GetTypes().Where(predicate).ToArray());
+		    }
+
+		    #endregion
 		}
 	}
 
@@ -120,7 +132,7 @@
 		/// <typeparam name="TResult">
 		/// </typeparam>
 		/// <returns>
-		/// The <see cref="Func"/>.
+		/// The <see cref="Delegate"/>.
 		/// </returns>
 		public static Func<T, object> MakeDelegate<TResult>(MethodInfo @get)
 		{

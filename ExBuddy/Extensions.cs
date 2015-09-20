@@ -13,6 +13,7 @@
 
     using ExBuddy.Enums;
     using ExBuddy.Helpers;
+    using ExBuddy.Logging;
 
     using ff14bot;
     using ff14bot.Helpers;
@@ -133,8 +134,7 @@
             }
             catch (InjectionException ex)
             {
-                // TODO: global log
-                //Logging.WriteException(ex);
+                Logger.Instance.Error(ex.Message);
                 return SendActionResult.InjectionError;
             }
         }
@@ -173,10 +173,8 @@
             }
             catch (NullReferenceException)
             {
-                // TODO: Global logger
-                //Logging.WriteDiagnostic(
-                  //  Colors.PaleVioletRed,
-                    //"GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
+                Logger.Instance.Warn(
+                    "GatherItem became null between resolving it and gathering it due to the Gathering Window closing, moving on.");
 
                 return false;
             }
@@ -347,21 +345,17 @@
 
             if (ticks > 1000)
             {
-                // TODO Global logger
-                ////Logging.WriteDiagnostic(
-                ////    Colors.DarkKhaki,
-                ////    "ExBuddy: Attempted to add Random Direction from {0} but failed",
-                ////    vector);
+                Logger.Instance.Error(
+                    "Attempted to add Random Direction from {0} but failed",
+                    vector);
 
                 return vector;
             }
 
-            // TODO Global logger
-            ////Logging.WriteDiagnostic(
-            ////    Colors.DarkKhaki,
-            ////    "ExBuddy: Adding Random Direction.  from {0} to {1}",
-            ////    vector,
-            ////    random);
+            Logger.Instance.Info(
+                "Adding Random Direction.  from {0} to {1}",
+                vector,
+                random);
 
             return random;
         }
@@ -386,21 +380,17 @@
 
             if (ticks > 1000)
             {
-                // TODO Global logger
-                ////Logging.WriteDiagnostic(
-                ////    Colors.DarkKhaki,
-                ////    "ExBuddy: Attempted to add Random Direction from {0} but failed",
-                ////    vector);
+                Logger.Instance.Error(
+                    "Attempted to add Random Direction from {0} but failed",
+                    vector);
 
                 return vector;
             }
 
-            // TODO Global logger
-            ////Logging.WriteDiagnostic(
-            ////    Colors.DarkKhaki,
-            ////    "ExBuddy: Adding Random Direction2D.  from {0} to {1}",
-            ////    vector,
-            ////    random);
+            Logger.Instance.Info(
+                "Adding Random Direction2D.  from {0} to {1}",
+                vector,
+                random);
 
             return random;
         }

@@ -28,9 +28,8 @@
         {
             if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
             {
-                Logging.Write(
-                    Colors.Chartreuse,
-                    "GatherCollectable: Using Gp since we have gathered {0} nodes at max Gp.",
+                tag.Logger.Info(
+                    "Using Gp since we have gathered {0} nodes at max Gp.",
                     tag.NodesGatheredAtMaxGp);
 
                 return true;

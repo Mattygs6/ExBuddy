@@ -9,11 +9,11 @@ namespace ExBuddy.Plugins.EnableFlight
 
     using Buddy.Coroutines;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.Navigation;
 
     using ff14bot;
-    using ff14bot.AClasses;
     using ff14bot.Behavior;
     using ff14bot.Enums;
     using ff14bot.Helpers;
@@ -22,7 +22,8 @@ namespace ExBuddy.Plugins.EnableFlight
 
     using TreeSharp;
 
-    public class EnableFlightPlugin : BotPlugin
+    [LoggerName("EnableFlight")]
+    public class EnableFlightPlugin : ExBotPlugin<EnableFlightPlugin>
     {
         private Composite startCoroutine;
 
@@ -32,21 +33,16 @@ namespace ExBuddy.Plugins.EnableFlight
 
         private BotEvent cleanup;
 
-        public override string Author
-        {
-            get { return "ExMatt"; }
-        }
-
         public override string Name
         {
             get { return "EnableFlight"; }
         }
 
-        public override System.Version Version
+        protected override Color Info
         {
             get
             {
-                return new Version(0, 9, 2);
+                return Colors.LightSteelBlue;
             }
         }
 
@@ -91,16 +87,21 @@ namespace ExBuddy.Plugins.EnableFlight
         {
             if (navigator == null)
             {
+                var settings = EnableFlightSettings.Instance;
                 navigator = new FlightEnabledNavigator(
                     Navigator.NavigationProvider,
-                    new FlightEnabledSlideMover(Navigator.PlayerMover),
+                    new FlightEnabledSlideMover(
+                        Navigator.PlayerMover,
+                        new FlightMovementArgs
+                        {
+                            MountId = settings.MountId
+                        }),
                     new FlightNavigationArgs
                     {
-                        ForcedAltitude = EnableFlightSettings.Instance.ForcedAltitude,
-                        InverseParabolicMagnitude = EnableFlightSettings.Instance.InverseParabolicMagnitude,
-                        LogWaypoints = EnableFlightSettings.Instance.LogWaypoints,
-                        Radius = EnableFlightSettings.Instance.Radius,
-                        Smoothing = EnableFlightSettings.Instance.Smoothing
+                        ForcedAltitude = settings.ForcedAltitude,
+                        InverseParabolicMagnitude = settings.InverseParabolicMagnitude,
+                        Radius = settings.Radius,
+                        Smoothing = settings.Smoothing
                     });
 
                 cleanup = bot =>
@@ -112,7 +113,7 @@ namespace ExBuddy.Plugins.EnableFlight
 
                 TreeRoot.OnStop += cleanup;
 
-                Logging.Write(Colors.DeepSkyBlue, "Started Flight Navigator.");
+                Logger.Info("Started Flight Navigator.");
             }
 
             return false;
@@ -122,7 +123,7 @@ namespace ExBuddy.Plugins.EnableFlight
         {
             if (navigator != null)
             {
-                Logging.Write(Colors.DeepSkyBlue, "Stopped Flight Navigator.");
+                Logger.Info("Stopped Flight Navigator.");
                 navigator.Dispose();
                 navigator = null;
             }
@@ -133,7 +134,7 @@ namespace ExBuddy.Plugins.EnableFlight
             var nav = Navigator.NavigationProvider as GaiaNavigator;
             if (nav != null)
             {
-                Logging.Write(Colors.DeepSkyBlue, "Disposing the GaiaNavigator");
+                Logger.Info("Disposing the GaiaNavigator");
                 try
                 {
                     nav.Dispose();
@@ -197,15 +198,14 @@ namespace ExBuddy.Plugins.EnableFlight
 
         // ReSharper disable once UnusedParameter.Local
         public EnableFlightSettings(string path)
-            : base(Path.Combine(CharacterSettingsDirectory, "EnableFlight.json"))
+            : base(Path.Combine(SettingsPath, "EnableFlight.json"))
         {
-            
         }
 
-        [DefaultValue(2.9f)]
+        [DefaultValue(3.0f)]
         public float Radius { get; set; }
 
-        [DefaultValue(6)]
+        [DefaultValue(5)]
         public int InverseParabolicMagnitude { get; set; }
 
         [DefaultValue(0.1f)]
@@ -215,9 +215,9 @@ namespace ExBuddy.Plugins.EnableFlight
         public float ForcedAltitude { get; set; }
 
         [DefaultValue(false)]
-        public bool LogWaypoints { get; set; }
-
-        [DefaultValue(false)]
         public bool ReturnToLocationOnDeath { get; set; }
+
+        [DefaultValue(0)]
+        public int MountId { get; set; }
     }
 }

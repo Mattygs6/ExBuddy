@@ -7,6 +7,7 @@ namespace ExBuddy
     using Clio.Utilities;
 
     using ExBuddy.Interfaces;
+    using ExBuddy.Logging;
 
     using ff14bot.Helpers;
 
@@ -20,8 +21,7 @@ namespace ExBuddy
 
         public async Task<bool> ReturnToZone()
         {
-            // TODO Global logger
-            ////Logging.Write(Colors.DarkKhaki, "ExBuddy: Could not find a return strategy for ZoneId: {0}", this.ZoneId);
+            Logger.Instance.Warn("Could not find a return strategy for ZoneId: {0}", this.ZoneId);
             return true;
         }
 

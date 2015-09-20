@@ -6,11 +6,10 @@
     using System.Net.Http;
     using System.Text.RegularExpressions;
     using System.Threading;
-    using System.Windows.Media;
 
     using ExBuddy.Interfaces;
+    using ExBuddy.Logging;
 
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     public class FF14AnglerWeatherProvider : IWeatherProvider
@@ -171,7 +170,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Logging.Write(Colors.Red, ex.Message);
+                    Logger.Instance.Error(ex.Message);
                 }
                 finally
                 {
@@ -185,8 +184,6 @@
 
         private string GetTitleFromHtmlImg(string htmlString)
         {
-            var matches = WeatherTitleRegex.Matches(htmlString);
-
             var match = WeatherTitleRegex.Match(htmlString);
             if (match.Success)
             {

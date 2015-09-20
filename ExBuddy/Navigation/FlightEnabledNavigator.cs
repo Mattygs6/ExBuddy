@@ -13,7 +13,9 @@
     using Clio.Common;
     using Clio.Utilities;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Interfaces;
+    using ExBuddy.Logging;
 
     using ff14bot;
     using ff14bot.Enums;
@@ -24,8 +26,11 @@
 
     using NeoGaia.ConnectionHandler;
 
-    public sealed class FlightEnabledNavigator : INavigationProvider, IDisposable
+    [LoggerName("FlightNav")]
+    public sealed class FlightEnabledNavigator : LogColors, INavigationProvider, IDisposable
     {
+        private readonly Logger logger;
+
         private bool disposed;
 
         private Vector3 origin;
@@ -51,6 +56,7 @@
 
         public FlightEnabledNavigator(INavigationProvider innerNavigator, IFlightEnabledPlayerMover playerMover, IFlightNavigationArgs flightNavigationArgs)
         {
+            this.logger = new Logger(this);
             this.innerNavigator = innerNavigator;
             this.playerMover = playerMover;
             this.flightNavigationArgs = flightNavigationArgs;
@@ -58,12 +64,20 @@
             Navigator.PlayerMover = playerMover;
             CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
 
-            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Replacing Navigator with Flight Navigator.");
+            logger.Verbose("Replacing Navigator with Flight Navigator.");
         }
 
         public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
         {
             return navigator.innerNavigator as GaiaNavigator;
+        }
+
+        public override Color Info
+        {
+            get
+            {
+                return Colors.SkyBlue;
+            }
         }
 
         public FlightPath CurrentPath { get; internal set; }
@@ -115,8 +129,7 @@
                     origin = currentLocation;
                     finalDestination = requestedDestination = location;
                     pathGeneratorStopwatch.Restart();
-                    Logging.WriteDiagnostic(
-                        Colors.DeepSkyBlue,
+                    logger.Info(
                         "Generating path on {0} from {1} to {2}",
                         WorldManager.ZoneId,
                         origin,
@@ -133,7 +146,7 @@
                 return MoveToNextHop(destination);
             }
 
-            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Navigation reached current destination. Within {0}", currentLocation.Distance(location));
+            logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
 
             requestedDestination = Vector3.Zero;
             playerMover.MoveStop();
@@ -164,8 +177,7 @@
                     requestedDestination = location;
                     finalDestination = location.AddRandomDirection2D(radius);
                     pathGeneratorStopwatch.Restart();
-                    Logging.WriteDiagnostic(
-                        Colors.DeepSkyBlue,
+                    logger.Info(
                         "Generating path on {0} from {1} to {2}",
                         WorldManager.ZoneId,
                         origin,
@@ -182,7 +194,7 @@
                 return MoveToNextHop(destination);
             }
 
-            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Navigation reached current destination. Within {0}", currentLocation.Distance(location));
+            logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
 
             requestedDestination = Vector3.Zero;
             playerMover.MoveStop();
@@ -242,7 +254,7 @@
                     return false;
                 }
 
-                if (requestedDestination.Distance3D(target) <= 2.29999995231628)
+                if (requestedDestination.Distance3D(target) <= 2.29)
                 {
                     return false;
                 }
@@ -281,7 +293,7 @@
                 }
             }
 
-            Logging.Write(Colors.Red, "Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
+            logger.Error("Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
             Clear();
 
             Navigator.NavigationProvider = innerNavigator;
@@ -291,9 +303,7 @@
                 () =>
                 {
                     Thread.Sleep(10000);
-                    Logging.Write(
-                        Colors.DeepSkyBlue,
-                        "Resetting NavigationProvider to Flight Navigator.");
+                    logger.Info("Resetting NavigationProvider to Flight Navigator.");
                     Navigator.NavigationProvider = this;
                 });
 
@@ -305,24 +315,21 @@
             switch (task.Result)
             {
                 case GeneratePathResult.Success:
-                    Logging.WriteDiagnostic(
-                        Colors.DeepSkyBlue,
+                    logger.Info(
                         "Generated path to {0} using {1} hops in {2} ms",
                         finalDestination,
                         CurrentPath.Count,
                         pathGeneratorStopwatch.Elapsed);
                     break;
                 case GeneratePathResult.SuccessUseExisting:
-                    Logging.WriteDiagnostic(
-                        Colors.MediumSpringGreen,
+                    logger.Info(
                         "Found existing path to {0} using {1} hops in {2} ms",
                         finalDestination,
                         CurrentPath.Count,
                         pathGeneratorStopwatch.Elapsed);
                     break;
                 case GeneratePathResult.Failed:
-                    Logging.WriteDiagnostic(
-                        Colors.Red,
+                    logger.Error(
                         "No viable path found to {0} from {1}",
                         finalDestination,
                         origin);
@@ -399,7 +406,7 @@
                     CurrentPath.Current,
                     DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-                Logging.WriteDiagnostic(Colors.PaleVioletRed, "Collision detected! Generating new path!");
+                logger.Warn("Collision detected! Generating new path!");
                 Clear();
                 return MoveResult.GeneratingPath;
             }
@@ -415,7 +422,7 @@
 
             if (!CurrentPath.Next())
             {
-                Logging.WriteDiagnostic(Colors.DeepSkyBlue,
+                logger.Info(
                     "Navigation reached current destination. Within " + location.Distance(finalDestination));
                 Clear();
 
@@ -433,7 +440,7 @@
                                    location.Distance(CurrentPath.Current)
                                };
 
-            Logging.WriteDiagnostic(Colors.DeepSkyBlue, string.Concat(objArray));
+            logger.Verbose(string.Concat(objArray));
             //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
             playerMover.MoveTowards(CurrentPath.Current);
             return MoveResult.Moved;
@@ -444,7 +451,7 @@
             if (!disposed)
             {
                 disposed = true;
-                Logging.WriteDiagnostic(Colors.DeepSkyBlue, "Putting original Navigator back!");
+                logger.Verbose("Putting original Navigator back!");
                 Navigator.NavigationProvider = innerNavigator;
                 pathGeneratorStopwatch.Stop();
                 playerMover.Dispose();

@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\LoggerNameAttribute.cs" />
     <Compile Include="Helpers\Memory.cs" />
     <Compile Include="Interfaces\ILogColors.cs" />
     <Compile Include="Logging\LogColors.cs" />
@@ -78,6 +79,9 @@
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopItemInfo.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopPurchase.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopType.cs" />
+    <Compile Include="Interfaces\IGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\StealthApproachGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\StealthGatherSpot.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
     <Compile Include="Navigation\Collisions.cs" />
     <Compile Include="Helpers\Condition.cs" />
@@ -96,7 +100,6 @@
     <Compile Include="Navigation\FlightPoint.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExProfileBehavior.cs" />
     <Compile Include="OrderBotTags\Behaviors\FlightPathTo.cs" />
-    <Compile Include="OrderBotTags\Behaviors\FlightVars.cs" />
     <Compile Include="OrderBotTags\Behaviors\TurnInCollectablesTag.cs" />
     <Compile Include="OrderBotTags\Fish\Bait.cs" />
     <Compile Include="OrderBotTags\Fish\FishTag.cs" />
@@ -112,6 +115,7 @@
     <Compile Include="OrderBotTags\Gather\GatherSpotType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherStrategy.cs" />
     <Compile Include="Interfaces\IGatheringRotation.cs" />
+    <Compile Include="Plugins\ExBotPlugin{T}.cs" />
     <Compile Include="RemoteAgents\Agent{T}.cs" />
     <Compile Include="RemoteAgents\Desynthesis.cs" />
     <Compile Include="RemoteWindows\Bait.cs" />

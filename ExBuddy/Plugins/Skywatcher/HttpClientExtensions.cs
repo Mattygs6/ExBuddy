@@ -4,6 +4,8 @@
     using System.Net.Http;
     using System.Threading.Tasks;
 
+    using ExBuddy.Logging;
+
     using ff14bot.Helpers;
 
     using Newtonsoft.Json;
@@ -70,7 +72,7 @@
                                 }
                                 catch (Exception exception)
                                 {
-                                    Logging.WriteException(exception);
+                                    Logger.Instance.Error(exception.Message);
                                     tcs.TrySetException(exception);
                                 }
                             }
@@ -129,7 +131,7 @@
                 }
                 catch (Exception exception)
                 {
-                    Logging.WriteException(exception);
+                    Logger.Instance.Error(exception.Message);
                     tcs.TrySetException(exception);
                 }
             }

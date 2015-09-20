@@ -11,6 +11,8 @@ namespace ExBuddy.Interfaces
     {
         bool CanFly { get; }
 
+        IFlightMovementArgs FlightMovementArgs { get; }
+
         bool ShouldFlyTo(Vector3 destination);
 
         Task SetShouldFlyAsync(Task<Func<Vector3, bool>> shouldFlyToFunc);

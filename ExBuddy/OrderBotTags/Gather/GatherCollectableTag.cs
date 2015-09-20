@@ -33,13 +33,14 @@
 
     using TreeSharp;
 
-    // TODO: switch to new logger
+    [LoggerName("GatherCollectable")]
     [XmlElement("GatherCollectable")]
     public sealed class GatherCollectableTag : ExProfileBehavior
     {
-        internal static readonly Dictionary<string, IGatheringRotation> Rotations;
+        private static readonly object Lock = new object();
 
-        // TODO: set this on startup maybe?  was null
+        internal static volatile Dictionary<string, IGatheringRotation> Rotations;
+
         internal static SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
         internal bool MovementStopCallback(float distance, float radius)
@@ -77,9 +78,19 @@
 
         private bool interactedWithNode;
 
-        static GatherCollectableTag()
+        public GatherCollectableTag()
         {
-            Rotations = LoadRotationTypes();
+            if (Rotations == null)
+            {
+                lock (Lock)
+                {
+                    if (Rotations == null)
+                    {
+                        Rotations = LoadRotationTypes();
+                    }
+                }
+            }
+            
         }
 
         public override bool IsDone
@@ -200,6 +211,14 @@
         [XmlAttribute("DefaultGatherSpotType")]
         public GatherSpotType DefaultGatherSpotType { get; set; }
 
+        protected override Color Info
+        {
+            get
+            {
+                return Colors.Chartreuse;
+            }
+        }
+
         private bool HandleCondition()
         {
             if (WhileFunc == null)
@@ -221,7 +240,7 @@
         {
             if (!isDone)
             {
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Resetting.");
+                Logger.Info("Resetting.");
             }
 
             interactedWithNode = false;
@@ -374,7 +393,7 @@
             return false;
         }
 
-        private static Dictionary<string, IGatheringRotation> LoadRotationTypes()
+        private Dictionary<string, IGatheringRotation> LoadRotationTypes()
         {
             Type[] types = null;
             try
@@ -387,7 +406,7 @@
             }
             catch
             {
-                Logging.Write("Unable to get types, Loading Known Rotations.");
+                Logger.Warn("Unable to get types, Loading Known Rotations.");
             }
 
             if (types == null)
@@ -401,9 +420,7 @@
 
             foreach (var instance in instances)
             {
-                Logging.Write(
-                    Colors.Chartreuse,
-                    "GatherCollectable: Loaded Rotation -> {0}, GP: {1}, Time: {2}",
+                Logger.Info("Loaded Rotation -> {0}, GP: {1}, Time: {2}",
                     instance.Attributes.Name,
                     instance.Attributes.RequiredGp,
                     instance.Attributes.RequiredTimeInSeconds);
@@ -453,7 +470,7 @@
             {
                 initialGatherRotation = gatherRotation = new GatheringSkillOrderGatheringRotation();
 
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + gatherRotation.Attributes.Name);
+                Logger.Info("Using rotation -> " + gatherRotation.Attributes.Name);
             }
 
             IGatheringRotation rotation;
@@ -469,12 +486,12 @@
                     rotation = Rotations["RegularNode"];
                 }
 
-                Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find rotation, using RegularNode instead.");
+                Logger.Warn("Could not find rotation, using RegularNode instead.");
             }
 
             initialGatherRotation = gatherRotation = rotation;
 
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: Using rotation -> " + rotation.Attributes.Name);
+            Logger.Info("Using rotation -> " + rotation.Attributes.Name);
 
             return true;
         }
@@ -541,7 +558,7 @@
                 // If finished current loop and set to not cyclic (we know this because if it was cyclic Next is always true)
                 if (!HotSpots.Next())
                 {
-                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Finished {0} of {1} loops.", ++loopCount, Loops);
+                    Logger.Info("Finished {0} of {1} loops.", ++loopCount, Loops);
 
                     // If finished all loops, otherwise just incrementing loop count
                     if (loopCount == Loops)
@@ -579,7 +596,7 @@
                 SetFallbackGatherSpot(Node.Location, true);
             }
 
-            Logging.Write(Colors.Chartreuse, "GatherCollectable: GatherSpot set -> " + GatherSpot);
+            Logger.Info("GatherSpot set -> " + GatherSpot);
 
             return true;
         }
@@ -644,7 +661,7 @@
                             && GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
                                    .OrderByDescending(o => o).FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
                         {
-                            Logging.Write(Colors.PaleVioletRed, "GatherCollectable: Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
+                            Logger.Warn("Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
                             await Behaviors.MoveTo(
                                 HotSpots.CurrentOrDefault,
                                 radius: Radius,
@@ -676,22 +693,22 @@
                 var entry = Blacklist.GetEntry(Node.ObjectId);
                 if (entry != null && entry.Flags.HasFlag(BlacklistFlags.Interact))
                 {
-                    Logging.Write(Colors.PaleVioletRed, "Node on blacklist, waiting until we move out of range or it clears.");
+                    Logger.Warn("Node on blacklist, waiting until we move out of range or it clears.");
 
                     if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius))
                     {
                         if (!entry.IsFinished)
                         {
                             Node = null;
-                            Logging.Write(Colors.Chartreuse, "GatherCollectable: Node Reset, Reason: Ran out of range");
+                            Logger.Info("Node Reset, Reason: Ran out of range");
                             return false;
                         }
                     }
 
-                    Logging.Write(Colors.Chartreuse, "GatherCollectable: Node removed from blacklist.");
+                    Logger.Info("Node removed from blacklist.");
                 }
 
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Node set -> " + Node);
+                Logger.Info("Node set -> " + Node);
 
                 if (HotSpots == null)
                 {
@@ -796,15 +813,9 @@
 
             var ttg = GetTimeToGather();
 
-            if (ttg.RealSecondsTillStartGathering < 1)
+            if (ttg.RealSecondsTillStartGathering < 3)
             {
-                if (gatherRotation.ShouldForceGather)
-                {
-                    return true;
-                }
-
-                Logging.Write("Not enough time to gather");
-                // isDone = true;
+                Logger.Warn("Not enough time to gather, will still make an attempt.");
                 return true;
             }
 
@@ -812,44 +823,31 @@
 
             if (CordialType <= CordialType.None)
             {
-                Logging.Write("Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
-
-                if (gatherRotation.ShouldForceGather)
-                {
-                    return true;
-                }
-
                 if (gp >= AdjustedWaitForGp)
                 {
                     return await WaitForGpRegain();
                 }
 
-                Logging.Write("Not enough time to gather");
-                // isDone = true;
-                return true;
-            }
+                Logger.Warn("Gathering without the minimum recommended GP for the rotation");
+                Logger.Warn("Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
 
-            if (gatherRotation.ShouldForceGather)
-            {
                 return true;
-            }
-
-            if (gp >= AdjustedWaitForGp && CordialTime.HasFlag(CordialTime.IfNeeded))
-            {
-                return await WaitForGpRegain();
             }
 
             if (gp >= AdjustedWaitForGp)
             {
+                if (CordialTime.HasFlag(CordialTime.IfNeeded))
+                {
+                    return await WaitForGpRegain();
+                }
+
                 var gpNeeded = AdjustedWaitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
                 var gpNeededTicks = gpNeeded / 5;
                 var gpNeededSeconds = gpNeededTicks * 3;
 
                 if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 3)
                 {
-                    Logging.WriteDiagnostic(
-                        Colors.Chartreuse,
-                        "GatherCollectable: GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}",
+                    Logger.Info("GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}",
                         gpNeededSeconds);
 
                     // no need to wait for cordial, we will have GP faster
@@ -862,48 +860,16 @@
                 // If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
                 if (await UseCordial(CordialType.Cordial, ttg.RealSecondsTillStartGathering) || CordialType == CordialType.Cordial)
                 {
-                    if (gatherRotation.ShouldForceGather)
-                    {
-                        return true;
-                    }
-
                     return await WaitForGpRegain();
                 }
             }
-
-            ttg = GetTimeToGather();
-            // Recalculate: could have no time left at this point
-
-            if (ttg.RealSecondsTillStartGathering < 1)
-            {
-                if (gatherRotation.ShouldForceGather)
-                {
-                    return true;
-                }
-
-                Logging.Write("Not enough GP to gather");
-                // isDone = true;
-                return true;
-            }
-
-            gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
 
             if (gp + 400 >= AdjustedWaitForGp)
             {
                 if (await UseCordial(CordialType.HiCordial, ttg.RealSecondsTillStartGathering))
                 {
-                    if (gatherRotation.ShouldForceGather)
-                    {
-                        return true;
-                    }
-
                     return await WaitForGpRegain();
                 }
-            }
-
-            if (gatherRotation.ShouldForceGather)
-            {
-                return true;
             }
 
             return await WaitForGpRegain();
@@ -911,25 +877,25 @@
 
         private async Task<bool> WaitForGpRegain()
         {
-            var ttg = GetTimeToGather();
-
-            if (ttg.RealSecondsTillStartGathering < 1)
+            if (gatherRotation.ShouldForceGather)
             {
-                if (gatherRotation.ShouldForceGather)
-                {
-                    return true;
-                }
-
-                Logging.Write("Not enough time to gather");
-                // isDone = true;
                 return true;
             }
 
+            var ttg = GetTimeToGather();
+
             if (Me.CurrentGP < AdjustedWaitForGp)
             {
-                Logging.Write(
-                    "Waiting for GP, Time till node is gone(sec): " + ttg.RealSecondsTillStartGathering + ", Current GP: "
-                    + Me.CurrentGP + ", WaitForGP: " + AdjustedWaitForGp);
+                var gpNeeded = AdjustedWaitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
+                var gpNeededTicks = gpNeeded / 5;
+                var gpNeededSeconds = gpNeededTicks * 3;
+
+                Logger.Info(
+                    "Waiting for GP -> Seconds: {0}, Current GP: {1}, WaitForGP: {2}",
+                    gpNeededSeconds,
+                    Me.CurrentGP,
+                    AdjustedWaitForGp);
+
                 await
                 Coroutine.Wait(
                     TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
@@ -956,7 +922,7 @@
             if (!object.ReferenceEquals(gatherRotation, initialGatherRotation))
             {
                 gatherRotation = initialGatherRotation;
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Rotation reset -> " + initialGatherRotation.Attributes.Name);
+                Logger.Info("Rotation reset -> " + initialGatherRotation.Attributes.Name);
             }
 
             if (CordialTime.HasFlag(CordialTime.AfterGather))
@@ -1018,15 +984,15 @@
 
                 if (cordial != null)
                 {
-                    Logging.Write(
-                        "Using Cordial -> Waiting (sec): " + maxTimeoutSeconds + " CurrentGP: " + Me.CurrentGP);
+                    Logger.Info("Using Cordial -> Waiting (sec): {0}, CurrentGP: {1}", (int)CordialSpellData.Cooldown.TotalSeconds, Me.CurrentGP);
+
                     if (await Coroutine.Wait(
                         TimeSpan.FromSeconds(maxTimeoutSeconds),
                         () =>
                         {
-                            if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
+                            if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 0.5)
                             {
-                                Logging.Write("Dismounting to use cordial.");
+                                Logger.Info("Dismounting to use cordial.");
                                 Actionmanager.Dismount();
                                 return false;
                             }
@@ -1035,13 +1001,14 @@
                         }))
                     {
                         cordial.UseItem(Me);
-                        Logging.Write("Using " + cordialType);
+                        await Coroutine.Yield();
+                        Logger.Info("Using " + cordialType);
                         return true;
                     }
                 }
                 else
                 {
-                    Logging.Write(Colors.Chartreuse, "No Cordial avilable, buy more " + cordialType);
+                    Logger.Warn("No Cordial avilable, buy more " + cordialType);
                 }
             }
 
@@ -1051,7 +1018,7 @@
         private async Task<bool> InteractWithNode()
         {
             var attempts = 0;
-            while (attempts < 3 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
+            while (attempts++ < 3 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
             {
                 while (MovementManager.IsFlying && Behaviors.ShouldContinue)
                 {
@@ -1069,11 +1036,11 @@
 
                 if (FreeRange)
                 {
-                    Logging.Write("Gathering Window didn't open: Retrying. " + ++attempts);
+                    Logger.Warn("Gathering Window didn't open: Retrying. {0}/3", attempts);
                     continue;
                 }
 
-                Logging.Write("Gathering Window didn't open: Re-attempting to move into place. " + ++attempts);
+                Logger.Warn("Gathering Window didn't open: Re-attempting to move into place. {0}/3", attempts);
                 //SetFallbackGatherSpot(Node.Location, true);
 
                 await MoveToGatherSpot();
@@ -1274,16 +1241,14 @@
                     return true;
                 }
 
-                Logging.Write(
-                    Colors.PaleVioletRed,
-                    "GatherCollectable: Unable to find an item to gather, moving on.");
+                Logger.Warn("Unable to find an item to gather, moving on.");
 
                 return false;
             }
 
             if (previousGatherItem == null || previousGatherItem.ItemId != GatherItem.ItemId)
             {
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
+                Logger.Info("could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
             }
 
             return true;
@@ -1338,7 +1303,7 @@
                     return;
                 }
 
-                Logging.Write(Colors.Chartreuse, "GatherCollectable: Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
+                Logger.Info("Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
             }
 
             var rotationAndTypes = Rotations
@@ -1358,12 +1323,10 @@
                 return;
             }
 
-            Logging.Write(
-                Colors.Chartreuse,
-                "GatherCollectable: Rotation Override -> Old: "
-                + gatherRotation.Attributes.Name
-                + " , New: "
-                + rotation.Rotation.Attributes.Name);
+            Logger.Info(
+                "Rotation Override -> Old: {0} , New: {1}",
+                gatherRotation.Attributes.Name,
+                rotation.Rotation.Attributes.Name);
 
             gatherRotation = rotation.Rotation;
         }

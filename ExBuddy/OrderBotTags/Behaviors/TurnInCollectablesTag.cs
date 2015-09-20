@@ -12,6 +12,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
     using Clio.XmlEngine;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.OrderBotTags.Behaviors.Objects;
     using ExBuddy.OrderBotTags.Objects;
@@ -28,6 +29,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
     using TreeSharp;
 
+    [LoggerName("TurnInCollectables")]
     [XmlElement("TurnInCollectables")]
     public class TurnInCollectablesTag : ExProfileBehavior
     {

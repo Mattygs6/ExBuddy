@@ -1,12 +1,12 @@
 namespace ExBuddy.Helpers
 {
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using Buddy.Coroutines;
 
+    using ExBuddy.Logging;
+
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.Objects;
 
@@ -36,16 +36,14 @@ namespace ExBuddy.Helpers
                 
                 if (result)
                 {
-                    Logging.Write(
-                                Colors.DarkKhaki,
-                                "ExBuddy: Casted Aura -> {0}",
+                    Logger.Instance.Info(
+                                "Casted Aura -> {0}",
                                 spellData.Name);
                 }
                 else
                 {
-                    Logging.Write(
-                                Colors.Red,
-                                "ExBuddy: Failed to cast Aura -> {0}",
+                    Logger.Instance.Error(
+                                "Failed to cast Aura -> {0}",
                                 spellData.Name);
                 }
 
@@ -93,16 +91,14 @@ namespace ExBuddy.Helpers
 
             if (result)
             {
-                Logging.Write(
-                            Colors.SpringGreen,
-                            "ExBuddy: Casted Ability -> {0}",
+                Logger.Instance.Info(
+                            "Casted Ability -> {0}",
                             spellData.Name);
             }
             else
             {
-                Logging.Write(
-                            Colors.Red,
-                            "ExBuddy: Failed to cast Ability -> {0}",
+                Logger.Instance.Error(
+                            "Failed to cast Ability -> {0}",
                             spellData.Name);
             }
 

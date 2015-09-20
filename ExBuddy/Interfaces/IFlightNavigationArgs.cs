@@ -9,7 +9,5 @@
         float ForcedAltitude { get; set; }
 
         float Radius { get; set; }
-
-        bool LogWaypoints { get; set; }
     }
 }

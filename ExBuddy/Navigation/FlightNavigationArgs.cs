@@ -9,7 +9,6 @@
             this.Radius = 2.7f;
             this.InverseParabolicMagnitude = 6;
             this.Smoothing = 0.2f;
-            this.LogWaypoints = true;
             this.ForcedAltitude = 8.0f;
         }
 
@@ -20,8 +19,6 @@
         public float Smoothing { get; set; }
 
         public float ForcedAltitude { get; set; }
-
-        public bool LogWaypoints { get; set; }
 
         public override string ToString()
         {

@@ -8,6 +8,8 @@
     using Clio.Common;
     using Clio.Utilities;
 
+    using ExBuddy.Logging;
+
     using ff14bot.Helpers;
     using ff14bot.Managers;
 
@@ -214,14 +216,8 @@
             else
             {
                 travelDeviation = deviation;
-                var direction = deviation - this.Position;
 
-                var dot = Vector3.Dot(forwardRay, direction);
-                var angle = MathEx.ToDegrees((float)Math.Acos(dot / (forwardRay.Magnitude * direction.Magnitude)));
-
-                angle = Math.Abs(angle - 90);
-
-                Logging.Write("Angle of deviation: " + angle);
+                Logger.Instance.Verbose("Direction of deviation: " + (Flags ^ CollisionFlags.Forward));
             }
 
             return valueFound;
@@ -279,10 +275,6 @@
 
             Vector3 playerDeviation;
             this.PlayerCollider.FindClosestDeviation(previousFlightPoints, out playerDeviation);
-            //Vector3 destinationDeviation;
-            //DestinationCollider.FindClosestLateralDeviation(out destinationDeviation);
-
-            // If no intersection, they are opposite directions...
 
             deviation = playerDeviation;
 

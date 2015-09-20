@@ -6,11 +6,10 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading;
-    using System.Windows.Media;
 
     using Clio.Utilities;
 
-    using ff14bot.Helpers;
+    using ExBuddy.Logging;
 
     public static class Condition
     {
@@ -63,15 +62,13 @@
                     if (!list.Contains(ns))
                     {
                         list.Add(ns);
-                        Logging.WriteDiagnostic(Colors.DarkKhaki, "ExBuddy: Added namespace '{0}' to ScriptManager", ns);
+                        Logger.Instance.Info("Added namespace '{0}' to ScriptManager", ns);
                     }
                 }
             }
             catch
             {
-                Logging.WriteDiagnostic(
-                    Colors.Red,
-                    "ExBuddy: Failed to add namespaces to ScriptManager, this can cause issues with some profiles.");
+                Logger.Instance.Error("Failed to add namespaces to ScriptManager, this can cause issues with some profiles.");
             }
         }
     }

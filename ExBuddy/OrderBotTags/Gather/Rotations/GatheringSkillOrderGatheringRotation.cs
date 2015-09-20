@@ -50,8 +50,7 @@
 
                 if (spellData == null)
                 {
-                    Logging.Write(
-                        Colors.PaleVioletRed,
+                    tag.Logger.Warn(
                         "Unable to find skill -> Name: {0}, Id: {1}",
                         gatheringSkill.SpellName,
                         gatheringSkill.SpellId);

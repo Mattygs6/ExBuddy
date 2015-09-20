@@ -1,5 +1,6 @@
 namespace ExBuddy.OrderBotTags.Behaviors
 {
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Threading.Tasks;
     using System.Windows.Media;
@@ -9,7 +10,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
     using Clio.Utilities;
     using Clio.XmlEngine;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Helpers;
+    using ExBuddy.Interfaces;
     using ExBuddy.Navigation;
 
     using ff14bot.Behavior;
@@ -19,8 +22,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
     using TreeSharp;
 
+    [LoggerName("FlightPathTo")]
     [XmlElement("FlightPathTo")]
-    public class FlightPathTo : FlightVars
+    public class FlightPathTo : ExProfileBehavior, IFlightVars
     {
         private readonly Stopwatch landingStopwatch = new Stopwatch();
 
@@ -39,6 +43,29 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         [XmlAttribute("XYZ")]
         public Vector3 Target { get; set; }
+
+        [DefaultValue(3.0f)]
+        [XmlAttribute("Radius")]
+        public float Radius { get; set; }
+
+        [DefaultValue(6)]
+        [XmlAttribute("InverseParabolicMagnitude")]
+        public int InverseParabolicMagnitude { get; set; }
+
+        [DefaultValue(0.05f)]
+        [XmlAttribute("Smoothing")]
+        public float Smoothing { get; set; }
+
+        [DefaultValue(0)]
+        [XmlAttribute("MountId")]
+        public int MountId { get; set; }
+
+        [DefaultValue(6.0f)]
+        [XmlAttribute("ForcedAltitude")]
+        public float ForcedAltitude { get; set; }
+
+        [XmlAttribute("ForceLanding")]
+        public bool ForceLanding { get; set; }
 
         protected override Composite CreateBehavior()
         {
@@ -86,28 +113,25 @@ namespace ExBuddy.OrderBotTags.Behaviors
             {
                 do
                 {
-                    if (LogWaypoints)
+                    if (flightPath.Current.IsDeviation)
                     {
-                        if (flightPath.Current.IsDeviation)
-                        {
-                            Logger.Info("Deviating from course to waypoint: {0}", flightPath.Current);
-                        }
-                        else
-                        {
-                            Logger.Info("Moving to waypoint: {0}", flightPath.Current);
-                        }
-
+                        Logger.Verbose("Deviating from course to waypoint: {0}", flightPath.Current);
+                    }
+                    else
+                    {
+                        Logger.Verbose("Moving to waypoint: {0}", flightPath.Current);
                     }
 
                     await MoveToWithinRadius(flightPath.Current, Radius);
                 }
+
                 while (flightPath.Next());
 
                 flightPath.Reset();
             }
             else
             {
-                Logger.Info("No viable path computed for {0}.", Target);
+                Logger.Error("No viable path computed for {0}.", Target);
             }
 
             if (ForceLanding)
@@ -169,7 +193,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                 if (landingStopwatch.ElapsedMilliseconds > 2000 && MovementManager.IsFlying)
                 {
-                    var move = Me.Location.AddRandomDirection2D().GetFloor();
+                    var move = Me.Location.AddRandomDirection2D(10).GetFloor(15);
                     await Behaviors.MoveToNoMount(move, false, 0.5f);
                     landingStopwatch.Restart();
                 }

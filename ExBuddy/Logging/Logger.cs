@@ -5,8 +5,8 @@
     using System.Reflection;
 
     using Clio.Utilities;
-    using Clio.XmlEngine;
 
+    using ExBuddy.Attributes;
     using ExBuddy.Interfaces;
     using Logging = ff14bot.Helpers.Logging;
 
@@ -55,7 +55,7 @@
             }
 
             var type = logColors.GetType();
-            Name = type.GetCustomAttributePropertyValue<XmlElementAttribute, string>(attr => attr.Name, type.Name);
+            Name = type.GetCustomAttributePropertyValue<LoggerNameAttribute, string>(attr => attr.Name, type.Name);
         }
 
         public bool IncludeVersion { get; private set; }

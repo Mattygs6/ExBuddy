@@ -89,18 +89,30 @@ namespace ExBuddy.Helpers
 
             if (Actionmanager.CanMount == 0 && ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()))
             {
+                uint flightSpecificMountId = 0;
                 if (mountId == 0)
                 {
+                    mountId = CharacterSettings.Instance.MountId;
                     var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
                     if (playerMover != null)
                     {
-                        mountId = (uint)playerMover.FlightMovementArgs.MountId;
+                        flightSpecificMountId = (uint)playerMover.FlightMovementArgs.MountId;
                     }
                 }
 
                 var ticks = 0;
                 while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
                 {
+                    if (WorldManager.CanFly && flightSpecificMountId > 0)
+                    {
+                        await CommonTasks.MountUp(flightSpecificMountId);
+                        await Coroutine.Yield();
+                        if (Core.Player.IsMounted)
+                        {
+                            break;
+                        }
+                    }
+
                     if (mountId > 0)
                     {
                         if (!await CommonTasks.MountUp(mountId))

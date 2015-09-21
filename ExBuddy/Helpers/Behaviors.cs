@@ -143,7 +143,7 @@ namespace ExBuddy.Helpers
             await MoveToNoMount(destination, useMesh, radius, name, stopCallback);
 
             var dismountTicks = 0;
-            while (dismountAtDestination && dismountTicks++ < 10 && Core.Player.IsMounted && ShouldContinue)
+            while (dismountAtDestination && dismountTicks++ < 100 && Core.Player.IsMounted && ShouldContinue)
             {
                 if (MovementManager.IsFlying)
                 {
@@ -161,10 +161,10 @@ namespace ExBuddy.Helpers
                     Actionmanager.Dismount();
                 }
 
-                await Coroutine.Wait(1000, () => !Core.Player.IsMounted);
+                await Coroutine.Wait(100, () => !Core.Player.IsMounted);
             }
 
-            if (dismountTicks > 10)
+            if (dismountTicks > 100)
             {
                 Logger.Instance.Error("Failed to dismount after MoveTo task.");
                 return false;

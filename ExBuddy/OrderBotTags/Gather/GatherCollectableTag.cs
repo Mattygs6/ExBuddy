@@ -191,7 +191,7 @@
         [XmlAttribute("SpellDelay")]
         public int SpellDelay { get; set; }
 
-        [DefaultValue(2000)]
+        [DefaultValue(1000)]
         [XmlAttribute("WindowDelay")]
         public int WindowDelay { get; set; }
 
@@ -471,6 +471,7 @@
                 initialGatherRotation = gatherRotation = new GatheringSkillOrderGatheringRotation();
 
                 Logger.Info("Using rotation -> " + gatherRotation.Attributes.Name);
+                return true;
             }
 
             IGatheringRotation rotation;
@@ -1017,13 +1018,14 @@
 
         private async Task<bool> InteractWithNode()
         {
+            await Coroutine.Wait(1000, () => Actionmanager.CanMount == 0);
+
             var attempts = 0;
-            while (attempts++ < 3 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
+            while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
             {
                 while (MovementManager.IsFlying && Behaviors.ShouldContinue)
                 {
                     Navigator.Stop();
-                    Actionmanager.Dismount();
                     await Coroutine.Yield();
                 }
 
@@ -1031,16 +1033,22 @@
 
                 if (await Coroutine.Wait(WindowDelay, () => GatheringManager.WindowOpen))
                 {
-                    continue;
+                    break;
+                }
+
+                if (attempts == 1 && WindowDelay <= 2000 && await Coroutine.Wait(WindowDelay, () => GatheringManager.WindowOpen))
+                {
+                    // wait double on first attempt if delay less than 2 seconds.
+                    break;
                 }
 
                 if (FreeRange)
                 {
-                    Logger.Warn("Gathering Window didn't open: Retrying. {0}/3", attempts);
+                    Logger.Warn("Gathering Window didn't open: Retrying. {0}/5", attempts);
                     continue;
                 }
 
-                Logger.Warn("Gathering Window didn't open: Re-attempting to move into place. {0}/3", attempts);
+                Logger.Warn("Gathering Window didn't open: Re-attempting to move into place. {0}/5", attempts);
                 //SetFallbackGatherSpot(Node.Location, true);
 
                 await MoveToGatherSpot();

@@ -36,12 +36,12 @@
         public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
             var result = true;
-            if (this.ReturnToStealthLocation)
+            if (ReturnToStealthLocation)
             {
-                result &= await Behaviors.MoveToNoMount(this.StealthLocation, this.UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+                result &= await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
             }
 
-            if (this.UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
+            if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
             {
                 result &= await tag.CastAura(Ability.Stealth);
             }
@@ -51,14 +51,14 @@
 
         public async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
-            if (this.StealthLocation == Vector3.Zero)
+            if (StealthLocation == Vector3.Zero)
             {
                 return false;
             }
 
             var result = await Behaviors.MoveTo(
-                this.StealthLocation,
-                this.UseMesh,
+                StealthLocation,
+                UseMesh,
                 radius: tag.Radius,
                 name: "Stealth Location",
                 stopCallback: tag.MovementStopCallback,
@@ -69,7 +69,7 @@
                 await Coroutine.Yield();
                 await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-                result = await Behaviors.MoveToNoMount(this.NodeLocation, this.UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
             }
 
             return result;
@@ -79,10 +79,10 @@
         {
             return string.Format(
                 "StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, ReturnToStealthLocation: {2}, UseMesh: {3}",
-                this.StealthLocation,
-                this.NodeLocation,
-                this.ReturnToStealthLocation,
-                this.UseMesh);
+                StealthLocation,
+                NodeLocation,
+                ReturnToStealthLocation,
+                UseMesh);
         }
     }
 }

@@ -23,9 +23,12 @@ namespace ExBuddy.OrderBotTags.Gather
         [XmlAttribute("UseMesh")]
         public bool UseMesh { get; set; }
 
+        [XmlAttribute("UnstealthAfter")]
+        public bool UnstealthAfter { get; set; }
+
         public virtual async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
-            if (Core.Player.HasAura((int)AbilityAura.Stealth))
+            if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
             {
                 return await tag.CastAura(Ability.Stealth);
             }
@@ -36,23 +39,27 @@ namespace ExBuddy.OrderBotTags.Gather
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
             var result = await Behaviors.MoveTo(
-                this.NodeLocation,
-                this.UseMesh,
+                NodeLocation,
+                UseMesh,
                 radius: tag.Distance,
                 name: tag.Node.EnglishName,
                 stopCallback: tag.MovementStopCallback,
                 dismountAtDestination: true);
 
-            await Coroutine.Yield();
+            if (result)
+            {
+                await Coroutine.Yield();
+                await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
+            }
 
-            result &= await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
+            await Coroutine.Yield();
 
             return result;
         }
 
         public override string ToString()
         {
-            return string.Format("GatherSpot -> NodeLocation: {0}, UseMesh: {1}", this.NodeLocation, this.UseMesh);
+            return string.Format("GatherSpot -> NodeLocation: {0}, UseMesh: {1}", NodeLocation, UseMesh);
         }
     }
 }

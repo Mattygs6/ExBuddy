@@ -38,7 +38,7 @@
             return TrySendAction(2, 0, 0, 1, index);
         }
 
-        public async Task<bool> TurnIn(uint index, BagSlot bagSlot, byte attempts = 20, ushort interval = 200)
+        public async Task<bool> TurnInAndHandOver(uint index, BagSlot bagSlot, byte attempts = 20, ushort interval = 200)
         {
             var result = SendActionResult.None;
             var requestAttempts = 0;
@@ -75,7 +75,10 @@
             // Try waiting an extra second for it to open in case interval was set really low.
             if (!Request.IsOpen)
             {
-                await Coroutine.Wait(1000, () => Request.IsOpen);    
+                if (!await Coroutine.Wait(1000, () => Request.IsOpen))
+                {
+                    return false;
+                }
             }
 
             requestAttempts = 0;

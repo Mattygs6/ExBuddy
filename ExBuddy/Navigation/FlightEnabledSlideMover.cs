@@ -46,6 +46,8 @@
 
         private bool isLanding;
 
+        private bool isMovingTowardsLocation;
+
         private bool disposed;
 
         private static Func<Vector3, bool> shouldFlyToFunc = ShouldFlyInternal;
@@ -112,6 +114,8 @@
 
         public void MoveStop()
         {
+            isMovingTowardsLocation = false;
+
             if (!isLanding)
             {
                 innerMover.MoveStop();
@@ -134,6 +138,7 @@
 
             if (!isTakingOff)
             {
+                isMovingTowardsLocation = true;
                 innerMover.MoveTowards(location);
             }
         }
@@ -213,9 +218,8 @@
                             {
                                 try
                                 {
-                                    while (MovementManager.IsFlying && Behaviors.ShouldContinue)
+                                    while (MovementManager.IsFlying && Behaviors.ShouldContinue && !isMovingTowardsLocation)
                                     {
-
                                         if (landingStopwatch.ElapsedMilliseconds < 2000)
                                         {
                                             MovementManager.StartDescending();
@@ -256,9 +260,19 @@
                                 }
                                 finally
                                 {
-                                    Logger.Info(
-                                        "Landing took {0} ms or less",
-                                        totalLandingStopwatch.Elapsed);
+                                    if (isMovingTowardsLocation)
+                                    {
+                                        Logger.Warn(
+                                            "Landing cancelled after {0} ms. New destination requested.",
+                                            totalLandingStopwatch.Elapsed);
+                                    }
+                                    else
+                                    {
+                                        Logger.Info(
+                                            "Landing took {0} ms or less",
+                                            totalLandingStopwatch.Elapsed);
+                                    }
+
                                     totalLandingStopwatch.Reset();
                                     landingStopwatch.Reset();
                                     isLanding = false;

@@ -363,7 +363,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             var itemName = item.Item.EnglishName;
 
-            if (!await masterpieceSupply.TurnIn(index, item))
+            if (!await masterpieceSupply.TurnInAndHandOver(index, item))
             {
                 Logger.Error("An error has occured while turning in the item");
                 Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
@@ -531,7 +531,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     itemLevel = 12;
                     break;
                 default:
-                    itemLevel = (byte)((itemLevel - 121) / 3);
+                    itemLevel = itemLevel < 120 ? (byte)0 : (byte)((itemLevel - 121) / 3);
                     break;
             }
 
@@ -594,6 +594,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
                                 collectable.Name,
                                 i.EnglishName,
                                 StringComparison.InvariantCultureIgnoreCase));
+
+                    if (item != null)
+                    {
+                        break;
+                    }
                 }
             }
 

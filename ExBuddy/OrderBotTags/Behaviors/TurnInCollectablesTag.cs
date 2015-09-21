@@ -16,6 +16,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
     using ExBuddy.Helpers;
     using ExBuddy.OrderBotTags.Behaviors.Objects;
     using ExBuddy.OrderBotTags.Objects;
+    using ExBuddy.Providers;
     using ExBuddy.RemoteWindows;
 
     using ff14bot;
@@ -89,6 +90,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         protected override void OnResetCachedDone()
         {
+            StatusText = string.Empty;
             isDone = false;
             turnedItemsIn = false;
             item = null;
@@ -202,6 +204,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 // too far away, should go back to MoveToNpc
                 return true;
             }
+
+            StatusText = "Purchasing items";
 
             var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
             var npc = GameObjectManager.GetObjectByNPCId(locationData.ShopNpcId);
@@ -361,6 +365,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return false;
             }
 
+            StatusText = "Turning in items";
+
             var itemName = item.Item.EnglishName;
 
             if (!await masterpieceSupply.TurnInAndHandOver(index, item))
@@ -412,6 +418,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return false;
             }
 
+            StatusText = "Moving to Npc -> " + locationData.NpcId;
+
             await
                 Behaviors.MoveTo(
                     locationData.NpcLocation,
@@ -446,6 +454,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
             npc.Target();
             npc.Interact();
 
+            StatusText = "Interacting with Npc -> " + npc.EnglishName;
+
             return false;
         }
 
@@ -455,6 +465,18 @@ namespace ExBuddy.OrderBotTags.Behaviors
             if (item == null || item.Item == null)
             {
                 return false;
+            }
+
+            var provider = MasterPieceSupplyDataProvider.Instance;
+
+            if (provider.IsValid)
+            {
+                var i = provider.GetIndexByItemName(item.EnglishName);
+                if (i.HasValue)
+                {
+                    index = i.Value;
+                    return false;
+                }
             }
 
             switch (item.RawItemId)

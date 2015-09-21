@@ -11,6 +11,8 @@
     {
         public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
+            tag.StatusText = "Moving to " + this;
+
             var result = await Behaviors.MoveTo(
                 NodeLocation,
                 UseMesh,

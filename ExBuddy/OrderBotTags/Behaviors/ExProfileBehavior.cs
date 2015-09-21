@@ -2,6 +2,8 @@
 {
     using System.Windows.Media;
 
+    using Clio.XmlEngine;
+
     using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
@@ -13,6 +15,7 @@
 
     public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
     {
+        private string statusText;
         protected internal readonly Logger Logger;
 
         static ExProfileBehavior()
@@ -23,6 +26,22 @@
         protected ExProfileBehavior()
         {
             Logger = new Logger(this, includeVersion: true);
+        }
+
+        [XmlElement("Name")]
+        public string Name { get; set; }
+
+        public override string StatusText
+        {
+            get
+            {
+                return string.Concat(this.GetType().Name, ": ", statusText);
+            }
+
+            set
+            {
+                statusText = value;
+            }
         }
 
         protected internal static LocalPlayer Me

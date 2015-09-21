@@ -35,6 +35,8 @@
 
         public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
+            tag.StatusText = "Moving from " + this;
+
             var result = true;
             if (ReturnToStealthLocation)
             {
@@ -51,6 +53,8 @@
 
         public async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
+            tag.StatusText = "Moving to " + this;
+
             if (StealthLocation == Vector3.Zero)
             {
                 return false;

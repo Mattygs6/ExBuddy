@@ -238,11 +238,17 @@
 
         protected override void OnResetCachedDone()
         {
-            if (!isDone)
-            {
-                Logger.Info("Resetting.");
-            }
+            // TODO: find out why this method gets called about 5000 times a minute.
+            ////if (!isDone)
+            ////{
+            ////    Logger.Info("Resetting Caches -> Name: " + Name);
+            ////}
+            ////else
+            ////{
+            ////    Logger.Info("Resetting Cached Done -> Name: " + Name);
+            ////}
 
+            StatusText = string.Empty;
             interactedWithNode = false;
             isDone = false;
             loopCount = 0;
@@ -292,6 +298,27 @@
             {
                 CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
             }
+
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                if (Collectables != null && Collectables.Count > 0)
+                {
+                    Name = Collectables.First().Name;
+                }
+                else if (ItemNames != null && ItemNames.Count > 0)
+                {
+                    Name = ItemNames.First();
+                }
+                else
+                {
+                    Name = string.Format(
+                        "ZoneId [{0}], Calling Location {1}",
+                        WorldManager.ZoneId,
+                        Core.Player.Location);
+                }
+            }
+
+            StatusText = Name;
 
             poiCoroutine = new ActionRunCoroutine(ctx => ExecutePoiLogic());
             TreeHooks.Instance.AddHook("PoiAction", poiCoroutine);
@@ -379,6 +406,8 @@
         {
             if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Me.Location))
             {
+                StatusText = "Moving to hotspot at " + HotSpots.CurrentOrDefault;
+
                 //return lets try not caring if we succeed on the move
                 await
                 Behaviors.MoveTo(
@@ -609,6 +638,8 @@
             {
                 return false;
             }
+
+            StatusText = "Searching for nodes";
 
             while (Behaviors.ShouldContinue)
             {
@@ -892,6 +923,8 @@
                 var gpNeededTicks = gpNeeded / 5;
                 var gpNeededSeconds = gpNeededTicks * 3;
 
+                StatusText = "Waiting for GP";
+
                 Logger.Info(
                     "Waiting for GP -> Seconds: {0}, Current GP: {1}, WaitForGP: {2}",
                     gpNeededSeconds,
@@ -986,6 +1019,8 @@
 
                 if (cordial != null)
                 {
+                    StatusText = "Using cordial when it becomes available";
+
                     Logger.Info("Using Cordial -> Waiting (sec): {0}, CurrentGP: {1}", (int)CordialSpellData.Cooldown.TotalSeconds, Me.CurrentGP);
 
                     if (await Coroutine.Wait(
@@ -1019,7 +1054,7 @@
 
         private async Task<bool> InteractWithNode()
         {
-            await Coroutine.Wait(1000, () => Actionmanager.CanMount == 0);
+            StatusText = "Interacting with node";
 
             var attempts = 0;
             while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)

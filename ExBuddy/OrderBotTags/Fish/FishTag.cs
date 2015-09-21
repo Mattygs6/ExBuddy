@@ -23,7 +23,6 @@ namespace ExBuddy.OrderBotTags.Fish
     using ff14bot;
     using ff14bot.Behavior;
     using ff14bot.Enums;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.RemoteWindows;
     using ff14bot.Settings;
@@ -281,6 +280,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
         protected override void OnResetCachedDone()
         {
+            StatusText = string.Empty;
             isDone = false;
             mooch = 0;
             sitRoll = 1.0;

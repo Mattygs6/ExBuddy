@@ -116,6 +116,7 @@
     <Compile Include="OrderBotTags\Gather\GatherStrategy.cs" />
     <Compile Include="Interfaces\IGatheringRotation.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
+    <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />
     <Compile Include="RemoteAgents\Agent{T}.cs" />
     <Compile Include="RemoteAgents\Desynthesis.cs" />
     <Compile Include="RemoteWindows\Bait.cs" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="Data\msd.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_IlluminatiPerch.xml" />

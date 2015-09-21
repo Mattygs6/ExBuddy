@@ -64,6 +64,8 @@
 
         public virtual async Task<bool> Gather(GatherCollectableTag tag)
         {
+            tag.StatusText = "Gathering items";
+
             while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
             {
                 await Wait();
@@ -93,6 +95,8 @@
                     await Coroutine.Yield();
                 }
             }
+
+            tag.StatusText = "Gathering items complete";
 
             return true;
         }

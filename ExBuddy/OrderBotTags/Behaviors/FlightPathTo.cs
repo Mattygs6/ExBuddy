@@ -85,6 +85,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return true;
             }
 
+            StatusText = "Generating Path";
+
             FlightPath path;
             if (FlightPath.Paths.TryGetValue(flightPath.Key, out path))
             {
@@ -111,6 +113,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (flightPath.Count > 0)
             {
+                StatusText = "Target: " + Target;
                 do
                 {
                     if (flightPath.Current.IsDeviation)
@@ -124,7 +127,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
                     await MoveToWithinRadius(flightPath.Current, Radius);
                 }
-
                 while (flightPath.Next());
 
                 flightPath.Reset();
@@ -189,6 +191,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         public async Task<bool> ForceLand()
         {
+            StatusText = "Landing";
             landingStopwatch.Restart();
             while (MovementManager.IsFlying && Behaviors.ShouldContinue)
             {
@@ -213,6 +216,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         protected override void OnResetCachedDone()
         {
+            StatusText = string.Empty;
             isDone = false;
         }
     }

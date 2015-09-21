@@ -79,6 +79,8 @@
 
         public override async Task<bool> Gather(GatherCollectableTag tag)
         {
+            tag.StatusText = "Gathering collectable items";
+
             var rarity = CurrentRarity;
             while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
             {
@@ -130,6 +132,8 @@
                     await Coroutine.Yield();
                 }
             }
+
+            tag.StatusText = "Gathering collectable items complete";
 
             return true;
         }

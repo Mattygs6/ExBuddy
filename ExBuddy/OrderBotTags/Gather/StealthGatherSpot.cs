@@ -28,6 +28,8 @@ namespace ExBuddy.OrderBotTags.Gather
 
         public virtual async Task<bool> MoveFromSpot(GatherCollectableTag tag)
         {
+            tag.StatusText = "Moving from " + this;
+
             if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
             {
                 return await tag.CastAura(Ability.Stealth);
@@ -38,6 +40,8 @@ namespace ExBuddy.OrderBotTags.Gather
 
         public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
         {
+            tag.StatusText = "Moving to " + this;
+
             var result = await Behaviors.MoveTo(
                 NodeLocation,
                 UseMesh,

@@ -532,7 +532,7 @@
                 await Coroutine.Yield();
             }
 
-            if (!FreeRange && (HandleDeath() || HotSpots == null || HotSpots.Count == 0 || (Node != null && IsUnspoiled() && interactedWithNode)))
+            if (!FreeRange && (HotSpots == null || HotSpots.Count == 0 || (Node != null && IsUnspoiled() && interactedWithNode)))
             {
                 isDone = true;
             }

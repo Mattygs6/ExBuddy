@@ -2,12 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using ExBuddy.Attributes;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
     using ff14bot.Objects;
 

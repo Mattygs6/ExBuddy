@@ -149,7 +149,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
             {
                 if (MountId > 0)
                 {
-                    await CommonTasks.MountUp((uint)MountId);
+                    if (!await CommonTasks.MountUp((uint)MountId))
+                    {
+                        await CommonTasks.MountUp();
+                    }
                 }
                 else
                 {

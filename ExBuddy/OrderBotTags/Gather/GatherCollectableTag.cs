@@ -247,6 +247,7 @@
             isDone = false;
             loopCount = 0;
             NodesGatheredAtMaxGp = 0;
+            HotSpots.Index = 0;
             ResetInternal();
         }
 

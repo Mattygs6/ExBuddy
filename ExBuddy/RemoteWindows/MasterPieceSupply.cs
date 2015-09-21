@@ -1,12 +1,15 @@
 ﻿namespace ExBuddy.RemoteWindows
 {
+    using System;
     using System.Threading.Tasks;
 
     using Buddy.Coroutines;
 
     using ExBuddy.Enums;
     using ExBuddy.Helpers;
+    using ExBuddy.Logging;
 
+    using ff14bot;
     using ff14bot.Enums;
     using ff14bot.Managers;
     using ff14bot.RemoteWindows;
@@ -16,6 +19,14 @@
         public MasterPieceSupply()
             : base("MasterPieceSupply")
         {
+        }
+
+        public static uint CurrentRequestWindowItemId
+        {
+            get
+            {
+                return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x0103FD7C);
+            }
         }
 
         public static uint GetClassIndex(ClassJobType classJobType)
@@ -72,13 +83,22 @@
                 return false;
             }
 
-            // Try waiting an extra second for it to open in case interval was set really low.
+            // Try waiting half of the overall set time, up to 3 seconds
             if (!Request.IsOpen)
             {
-                if (!await Coroutine.Wait(1000, () => Request.IsOpen))
+                if (!await Coroutine.Wait(Math.Min(3000, (interval * attempts) /2), () => Request.IsOpen))
                 {
+                    Logger.Instance.Warn("[MasterPieceSupply] Collectability '{0}' is probably too low to turn in {1}", bagSlot.Collectability, bagSlot.EnglishName);
                     return false;
                 }
+            }
+
+            if (CurrentRequestWindowItemId != bagSlot.RawItemId)
+            {
+                Request.Cancel();
+                var item = DataManager.GetItem(CurrentRequestWindowItemId);
+                Logger.Instance.Warn("[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'", bagSlot.EnglishName, item.EnglishName);
+                return false;
             }
 
             requestAttempts = 0;

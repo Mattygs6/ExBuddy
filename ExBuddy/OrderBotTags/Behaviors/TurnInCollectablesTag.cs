@@ -72,6 +72,16 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
         protected override void OnDone()
         {
+            if (SelectYesno.IsOpen)
+            {
+                SelectYesno.ClickNo();
+            }
+
+            if (Request.IsOpen)
+            {
+                Request.Cancel();
+            }
+
             if (MasterPieceSupply.IsOpen)
             {
                 MasterPieceSupply.Close();
@@ -372,10 +382,22 @@ namespace ExBuddy.OrderBotTags.Behaviors
             if (!await masterpieceSupply.TurnInAndHandOver(index, item))
             {
                 Logger.Error("An error has occured while turning in the item");
-                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, most likely it isn't a turn in option today.");
+                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes");
                 item = null;
                 index = 0;
-                SelectYesno.ClickNo();
+
+                if (SelectYesno.IsOpen)
+                {
+                    SelectYesno.ClickNo();
+                    await Coroutine.Sleep(200);
+                }
+
+                if (Request.IsOpen)
+                {
+                    Request.Cancel();
+                    await Coroutine.Sleep(200);
+                }
+
                 return true;
             }
 
@@ -386,6 +408,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 item = null;
                 index = 0;
                 SelectYesno.ClickNo();
+                await Coroutine.Yield();
+                Request.Cancel();
+                await Coroutine.Yield();
                 return true;
             }
 

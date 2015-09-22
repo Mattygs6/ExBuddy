@@ -83,12 +83,21 @@
                 return false;
             }
 
+            if (interval <= 33)
+            {
+                await Coroutine.Yield();
+            }
+            else
+            {
+                await Coroutine.Sleep(interval);
+            }
+
             // Try waiting half of the overall set time, up to 3 seconds
             if (!Request.IsOpen)
             {
                 if (!await Coroutine.Wait(Math.Min(3000, (interval * attempts) /2), () => Request.IsOpen))
                 {
-                    Logger.Instance.Warn("[MasterPieceSupply] Collectability '{0}' is probably too low to turn in {1}", bagSlot.Collectability, bagSlot.EnglishName);
+                    Logger.Instance.Warn("[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.", bagSlot.Collectability, bagSlot.EnglishName);
                     return false;
                 }
             }
@@ -125,6 +134,12 @@
                     await Coroutine.Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
                 }
                 
+            }
+
+            if (SelectYesno.IsOpen)
+            {
+                Logger.Instance.Warn("[MasterPieceSupply] Not turning in '{0}', full on scrips.", bagSlot.EnglishName);
+                return false;
             }
 
             return !Request.IsOpen;

@@ -11,14 +11,68 @@
 
     using ExBuddy.Logging;
 
+    using ff14bot.Managers;
+
     public static class Condition
     {
+        public static readonly TimeSpan OneDay = new TimeSpan(1, 0, 0, 0);
+
         static Condition()
         {
             AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
         }
 
         private static readonly ConcurrentDictionary<int, ConditionTimer> Timers = new ConcurrentDictionary<int, ConditionTimer>();
+
+        public static bool Any(params object[] param)
+        {
+            if (param == null || param.Length == 0)
+            {
+                return false;
+            }
+
+            return param.Any(IsTrue);
+        }
+
+        public static bool All(params object[] param)
+        {
+            if (param == null || param.Length == 0)
+            {
+                return false;
+            }
+
+            return param.All(IsTrue);
+        }
+
+        public static bool IsTrue(this object value)
+        {
+            var result = string.Concat(value).ConvertToBoolean().GetValueOrDefault();
+            return result;
+        }
+
+        // Is overnight between =)
+        public static bool IsTimeBetween(double start, double end)
+        {
+            if (Math.Abs(start - end) < double.Epsilon)
+            {
+                return false;
+            }
+
+            start = start.Clamp(0, 24);
+            end = end.Clamp(0, 24);
+
+            var eorzea = WorldManager.EorzaTime.TimeOfDay;
+            var startTimeOffset = TimeSpan.FromHours(start);
+            var endTimeOffset = TimeSpan.FromHours(end);
+
+            if (start > end)
+            {
+                endTimeOffset += OneDay;
+            }
+
+            return eorzea.InRange(startTimeOffset, endTimeOffset);
+        }
+
         public static bool TrueFor(int id, TimeSpan span)
         {
             ConditionTimer timer;
@@ -38,7 +92,7 @@
             return true;
         }
 
-        public static void AddNamespacesToScriptManager(params string[] param)
+        internal static void AddNamespacesToScriptManager(params string[] param)
         {
             var field = typeof(ScriptManager)
                 .GetFields(BindingFlags.Static | BindingFlags.NonPublic)

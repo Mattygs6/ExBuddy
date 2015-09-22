@@ -2,14 +2,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Windows.Media;
 
     using ExBuddy.Attributes;
     using ExBuddy.Helpers;
     using ExBuddy.Interfaces;
 
     using ff14bot;
-    using ff14bot.Helpers;
     using ff14bot.Managers;
 
     // TODO: if can peek, then we need to allow it to redo beforegather logic

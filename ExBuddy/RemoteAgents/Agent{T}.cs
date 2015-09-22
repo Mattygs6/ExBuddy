@@ -22,7 +22,12 @@
             }
         }
 
-        public void Toggle()
+        public static void Toggle()
+        {
+            new T().ToggleInstance();
+        }
+
+        public void ToggleInstance()
         {
             this.agentInterface.Toggle();
         }

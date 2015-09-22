@@ -226,7 +226,7 @@
                                         }
                                         else
                                         {
-                                            if (totalLandingStopwatch.ElapsedMilliseconds > 20000)
+                                            if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
                                             {
                                                 Logger.Error("Landing failed. Passing back control.");
                                                 return;

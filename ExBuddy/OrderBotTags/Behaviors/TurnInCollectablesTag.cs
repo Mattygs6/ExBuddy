@@ -401,19 +401,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 return true;
             }
 
-            if (SelectYesno.IsOpen)
-            {
-                Logger.Error("Full on scrips!");
-                Blacklist.Add((uint)item.Pointer.ToInt32(), BlacklistFlags.Loot, TimeSpan.FromMinutes(3), "Don't turn in this item for 3 minutes, we are full on these scrips");
-                item = null;
-                index = 0;
-                SelectYesno.ClickNo();
-                await Coroutine.Yield();
-                Request.Cancel();
-                await Coroutine.Yield();
-                return true;
-            }
-
             Logger.Info(
                 "Turned in {0} at {1} ET",
                 itemName,

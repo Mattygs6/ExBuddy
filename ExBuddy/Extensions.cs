@@ -6,7 +6,6 @@
     using System.Reflection;
     using System.Security.Cryptography;
     using System.Text;
-    using System.Windows.Media;
 
     using Clio.Common;
     using Clio.Utilities;
@@ -16,13 +15,89 @@
     using ExBuddy.Logging;
 
     using ff14bot;
-    using ff14bot.Helpers;
+    using ff14bot.Enums;
     using ff14bot.Managers;
 
     using GreyMagic;
 
     public static partial class Extensions
     {
+        /// <summary>
+        /// Restricts a value to be within a specified range.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <param name="min">The minimum value. If <c>value</c> is less than <c>min</c>, <c>min</c> will be returned.</param>
+        /// <param name="max">The maximum value. If <c>value</c> is greater than <c>max</c>, <c>max</c> will be returned.</param>
+        /// <returns>The clamped value.</returns>
+        public static double Clamp(this double value, double min, double max)
+        {
+            // First we check to see if we're greater than the max
+            value = (value > max) ? max : value;
+
+            // Then we check to see if we're less than the min.
+            value = (value < min) ? min : value;
+
+            // There's no check to see if min > max.
+            return value;
+        }
+
+        /// <summary>
+        /// Restricts a value to be within a specified range.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <param name="min">The minimum value. If <c>value</c> is less than <c>min</c>, <c>min</c> will be returned.</param>
+        /// <param name="max">The maximum value. If <c>value</c> is greater than <c>max</c>, <c>max</c> will be returned.</param>
+        /// <returns>The clamped value.</returns>
+        public static float Clamp(this float value, float min, float max)
+        {
+            // First we check to see if we're greater than the max
+            value = (value > max) ? max : value;
+
+            // Then we check to see if we're less than the min.
+            value = (value < min) ? min : value;
+
+            // There's no check to see if min > max.
+            return value;
+        }
+
+        /// <summary>
+        /// Restricts a value to be within a specified range.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <param name="min">The minimum value. If <c>value</c> is less than <c>min</c>, <c>min</c> will be returned.</param>
+        /// <param name="max">The maximum value. If <c>value</c> is greater than <c>max</c>, <c>max</c> will be returned.</param>
+        /// <returns>The clamped value.</returns>
+        public static int Clamp(this int value, int min, int max)
+        {
+            // First we check to see if we're greater than the max
+            value = (value > max) ? max : value;
+
+            // Then we check to see if we're less than the min.
+            value = (value < min) ? min : value;
+
+            // There's no check to see if min > max.
+            return value;
+        }
+
+        /// <summary>
+        ///     String conversion to typeof nulllable(bool) utility
+        /// </summary>
+        /// <param name="input">String version of the object</param>
+        /// <returns>string param as nullable bool</returns>
+        /// <example>View code: <br />
+        ///     bool? id = "true".ConvertToBoolean();<br />
+        ///     bool? id = Extensions.ConvertToBoolean("true");<br />
+        /// </example>
+        public static bool? ConvertToBoolean(this string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                return string.Equals(input, bool.TrueString, StringComparison.OrdinalIgnoreCase) || string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Creates the instance.
         /// </summary>
@@ -120,6 +195,11 @@
             return defaultValue;
         }
 
+        public static bool InRange<T>(this T value, T from, T to) where T : IComparable<T>
+        {
+            return value.CompareTo(from) >= 1 && value.CompareTo(to) <= -1;
+        }
+
         public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params uint[] param)
         {
             if (window == null || !window.IsValid)
@@ -143,6 +223,18 @@
         {
             if (gatheringItem.IsUnknown || gatheringItem.Chance == 25)
             {
+                return true;
+            }
+
+            if (!gatheringItem.IsFilled && gatheringItem.Unk2 != byte.MaxValue && gatheringItem.Unk1 == uint.MaxValue)
+            {
+                if (gatheringItem.Chance <= 0)
+                {
+                    Logger.Instance.Warn("Found unknown item in slot {0}, but it seems we don't have enough gathering skill. Check the node for more information. Gathering: {1}", gatheringItem.SlotIndex + 1 ,Core.Player.Stats.Gathering);
+                    return false;
+                }
+
+                Logger.Instance.Info("Found unknown item in slot {0}", gatheringItem.SlotIndex + 1);
                 return true;
             }
 

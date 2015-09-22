@@ -182,7 +182,7 @@ namespace ExBuddy.Helpers
             if (useMesh)
             {
                 var moveResult = MoveResult.GeneratingPath;
-                while (ShouldContinue && (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius) || (stopCallback == DontStopInRange && (moveResult != MoveResult.Done || moveResult != MoveResult.ReachedDestination))))
+                while (ShouldContinue && (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius) || (stopCallback == DontStopInRange && !(moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination))))
                 {
                     moveResult = Navigator.MoveTo(destination, name);
                     await Coroutine.Yield();

@@ -1029,7 +1029,6 @@
                         {
                             if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 0.5)
                             {
-                                Logger.Info("Dismounting to use cordial.");
                                 Actionmanager.Dismount();
                                 return false;
                             }
@@ -1105,6 +1104,7 @@
 
             if (!await ResolveGatherItem())
             {
+                await CloseGatheringWindow();
                 ResetInternal();
                 return false;
             }
@@ -1198,6 +1198,9 @@
                 {
                     return true;
                 }
+
+                Logger.Warn("Inventory is full and no shards/crystals/clusters to gather. Gathering complete.");
+                return false;
             }
 
             if (DiscoverUnknowns)

@@ -20,6 +20,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await DiscerningMethodical(tag);
                 tag.Logger.Info("Post non-plus Rarity: " + (rarity = CurrentRarity));
             }
+
             var level = Core.Player.ClassLevel;
 
             if (rarity >= 119 && rarity <= 124)
@@ -28,11 +29,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Try Harder", TryHarder);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -42,11 +43,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Try Hard", TryHard);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -56,11 +57,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get One", GetOne);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -75,11 +76,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get One", GetOne);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -94,11 +95,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get One", GetOne);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -114,6 +115,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -123,7 +125,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get Two+", GetTwoPlus);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
@@ -131,18 +132,17 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 return true;
             }
 
-
             if (rarity >= 161 && rarity <= 168)
             {
                 if (level >= 57)
                 {
                     await CallRotation(tag, "Get Two Alternate", GetTwoPlusPlusAlternate);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
 
@@ -151,9 +151,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get Two++", GetTwoPlusPlus);
                 }
+
                 return true;
             }
-
 
             if (rarity >= 169)
             {
@@ -161,15 +161,13 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 {
                     await CallRotation(tag, "Get Three", GetThree);
                 }
-
                 else
                 {
                     await CallRotation(tag, "Get Two", GetTwo);
                 }
+
                 return true;
             }
-
-
 
             return false;
         }
@@ -193,7 +191,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await DiscerningMethodical(tag);
                 await IncreaseChance(tag);
             }
-
             else
             {
                 tag.Logger.Info("No Discerning Eye Proc!");
@@ -201,6 +198,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
                 await UtmostMethodical(tag);
                 await IncreaseChance(tag);
             }
+
             return true;
         }
 
@@ -244,7 +242,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
             await UtmostMethodical(tag);
             await IncreaseChance(tag);
             return true;
-
         }
 
         public async Task<bool> GetOnePlusPlus(GatherCollectableTag tag)
@@ -292,21 +289,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
         public async Task<bool> GetTwoPlusPlus(GatherCollectableTag tag)
         {
             //Get Two++ - Level 57 Minimum
-            {
-                await Discerning(tag);
-                await AppraiseAndRebuff(tag);
-                await AppraiseAndRebuff(tag);
-                await Methodical(tag);
-                await IncreaseChance(tag);
-                return true;
-            }
+            await Discerning(tag);
+            await AppraiseAndRebuff(tag);
+            await AppraiseAndRebuff(tag);
+            await Methodical(tag);
+            await IncreaseChance(tag);
+            return true;
         }
 
         public async Task<bool> GetThree(GatherCollectableTag tag)
         {
             //Get Three - Level 57 Minimum
-            await SingleMindMethodical(tag);
             await DiscerningMethodical(tag);
+            await SingleMindMethodical(tag);
             await IncreaseChance(tag);
             return true;
         }

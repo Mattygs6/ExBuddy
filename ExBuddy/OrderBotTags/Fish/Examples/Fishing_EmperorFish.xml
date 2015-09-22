@@ -1,0 +1,50 @@
+<Profile>
+    <Name>Fishing: Emperor Fish</Name>
+    <KillRadius>50</KillRadius>
+    <CodeChunks>
+      <CodeChunk Name="Gear">
+        <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
+      </CodeChunk>
+    </CodeChunks>
+    <Order>
+      <RunCode Name="Gear"/>
+      <WaitTimer WaitTime="3"/>
+      <If Condition="not IsOnMap(155)">
+        <TeleportTo Name="Camp Dragonhead" AetheryteId="23" />
+      </If>
+      <!-- Default keys : ConfirmKey="Numpad0" MoveCursorRightKey="Numpad6" -->
+      <Fish Mooch="1" MinFish="16" MaxFish="20" ConfirmKey="Return" MoveCursorRightKey="Right" Patience="Patience">
+        <Baits>
+			<Bait name="Stonefly Nymph" condition="Core.Player.HasAura(850)"/>
+			<Bait name="Purse Web Spider" condition="Core.Player.HasAura(850)"/>
+			<!-- not worth using Brute Leech in my opinion, but listing as an option -->
+			<!--<Bait name="Brute Leech" condition="Core.Player.HasAura(850)"/>-->
+			<Bait name="Syphid Basket" condition="Core.Player.HasAura(850)"/>
+			<Bait name="Crow Fly"/>
+			<Bait name="Floating Minnow"/>
+			<Bait name="Brass spoon lure"/>
+			<Bait name="Chocobo Fly"/>
+			<Bait name="Syphid Basket"/>
+			<Bait name="Stonefly Nymph"/>
+			<Bait name="Purse Web Spider"/>
+			<!-- not worth using Brute Leech in my opinion, but listing as an option -->
+			<!--<Bait name="Brute Leech"/>-->
+			<Bait name="Moth Pupa"/>
+			<Bait name="Crayfish Ball"/>
+			<Bait name="Blood Worm"/>
+			<Bait name="Midge Basket"/>
+			<Bait name="Butterworm"/>
+			<Bait name="Bass Ball"/>
+        </Baits>
+        <Keepers>
+          <Keeper Name="Emperor Fish"/>
+          <Keeper Name="Kissing Trout"/>
+        </Keepers>
+        <FishSpots>
+          <FishSpot XYZ="-270.343, 248.1275, 10.44817" Heading="5.904455" />
+          <FishSpot XYZ="-284.9203, 243.0462, 8.502392" Heading="0.5728002" />
+          <FishSpot XYZ="-300.7931, 242.6346, 28.93007" Heading="1.462483" />
+        </FishSpots>
+      </Fish>
+    </Order>
+</Profile>

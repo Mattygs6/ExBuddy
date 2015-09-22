@@ -58,24 +58,10 @@
                 result = TurnIn(index);
                 if (result == SendActionResult.InjectionError)
                 {
-                    if (interval <= 33)
-                    {
-                        await Coroutine.Yield();
-                    }
-                    else
-                    {
-                        await Coroutine.Sleep(interval);    
-                    }
+                    await Sleep(interval);
                 }
 
-                if (interval <= 33)
-                {
-                    await Coroutine.Yield();
-                }
-                else
-                {
-                    await Coroutine.Wait(interval, () => Request.IsOpen);
-                }
+                await Wait(interval, () => Request.IsOpen);
             }
 
             if (result != SendActionResult.Success || requestAttempts > attempts)
@@ -83,14 +69,7 @@
                 return false;
             }
 
-            if (interval <= 33)
-            {
-                await Coroutine.Yield();
-            }
-            else
-            {
-                await Coroutine.Sleep(interval);
-            }
+            await Sleep(interval);
 
             // Try waiting half of the overall set time, up to 3 seconds
             if (!Request.IsOpen)
@@ -114,26 +93,12 @@
             while (Request.IsOpen && requestAttempts++ < attempts && Behaviors.ShouldContinue && bagSlot.Item != null)
             {
                 bagSlot.Handover();
-                if (interval <= 33)
-                {
-                    await Coroutine.Yield();
-                }
-                else
-                {
-                    await Coroutine.Wait(interval, () => Request.HandOverButtonClickable);
-                }
+
+                await Wait(interval, () => Request.HandOverButtonClickable);
 
                 Request.HandOver();
 
-                if (interval <= 33)
-                {
-                    await Coroutine.Yield();
-                }
-                else
-                {
-                    await Coroutine.Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
-                }
-                
+                await Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
             }
 
             if (SelectYesno.IsOpen)

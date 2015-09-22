@@ -90,13 +90,13 @@
             }
         }
 
-        public SendActionResult CloseInstance()
+        public virtual SendActionResult CloseInstance()
         {
             Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
 
             var result = TrySendAction(1, 3, uint.MaxValue);
 
-            if (result == SendActionResult.Success)
+            if (result == SendActionResult.Success && !IsValid)
             {
                 Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
             }
@@ -104,21 +104,27 @@
             return result;
         }
 
-        public async Task<bool> CloseInstanceGently(byte maxTicks = 10, ushort interval = 200)
+        public virtual async Task<bool> CloseInstanceGently(byte maxTicks = 10, ushort interval = 200)
         {
             if (!IsValid)
             {
                 return true;
             }
 
-            await Wait(interval);
+            await Sleep(interval);
 
             if (CloseInstance() == SendActionResult.Success)
             {
-                return true;
+                Refresh();
+                await Coroutine.Yield();
+
+                if (!IsValid)
+                {
+                    return true;
+                }
             }
 
-            await Wait(interval);
+            await Sleep(interval);
 
             var result = SendActionResult.None;
             var ticks = 0;
@@ -130,13 +136,14 @@
                 }
 
                 result = CloseInstance();
-                await Wait(interval);
+                Refresh();
+                await Sleep(interval);
             }
 
-            return result > SendActionResult.InjectionError;
+            return result > SendActionResult.InjectionError && !IsValid;
         }
 
-        public SendActionResult TrySendAction(int pairCount, params uint[] param)
+        public virtual SendActionResult TrySendAction(int pairCount, params uint[] param)
         {
             return Control.TrySendAction(pairCount, param);
         }
@@ -153,7 +160,7 @@
             return await Coroutine.Wait(timeoutMs, () => Refresh().IsValid);
         }
 
-        protected async Task Wait(int interval)
+        protected async Task Sleep(int interval)
         {
             if (interval <= 33)
             {
@@ -162,6 +169,18 @@
             else
             {
                 await Coroutine.Sleep(interval);
+            }
+        }
+
+        protected async Task Wait(int interval, Func<bool> condition)
+        {
+            if (interval <= 33)
+            {
+                await Coroutine.Yield();
+            }
+            else
+            {
+                await Coroutine.Wait(interval, condition);
             }
         }
     }

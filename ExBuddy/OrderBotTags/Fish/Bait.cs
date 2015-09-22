@@ -8,6 +8,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
     using Clio.Utilities;
 
+    using ff14bot;
     using ff14bot.Managers;
 
     [XmlRoot(IsNullable = true, Namespace = "")]
@@ -53,6 +54,11 @@ namespace ExBuddy.OrderBotTags.Fish
             }
 
             if (BaitItem == null || BaitItem.ItemCount() == 0)
+            {
+                return false;
+            }
+
+            if (Core.Player.ClassLevel < BaitItem.RequiredLevel)
             {
                 return false;
             }

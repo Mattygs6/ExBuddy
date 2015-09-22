@@ -5,6 +5,7 @@ namespace ExBuddy.Enums
         None = 0,
         InjectionError = 1,
         InvalidWindow = 2,
-        Success = 3
+        UnexpectedResult = 3,
+        Success = 4
     }
 }

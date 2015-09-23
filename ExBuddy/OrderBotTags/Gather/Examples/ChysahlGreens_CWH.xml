@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <!DOCTYPE Profile [
-	<!ENTITY Collect_Chysahl "1">
-	<!ENTITY TurnInAfterLoop "1">
+<!ENTITY Collect_Chysahl "1">
+<!ENTITY TurnInAfterLoop "1">
 ]>
 <Profile>
 	<Name>Collectable: Chysahl Greens</Name>
@@ -36,10 +37,10 @@
 	<Order>
 		<While condition="True">
 			<If condition="IsTimeBetween(8,10) or IsTimeBetween(20,22)">
-				<RunCode name="Gear"/>
+				<RunCode name="Gear" />
 				<If condition="not IsOnMap(397)">
 					<TeleportTo name="Falcon's Nest" aetheryteId="71" />
-					<MoveTo XYZ="467.8192, 212.5399, 699.0173"/>
+					<MoveTo XYZ="467.8192, 212.5399, 699.0173" />
 				</If>
 				<If condition="&Collect_Chysahl; != 0">
 					<GatherCollectable loops="1" spawnTimeout="360">
@@ -51,7 +52,7 @@
 						</Collectables>
 						<GatherRotation>Collect470</GatherRotation>
 						<HotSpots>
-							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046" />
 						</HotSpots>
 					</GatherCollectable>
 				</If>
@@ -65,7 +66,7 @@
 						</ItemNames>
 						<GatherRotation>Unspoiled</GatherRotation>
 						<HotSpots>
-							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046"/>
+							<HotSpot Radius="90" XYZ="-684.4172, 130.6977, -600.1046" />
 						</HotSpots>
 					</GatherCollectable>
 				</If>
@@ -78,8 +79,8 @@
 						</ShopPurchases>
 					</TurnInCollectables>
 				</If>
-				<LogMessage message="Stop being so lazy!"/>
-				<WaitWhile condition="IsTimeBetween(22,8) or IsTimeBetween(10,20)"/>
+				<LogMessage message="Stop being so lazy!" />
+				<WaitWhile condition="IsTimeBetween(22,8) or IsTimeBetween(10,20)" />
 			</If>
 		</While>
 	</Order>

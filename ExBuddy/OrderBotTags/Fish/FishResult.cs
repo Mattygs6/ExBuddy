@@ -1,58 +1,58 @@
 ﻿namespace ExBuddy.OrderBotTags.Fish
 {
-    using System;
+	using System;
 
-    using ExBuddy.Enums;
+	using ExBuddy.Enums;
 
-    public class FishResult
-    {
-        public bool IsHighQuality { get; set; }
+	public class FishResult
+	{
+		public bool IsHighQuality { get; set; }
 
-        public string Name { get; set; }
+		public string Name { get; set; }
 
-        public float Size { get; set; }
+		public float Size { get; set; }
 
-        public string FishName
-        {
-            get
-            {
-                if (IsHighQuality)
-                {
-                    return Name.Substring(0, Name.Length - 2);
-                }
+		public string FishName
+		{
+			get
+			{
+				if (IsHighQuality)
+				{
+					return Name.Substring(0, Name.Length - 2);
+				}
 
-                return Name;
-            }
-        }
+				return Name;
+			}
+		}
 
-        public bool IsKeeper(Keeper keeper)
-        {
-            if (!string.Equals(keeper.Name, FishName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return false;
-            }
+		public bool IsKeeper(Keeper keeper)
+		{
+			if (!string.Equals(keeper.Name, FishName, StringComparison.InvariantCultureIgnoreCase))
+			{
+				return false;
+			}
 
-            if ((!keeper.Action.HasFlag(KeeperAction.KeepHq) && IsHighQuality))
-            {
-                return false;
-            }
+			if ((!keeper.Action.HasFlag(KeeperAction.KeepHq) && IsHighQuality))
+			{
+				return false;
+			}
 
-            if ((!keeper.Action.HasFlag(KeeperAction.KeepNq) && !IsHighQuality))
-            {
-                return false;
-            }
+			if ((!keeper.Action.HasFlag(KeeperAction.KeepNq) && !IsHighQuality))
+			{
+				return false;
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        public bool ShouldMooch(Keeper keeper)
-        {
-            if (!keeper.Action.HasFlag((KeeperAction)0x04))
-            {
-                return false;
-            }
+		public bool ShouldMooch(Keeper keeper)
+		{
+			if (!keeper.Action.HasFlag((KeeperAction)0x04))
+			{
+				return false;
+			}
 
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 }

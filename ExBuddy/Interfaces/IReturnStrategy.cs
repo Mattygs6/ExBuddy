@@ -1,19 +1,19 @@
 namespace ExBuddy.Interfaces
 {
-    using System.Threading.Tasks;
+	using System.Threading.Tasks;
 
-    using Clio.Utilities;
+	using Clio.Utilities;
 
-    public interface IReturnStrategy
-    {
-        ushort ZoneId { get; set; }
+	public interface IReturnStrategy
+	{
+		ushort ZoneId { get; set; }
 
-        uint AetheryteId { get; set; }
+		uint AetheryteId { get; set; }
 
-        Vector3 InitialLocation { get; set; }
+		Vector3 InitialLocation { get; set; }
 
-        Task<bool> ReturnToZone();
+		Task<bool> ReturnToZone();
 
-        Task<bool> ReturnToLocation();
-    }
+		Task<bool> ReturnToLocation();
+	}
 }

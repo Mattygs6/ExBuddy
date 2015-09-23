@@ -1,122 +1,124 @@
 ﻿namespace ExBuddy.Logging
 {
-    using System;
-    using System.Globalization;
-    using System.Reflection;
+	using System;
+	using System.Globalization;
+	using System.Reflection;
 
-    using Clio.Utilities;
+	using Clio.Utilities;
 
-    using ExBuddy.Attributes;
-    using ExBuddy.Interfaces;
-    using Logging = ff14bot.Helpers.Logging;
+	using ExBuddy.Attributes;
+	using ExBuddy.Interfaces;
 
-    public sealed class Logger
-    {
-        public static readonly LogColors Colors = new LogColors();
-        public static readonly Logger Instance = new Logger(new LogColors(), "ExBuddy");
-        internal static readonly Version Version;
-        private readonly ILogColors logColors;
+	using ff14bot.Helpers;
 
-        static Logger()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            if (assembly.IsDefined(typeof(AssemblyFileVersionAttribute)))
-            {
-                try
-                {
-                    var versionAttr = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
-                    Version = new Version(versionAttr.Version);
-                    return;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
+	public sealed class Logger
+	{
+		public static readonly LogColors Colors = new LogColors();
 
-            // Give a generic version here, won't need to worry about this if i switch to using a dll.
-            Version = new Version(3, 0, 7);
-        }
+		public static readonly Logger Instance = new Logger(new LogColors(), "ExBuddy");
 
-        public Logger()
-            : this(new LogColors())
-        {
-        }
+		internal static readonly Version Version;
 
-        public Logger(ILogColors logColors, string name = null, bool includeVersion = false)
-        {
-            this.logColors = logColors;
-            IncludeVersion = includeVersion;
+		private readonly ILogColors logColors;
 
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                Name = name;
-                return;
-            }
+		static Logger()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			if (assembly.IsDefined(typeof(AssemblyFileVersionAttribute)))
+			{
+				try
+				{
+					var versionAttr = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+					Version = new Version(versionAttr.Version);
+					return;
+				}
+				catch
+				{
+					// ignored
+				}
+			}
 
-            var type = logColors.GetType();
-            Name = type.GetCustomAttributePropertyValue<LoggerNameAttribute, string>(attr => attr.Name, type.Name);
-        }
+			// Give a generic version here, won't need to worry about this if i switch to using a dll.
+			Version = new Version(3, 0, 7);
+		}
 
-        public bool IncludeVersion { get; private set; }
+		public Logger()
+			: this(new LogColors()) {}
 
-        public string Name { get; private set; }
+		public Logger(ILogColors logColors, string name = null, bool includeVersion = false)
+		{
+			this.logColors = logColors;
+			IncludeVersion = includeVersion;
 
-        private string Prefix
-        {
-            get
-            {
-                if (IncludeVersion)
-                {
-                    return string.Format("[{0} v{1}] ", Name, Version);
-                }
+			if (!string.IsNullOrWhiteSpace(name))
+			{
+				Name = name;
+				return;
+			}
 
-                return string.Format("[{0}] ", Name);
-            }
-        }
+			var type = logColors.GetType();
+			Name = type.GetCustomAttributePropertyValue<LoggerNameAttribute, string>(attr => attr.Name, type.Name);
+		}
 
-        public void Verbose(string message)
-        {
-            Logging.WriteVerbose(logColors.Info, Prefix + message);
-        }
+		public bool IncludeVersion { get; private set; }
 
-        [StringFormatMethod("format")]
-        public void Verbose(string format, params object[] args)
-        {
-            Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
-        }
+		public string Name { get; private set; }
 
-        public void Info(string message)
-        {
-            Logging.Write(logColors.Info, Prefix + message);
-        }
+		private string Prefix
+		{
+			get
+			{
+				if (IncludeVersion)
+				{
+					return string.Format("[{0} v{1}] ", Name, Version);
+				}
 
-        [StringFormatMethod("format")]
-        public void Info(string format, params object[] args)
-        {
-            Logging.Write(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
-        }
+				return string.Format("[{0}] ", Name);
+			}
+		}
 
-        public void Warn(string message)
-        {
-            Logging.Write(logColors.Warn, Prefix + message);
-        }
+		public void Verbose(string message)
+		{
+			Logging.WriteVerbose(logColors.Info, Prefix + message);
+		}
 
-        [StringFormatMethod("format")]
-        public void Warn(string format, params object[] args)
-        {
-            Logging.Write(logColors.Warn, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
-        }
+		[StringFormatMethod("format")]
+		public void Verbose(string format, params object[] args)
+		{
+			Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+		}
 
-        public void Error(string message)
-        {
-            Logging.Write(logColors.Error, Prefix + message);
-        }
+		public void Info(string message)
+		{
+			Logging.Write(logColors.Info, Prefix + message);
+		}
 
-        [StringFormatMethod("format")]
-        public void Error(string format, params object[] args)
-        {
-            Logging.Write(logColors.Error, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
-        }
-    }
+		[StringFormatMethod("format")]
+		public void Info(string format, params object[] args)
+		{
+			Logging.Write(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+		}
+
+		public void Warn(string message)
+		{
+			Logging.Write(logColors.Warn, Prefix + message);
+		}
+
+		[StringFormatMethod("format")]
+		public void Warn(string format, params object[] args)
+		{
+			Logging.Write(logColors.Warn, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+		}
+
+		public void Error(string message)
+		{
+			Logging.Write(logColors.Error, Prefix + message);
+		}
+
+		[StringFormatMethod("format")]
+		public void Error(string format, params object[] args)
+		{
+			Logging.Write(logColors.Error, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+		}
+	}
 }

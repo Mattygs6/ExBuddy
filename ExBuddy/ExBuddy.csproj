@@ -172,6 +172,7 @@
     <Content Include="OrderBotTags\Gather\Examples\AdamantiteOre_AzysLla.xml" />
     <Content Include="OrderBotTags\Gather\Examples\ChysahlGreens_CWH.xml" />
     <Content Include="OrderBotTags\Gather\Examples\Cyclops Onion.xml" />
+    <Content Include="OrderBotTags\Gather\Examples\EphemeralAll.xml" />
     <Content Include="OrderBotTags\Gather\Examples\FreeRangeCollect450.xml" />
     <Content Include="OrderBotTags\Gather\Examples\FreeRangeCollect550.xml" />
     <Content Include="OrderBotTags\Gather\Examples\FreeRangeCollectAll.xml" />

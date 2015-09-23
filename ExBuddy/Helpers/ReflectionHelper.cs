@@ -1,16 +1,16 @@
 ﻿namespace ExBuddy.Helpers
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
+	using System;
+	using System.Collections.Concurrent;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Reflection;
 
-    /// <summary>
+	/// <summary>
 	///     The reflection helper.
 	/// </summary>
 	public static class ReflectionHelper
-    {
+	{
 		/// <summary>
 		/// The custom attributes.
 		/// </summary>
@@ -97,19 +97,19 @@
 				}
 			}
 
-		    public static void RegisterByAssembly(Assembly assembly = null, Func<Type, bool> predicate = null )
-		    {
-		        assembly = assembly ?? Assembly.GetExecutingAssembly();
+			public static void RegisterByAssembly(Assembly assembly = null, Func<Type, bool> predicate = null)
+			{
+				assembly = assembly ?? Assembly.GetExecutingAssembly();
 
-		        if (predicate == null)
-		        {
-		            predicate = t => t.GetCustomAttribute<TAttribute>() != null;
-		        }
+				if (predicate == null)
+				{
+					predicate = t => t.GetCustomAttribute<TAttribute>() != null;
+				}
 
-		        RegisterTypes(assembly.GetTypes().Where(predicate).ToArray());
-		    }
+				RegisterTypes(assembly.GetTypes().Where(predicate).ToArray());
+			}
 
-		    #endregion
+			#endregion
 		}
 	}
 

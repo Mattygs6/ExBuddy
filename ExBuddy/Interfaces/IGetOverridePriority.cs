@@ -1,9 +1,9 @@
 namespace ExBuddy.Interfaces
 {
-    using ExBuddy.OrderBotTags.Gather;
+	using ExBuddy.OrderBotTags.Gather;
 
-    public interface IGetOverridePriority
-    {
-        int GetOverridePriority(GatherCollectableTag tag);
-    }
+	public interface IGetOverridePriority
+	{
+		int GetOverridePriority(GatherCollectableTag tag);
+	}
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Mythrite Sand</Name>
 	<KillRadius>50</KillRadius>
@@ -29,20 +30,20 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
-    <If Condition="not IsOnMap(397)">
-      <If Condition="not IsOnMap(398)">
-        <LogMessage Message="Teleporting to gather Mythrite Sand."/>
-        <TeleportTo Name="Tailfeather" AetheryteId="76" />
-        <WaitTimer WaitTime="3"/>
-      </If>
-    </If>
+		<RunCode name="Gear" />
+		<If Condition="not IsOnMap(397)">
+			<If Condition="not IsOnMap(398)">
+				<LogMessage Message="Teleporting to gather Mythrite Sand." />
+				<TeleportTo Name="Tailfeather" AetheryteId="76" />
+				<WaitTimer WaitTime="3" />
+			</If>
+		</If>
 
-    <If Condition="IsOnMap(398)">
-      <FlightPathTo XYZ="544.6885, 4.378082, 47.27686" Radius="3.0" MountId="45" DismountAtDestination="false" />
-      <FlightPathTo XYZ="890, 5.5, 355" Radius="3.0" MountId="45" DismountAtDestination="false" />
-      <WaitTimer WaitTime="8"/>
-    </If>
+		<If Condition="IsOnMap(398)">
+			<FlightPathTo XYZ="544.6885, 4.378082, 47.27686" Radius="3.0" MountId="45" DismountAtDestination="false" />
+			<FlightPathTo XYZ="890, 5.5, 355" Radius="3.0" MountId="45" DismountAtDestination="false" />
+			<WaitTimer WaitTime="8" />
+		</If>
 		<!-- TODO: do we still need the while? -->
 		<While condition="True">
 			<GatherCollectable AlwaysGather="true" Radius="2" gatherIncrease="Yield">
@@ -56,10 +57,10 @@
 				<GatherSpots>
 				</GatherSpots>
 				<HotSpots>
-          <HotSpot Radius="60" XYZ="-318.1543, 89.03205, -605.2675"/>
-          <HotSpot Radius="60" XYZ="-186.2723, 92.27795, -409.417"/>
-          <HotSpot Radius="60" XYZ="-324.4784, 89.55748, -420.7932"/>
-          <HotSpot Radius="60" XYZ="-422.2138, 91.55187, -460.606"/>
+					<HotSpot Radius="60" XYZ="-318.1543, 89.03205, -605.2675" />
+					<HotSpot Radius="60" XYZ="-186.2723, 92.27795, -409.417" />
+					<HotSpot Radius="60" XYZ="-324.4784, 89.55748, -420.7932" />
+					<HotSpot Radius="60" XYZ="-422.2138, 91.55187, -460.606" />
 				</HotSpots>
 			</GatherCollectable>
 		</While>

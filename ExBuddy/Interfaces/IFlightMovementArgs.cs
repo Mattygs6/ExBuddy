@@ -1,9 +1,9 @@
 ﻿namespace ExBuddy.Interfaces
 {
-    public interface IFlightMovementArgs
-    {
-        int MountId { get; set; }
+	public interface IFlightMovementArgs
+	{
+		int MountId { get; set; }
 
-        bool ForceLanding { get; set; }
-    }
+		bool ForceLanding { get; set; }
+	}
 }

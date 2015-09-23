@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <!--
 Botany - Crystal Farming
 KagePande
@@ -14,140 +15,140 @@ Horizon (Water)
 
 <!--User Configuration-->
 <!DOCTYPE Profile [
-  <!ENTITY CrystalCount "2550"> <!--Change 2000 to amount to gather-->
-  <!ENTITY TeleportLoc "Limsa Lominsa"> <!--Name of location you wish to teleport to-->
-  <!ENTITY TeleportID "8"> <!--ID of the location you wish to teleport to-->
-  <!--Limsa ID = 8 | Gridania ID = 2 | Ul'dah ID = 9-->
+<!ENTITY CrystalCount "2550"> <!--Change 2000 to amount to gather-->
+<!ENTITY TeleportLoc "Limsa Lominsa"> <!--Name of location you wish to teleport to-->
+<!ENTITY TeleportID "8"> <!--ID of the location you wish to teleport to-->
+<!--Limsa ID = 8 | Gridania ID = 2 | Ul'dah ID = 9-->
 ]>
 <!--End User Configuration-->
 
 <Profile>
-  <Name>Botany - Crystal Farming</Name>
-  <KillRadius>50</KillRadius>
-  <Order>
-    <RunCode Name="Gear"/>
-    <WaitTimer WaitTime="3"/>
-    <If Condition="(ItemCount(8) &gt; &CrystalCount;)">
-      <LogMessage Message="Fire Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(8) &lt; &CrystalCount;)">
-      <LogMessage Message="Fire Crystals Low, Teleporting to Summerford Farms."/>
-      <If Condition="not IsOnMap(134)">
-        <TeleportTo Name="Summerford Farms" AetheryteId="52" />
-      </If>
-      <GatherCollectable while="(ItemCount(8) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="-231.7924, 15.0224, -383.4807"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Fire Crystal</ItemName>
-          <ItemName>Fire Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <If Condition="(ItemCount(9) &gt; &CrystalCount;)">
-      <LogMessage Message="Ice Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(9) &lt; &CrystalCount;)">
-      <LogMessage Message="Ice Crystals Low, Teleporting to Camp Tranquil."/>
-      <If Condition="not IsOnMap(153)">
-        <TeleportTo Name="Camp Tranquil" AetheryteId="6" />
-      </If>
-      <GatherCollectable while="(ItemCount(9) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="-198.7744, 6.738442, 21.49924"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Ice Crystal</ItemName>
-          <ItemName>Ice Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <If Condition="(ItemCount(10) &gt; &CrystalCount;)">
-      <LogMessage Message="Wind Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(10) &lt; &CrystalCount;)">
-      <LogMessage Message="Wind Crystals Low, Teleporting to Bentbranch Meadows."/>
-      <If Condition="not IsOnMap(148)">
-        <TeleportTo Name="Bentbranch Meadows" AetheryteId="3"/>
-      </If>
-      <GatherCollectable while="(ItemCount(10) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="153.9331, -24.50229, 471.9253"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Wind Crystal</ItemName>
-          <ItemName>Wind Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <If Condition="(ItemCount(11) &gt; &CrystalCount;)">
-      <LogMessage Message="Earth Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(11) &lt; &CrystalCount;)">
-      <LogMessage Message="Earth Crystals Low, Teleporting to Fallgourd Float."/>
-      <If Condition="not IsOnMap(154)">
-        <TeleportTo Name="Fallgourd Float" AetheryteId="7" />
-      </If>
-      <GatherCollectable while="(ItemCount(11) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="277.6403, -11.32492, 25.52967"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Earth Crystal</ItemName>
-          <ItemName>Earth Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <If Condition="(ItemCount(12) &gt; &CrystalCount;)">
-      <LogMessage Message="Lightning Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(12) &lt; &CrystalCount;)">
-      <LogMessage Message="Lightning Crystals Low, Teleporting to Black Brush Station."/>
-      <If Condition="not IsOnMap(141)">
-        <TeleportTo Name="Black Brush Station" AetheryteId="53" />
-      </If>
-      <GatherCollectable while="(ItemCount(12) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="155.4079, 11.58007, 470.3077"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Lightning Crystal</ItemName>
-          <ItemName>Lightning Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <If Condition="(ItemCount(13) &gt; &CrystalCount;)">
-      <LogMessage Message="Water Crystals are not low, Moving on."/>
-    </If>
-    <If Condition="(ItemCount(13) &lt; &CrystalCount;)">
-      <LogMessage Message="Water Crystals Low, Teleporting to Costa del Sol."/>
-      <If Condition="not IsOnMap(137)">
-        <TeleportTo Name="Costa Del Sol" AetheryteId="11" />
-      </If>
-      <GatherCollectable while="(ItemCount(13) &lt; &CrystalCount;)">
-        <GatherObject>Mature Tree</GatherObject>
-        <HotSpots>
-          <HotSpot Radius="90" XYZ="317.173, 33.8539, 608.651"/>
-        </HotSpots>
-        <ItemNames>
-          <ItemName>Water Crystal</ItemName>
-          <ItemName>Water Shard</ItemName>
-        </ItemNames>
-      </GatherCollectable>
-    </If>
-    <LogMessage Message= "Profile Complete, Teleporting to &TeleportLoc;"/>
-    <TeleportTo Name="&TeleportLoc;" AetheryteId="&TeleportID;" />
-    <LoadNeoParent />
-  </Order>
-  <CodeChunks>
-    <CodeChunk Name="Gear">
-      <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 20");]]>
-    </CodeChunk>
-  </CodeChunks>
+	<Name>Botany - Crystal Farming</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<RunCode Name="Gear" />
+		<WaitTimer WaitTime="3" />
+		<If Condition="(ItemCount(8) &gt; &CrystalCount;)">
+			<LogMessage Message="Fire Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(8) &lt; &CrystalCount;)">
+			<LogMessage Message="Fire Crystals Low, Teleporting to Summerford Farms." />
+			<If Condition="not IsOnMap(134)">
+				<TeleportTo Name="Summerford Farms" AetheryteId="52" />
+			</If>
+			<GatherCollectable while="(ItemCount(8) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="-231.7924, 15.0224, -383.4807" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Fire Crystal</ItemName>
+					<ItemName>Fire Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<If Condition="(ItemCount(9) &gt; &CrystalCount;)">
+			<LogMessage Message="Ice Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(9) &lt; &CrystalCount;)">
+			<LogMessage Message="Ice Crystals Low, Teleporting to Camp Tranquil." />
+			<If Condition="not IsOnMap(153)">
+				<TeleportTo Name="Camp Tranquil" AetheryteId="6" />
+			</If>
+			<GatherCollectable while="(ItemCount(9) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="-198.7744, 6.738442, 21.49924" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Ice Crystal</ItemName>
+					<ItemName>Ice Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<If Condition="(ItemCount(10) &gt; &CrystalCount;)">
+			<LogMessage Message="Wind Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(10) &lt; &CrystalCount;)">
+			<LogMessage Message="Wind Crystals Low, Teleporting to Bentbranch Meadows." />
+			<If Condition="not IsOnMap(148)">
+				<TeleportTo Name="Bentbranch Meadows" AetheryteId="3" />
+			</If>
+			<GatherCollectable while="(ItemCount(10) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="153.9331, -24.50229, 471.9253" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Wind Crystal</ItemName>
+					<ItemName>Wind Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<If Condition="(ItemCount(11) &gt; &CrystalCount;)">
+			<LogMessage Message="Earth Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(11) &lt; &CrystalCount;)">
+			<LogMessage Message="Earth Crystals Low, Teleporting to Fallgourd Float." />
+			<If Condition="not IsOnMap(154)">
+				<TeleportTo Name="Fallgourd Float" AetheryteId="7" />
+			</If>
+			<GatherCollectable while="(ItemCount(11) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="277.6403, -11.32492, 25.52967" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Earth Crystal</ItemName>
+					<ItemName>Earth Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<If Condition="(ItemCount(12) &gt; &CrystalCount;)">
+			<LogMessage Message="Lightning Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(12) &lt; &CrystalCount;)">
+			<LogMessage Message="Lightning Crystals Low, Teleporting to Black Brush Station." />
+			<If Condition="not IsOnMap(141)">
+				<TeleportTo Name="Black Brush Station" AetheryteId="53" />
+			</If>
+			<GatherCollectable while="(ItemCount(12) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="155.4079, 11.58007, 470.3077" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Lightning Crystal</ItemName>
+					<ItemName>Lightning Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<If Condition="(ItemCount(13) &gt; &CrystalCount;)">
+			<LogMessage Message="Water Crystals are not low, Moving on." />
+		</If>
+		<If Condition="(ItemCount(13) &lt; &CrystalCount;)">
+			<LogMessage Message="Water Crystals Low, Teleporting to Costa del Sol." />
+			<If Condition="not IsOnMap(137)">
+				<TeleportTo Name="Costa Del Sol" AetheryteId="11" />
+			</If>
+			<GatherCollectable while="(ItemCount(13) &lt; &CrystalCount;)">
+				<GatherObject>Mature Tree</GatherObject>
+				<HotSpots>
+					<HotSpot Radius="90" XYZ="317.173, 33.8539, 608.651" />
+				</HotSpots>
+				<ItemNames>
+					<ItemName>Water Crystal</ItemName>
+					<ItemName>Water Shard</ItemName>
+				</ItemNames>
+			</GatherCollectable>
+		</If>
+		<LogMessage Message="Profile Complete, Teleporting to &TeleportLoc;" />
+		<TeleportTo Name="&TeleportLoc;" AetheryteId="&TeleportID;" />
+		<LoadNeoParent />
+	</Order>
+	<CodeChunks>
+		<CodeChunk Name="Gear">
+			<![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 20");]]>
+		</CodeChunk>
+	</CodeChunks>
 </Profile>

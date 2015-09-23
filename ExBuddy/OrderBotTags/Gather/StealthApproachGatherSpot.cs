@@ -1,92 +1,97 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather
 {
-    using System.ComponentModel;
-    using System.Threading.Tasks;
+	using System.ComponentModel;
+	using System.Threading.Tasks;
 
-    using Buddy.Coroutines;
+	using Buddy.Coroutines;
 
-    using Clio.Utilities;
-    using Clio.XmlEngine;
+	using Clio.Utilities;
+	using Clio.XmlEngine;
 
-    using ExBuddy.Helpers;
-    using ExBuddy.Interfaces;
+	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 
-    using ff14bot;
+	using ff14bot;
 
-    [XmlElement("StealthApproachGatherSpot")]
-    public class StealthApproachGatherSpot : IGatherSpot
-    {
-        [XmlAttribute("NodeLocation")]
-        public Vector3 NodeLocation { get; set; }
+	[XmlElement("StealthApproachGatherSpot")]
+	public class StealthApproachGatherSpot : IGatherSpot
+	{
+		[XmlAttribute("NodeLocation")]
+		public Vector3 NodeLocation { get; set; }
 
-        [XmlAttribute("StealthLocation")]
-        public Vector3 StealthLocation { get; set; }
-            
-        [DefaultValue(true)]
-        [XmlAttribute("ReturnToStealthLocation")]
-        public bool ReturnToStealthLocation { get; set; }
+		[XmlAttribute("StealthLocation")]
+		public Vector3 StealthLocation { get; set; }
 
-        [DefaultValue(true)]
-        [XmlAttribute("UseMesh")]
-        public bool UseMesh { get; set; }
+		[DefaultValue(true)]
+		[XmlAttribute("ReturnToStealthLocation")]
+		public bool ReturnToStealthLocation { get; set; }
 
-        [XmlAttribute("UnstealthAfter")]
-        public bool UnstealthAfter { get; set; }
+		[DefaultValue(true)]
+		[XmlAttribute("UseMesh")]
+		public bool UseMesh { get; set; }
 
-        public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
-        {
-            tag.StatusText = "Moving from " + this;
+		[XmlAttribute("UnstealthAfter")]
+		public bool UnstealthAfter { get; set; }
 
-            var result = true;
-            if (ReturnToStealthLocation)
-            {
-                result &= await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
-            }
+		public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
+		{
+			tag.StatusText = "Moving from " + this;
 
-            if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
-            {
-                result &= await tag.CastAura(Ability.Stealth);
-            }
+			var result = true;
+			if (ReturnToStealthLocation)
+			{
+				result &=
+					await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+			}
 
-            return result;
-        }
+			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
+			{
+				result &= await tag.CastAura(Ability.Stealth);
+			}
 
-        public async Task<bool> MoveToSpot(GatherCollectableTag tag)
-        {
-            tag.StatusText = "Moving to " + this;
+			return result;
+		}
 
-            if (StealthLocation == Vector3.Zero)
-            {
-                return false;
-            }
+		public async Task<bool> MoveToSpot(GatherCollectableTag tag)
+		{
+			tag.StatusText = "Moving to " + this;
 
-            var result = await Behaviors.MoveTo(
-                StealthLocation,
-                UseMesh,
-                radius: tag.Radius,
-                name: "Stealth Location",
-                stopCallback: tag.MovementStopCallback,
-                dismountAtDestination: true);
+			if (StealthLocation == Vector3.Zero)
+			{
+				return false;
+			}
 
-            if (result)
-            {
-                await Coroutine.Yield();
-                await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
+			var result =
+				await
+				Behaviors.MoveTo(
+					StealthLocation,
+					UseMesh,
+					radius: tag.Radius,
+					name: "Stealth Location",
+					stopCallback: tag.MovementStopCallback,
+					dismountAtDestination: true);
 
-                result = await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
-            }
+			if (result)
+			{
+				await Coroutine.Yield();
+				await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-            return result;
-        }
+				result =
+					await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+			}
 
-        public override string ToString()
-        {
-            return string.Format(
-                "StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, ReturnToStealthLocation: {2}, UseMesh: {3}",
-                StealthLocation,
-                NodeLocation,
-                ReturnToStealthLocation,
-                UseMesh);
-        }
-    }
+			return result;
+		}
+
+		public override string ToString()
+		{
+			return
+				string.Format(
+					"StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, ReturnToStealthLocation: {2}, UseMesh: {3}",
+					StealthLocation,
+					NodeLocation,
+					ReturnToStealthLocation,
+					UseMesh);
+		}
+	}
 }

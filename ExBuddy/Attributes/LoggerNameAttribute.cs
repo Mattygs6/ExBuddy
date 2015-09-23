@@ -1,20 +1,20 @@
 ﻿namespace ExBuddy.Attributes
 {
-    using System;
+	using System;
 
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class LoggerNameAttribute : Attribute
-    {
-        public LoggerNameAttribute(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Cannot be null or whitespace.", "name");
-            }
+	[AttributeUsage(AttributeTargets.Class)]
+	public sealed class LoggerNameAttribute : Attribute
+	{
+		public LoggerNameAttribute(string name)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				throw new ArgumentException("Cannot be null or whitespace.", "name");
+			}
 
-            Name = name;
-        }
+			Name = name;
+		}
 
-        public string Name { get; private set; }
-    }
+		public string Name { get; private set; }
+	}
 }

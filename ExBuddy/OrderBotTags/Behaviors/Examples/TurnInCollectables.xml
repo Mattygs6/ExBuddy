@@ -1,13 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <!--User Configuration-->
 <!DOCTYPE Profile [
-	<!ENTITY Location "Idyllshire">
-	<!--
+<!ENTITY Location "Idyllshire">
+<!--
 		Idyllshire
 		MorDhona - limited options for purchases, some purchase might not work or you might end up with the wrong item (untested)
 	-->
 	
-	<!--
+<!--
 	    CrpDelineation
         BsmDelineation
         ArmDelineation
@@ -27,12 +28,12 @@
         BeanSauce
         BeanPaste
 	-->
-	<!ENTITY ShopPurchase1 "BlueToken">
-	<!ENTITY ShopPurchase1_Count "900">
-	<!ENTITY ShopPurchase2 "HiCordial">
-	<!ENTITY ShopPurchase2_Count "10">
-	<!ENTITY ShopPurchase3 "BruteLeech">
-	<!ENTITY ShopPurchase3_Count "0">
+<!ENTITY ShopPurchase1 "BlueToken">
+<!ENTITY ShopPurchase1_Count "900">
+<!ENTITY ShopPurchase2 "HiCordial">
+<!ENTITY ShopPurchase2_Count "10">
+<!ENTITY ShopPurchase3 "BruteLeech">
+<!ENTITY ShopPurchase3_Count "0">
 ]>
 <Profile>
 	<Name>ExBuddy: Turn in Collectables</Name>
@@ -49,9 +50,9 @@
 				<CollectableTurnIn name="Illuminati Perch" value="826" />
 			</Collectables>
 			<ShopPurchases>
-				<ShopPurchase shopItem="&ShopPurchase1;" maxCount="&ShopPurchase1_Count;"/>
-				<ShopPurchase shopItem="&ShopPurchase2;" maxCount="&ShopPurchase2_Count;"/>
-				<ShopPurchase shopItem="&ShopPurchase3;" maxCount="&ShopPurchase3_Count;"/>
+				<ShopPurchase shopItem="&ShopPurchase1;" maxCount="&ShopPurchase1_Count;" />
+				<ShopPurchase shopItem="&ShopPurchase2;" maxCount="&ShopPurchase2_Count;" />
+				<ShopPurchase shopItem="&ShopPurchase3;" maxCount="&ShopPurchase3_Count;" />
 			</ShopPurchases>
 		</TurnInCollectables>
 	</Order>

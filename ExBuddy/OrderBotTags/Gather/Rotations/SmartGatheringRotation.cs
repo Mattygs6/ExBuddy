@@ -1,38 +1,36 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System.Threading.Tasks;
+	using System.Threading.Tasks;
 
-    using ExBuddy.Interfaces;
+	using ExBuddy.Interfaces;
 
-    public abstract class SmartGatheringRotation: GatheringRotation
-    {
-        public override Task<bool> Prepare(GatherCollectableTag tag)
-        {
-            return ResolveInternalGatheringRotation(tag).Prepare(tag);
-        }
+	public abstract class SmartGatheringRotation : GatheringRotation
+	{
+		public override Task<bool> Prepare(GatherCollectableTag tag)
+		{
+			return ResolveInternalGatheringRotation(tag).Prepare(tag);
+		}
 
-        protected virtual IGatheringRotation ResolveInternalGatheringRotation(GatherCollectableTag tag)
-        {
-            if (tag.IsUnspoiled())
-            {
-                return GatherCollectableTag.Rotations["Unspoiled"];
-            }
+		protected virtual IGatheringRotation ResolveInternalGatheringRotation(GatherCollectableTag tag)
+		{
+			if (tag.IsUnspoiled())
+			{
+				return GatherCollectableTag.Rotations["Unspoiled"];
+			}
 
-            return GatherCollectableTag.Rotations["RegularNode"];
-        }
+			return GatherCollectableTag.Rotations["RegularNode"];
+		}
 
-        protected bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
-        {
-            if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
-            {
-                tag.Logger.Info(
-                    "Using Gp since we have gathered {0} nodes at max Gp.",
-                    tag.NodesGatheredAtMaxGp);
+		protected bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
+		{
+			if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
+			{
+				tag.Logger.Info("Using Gp since we have gathered {0} nodes at max Gp.", tag.NodesGatheredAtMaxGp);
 
-                return true;
-            }
+				return true;
+			}
 
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 }

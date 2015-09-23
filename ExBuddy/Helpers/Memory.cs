@@ -1,64 +1,65 @@
 ﻿namespace ExBuddy.Helpers
 {
-    using System;
-    using ExBuddy.OrderBotTags.Behaviors.Objects;
+	using System;
 
-    using ff14bot;
+	using ExBuddy.OrderBotTags.Behaviors.Objects;
 
-    public static class Memory
-    {
-        public static class Scrips
-        {
-            public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.Process.MainModule.BaseAddress, 0x010379AC);
+	using ff14bot;
 
-            public static int BlueCrafter
-            {
-                get
-                {
-                    return Core.Memory.NoCacheRead<int>(BasePointer);
-                }
-            }
+	public static class Memory
+	{
+		public static class Scrips
+		{
+			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.Process.MainModule.BaseAddress, 0x010379AC);
 
-            public static int RedCrafter
-            {
-                get
-                {
-                    return Core.Memory.NoCacheRead<int>(BasePointer + 8);
-                }
-            }
+			public static int BlueCrafter
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<int>(BasePointer);
+				}
+			}
 
-            public static int BlueGatherer
-            {
-                get
-                {
-                    return Core.Memory.NoCacheRead<int>(BasePointer + 16);
-                }
-            }
+			public static int RedCrafter
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<int>(BasePointer + 8);
+				}
+			}
 
-            public static int RedGatherer
-            {
-                get
-                {
-                    return Core.Memory.NoCacheRead<int>(BasePointer + 24);
-                }
-            }
+			public static int BlueGatherer
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<int>(BasePointer + 16);
+				}
+			}
 
-            public static int GetRemainingScripsByShopType(ShopType shopType)
-            {
-                switch (shopType)
-                {
-                    case ShopType.BlueCrafter:
-                        return BlueCrafter;
-                    case ShopType.RedCrafter:
-                        return RedCrafter;
-                    case ShopType.BlueGatherer:
-                        return BlueGatherer;
-                    case ShopType.RedGatherer:
-                        return RedGatherer;
-                }
+			public static int RedGatherer
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<int>(BasePointer + 24);
+				}
+			}
 
-                return 0;
-            }
-        }
-    }
+			public static int GetRemainingScripsByShopType(ShopType shopType)
+			{
+				switch (shopType)
+				{
+					case ShopType.BlueCrafter:
+						return BlueCrafter;
+					case ShopType.RedCrafter:
+						return RedCrafter;
+					case ShopType.BlueGatherer:
+						return BlueGatherer;
+					case ShopType.RedGatherer:
+						return RedGatherer;
+				}
+
+				return 0;
+			}
+		}
+	}
 }

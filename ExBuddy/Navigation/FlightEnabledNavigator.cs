@@ -1,460 +1,451 @@
 ﻿namespace ExBuddy.Navigation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Runtime.Caching;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows.Media;
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Runtime.Caching;
+	using System.Threading;
+	using System.Threading.Tasks;
+	using System.Windows.Media;
 
-    using Buddy.Coroutines;
+	using Buddy.Coroutines;
 
-    using Clio.Common;
-    using Clio.Utilities;
+	using Clio.Common;
+	using Clio.Utilities;
 
-    using ExBuddy.Attributes;
-    using ExBuddy.Interfaces;
-    using ExBuddy.Logging;
+	using ExBuddy.Attributes;
+	using ExBuddy.Interfaces;
+	using ExBuddy.Logging;
 
-    using ff14bot;
-    using ff14bot.Enums;
-    using ff14bot.Interfaces;
-    using ff14bot.Managers;
-    using ff14bot.Navigation;
+	using ff14bot;
+	using ff14bot.Enums;
+	using ff14bot.Interfaces;
+	using ff14bot.Managers;
+	using ff14bot.Navigation;
 
-    using NeoGaia.ConnectionHandler;
+	using NeoGaia.ConnectionHandler;
 
-    [LoggerName("FlightNav")]
-    public sealed class FlightEnabledNavigator : LogColors, INavigationProvider, IDisposable
-    {
-        private readonly Logger logger;
+	[LoggerName("FlightNav")]
+	public sealed class FlightEnabledNavigator : LogColors, INavigationProvider, IDisposable
+	{
+		private readonly Logger logger;
 
-        private bool disposed;
+		private bool disposed;
 
-        private Vector3 origin;
+		private Vector3 origin;
 
-        private Vector3 finalDestination;
+		private Vector3 finalDestination;
 
-        private Vector3 requestedDestination;
+		private Vector3 requestedDestination;
 
-        private readonly Stopwatch pathGeneratorStopwatch = new Stopwatch();
+		private readonly Stopwatch pathGeneratorStopwatch = new Stopwatch();
 
-        private bool generatingPath;
+		private bool generatingPath;
 
-        private readonly INavigationProvider innerNavigator;
+		private readonly INavigationProvider innerNavigator;
 
-        private readonly IFlightEnabledPlayerMover playerMover;
+		private readonly IFlightEnabledPlayerMover playerMover;
 
-        private readonly IFlightNavigationArgs flightNavigationArgs;
+		private readonly IFlightNavigationArgs flightNavigationArgs;
 
-        public FlightEnabledNavigator(INavigationProvider innerNavigator)
-            : this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs())
-        {
-        }
+		public FlightEnabledNavigator(INavigationProvider innerNavigator)
+			: this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs()) {}
 
-        public FlightEnabledNavigator(INavigationProvider innerNavigator, IFlightEnabledPlayerMover playerMover, IFlightNavigationArgs flightNavigationArgs)
-        {
-            this.logger = new Logger(this);
-            this.innerNavigator = innerNavigator;
-            this.playerMover = playerMover;
-            this.flightNavigationArgs = flightNavigationArgs;
-            Navigator.NavigationProvider = this;
-            Navigator.PlayerMover = playerMover;
-            CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
+		public FlightEnabledNavigator(
+			INavigationProvider innerNavigator,
+			IFlightEnabledPlayerMover playerMover,
+			IFlightNavigationArgs flightNavigationArgs)
+		{
+			this.logger = new Logger(this);
+			this.innerNavigator = innerNavigator;
+			this.playerMover = playerMover;
+			this.flightNavigationArgs = flightNavigationArgs;
+			Navigator.NavigationProvider = this;
+			Navigator.PlayerMover = playerMover;
+			CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
 
-            logger.Verbose("Replacing Navigator with Flight Navigator.");
-        }
+			logger.Verbose("Replacing Navigator with Flight Navigator.");
+		}
 
-        public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
-        {
-            return navigator.innerNavigator as GaiaNavigator;
-        }
+		public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
+		{
+			return navigator.innerNavigator as GaiaNavigator;
+		}
 
-        public override Color Info
-        {
-            get
-            {
-                return Colors.SkyBlue;
-            }
-        }
+		public override Color Info
+		{
+			get
+			{
+				return Colors.SkyBlue;
+			}
+		}
 
-        public FlightPath CurrentPath { get; internal set; }
+		public FlightPath CurrentPath { get; internal set; }
 
-        public double PathPrecisionSqr
-        {
-            get
-            {
-                return PathPrecision * PathPrecision;
-            }
-        }
+		public double PathPrecisionSqr
+		{
+			get
+			{
+				return PathPrecision * PathPrecision;
+			}
+		}
 
-        public bool CanNavigateFully(Vector3 @from, Vector3 to, float strictDistance)
-        {
+		public bool CanNavigateFully(Vector3 @from, Vector3 to, float strictDistance)
+		{
 #pragma warning disable 618
-            return innerNavigator.CanNavigateFully(@from, to, strictDistance);
+			return innerNavigator.CanNavigateFully(@from, to, strictDistance);
 #pragma warning restore 618
-        }
+		}
 
-        public bool Clear()
-        {
-            CurrentPath.Reset();
+		public bool Clear()
+		{
+			CurrentPath.Reset();
 
-            origin = finalDestination = requestedDestination = Vector3.Zero;
-            generatingPath = false;
-            pathGeneratorStopwatch.Reset();
+			origin = finalDestination = requestedDestination = Vector3.Zero;
+			generatingPath = false;
+			pathGeneratorStopwatch.Reset();
 
-            return innerNavigator.Clear();
-        }
+			return innerNavigator.Clear();
+		}
 
-        public MoveResult MoveTo(Vector3 location, string destination = null)
-        {
-            if (generatingPath)
-            {
-                return MoveResult.GeneratingPath;
-            }
+		public MoveResult MoveTo(Vector3 location, string destination = null)
+		{
+			if (generatingPath)
+			{
+				return MoveResult.GeneratingPath;
+			}
 
-            if (!playerMover.CanFly || (!MovementManager.IsFlying && !playerMover.ShouldFlyTo(location)))
-            {
-                return innerNavigator.MoveTo(location, destination);
-            }
+			if (!playerMover.CanFly || (!MovementManager.IsFlying && !playerMover.ShouldFlyTo(location)))
+			{
+				return innerNavigator.MoveTo(location, destination);
+			}
 
-            Vector3 currentLocation = GameObjectManager.LocalPlayer.Location;
-            if (location.DistanceSqr(currentLocation) > PathPrecisionSqr)
-            {
-                if (ShouldGeneratePath(location))
-                {
-                    generatingPath = true;
-                    origin = currentLocation;
-                    finalDestination = requestedDestination = location;
-                    pathGeneratorStopwatch.Restart();
-                    logger.Info(
-                        "Generating path on {0} from {1} to {2}",
-                        WorldManager.ZoneId,
-                        origin,
-                        finalDestination);
-                    GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
-                    return MoveResult.GeneratingPath;
-                }
+			var currentLocation = GameObjectManager.LocalPlayer.Location;
+			if (location.DistanceSqr(currentLocation) > PathPrecisionSqr)
+			{
+				if (ShouldGeneratePath(location))
+				{
+					generatingPath = true;
+					origin = currentLocation;
+					finalDestination = requestedDestination = location;
+					pathGeneratorStopwatch.Restart();
+					logger.Info("Generating path on {0} from {1} to {2}", WorldManager.ZoneId, origin, finalDestination);
+					GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
+					return MoveResult.GeneratingPath;
+				}
 
-                if (CurrentPath.Count == 0)
-                {
-                    return MoveResult.ReachedDestination;
-                }
+				if (CurrentPath.Count == 0)
+				{
+					return MoveResult.ReachedDestination;
+				}
 
-                return MoveToNextHop(destination);
-            }
+				return MoveToNextHop(destination);
+			}
 
-            logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
+			logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
 
-            requestedDestination = Vector3.Zero;
-            playerMover.MoveStop();
-            CurrentPath.Reset();
+			requestedDestination = Vector3.Zero;
+			playerMover.MoveStop();
+			CurrentPath.Reset();
 
-            return MoveResult.Done;
-        }
+			return MoveResult.Done;
+		}
 
-        public MoveResult MoveToRandomSpotWithin(Vector3 location, float radius, string destination = null)
-        {
-            if (generatingPath)
-            {
-                return MoveResult.GeneratingPath;
-            }
+		public MoveResult MoveToRandomSpotWithin(Vector3 location, float radius, string destination = null)
+		{
+			if (generatingPath)
+			{
+				return MoveResult.GeneratingPath;
+			}
 
-            if (!playerMover.CanFly || (!MovementManager.IsFlying && !playerMover.ShouldFlyTo(location)))
-            {
-                return innerNavigator.MoveTo(location, destination);
-            }
+			if (!playerMover.CanFly || (!MovementManager.IsFlying && !playerMover.ShouldFlyTo(location)))
+			{
+				return innerNavigator.MoveTo(location, destination);
+			}
 
-            Vector3 currentLocation = GameObjectManager.LocalPlayer.Location;
-            if (location.DistanceSqr(currentLocation) > PathPrecisionSqr)
-            {
-                if (ShouldGeneratePath(location, radius))
-                {
-                    generatingPath = true;
-                    origin = currentLocation;
-                    requestedDestination = location;
-                    finalDestination = location.AddRandomDirection2D(radius);
-                    pathGeneratorStopwatch.Restart();
-                    logger.Info(
-                        "Generating path on {0} from {1} to {2}",
-                        WorldManager.ZoneId,
-                        origin,
-                        finalDestination);
-                    GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
-                    return MoveResult.GeneratingPath;
-                }
+			var currentLocation = GameObjectManager.LocalPlayer.Location;
+			if (location.DistanceSqr(currentLocation) > PathPrecisionSqr)
+			{
+				if (ShouldGeneratePath(location, radius))
+				{
+					generatingPath = true;
+					origin = currentLocation;
+					requestedDestination = location;
+					finalDestination = location.AddRandomDirection2D(radius);
+					pathGeneratorStopwatch.Restart();
+					logger.Info("Generating path on {0} from {1} to {2}", WorldManager.ZoneId, origin, finalDestination);
+					GeneratePath(origin, finalDestination).ContinueWith(HandlePathGenerationResult);
+					return MoveResult.GeneratingPath;
+				}
 
-                if (CurrentPath.Count == 0)
-                {
-                    return MoveResult.ReachedDestination;
-                }
+				if (CurrentPath.Count == 0)
+				{
+					return MoveResult.ReachedDestination;
+				}
 
-                return MoveToNextHop(destination);
-            }
+				return MoveToNextHop(destination);
+			}
 
-            logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
+			logger.Info("Navigation reached current destination. Within {0}", currentLocation.Distance(location));
 
-            requestedDestination = Vector3.Zero;
-            playerMover.MoveStop();
-            CurrentPath.Reset();
+			requestedDestination = Vector3.Zero;
+			playerMover.MoveStop();
+			CurrentPath.Reset();
 
-            return MoveResult.Done;
-        }
+			return MoveResult.Done;
+		}
 
-        public List<CanFullyNavigateResult> CanFullyNavigateTo(IEnumerable<CanFullyNavigateTarget> targets)
-        {
-            return CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId).Result;
-        }
+		public List<CanFullyNavigateResult> CanFullyNavigateTo(IEnumerable<CanFullyNavigateTarget> targets)
+		{
+			return CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId).Result;
+		}
 
-        public async Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(
-            IEnumerable<CanFullyNavigateTarget> targets)
-        {
-            return await CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
-        }
+		public async Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(IEnumerable<CanFullyNavigateTarget> targets)
+		{
+			return await CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
+		}
 
-        public Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(
-            IEnumerable<CanFullyNavigateTarget> targets,
-            Vector3 start,
-            ushort zoneid)
-        {
-            // TODO: not sure how much we will have to mess with this, but when I was using it, it was returning true even for Y values in mid air.
-            return innerNavigator.CanFullyNavigateToAsync(targets, start, zoneid);
-        }
+		public Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(
+			IEnumerable<CanFullyNavigateTarget> targets,
+			Vector3 start,
+			ushort zoneid)
+		{
+			// TODO: not sure how much we will have to mess with this, but when I was using it, it was returning true even for Y values in mid air.
+			return innerNavigator.CanFullyNavigateToAsync(targets, start, zoneid);
+		}
 
-        public float PathPrecision
-        {
-            get
-            {
-                return innerNavigator.PathPrecision;
-            }
+		public float PathPrecision
+		{
+			get
+			{
+				return innerNavigator.PathPrecision;
+			}
 
-            set
-            {
-                innerNavigator.PathPrecision = value;
-            }
-        }
+			set
+			{
+				innerNavigator.PathPrecision = value;
+			}
+		}
 
-        private bool ShouldGeneratePath(Vector3 target, float radius = 0.0f)
-        {
-            if (origin != Core.Player.Location)
-            {
-                if (requestedDestination == target)
-                {
-                    return false;
-                }
-            }
+		private bool ShouldGeneratePath(Vector3 target, float radius = 0.0f)
+		{
+			if (origin != Core.Player.Location)
+			{
+				if (requestedDestination == target)
+				{
+					return false;
+				}
+			}
 
-            if (CurrentPath != null && CurrentPath.Count != 0 && requestedDestination != Vector3.Zero)
-            {
-                // Find the max diagonal of a cube for given radius, this should be the max distance we could receive from random direction method.
-                if (radius > 0 && finalDestination.Distance(target) < Math.Sqrt(3) * radius)
-                {
-                    return false;
-                }
+			if (CurrentPath != null && CurrentPath.Count != 0 && requestedDestination != Vector3.Zero)
+			{
+				// Find the max diagonal of a cube for given radius, this should be the max distance we could receive from random direction method.
+				if (radius > 0 && finalDestination.Distance(target) < Math.Sqrt(3) * radius)
+				{
+					return false;
+				}
 
-                if (requestedDestination.Distance3D(target) <= 2.29)
-                {
-                    return false;
-                }
-            }
+				if (requestedDestination.Distance3D(target) <= 2.29)
+				{
+					return false;
+				}
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        enum GeneratePathResult
-        {
-            Failed,
-            Success,
-            SuccessUseExisting
-        }
+		private enum GeneratePathResult
+		{
+			Failed,
 
-        private async Task<GeneratePathResult> GeneratePath(Vector3 start, Vector3 end)
-        {
-            CurrentPath = new FlightPath(start, end, flightNavigationArgs);
+			Success,
 
-            FlightPath path;
-            if (FlightPath.Paths.TryGetValue(CurrentPath.Key, out path))
-            {
-                CurrentPath = path;
+			SuccessUseExisting
+		}
 
-                return GeneratePathResult.SuccessUseExisting;
-            }
+		private async Task<GeneratePathResult> GeneratePath(Vector3 start, Vector3 end)
+		{
+			CurrentPath = new FlightPath(start, end, flightNavigationArgs);
 
+			FlightPath path;
+			if (FlightPath.Paths.TryGetValue(CurrentPath.Key, out path))
+			{
+				CurrentPath = path;
 
-            if (await CurrentPath.BuildPath())
-            {
-                if (CurrentPath.Count > 0)
-                {
-                    FlightPath.Paths[CurrentPath.Key] = CurrentPath;
+				return GeneratePathResult.SuccessUseExisting;
+			}
 
-                    return GeneratePathResult.Success;
-                }
-            }
+			if (await CurrentPath.BuildPath())
+			{
+				if (CurrentPath.Count > 0)
+				{
+					FlightPath.Paths[CurrentPath.Key] = CurrentPath;
 
-            logger.Error("Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
-            Clear();
+					return GeneratePathResult.Success;
+				}
+			}
 
-            Navigator.NavigationProvider = innerNavigator;
+			logger.Error(
+				"Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
+			Clear();
+
+			Navigator.NavigationProvider = innerNavigator;
 #pragma warning disable 4014
-            Task.Factory.StartNew(
+			Task.Factory.StartNew(
 #pragma warning restore 4014
-                () =>
-                {
-                    Thread.Sleep(10000);
-                    logger.Info("Resetting NavigationProvider to Flight Navigator.");
-                    Navigator.NavigationProvider = this;
-                });
+				() =>
+					{
+						Thread.Sleep(10000);
+						logger.Info("Resetting NavigationProvider to Flight Navigator.");
+						Navigator.NavigationProvider = this;
+					});
 
-            return GeneratePathResult.Failed;
-        }
+			return GeneratePathResult.Failed;
+		}
 
-        private void HandlePathGenerationResult(Task<GeneratePathResult> task)
-        {
-            switch (task.Result)
-            {
-                case GeneratePathResult.Success:
-                    logger.Info(
-                        "Generated path to {0} using {1} hops in {2} ms",
-                        finalDestination,
-                        CurrentPath.Count,
-                        pathGeneratorStopwatch.Elapsed);
-                    break;
-                case GeneratePathResult.SuccessUseExisting:
-                    logger.Info(
-                        "Found existing path to {0} using {1} hops in {2} ms",
-                        finalDestination,
-                        CurrentPath.Count,
-                        pathGeneratorStopwatch.Elapsed);
-                    break;
-                case GeneratePathResult.Failed:
-                    logger.Error(
-                        "No viable path found to {0} from {1}",
-                        finalDestination,
-                        origin);
-                    break;
-            }
+		private void HandlePathGenerationResult(Task<GeneratePathResult> task)
+		{
+			switch (task.Result)
+			{
+				case GeneratePathResult.Success:
+					logger.Info(
+						"Generated path to {0} using {1} hops in {2} ms",
+						finalDestination,
+						CurrentPath.Count,
+						pathGeneratorStopwatch.Elapsed);
+					break;
+				case GeneratePathResult.SuccessUseExisting:
+					logger.Info(
+						"Found existing path to {0} using {1} hops in {2} ms",
+						finalDestination,
+						CurrentPath.Count,
+						pathGeneratorStopwatch.Elapsed);
+					break;
+				case GeneratePathResult.Failed:
+					logger.Error("No viable path found to {0} from {1}", finalDestination, origin);
+					break;
+			}
 
-            pathGeneratorStopwatch.Reset();
-            generatingPath = false;
-        }
+			pathGeneratorStopwatch.Reset();
+			generatingPath = false;
+		}
 
-        public static Vector3 SampleParabola(Vector3 start, Vector3 end, float height, float t)
-        {
-            Vector3 direction3 = end - start;
-            Vector3 computed = start + t * direction3;
-            if (Math.Abs(start.Y - end.Y) < 3.0f)
-            {
-                //start and end are roughly level, pretend they are - simpler solution with less steps
-                computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
-            }
-            else
-            {
-                //start and end are not level, gets more complicated
-                Vector3 direction2 = end - new Vector3(start.X, end.Y, start.Z);
-                Vector3 right = Vector3.Cross(direction3, direction2);
-                Vector3 up = Vector3.Cross(right, direction3); // Should this be direction2?
-                if (end.Y > start.Y) up = -up;
-                up.Normalize();
+		public static Vector3 SampleParabola(Vector3 start, Vector3 end, float height, float t)
+		{
+			var direction3 = end - start;
+			var computed = start + t * direction3;
+			if (Math.Abs(start.Y - end.Y) < 3.0f)
+			{
+				//start and end are roughly level, pretend they are - simpler solution with less steps
+				computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
+			}
+			else
+			{
+				//start and end are not level, gets more complicated
+				var direction2 = end - new Vector3(start.X, end.Y, start.Z);
+				var right = Vector3.Cross(direction3, direction2);
+				var up = Vector3.Cross(right, direction3); // Should this be direction2?
+				if (end.Y > start.Y)
+				{
+					up = -up;
+				}
+				up.Normalize();
 
-                computed.Y += ((float)(Math.Sin((t * (float)Math.PI))) * height) * up.Y;
-            }
+				computed.Y += ((float)(Math.Sin((t * (float)Math.PI))) * height) * up.Y;
+			}
 
-            return computed;
-        }
+			return computed;
+		}
 
-        public static Vector3 StraightPath(Vector3 from, Vector3 to, float amount)
-        {
-            // There probably has to be some small usage of height here, but we don't know how many points there are going to be total.
-            var result = Lerp(from, to, amount);
+		public static Vector3 StraightPath(Vector3 from, Vector3 to, float amount)
+		{
+			// There probably has to be some small usage of height here, but we don't know how many points there are going to be total.
+			var result = Lerp(from, to, amount);
 
-            return result;
-        }
+			return result;
+		}
 
-        public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
-        {
-            return new Vector3(
-                MathEx.Lerp(value1.X, value2.X, amount),
-                MathEx.Lerp(value1.Y, value2.Y, amount),
-                MathEx.Lerp(value1.Z, value2.Z, amount));
-        }
+		public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
+		{
+			return new Vector3(
+				MathEx.Lerp(value1.X, value2.X, amount),
+				MathEx.Lerp(value1.Y, value2.Y, amount),
+				MathEx.Lerp(value1.Z, value2.Z, amount));
+		}
 
-        private async Task<bool> MoveToNoFlight(Vector3 location)
-        {
-            MoveResult result = MoveResult.GeneratingPath;
-            while (Core.Player.Location.Distance3D(location) > PathPrecision || result != MoveResult.ReachedDestination || result != MoveResult.Done)
-            {
-                generatingPath = true;
-                result = innerNavigator.MoveTo(location, "Temporary Waypoint");
-                await Coroutine.Yield();
-            }
+		private async Task<bool> MoveToNoFlight(Vector3 location)
+		{
+			var result = MoveResult.GeneratingPath;
+			while (Core.Player.Location.Distance3D(location) > PathPrecision || result != MoveResult.ReachedDestination
+					|| result != MoveResult.Done)
+			{
+				generatingPath = true;
+				result = innerNavigator.MoveTo(location, "Temporary Waypoint");
+				await Coroutine.Yield();
+			}
 
-            generatingPath = false;
+			generatingPath = false;
 
-            return true;
-        }
+			return true;
+		}
 
-        private MoveResult MoveToNextHop(string name)
-        {
-            Vector3 location = Core.Me.Location;
-            Vector3 hit;
-            if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
-            {
-                MemoryCache.Default.Add(
-                    CurrentPath.Current.Location.ToString(),
-                    CurrentPath.Current,
-                    DateTimeOffset.Now + TimeSpan.FromSeconds(10));
+		private MoveResult MoveToNextHop(string name)
+		{
+			var location = Core.Me.Location;
+			Vector3 hit;
+			if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
+			{
+				MemoryCache.Default.Add(
+					CurrentPath.Current.Location.ToString(),
+					CurrentPath.Current,
+					DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-                logger.Warn("Collision detected! Generating new path!");
-                Clear();
-                return MoveResult.GeneratingPath;
-            }
-            
-            double distanceToNextHop = location.Distance3D(CurrentPath.Current);
+				logger.Warn("Collision detected! Generating new path!");
+				Clear();
+				return MoveResult.GeneratingPath;
+			}
 
-            if (distanceToNextHop >= PathPrecision)
-            {
-                //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
-                playerMover.MoveTowards(CurrentPath.Current);
-                return MoveResult.Moved;
-            }
+			double distanceToNextHop = location.Distance3D(CurrentPath.Current);
 
-            if (!CurrentPath.Next())
-            {
-                logger.Info(
-                    "Navigation reached current destination. Within " + location.Distance(finalDestination));
-                Clear();
+			if (distanceToNextHop >= PathPrecision)
+			{
+				//Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
+				playerMover.MoveTowards(CurrentPath.Current);
+				return MoveResult.Moved;
+			}
 
-                return MoveResult.ReachedDestination;
-            }
+			if (!CurrentPath.Next())
+			{
+				logger.Info("Navigation reached current destination. Within " + location.Distance(finalDestination));
+				Clear();
 
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                name = string.Concat(" (", name, ")");
-            }
+				return MoveResult.ReachedDestination;
+			}
 
-            var objArray = new object[]
-                               {
-                                   "Moving to next hop: ", CurrentPath.Current, name, " D: ",
-                                   location.Distance(CurrentPath.Current)
-                               };
+			if (!string.IsNullOrWhiteSpace(name))
+			{
+				name = string.Concat(" (", name, ")");
+			}
 
-            logger.Verbose(string.Concat(objArray));
-            //Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
-            playerMover.MoveTowards(CurrentPath.Current);
-            return MoveResult.Moved;
-        }
+			var objArray = new object[]
+								{ "Moving to next hop: ", CurrentPath.Current, name, " D: ", location.Distance(CurrentPath.Current) };
 
-        public void Dispose()
-        {
-            if (!disposed)
-            {
-                disposed = true;
-                logger.Verbose("Putting original Navigator back!");
-                Navigator.NavigationProvider = innerNavigator;
-                pathGeneratorStopwatch.Stop();
-                playerMover.Dispose();
-            }
-        }
-    }
+			logger.Verbose(string.Concat(objArray));
+			//Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
+			playerMover.MoveTowards(CurrentPath.Current);
+			return MoveResult.Moved;
+		}
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+				logger.Verbose("Putting original Navigator back!");
+				Navigator.NavigationProvider = innerNavigator;
+				pathGeneratorStopwatch.Stop();
+				playerMover.Dispose();
+			}
+		}
+	}
 }

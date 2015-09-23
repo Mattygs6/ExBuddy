@@ -1,284 +1,336 @@
 ﻿namespace ExBuddy.Navigation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.Caching;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Runtime.Caching;
 
-    using Clio.Common;
-    using Clio.Utilities;
+	using Clio.Utilities;
 
-    using ExBuddy.Logging;
+	using ExBuddy.Logging;
 
-    using ff14bot.Helpers;
-    using ff14bot.Managers;
+	using ff14bot.Managers;
 
-    [Flags]
-    public enum CollisionFlags
-    {
-        Error = -1,
-        None = 0,
-        Forward = 1 << 0,
-        Up = 1 << 1,
-        Down = 1 << 2,
-        Left = 1 << 3,
-        Right = 1 << 4,
-        ForwardLeft = 1 << 5,
-        ForwardRight = 1 << 6,
-        ForwardUp = 1 << 7,
-        ForwardDown = 1 << 8
-    }
+	[Flags]
+	public enum CollisionFlags
+	{
+		Error = -1,
 
-    public class Collider
-    {
+		None = 0,
 
-        private readonly float forwardRange;
+		Forward = 1 << 0,
 
-        private readonly Vector3 forwardNormal;
+		Up = 1 << 1,
 
-        public Collider(Vector3 position, Vector3 direction, float forwardRange)
-        {
-            direction.Normalize();
-            this.forwardNormal = this.Forward = direction;
-            this.Forward *= forwardRange;
-            this.Direction2D = new Vector3(direction.X, 0, direction.Z);
-            this.Direction2D.Normalize();
-            this.Position = position;
-            this.forwardRange = forwardRange;
-        }
+		Down = 1 << 2,
 
-        public bool IsFowardCollision()
-        {
-            Vector3 hit;
-            Vector3 distances;
+		Left = 1 << 3,
 
-            //  Forward
-            if (!WorldManager.Raycast(this.Position, this.Position + this.Forward, out hit, out distances))
-            {
-                return false;
-            }
+		Right = 1 << 4,
 
-            this.Flags |= CollisionFlags.Forward;
-            this.ForwardHit = hit;
+		ForwardLeft = 1 << 5,
 
-            return true;
-        }
+		ForwardRight = 1 << 6,
 
-        public void BuildCollider()
-        {
-            // Find raycast vectors
-            this.Right = Vector3.Cross(this.Forward, this.Direction2D);
-            this.Left = new Vector3(-this.Right.X, this.Right.Y, -this.Right.Z);
-            this.Up = Vector3.Cross(this.Right, this.Forward);
+		ForwardUp = 1 << 7,
 
-            // If greater than 0, we ar heading up.
-            if (this.Forward.Y > 0)
-            {
-                this.Down = this.Up;
-                this.Up = -this.Up;
-            }
-            else
-            {
-                this.Down = -this.Up;
-            }
+		ForwardDown = 1 << 8
+	}
 
-            this.Right.Normalize();
-            this.Up.Normalize();
-            this.Down.Normalize();
-            this.Left.Normalize();
+	public class Collider
+	{
+		private readonly float forwardRange;
 
-            this.ForwardRight = Vector3.Blend(this.Right, this.forwardNormal, 0.5f);
-            this.ForwardUp = Vector3.Blend(this.Up, this.forwardNormal, 0.5f);
-            this.ForwardLeft = Vector3.Blend(this.Left, this.forwardNormal, 0.5f);
-            this.ForwardDown = Vector3.Blend(this.Down, this.forwardNormal, 0.5f);
+		private readonly Vector3 forwardNormal;
 
-            this.ForwardRight.Normalize();
-            this.ForwardUp.Normalize();
-            this.ForwardLeft.Normalize();
-            this.ForwardDown.Normalize();
+		public Collider(Vector3 position, Vector3 direction, float forwardRange)
+		{
+			direction.Normalize();
+			this.forwardNormal = this.Forward = direction;
+			this.Forward *= forwardRange;
+			this.Direction2D = new Vector3(direction.X, 0, direction.Z);
+			this.Direction2D.Normalize();
+			this.Position = position;
+			this.forwardRange = forwardRange;
+		}
 
-            var diagonalMagnitude = this.forwardRange / (float)Math.Cos(45.0f * Math.PI / 180);
-            this.Right *= this.forwardRange;
-            this.Up *= this.forwardRange;
-            this.Left *= this.forwardRange;
-            this.Down *= this.forwardRange;
+		public bool IsFowardCollision()
+		{
+			Vector3 hit;
+			Vector3 distances;
 
-            this.ForwardRight *= diagonalMagnitude;
-            this.ForwardUp *= diagonalMagnitude;
-            this.ForwardLeft *= diagonalMagnitude;
-            this.ForwardDown *= diagonalMagnitude;
-        }
+			//  Forward
+			if (!WorldManager.Raycast(this.Position, this.Position + this.Forward, out hit, out distances))
+			{
+				return false;
+			}
 
-        public bool FindClosestDeviation(ICollection<FlightPoint> previousFlightPoints, out Vector3 travelDeviation)
-        {
-            var deviation = travelDeviation = Vector3.Zero;
-            var valueFound = false;
+			this.Flags |= CollisionFlags.Forward;
+			this.ForwardHit = hit;
 
-            // Making the rays 1.5x as long as our detection range to ensure it is clear
-            var forwardRay = this.Position + this.Forward * 1.5f;
-            var forwardRightRay = this.Position + this.ForwardRight * 1.5f;
-            var forwardLeftRay = this.Position + this.ForwardLeft * 1.5f;
-            var forwardUpRay = Vector3.Zero;
-            var forwardDownRay = Vector3.Zero;
-            Vector3 hit;
-            Vector3 distances;
+			return true;
+		}
 
-            for (float i = 0.2f; i < 1; i += 0.2f)
-            {
-                if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardRay, forwardRightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                {
-                    valueFound = true;
-                    this.Flags |= CollisionFlags.ForwardRight;
-                    break;
-                }
+		public void BuildCollider()
+		{
+			// Find raycast vectors
+			this.Right = Vector3.Cross(this.Forward, this.Direction2D);
+			this.Left = new Vector3(-this.Right.X, this.Right.Y, -this.Right.Z);
+			this.Up = Vector3.Cross(this.Right, this.Forward);
 
-                if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardRay, forwardLeftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                {
-                    valueFound = true;
-                    this.Flags |= CollisionFlags.ForwardLeft;
-                    break;
-                }
-            }
+			// If greater than 0, we ar heading up.
+			if (this.Forward.Y > 0)
+			{
+				this.Down = this.Up;
+				this.Up = -this.Up;
+			}
+			else
+			{
+				this.Down = -this.Up;
+			}
 
-            if (!valueFound)
-            {
-                forwardUpRay = this.Position + this.ForwardUp * 1.5f;
-                forwardDownRay = this.Position + this.ForwardDown * 1.5f;
+			this.Right.Normalize();
+			this.Up.Normalize();
+			this.Down.Normalize();
+			this.Left.Normalize();
 
-                for (float i = 0.2f; i < 1; i += 0.2f)
-                {
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardRay, forwardUpRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardUp;
-                        break;
-                    }
+			this.ForwardRight = Vector3.Blend(this.Right, this.forwardNormal, 0.5f);
+			this.ForwardUp = Vector3.Blend(this.Up, this.forwardNormal, 0.5f);
+			this.ForwardLeft = Vector3.Blend(this.Left, this.forwardNormal, 0.5f);
+			this.ForwardDown = Vector3.Blend(this.Down, this.forwardNormal, 0.5f);
 
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardRay, forwardDownRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardDown;
-                        break;
-                    }
-                }
-            }
+			this.ForwardRight.Normalize();
+			this.ForwardUp.Normalize();
+			this.ForwardLeft.Normalize();
+			this.ForwardDown.Normalize();
 
-            if (!valueFound)
-            {
-                var upRay = this.Position + this.Up * 1.5f;
-                var downRay = this.Position + this.Down * 1.5f;
+			var diagonalMagnitude = this.forwardRange / (float)Math.Cos(45.0f * Math.PI / 180);
+			this.Right *= this.forwardRange;
+			this.Up *= this.forwardRange;
+			this.Left *= this.forwardRange;
+			this.Down *= this.forwardRange;
 
-                for (float i = 0.2f; i < 1; i += 0.2f)
-                {
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardUp;
-                        break;
-                    }
+			this.ForwardRight *= diagonalMagnitude;
+			this.ForwardUp *= diagonalMagnitude;
+			this.ForwardLeft *= diagonalMagnitude;
+			this.ForwardDown *= diagonalMagnitude;
+		}
 
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardDownRay, downRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardDown;
-                        break;
-                    }
-                }
-            }
+		public bool FindClosestDeviation(ICollection<FlightPoint> previousFlightPoints, out Vector3 travelDeviation)
+		{
+			var deviation = travelDeviation = Vector3.Zero;
+			var valueFound = false;
 
-            if (!valueFound)
-            {
-                var leftRay = this.Position + this.Left * 2;
-                var rightRay = this.Position + this.Right * 2;
+			// Making the rays 1.5x as long as our detection range to ensure it is clear
+			var forwardRay = this.Position + this.Forward * 1.5f;
+			var forwardRightRay = this.Position + this.ForwardRight * 1.5f;
+			var forwardLeftRay = this.Position + this.ForwardLeft * 1.5f;
+			var forwardUpRay = Vector3.Zero;
+			var forwardDownRay = Vector3.Zero;
+			Vector3 hit;
+			Vector3 distances;
 
-                for (float i = 0.2f; i < 1; i += 0.2f)
-                {
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardLeftRay, leftRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardLeft;
-                        break;
-                    }
+			for (var i = 0.2f; i < 1; i += 0.2f)
+			{
+				if (
+					!WorldManager.Raycast(
+						this.Position,
+						deviation = Vector3.Blend(forwardRay, forwardRightRay, i),
+						out hit,
+						out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+					&& !MemoryCache.Default.Contains(deviation.ToString()))
+				{
+					valueFound = true;
+					this.Flags |= CollisionFlags.ForwardRight;
+					break;
+				}
 
-                    if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardRightRay, rightRay, i), out hit, out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation)) && !MemoryCache.Default.Contains(deviation.ToString()))
-                    {
-                        valueFound = true;
-                        this.Flags |= CollisionFlags.ForwardRight;
-                        break;
-                    }
-                }
-            }
+				if (
+					!WorldManager.Raycast(
+						this.Position,
+						deviation = Vector3.Blend(forwardRay, forwardLeftRay, i),
+						out hit,
+						out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+					&& !MemoryCache.Default.Contains(deviation.ToString()))
+				{
+					valueFound = true;
+					this.Flags |= CollisionFlags.ForwardLeft;
+					break;
+				}
+			}
 
-            if (!valueFound)
-            {
-                this.Flags |= CollisionFlags.Error;
-            }
-            else
-            {
-                travelDeviation = deviation;
+			if (!valueFound)
+			{
+				forwardUpRay = this.Position + this.ForwardUp * 1.5f;
+				forwardDownRay = this.Position + this.ForwardDown * 1.5f;
 
-                Logger.Instance.Verbose("Direction of deviation: " + (Flags ^ CollisionFlags.Forward));
-            }
+				for (var i = 0.2f; i < 1; i += 0.2f)
+				{
+					if (
+						!WorldManager.Raycast(
+							this.Position,
+							deviation = Vector3.Blend(forwardRay, forwardUpRay, i),
+							out hit,
+							out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardUp;
+						break;
+					}
 
-            return valueFound;
-        }
+					if (
+						!WorldManager.Raycast(
+							this.Position,
+							deviation = Vector3.Blend(forwardRay, forwardDownRay, i),
+							out hit,
+							out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardDown;
+						break;
+					}
+				}
+			}
 
-        public CollisionFlags Flags;
+			if (!valueFound)
+			{
+				var upRay = this.Position + this.Up * 1.5f;
+				var downRay = this.Position + this.Down * 1.5f;
 
-        public Vector3 Direction2D;
+				for (var i = 0.2f; i < 1; i += 0.2f)
+				{
+					if (!WorldManager.Raycast(this.Position, deviation = Vector3.Blend(forwardUpRay, upRay, i), out hit, out distances)
+						&& !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardUp;
+						break;
+					}
 
-        public Vector3 Position;
+					if (
+						!WorldManager.Raycast(
+							this.Position,
+							deviation = Vector3.Blend(forwardDownRay, downRay, i),
+							out hit,
+							out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardDown;
+						break;
+					}
+				}
+			}
 
-        public Vector3 Forward;
+			if (!valueFound)
+			{
+				var leftRay = this.Position + this.Left * 2;
+				var rightRay = this.Position + this.Right * 2;
 
-        public Vector3 ForwardHit;
+				for (var i = 0.2f; i < 1; i += 0.2f)
+				{
+					if (
+						!WorldManager.Raycast(
+							this.Position,
+							deviation = Vector3.Blend(forwardLeftRay, leftRay, i),
+							out hit,
+							out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardLeft;
+						break;
+					}
 
-        public Vector3 Up;
+					if (
+						!WorldManager.Raycast(
+							this.Position,
+							deviation = Vector3.Blend(forwardRightRay, rightRay, i),
+							out hit,
+							out distances) && !previousFlightPoints.Any(fp => fp.FuzzyEquals(deviation))
+						&& !MemoryCache.Default.Contains(deviation.ToString()))
+					{
+						valueFound = true;
+						this.Flags |= CollisionFlags.ForwardRight;
+						break;
+					}
+				}
+			}
 
-        public Vector3 Down;
+			if (!valueFound)
+			{
+				this.Flags |= CollisionFlags.Error;
+			}
+			else
+			{
+				travelDeviation = deviation;
 
-        public Vector3 Left;
+				Logger.Instance.Verbose("Direction of deviation: " + (Flags ^ CollisionFlags.Forward));
+			}
 
-        public Vector3 Right;
+			return valueFound;
+		}
 
-        public Vector3 ForwardLeft;
+		public CollisionFlags Flags;
 
-        public Vector3 ForwardRight;
+		public Vector3 Direction2D;
 
-        public Vector3 ForwardUp;
+		public Vector3 Position;
 
-        public Vector3 ForwardDown;
-    }
-    public class Collisions
-    {
-        public readonly Collider PlayerCollider;
+		public Vector3 Forward;
 
-        //public readonly Collider DestinationCollider;
+		public Vector3 ForwardHit;
 
-        public Collisions(Vector3 position, Vector3 ray3, float forwardRange = 30.0f)
-        {
-            this.PlayerCollider = new Collider(position, ray3, forwardRange);
-            //DestinationCollider = new Collider(position + ray3, -ray3, forwardRange);
-        }
+		public Vector3 Up;
 
-        public CollisionFlags CollisionResult(ICollection<FlightPoint> previousFlightPoints, out Vector3 deviation)
-        {
-            deviation = Vector3.Zero;
-            
-            if (!this.PlayerCollider.IsFowardCollision())
-            {
-                return this.PlayerCollider.Flags;
-            }
+		public Vector3 Down;
 
-            this.PlayerCollider.BuildCollider();
-            //DestinationCollider.BuildCollider();
+		public Vector3 Left;
 
-            Vector3 playerDeviation;
-            this.PlayerCollider.FindClosestDeviation(previousFlightPoints, out playerDeviation);
+		public Vector3 Right;
 
-            deviation = playerDeviation;
+		public Vector3 ForwardLeft;
 
-            return this.PlayerCollider.Flags;
-        }
-    }
+		public Vector3 ForwardRight;
+
+		public Vector3 ForwardUp;
+
+		public Vector3 ForwardDown;
+	}
+
+	public class Collisions
+	{
+		public readonly Collider PlayerCollider;
+
+		//public readonly Collider DestinationCollider;
+
+		public Collisions(Vector3 position, Vector3 ray3, float forwardRange = 30.0f)
+		{
+			this.PlayerCollider = new Collider(position, ray3, forwardRange);
+			//DestinationCollider = new Collider(position + ray3, -ray3, forwardRange);
+		}
+
+		public CollisionFlags CollisionResult(ICollection<FlightPoint> previousFlightPoints, out Vector3 deviation)
+		{
+			deviation = Vector3.Zero;
+
+			if (!this.PlayerCollider.IsFowardCollision())
+			{
+				return this.PlayerCollider.Flags;
+			}
+
+			this.PlayerCollider.BuildCollider();
+			//DestinationCollider.BuildCollider();
+
+			Vector3 playerDeviation;
+			this.PlayerCollider.FindClosestDeviation(previousFlightPoints, out playerDeviation);
+
+			deviation = playerDeviation;
+
+			return this.PlayerCollider.Flags;
+		}
+	}
 }

@@ -1,13 +1,13 @@
 ﻿namespace ExBuddy.Interfaces
 {
-    using System.Windows.Media;
+	using System.Windows.Media;
 
-    public interface ILogColors
-    {
-        Color Error { get; }
+	public interface ILogColors
+	{
+		Color Error { get; }
 
-        Color Warn { get; }
+		Color Warn { get; }
 
-        Color Info { get; }
-    }
+		Color Info { get; }
+	}
 }

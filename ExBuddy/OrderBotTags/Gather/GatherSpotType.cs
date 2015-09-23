@@ -1,9 +1,11 @@
 namespace ExBuddy.OrderBotTags.Gather
 {
-    public enum GatherSpotType
-    {
-        GatherSpot,
-        StealthGatherSpot,
-        StealthApproachGatherSpot
-    }
+	public enum GatherSpotType
+	{
+		GatherSpot,
+
+		StealthGatherSpot,
+
+		StealthApproachGatherSpot
+	}
 }

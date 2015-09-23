@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Titanium Ore</Name>
 	<KillRadius>50</KillRadius>
@@ -29,9 +30,9 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
+		<RunCode name="Gear" />
 		<If Condition="not IsOnMap(398)">
-      <LogMessage Message="Teleporting to gather Titanium Ore."/>
+			<LogMessage Message="Teleporting to gather Titanium Ore." />
 			<TeleportTo Name="TailFeather" AetheryteId="73" />
 		</If>
 		<!-- TODO: do we still need the while? -->
@@ -47,11 +48,11 @@
 				<GatherSpots>
 				</GatherSpots>
 				<HotSpots>
-					<HotSpot Radius="60" XYZ="303.3996, -29.96835, -433.9131"/>
-          <HotSpot Radius="60" XYZ="341.8773, -43.03335, -253.805"/>
-          <HotSpot Radius="15" XYZ="349.8022, 20.301442, -297.6522"/>
-          <HotSpot Radius="60" XYZ="515.8217, -33.95522, -409.7102"/>
-          <HotSpot Radius="15" XYZ="448.8686, 42.34958, -376.1582"/>
+					<HotSpot Radius="60" XYZ="303.3996, -29.96835, -433.9131" />
+					<HotSpot Radius="60" XYZ="341.8773, -43.03335, -253.805" />
+					<HotSpot Radius="15" XYZ="349.8022, 20.301442, -297.6522" />
+					<HotSpot Radius="60" XYZ="515.8217, -33.95522, -409.7102" />
+					<HotSpot Radius="15" XYZ="448.8686, 42.34958, -376.1582" />
 				</HotSpots>
 			</GatherCollectable>
 		</While>

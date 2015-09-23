@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Collectable: Modified Free Range Collect</Name>
 	<KillRadius>50</KillRadius>
-		<CodeChunks>
+	<CodeChunks>
 		<CodeChunk name="Gear">
 			<![CDATA[
 				ff14bot.Managers.ChatManager.SendChat("/gs change 1");
@@ -29,25 +30,25 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
+		<RunCode name="Gear" />
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
-			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
-			CordialType="Cordial">
+								FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
+								CordialType="Cordial">
 				<Collectables>
 					<Collectable Name="Cuprite" Value="0" PlusPlus="1" />
-          <!--Collectable Name="Red Quartz" Value="0" PlusPlus="0"/-->
+					<!--Collectable Name="Red Quartz" Value="0" PlusPlus="0"/-->
 					<Collectable Name="Light Kidney Ore" Value="0" PlusPlus="0" />
 					<Collectable Name="Abalathian Mistletoe" Value="0" PlusPlus="0" />
 					<Collectable Name="Heavens Lemon" Value="0" PlusPlus="0" />
-          <Collectable Name="Chalcocite" Value="0" PlusPlus="0" />
+					<Collectable Name="Chalcocite" Value="0" PlusPlus="0" />
 					<Collectable Name="Morel" Value="0" PlusPlus="0" />
 					<Collectable Name="Yellow Copper Ore" Value="0" PlusPlus="0" />
-          <Collectable Name="Old World Fig" Value="0" PlusPlus="0" />
+					<Collectable Name="Old World Fig" Value="0" PlusPlus="0" />
 					<Collectable Name="Adamantite Ore" Value="0" PlusPlus="0" />
 					<Collectable Name="Chysahl Greens" Value="0" PlusPlus="0" />
-          <Collectable Name="Green Quartz" Value="0" PlusPlus="0" />
-          <Collectable Name="Abalathian Rock Salt" Value="0" PlusPlus="2"/>
+					<Collectable Name="Green Quartz" Value="0" PlusPlus="0" />
+					<Collectable Name="Abalathian Rock Salt" Value="0" PlusPlus="2" />
 					<Collectable Name="Radiant Fire Moraine" Value="0" PlusPlus="0" />
 					<Collectable Name="Bright Fire Rock" Value="0" PlusPlus="0" />
 					<Collectable Name="Fire Moraine" Value="0" PlusPlus="0" />

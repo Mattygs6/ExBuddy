@@ -1,26 +1,28 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather
 {
-    using System.Threading.Tasks;
+	using System.Threading.Tasks;
 
-    using Clio.XmlEngine;
+	using Clio.XmlEngine;
 
-    using ExBuddy.Helpers;
+	using ExBuddy.Helpers;
 
-    [XmlElement("GatherSpot")]
-    public class GatherSpot : StealthGatherSpot
-    {
-        public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
-        {
-            tag.StatusText = "Moving to " + this;
+	[XmlElement("GatherSpot")]
+	public class GatherSpot : StealthGatherSpot
+	{
+		public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
+		{
+			tag.StatusText = "Moving to " + this;
 
-            var result = await Behaviors.MoveTo(
-                NodeLocation,
-                UseMesh,
-                radius: tag.Distance,
-                name: tag.Node.EnglishName,
-                stopCallback: tag.MovementStopCallback);
+			var result =
+				await
+				Behaviors.MoveTo(
+					NodeLocation,
+					UseMesh,
+					radius: tag.Distance,
+					name: tag.Node.EnglishName,
+					stopCallback: tag.MovementStopCallback);
 
-            return result;
-        }
-    }
+			return result;
+		}
+	}
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Hardsilver Ore</Name>
 	<KillRadius>50</KillRadius>
@@ -29,15 +30,15 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
-    <WaitTimer waitTime="3"/>
-    <If condition="not IsOnMap(399)">
-      <If condition="not IsOnMap(478)">
-        <LogMessage Message="Teleporting to gather Hardsilver Ore."/>
-        <TeleportTo name="Idyllshire" aetheryteId="75"/>
-      </If>
-      <UseTransport name="Goodly Adventurer" interactDistance="3.0" npcId="1015570" xyz="63.45142, 207.29, -2.773367" />
-    </If>
+		<RunCode name="Gear" />
+		<WaitTimer waitTime="3" />
+		<If condition="not IsOnMap(399)">
+			<If condition="not IsOnMap(478)">
+				<LogMessage Message="Teleporting to gather Hardsilver Ore." />
+				<TeleportTo name="Idyllshire" aetheryteId="75" />
+			</If>
+			<UseTransport name="Goodly Adventurer" interactDistance="3.0" npcId="1015570" xyz="63.45142, 207.29, -2.773367" />
+		</If>
 		<!-- TODO: do we still need the while? -->
 		<While condition="True">
 			<GatherCollectable AlwaysGather="true" Radius="2" gatherIncrease="Quality">
@@ -51,10 +52,10 @@
 				<GatherSpots>
 				</GatherSpots>
 				<HotSpots>
-					<HotSpot Radius="60" XYZ="126.1025, 69.58351, 49.10416"/>
-          <HotSpot Radius="60" XYZ="235.9106, 73.5178, 145.8422"/>
-          <HotSpot Radius="5" XYZ="186.9059, 105.7, 119.8316"/>
-          <HotSpot Radius="60" XYZ="49.99953, 53.17538, 156.416"/>
+					<HotSpot Radius="60" XYZ="126.1025, 69.58351, 49.10416" />
+					<HotSpot Radius="60" XYZ="235.9106, 73.5178, 145.8422" />
+					<HotSpot Radius="5" XYZ="186.9059, 105.7, 119.8316" />
+					<HotSpot Radius="60" XYZ="49.99953, 53.17538, 156.416" />
 				</HotSpots>
 			</GatherCollectable>
 		</While>

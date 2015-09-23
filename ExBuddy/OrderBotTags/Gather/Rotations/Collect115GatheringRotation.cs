@@ -1,31 +1,31 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-    using System.Threading.Tasks;
+	using System.Threading.Tasks;
 
-    using ExBuddy.Attributes;
-    using ExBuddy.Interfaces;
+	using ExBuddy.Attributes;
+	using ExBuddy.Interfaces;
 
-    [GatheringRotation("Collect115", 0, 24)]
-    public sealed class Collect115GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
-    {
-        public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
-        {
-            await Methodical(tag);
+	[GatheringRotation("Collect115", 0, 24)]
+	public sealed class Collect115GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
+	{
+		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		{
+			await Methodical(tag);
 
-            await IncreaseChance(tag);
+			await IncreaseChance(tag);
 
-            return true;
-        }
+			return true;
+		}
 
-        int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
-        {
-            // if we have a collectable && the collectable value is greater than or equal to 115: Priority 115
-            if (tag.CollectableItem != null && tag.CollectableItem.Value >= 115)
-            {
-                return 115;
-            }
+		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		{
+			// if we have a collectable && the collectable value is greater than or equal to 115: Priority 115
+			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 115)
+			{
+				return 115;
+			}
 
-            return -1;
-        }
-    }
+			return -1;
+		}
+	}
 }

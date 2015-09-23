@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Collectable: Porcini</Name>
 	<KillRadius>50</KillRadius>
@@ -33,10 +34,10 @@
 	<Order>
 		<If Condition="not IsOnMap(400)">
 			<TeleportTo Name="Zenith" AetheryteId="79" />
-			<MoveTo XYZ="-574.8106, 48.80803, 310.9625"/>
+			<MoveTo XYZ="-574.8106, 48.80803, 310.9625" />
 			<FlightPathTo XYZ="-463.0666, 160.2987, 266.5712" Radius="3.0" MountId="1" DismountAtDestination="false" />
 		</If>
-		<RunCode name="Gear"/>
+		<RunCode name="Gear" />
 		<While condition="True">
 			<GatherCollectable loops="1" spawnTimeout="120">
 				<GatherObjects>
@@ -45,12 +46,15 @@
 				<GatherRotation>Unspoiled</GatherRotation>
 				<!--<GatherRotation>Collect450</GatherRotation>-->
 				<GatherSpots>
-					<StealthApproachGatherSpot stealthLocation="221.1639, 218.9276, -654.8363" nodeLocation="222.5773, 218.4649, -658.0814" />
-					<StealthApproachGatherSpot stealthLocation="106.7898, 213.772, -801.8348" nodeLocation="106.7898, 213.772, -801.8348" />
-					<StealthApproachGatherSpot stealthLocation="169.6753, 219.6535, -592.4287" nodeLocation="175.5408, 220.2071, -600.0065"	/>
+					<StealthApproachGatherSpot stealthLocation="221.1639, 218.9276, -654.8363"
+												nodeLocation="222.5773, 218.4649, -658.0814" />
+					<StealthApproachGatherSpot stealthLocation="106.7898, 213.772, -801.8348"
+												nodeLocation="106.7898, 213.772, -801.8348" />
+					<StealthApproachGatherSpot stealthLocation="169.6753, 219.6535, -592.4287"
+												nodeLocation="175.5408, 220.2071, -600.0065" />
 				</GatherSpots>
 				<HotSpots>
-					<HotSpot Radius="150" XYZ="173.6, 296.5012, -704.6605"/>
+					<HotSpot Radius="150" XYZ="173.6, 296.5012, -704.6605" />
 				</HotSpots>
 			</GatherCollectable>
 		</While>

@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Collectable: Free Range Gather</Name>
 	<KillRadius>50</KillRadius>
 	<Order>
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
-			FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
-			CordialType="Cordial" CordialTime="Auto">
+								FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
+								CordialType="Cordial" CordialTime="Auto">
 				<ItemNames>
 					<ItemName>Timeworn Dragonskin Map</ItemName>
 					<ItemName>Adamantite Ore</ItemName>

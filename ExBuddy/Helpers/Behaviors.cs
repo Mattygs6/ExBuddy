@@ -1,306 +1,330 @@
 namespace ExBuddy.Helpers
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
+	using System;
+	using System.Linq;
+	using System.Threading.Tasks;
 
-    using Buddy.Coroutines;
+	using Buddy.Coroutines;
 
-    using Clio.Utilities;
+	using Clio.Utilities;
 
-    using ExBuddy.Interfaces;
-    using ExBuddy.Logging;
-    using ExBuddy.Navigation;
-    using ExBuddy.OrderBotTags.Behaviors.Objects;
+	using ExBuddy.Interfaces;
+	using ExBuddy.Logging;
+	using ExBuddy.Navigation;
+	using ExBuddy.OrderBotTags.Behaviors.Objects;
 
-    using ff14bot;
-    using ff14bot.Behavior;
-    using ff14bot.Enums;
-    using ff14bot.Managers;
-    using ff14bot.Navigation;
-    using ff14bot.Settings;
+	using ff14bot;
+	using ff14bot.Behavior;
+	using ff14bot.Enums;
+	using ff14bot.Managers;
+	using ff14bot.Navigation;
+	using ff14bot.Settings;
 
-    public static class Behaviors
-    {
-        private static bool shouldContinue;
-        static Behaviors()
-        {
-            ShouldContinue = true;
-            TreeRoot.OnStart += bot => ShouldContinue = true;
-            TreeRoot.OnStop += bot => ShouldContinue = false;
-        }
+	public static class Behaviors
+	{
+		private static bool shouldContinue;
 
-        public static bool ShouldContinue
-        {
-            get
-            {
-                return Core.Player.IsAlive && shouldContinue;
-            }
+		static Behaviors()
+		{
+			ShouldContinue = true;
+			TreeRoot.OnStart += bot => ShouldContinue = true;
+			TreeRoot.OnStop += bot => ShouldContinue = false;
+		}
 
-            internal set
-            {
-                shouldContinue = value;
-            }
-        }
+		public static bool ShouldContinue
+		{
+			get
+			{
+				return Core.Player.IsAlive && shouldContinue;
+			}
 
-        public static readonly Func<float, float, bool> DontStopInRange = (d, r) => false;
+			internal set
+			{
+				shouldContinue = value;
+			}
+		}
 
-        public static IReturnStrategy GetReturnStrategy()
-        {
-            var currentZoneId = WorldManager.ZoneId;
-            var teleportLocation = WorldManager.AvailableLocations.FirstOrDefault(l => l.ZoneId == currentZoneId);
+		public static readonly Func<float, float, bool> DontStopInRange = (d, r) => false;
 
-            if (teleportLocation.AetheryteId == 0)
-            {
-                return GetReturnStrategyForZoneWithoutAetheryte(currentZoneId);
-            }
+		public static IReturnStrategy GetReturnStrategy()
+		{
+			var currentZoneId = WorldManager.ZoneId;
+			var teleportLocation = WorldManager.AvailableLocations.FirstOrDefault(l => l.ZoneId == currentZoneId);
 
-            return new DefaultReturnStrategy { ZoneId = currentZoneId, AetheryteId = teleportLocation.AetheryteId, InitialLocation = Core.Player.Location };
-        }
+			if (teleportLocation.AetheryteId == 0)
+			{
+				return GetReturnStrategyForZoneWithoutAetheryte(currentZoneId);
+			}
 
-        public static IReturnStrategy GetReturnStrategyForZoneWithoutAetheryte(ushort zoneId)
-        {
-            IReturnStrategy strategy;
-            switch (zoneId)
-            {
-                case 399:
-                    strategy = new NoAetheryteUseTransportReturnStrategy
-                    {
-                        InteractDistance = 3.0f,
-                        ZoneId = 478,
-                        AetheryteId = 75,
-                        InitialLocation = Core.Player.Location,
-                        NpcId = 1015570,
-                        NpcLocation = new Vector3(63.45142f, 207.29f, -2.773367f)
-                    };
-                    break;
-                default:
-                    strategy = new NoOpReturnStrategy();
-                    break;
-            }
+			return new DefaultReturnStrategy
+						{
+							ZoneId = currentZoneId,
+							AetheryteId = teleportLocation.AetheryteId,
+							InitialLocation = Core.Player.Location
+						};
+		}
 
-            return strategy;
-        }
+		public static IReturnStrategy GetReturnStrategyForZoneWithoutAetheryte(ushort zoneId)
+		{
+			IReturnStrategy strategy;
+			switch (zoneId)
+			{
+				case 399:
+					strategy = new NoAetheryteUseTransportReturnStrategy
+									{
+										InteractDistance = 3.0f,
+										ZoneId = 478,
+										AetheryteId = 75,
+										InitialLocation = Core.Player.Location,
+										NpcId = 1015570,
+										NpcLocation = new Vector3(63.45142f, 207.29f, -2.773367f)
+									};
+					break;
+				default:
+					strategy = new NoOpReturnStrategy();
+					break;
+			}
 
-        public static async Task<bool> MoveTo(Vector3 destination, bool useMesh = true, uint mountId = 0, float radius = 2.0f, string name = null, Func<float, float, bool> stopCallback = null, bool dismountAtDestination = false)
-        {
-            // ReSharper disable once InconsistentNaming
-            var distance3d = Core.Player.Location.Distance3D(destination);
+			return strategy;
+		}
 
-            if (Actionmanager.CanMount == 0 && ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance && CharacterSettings.Instance.UseMount) || !destination.IsGround()))
-            {
-                uint flightSpecificMountId = 0;
-                if (mountId == 0)
-                {
-                    mountId = CharacterSettings.Instance.MountId;
-                    if (mountId == uint.MaxValue)
-                    {
-                        var mount = Actionmanager.AvailableMounts.Shuffle().FirstOrDefault();
-                        if (mount != null)
-                        {
-                            mountId = mount.Id;
-                        }
-                    }
-                    var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
-                    if (playerMover != null)
-                    {
-                        flightSpecificMountId = (uint)playerMover.FlightMovementArgs.MountId;
-                    }
-                }
+		public static async Task<bool> MoveTo(
+			Vector3 destination,
+			bool useMesh = true,
+			uint mountId = 0,
+			float radius = 2.0f,
+			string name = null,
+			Func<float, float, bool> stopCallback = null,
+			bool dismountAtDestination = false)
+		{
+			// ReSharper disable once InconsistentNaming
+			var distance3d = Core.Player.Location.Distance3D(destination);
 
-                var ticks = 0;
-                while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
-                {
-                    if (WorldManager.CanFly && flightSpecificMountId > 0)
-                    {
-                        await CommonTasks.MountUp(flightSpecificMountId);
-                        await Coroutine.Yield();
-                        if (Core.Player.IsMounted)
-                        {
-                            break;
-                        }
-                    }
+			if (Actionmanager.CanMount == 0
+				&& ((!Core.Player.IsMounted && distance3d >= CharacterSettings.Instance.MountDistance
+					&& CharacterSettings.Instance.UseMount) || !destination.IsGround()))
+			{
+				uint flightSpecificMountId = 0;
+				if (mountId == 0)
+				{
+					mountId = CharacterSettings.Instance.MountId;
+					if (mountId == uint.MaxValue)
+					{
+						var mount = Actionmanager.AvailableMounts.Shuffle().FirstOrDefault();
+						if (mount != null)
+						{
+							mountId = mount.Id;
+						}
+					}
+					var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
+					if (playerMover != null)
+					{
+						flightSpecificMountId = (uint)playerMover.FlightMovementArgs.MountId;
+					}
+				}
 
-                    if (mountId > 0)
-                    {
-                        if (!await CommonTasks.MountUp(mountId))
-                        {
-                            if (!await CommonTasks.MountUp(1))
-                            {
-                                await CommonTasks.MountUp(45);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        await CommonTasks.MountUp();
-                    }
+				var ticks = 0;
+				while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
+				{
+					if (WorldManager.CanFly && flightSpecificMountId > 0)
+					{
+						await CommonTasks.MountUp(flightSpecificMountId);
+						await Coroutine.Yield();
+						if (Core.Player.IsMounted)
+						{
+							break;
+						}
+					}
 
-                    await Coroutine.Yield();
-                }
-            }
+					if (mountId > 0)
+					{
+						if (!await CommonTasks.MountUp(mountId))
+						{
+							if (!await CommonTasks.MountUp(1))
+							{
+								await CommonTasks.MountUp(45);
+							}
+						}
+					}
+					else
+					{
+						await CommonTasks.MountUp();
+					}
 
-            await MoveToNoMount(destination, useMesh, radius, name, stopCallback);
+					await Coroutine.Yield();
+				}
+			}
 
-            var dismountTicks = 0;
-            while (dismountAtDestination && dismountTicks++ < 100 && Core.Player.IsMounted && ShouldContinue)
-            {
-                if (MovementManager.IsFlying)
-                {
-                    if (Navigator.PlayerMover is FlightEnabledSlideMover)
-                    {
-                        Navigator.Stop();
-                    }
-                    else
-                    {
-                        MovementManager.StartDescending();
-                    }
-                }
-                else
-                {
-                    Actionmanager.Dismount();
-                }
+			await MoveToNoMount(destination, useMesh, radius, name, stopCallback);
 
-                await Coroutine.Wait(100, () => !Core.Player.IsMounted);
-            }
+			var dismountTicks = 0;
+			while (dismountAtDestination && dismountTicks++ < 100 && Core.Player.IsMounted && ShouldContinue)
+			{
+				if (MovementManager.IsFlying)
+				{
+					if (Navigator.PlayerMover is FlightEnabledSlideMover)
+					{
+						Navigator.Stop();
+					}
+					else
+					{
+						MovementManager.StartDescending();
+					}
+				}
+				else
+				{
+					Actionmanager.Dismount();
+				}
 
-            if (dismountTicks > 100)
-            {
-                Logger.Instance.Error("Failed to dismount after MoveTo task.");
-                return false;
-            }
+				await Coroutine.Wait(100, () => !Core.Player.IsMounted);
+			}
 
-            return true;
-        }
+			if (dismountTicks > 100)
+			{
+				Logger.Instance.Error("Failed to dismount after MoveTo task.");
+				return false;
+			}
 
-        public static async Task<bool> MoveToNoMount(Vector3 destination, bool useMesh = true, float radius = 2.0f, string name = null, Func<float, float, bool> stopCallback = null)
-        {
-            stopCallback = stopCallback ?? ((d, r) => d <= r);
+			return true;
+		}
 
-            var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
-            float distance;
-            if (useMesh)
-            {
-                var moveResult = MoveResult.GeneratingPath;
-                while (ShouldContinue && (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius) || (stopCallback == DontStopInRange && !(moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination))))
-                {
-                    moveResult = Navigator.MoveTo(destination, name);
-                    await Coroutine.Yield();
+		public static async Task<bool> MoveToNoMount(
+			Vector3 destination,
+			bool useMesh = true,
+			float radius = 2.0f,
+			string name = null,
+			Func<float, float, bool> stopCallback = null)
+		{
+			stopCallback = stopCallback ?? ((d, r) => d <= r);
 
-                    if (distance > sprintDistance)
-                    {
-                        Sprint();
-                    }
-                }
+			var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
+			float distance;
+			if (useMesh)
+			{
+				var moveResult = MoveResult.GeneratingPath;
+				while (ShouldContinue
+						&& (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius)
+							|| (stopCallback == DontStopInRange
+								&& !(moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination))))
+				{
+					moveResult = Navigator.MoveTo(destination, name);
+					await Coroutine.Yield();
 
-                Navigator.Stop();
-            }
-            else
-            {
-                while (ShouldContinue && !stopCallback(distance = Core.Player.Location.Distance3D(destination), radius))
-                {
-                    Navigator.PlayerMover.MoveTowards(destination);
-                    await Coroutine.Yield();
+					if (distance > sprintDistance)
+					{
+						Sprint();
+					}
+				}
 
-                    if (distance > sprintDistance)
-                    {
-                        Sprint();
-                    }
-                }
+				Navigator.Stop();
+			}
+			else
+			{
+				while (ShouldContinue && !stopCallback(distance = Core.Player.Location.Distance3D(destination), radius))
+				{
+					Navigator.PlayerMover.MoveTowards(destination);
+					await Coroutine.Yield();
 
-                Navigator.PlayerMover.MoveStop();
-            }
+					if (distance > sprintDistance)
+					{
+						Sprint();
+					}
+				}
 
-            return true;
-        }
+				Navigator.PlayerMover.MoveStop();
+			}
 
-        public static async Task<bool> TeleportTo(ushort zoneId, uint aetheryteId)
-        {
-            if (WorldManager.ZoneId == zoneId)
-            {
-                // continue we are in the zone.
-                return false;
-            }
+			return true;
+		}
 
-            var ticks = 0;
-            while (MovementManager.IsMoving && ticks++ < 5 && ShouldContinue)
-            {
-                Navigator.Stop();
-                await Coroutine.Sleep(240);
-            }
+		public static async Task<bool> TeleportTo(ushort zoneId, uint aetheryteId)
+		{
+			if (WorldManager.ZoneId == zoneId)
+			{
+				// continue we are in the zone.
+				return false;
+			}
 
-            var casted = false;
-            while (WorldManager.ZoneId != zoneId && ShouldContinue)
-            {
-                if (!Core.Player.IsCasting && casted)
-                {
-                    break;
-                }
+			var ticks = 0;
+			while (MovementManager.IsMoving && ticks++ < 5 && ShouldContinue)
+			{
+				Navigator.Stop();
+				await Coroutine.Sleep(240);
+			}
 
-                if (!Core.Player.IsCasting && !CommonBehaviors.IsLoading)
-                {
-                    WorldManager.TeleportById(aetheryteId);
-                    await Coroutine.Sleep(500);
-                }
+			var casted = false;
+			while (WorldManager.ZoneId != zoneId && ShouldContinue)
+			{
+				if (!Core.Player.IsCasting && casted)
+				{
+					break;
+				}
 
-                casted = casted || Core.Player.IsCasting;
-                await Coroutine.Yield();
-            }
+				if (!Core.Player.IsCasting && !CommonBehaviors.IsLoading)
+				{
+					WorldManager.TeleportById(aetheryteId);
+					await Coroutine.Sleep(500);
+				}
 
-            await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
-            await Coroutine.Wait(5000, () => !CommonBehaviors.IsLoading);
+				casted = casted || Core.Player.IsCasting;
+				await Coroutine.Yield();
+			}
 
-            return true;
-        }
+			await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
+			await Coroutine.Wait(5000, () => !CommonBehaviors.IsLoading);
 
-        public static async Task<bool> TeleportTo(ushort zoneId)
-        {
-            var teleportLocation = WorldManager.AvailableLocations.FirstOrDefault(l => l.ZoneId == zoneId);
+			return true;
+		}
 
-            if (teleportLocation.AetheryteId == 0)
-            {
-                return false;
-            }
+		public static async Task<bool> TeleportTo(ushort zoneId)
+		{
+			var teleportLocation = WorldManager.AvailableLocations.FirstOrDefault(l => l.ZoneId == zoneId);
 
-            return await TeleportTo(zoneId, teleportLocation.AetheryteId);
-        }
+			if (teleportLocation.AetheryteId == 0)
+			{
+				return false;
+			}
 
-        public static async Task<bool> TeleportTo(uint aetheryteId)
-        {
-            var zoneId = WorldManager.GetZoneForAetheryteId(aetheryteId);
+			return await TeleportTo(zoneId, teleportLocation.AetheryteId);
+		}
 
-            if (zoneId == 0)
-            {
-                return false;
-            }
+		public static async Task<bool> TeleportTo(uint aetheryteId)
+		{
+			var zoneId = WorldManager.GetZoneForAetheryteId(aetheryteId);
 
-            return await TeleportTo((ushort)zoneId, aetheryteId);
-        }
+			if (zoneId == 0)
+			{
+				return false;
+			}
 
-        public static async Task<bool> TeleportTo(LocationData locationData)
-        {
-            return await TeleportTo(locationData.ZoneId, locationData.AetheryteId);
-        }
+			return await TeleportTo((ushort)zoneId, aetheryteId);
+		}
 
-        public static async Task<bool> TeleportTo(IReturnStrategy returnStrategy)
-        {
-            return await TeleportTo(returnStrategy.ZoneId, returnStrategy.AetheryteId);
-        }
+		public static async Task<bool> TeleportTo(LocationData locationData)
+		{
+			return await TeleportTo(locationData.ZoneId, locationData.AetheryteId);
+		}
 
-        public static async Task<bool> Unstuck()
-        {
-            await CommonTasks.DescendTo(0);
-            return true;
-        }
+		public static async Task<bool> TeleportTo(IReturnStrategy returnStrategy)
+		{
+			return await TeleportTo(returnStrategy.ZoneId, returnStrategy.AetheryteId);
+		}
 
-        public static bool Sprint()
-        {
-            if (Actionmanager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000 && MovementManager.IsMoving)
-            {
-                Actionmanager.Sprint();
-            }
+		public static async Task<bool> Unstuck()
+		{
+			await CommonTasks.DescendTo(0);
+			return true;
+		}
 
-            return true;
-        }
-    }
+		public static bool Sprint()
+		{
+			if (Actionmanager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000
+				&& MovementManager.IsMoving)
+			{
+				Actionmanager.Sprint();
+			}
+
+			return true;
+		}
+	}
 }

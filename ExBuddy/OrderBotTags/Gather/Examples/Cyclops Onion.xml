@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Cyclops Onion</Name>
 	<KillRadius>50</KillRadius>
@@ -29,9 +30,9 @@
 		</CodeChunk>
 	</CodeChunks>
 	<Order>
-		<RunCode name="Gear"/>
+		<RunCode name="Gear" />
 		<If Condition="not IsOnMap(398)">
-      <LogMessage Message="Teleporting to gather Cyclops Onion."/>
+			<LogMessage Message="Teleporting to gather Cyclops Onion." />
 			<TeleportTo Name="TailFeather" AetheryteId="73" />
 		</If>
 		<!-- TODO: do we still need the while? -->
@@ -47,12 +48,12 @@
 				<GatherSpots>
 				</GatherSpots>
 				<HotSpots>
-					<HotSpot Radius="60" XYZ="684.2095, -54.03824, -99.61548"/>
-          <HotSpot Radius="5" XYZ="691.6384, -9.980272, -92.40458"/>
-          <HotSpot Radius="5" XYZ="783.6976, -15.80534, -61.08333"/>
-          <HotSpot Radius="60" XYZ="801.3475, -39.33683, -102.0378"/>
-          <HotSpot Radius="5" XYZ="842.686, 24.45577, -168.2902"/>
-          <HotSpot Radius="60" XYZ="737.582, -20.59698, -265.3565"/>
+					<HotSpot Radius="60" XYZ="684.2095, -54.03824, -99.61548" />
+					<HotSpot Radius="5" XYZ="691.6384, -9.980272, -92.40458" />
+					<HotSpot Radius="5" XYZ="783.6976, -15.80534, -61.08333" />
+					<HotSpot Radius="60" XYZ="801.3475, -39.33683, -102.0378" />
+					<HotSpot Radius="5" XYZ="842.686, 24.45577, -168.2902" />
+					<HotSpot Radius="60" XYZ="737.582, -20.59698, -265.3565" />
 				</HotSpots>
 			</GatherCollectable>
 		</While>

@@ -1,147 +1,152 @@
 <Profile>
-  <Name>Fishing: Forager-Supra-Lucis</Name>
-  <KillRadius>50</KillRadius>
-  <CodeChunks>
-    <!-- Change gearset to your characters gear set number -->
-    <CodeChunk name="Gear">
-      <![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
-    </CodeChunk>
-  </CodeChunks>
-  <Order>
-    <RunCode name="Gear"/>
-    <WaitTimer waitTime="3"/>
-    <!-- Condition: Has at least a heavy steel jig or a yumizuno AND -->
-    <While condition="(HasAtLeast(2619, 1) or HasAtLeast(2628, 1)) and not (HqHasAtLeast(10123, 30) and (HqHasAtLeast(7930, 2) or HasAtLeast(7930, 3)) and HqHasAtLeast(7690, 20))">
-      <!-- Gigant Clams: Heavy Steel Jig  -->
-      <If condition="IsTimeBetween(22,24) or IsTimeBetween(0,2)">
-        <If condition="not HqHasAtLeast(10123, 30)">
-          <If condition="HasAtLeast(2619, 1)">
-            <If condition="not IsOnMap(137)">
-              <TeleportTo name="Costa Del Sol" aetheryteId="11" />
-            </If>
-            <Fish condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and HasAtLeast(2619, 1) and (IsTimeBetween(22,24) or IsTimeBetween(0,2))"
-                  mooch="1"
-                  bait="Heavy Steel Jig"
-                  patience="Patience2"
-                  confirmKey="Return" moveCursorRightKey="Right"
-                  minFish="15" maxFish="25">
-              <Keepers>
-                <Keeper name="Gigant Clam"/>
-                <Keeper name="Silver Shark"/>
-                <Keeper name="Blue Coral"/>
-              </Keepers>
-              <FishSpots>
-                <FishSpot xyz="541.28, 8.70105, 579.5362" />
-                <FishSpot xyz="560.7628, 8.698034, 585.7589" />
-                <FishSpot xyz="564.9565, 8.663778, 608.3327" />
-                <FishSpot xyz="542.0089, 8.659445, 617.5783" />
-              </FishSpots>
-            </Fish>
-          </If>
-        </If>
-      </If>
-      <!-- Olgoi bait: Sand Leech -->
-      <If condition="not HasAtLeast(7930, 3) and not HqHasAtLeast(7930, 2)">
-        <If condition="SkywatcherPlugin.IsWeatherInZone(146, 14) or SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14)">
-          <If condition="not IsOnMap(146)">
-            <TeleportTo name="Forgotten Springs" aetheryteId="20" />
-          </If>
-          <If condition="not HasAtLeast(2600,99)">
-            <LogMessage Message="You need more Sand Leeches!" />
-            <NoCombatMoveTo name="Merchant &amp; Mender" xyz="-279.1685, 8.091489, 381.3083" />
-            <BuyItem itemId="2600" itemCount="198" dialogOption="1" interactDistance="3.0" npcId="1004430" xyz="-279.1685, 8.091489, 381.3083" />
-          </If>
-          <Fish condition="WorldManager.CurrentWeatherId == 14"
-                mooch="2"
-                bait="Sand Leech"
-                patience="Patience2"
-                confirmKey="Return" moveCursorRightKey="Right"
-                minFish="15" maxFish="25">
-            <Keepers>
-              <Keeper name="Olgoi-Khorkhoi"/>
-              <Keeper name="Caravan Eel"/>
-              <Keeper name="Dune Manta"/>
-            </Keepers>
-            <FishSpots>
-              <FishSpot xyz="266.2189, 3.158592, 787.3333" heading="2.87004" sit="true" />
-              <FishSpot xyz="246.0735, 3.331366, 785.5537" heading="3.298501" />
-              <FishSpot xyz="222.0359, 2.438, 788.9343" heading="2.82899" />
-              <FishSpot xyz="200.8448, 1.601419, 778.8091" heading="2.849515" />
-              <FishSpot xyz="182.2277, -0.05929565, 759.106" heading="1.966938" sit="true" />
-              <FishSpot xyz="179.372, -1.953371, 723.9963" heading="1.525649" />
-              <FishSpot xyz="203.0785, 8.177773, 718.6793" heading="5.556135" />
-              <FishSpot xyz="223.0831, 8.223236, 741.1038" heading="6.23519" sit="true" />
-              <FishSpot xyz="251.2831, 7.842719, 735.34" heading="6.047903" />
-              <FishSpot xyz="268.2501, 7.062006, 748.8503" heading="6.014554" sit="true" />
-              <FishSpot xyz="294.3003, 6.960706, 751.697" heading="0.1880524" />
-            </FishSpots>
-          </Fish>
-        </If>
-      </If>
-      <!-- Silver Sovereign bait: Yumizuno -->
-      <If condition="not HqHasAtLeast(7690, 20)">
-        <If condition="HasAtLeast(2628, 1)">
-          <If condition="not IsOnMap(135)">
-            <TeleportTo name="Moraby Drydocks" aetheryteId="10" />
-          </If>
-          <Fish condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and not IsTimeBetween(22,24) and not IsTimeBetween(0,2) and HasAtLeast(2628, 1)"
-                bait="Yumizuno"
-                patience="Patience2"
-                shuffleFishSpots="true"
-                confirmKey="Return" moveCursorRightKey="Right"
-                minFish="15" maxFish="25">
-            <Keepers>
-              <Keeper name="Silver Sovereign"/>
-              <Keeper name="Mahi-Mahi"/>
-              <Keeper name="Rothlyt Oyster"/>
-            </Keepers>
-            <FishSpots>
-              <FishSpot xyz="142.4022, 57.68546, 930.2143" heading="0.8122025" sit="true"/>
-              <FishSpot xyz="135.7394, 58.55893, 940.8663" heading="0.9687042" />
-              <FishSpot xyz="130.9483, 59.73428, 948.3847" heading="0.6300395" sit="true"/>
-              <FishSpot xyz="109.0178, 59.71759, 950.4835" heading="6.053735" />
-              <FishSpot xyz="97.6573, 60.01523, 948.7998" heading="5.830524" />
-              <FishSpot xyz="90.14629, 59.66103, 943.6596" heading="5.4739" sit="true"/>
-            </FishSpots>
-          </Fish>
-        </If>
-        <If condition="not HasAtLeast(2628, 1)">
-          <LogMessage Message ="Need more Yumizuno"/>
-        </If>
-      </If>
-      <If condition="HqHasAtLeast(10123, 30) and (HasAtLeast(7930, 3) or HqHasAtLeast(7930, 2))">
-        <If condition="not HqHasAtLeast(7690, 20)">
-          <If condition="HasAtLeast(2628, 1)">
-            <If condition="not IsOnMap(135)">
-              <TeleportTo name="Moraby Drydocks" aetheryteId="10" />
-            </If>
-            <Fish condition="HasAtLeast(2628, 1)"
-                  bait="Yumizuno"
-                  patience="Patience2"
-                  shuffleFishSpots="true"
-                  confirmKey="Return" moveCursorRightKey="Right"
-                  minFish="15" maxFish="25">
-              <Keepers>
-                <Keeper name="Silver Sovereign"/>
-                <Keeper name="Mahi-Mahi"/>
-                <Keeper name="Rothlyt Oyster"/>
-              </Keepers>
-              <FishSpots>
-                <FishSpot xyz="142.4022, 57.68546, 930.2143" heading="0.8122025" sit="true"/>
-                <FishSpot xyz="135.7394, 58.55893, 940.8663" heading="0.9687042" />
-                <FishSpot xyz="130.9483, 59.73428, 948.3847" heading="0.6300395" sit="true"/>
-                <FishSpot xyz="109.0178, 59.71759, 950.4835" heading="6.053735" />
-                <FishSpot xyz="97.6573, 60.01523, 948.7998" heading="5.830524" />
-                <FishSpot xyz="90.14629, 59.66103, 943.6596" heading="5.4739" sit="true"/>
-              </FishSpots>
-            </Fish>
-          </If>
-          <If condition="not HasAtLeast(2628, 1)">
-            <LogMessage Message ="Need more Yumizuno"/>
-          </If>
-        </If>
-      </If>
-    </While>
-    <!-- Todo: add if conditions here to output what the user should do if the profile isn't running -->
-  </Order>
+	<Name>Fishing: Forager-Supra-Lucis</Name>
+	<KillRadius>50</KillRadius>
+	<CodeChunks>
+		<!-- Change gearset to your characters gear set number -->
+		<CodeChunk name="Gear">
+			<![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
+		</CodeChunk>
+	</CodeChunks>
+	<Order>
+		<RunCode name="Gear" />
+		<WaitTimer waitTime="3" />
+		<!-- Condition: Has at least a heavy steel jig or a yumizuno AND -->
+		<While
+			condition="(HasAtLeast(2619, 1) or HasAtLeast(2628, 1)) and not (HqHasAtLeast(10123, 30) and (HqHasAtLeast(7930, 2) or HasAtLeast(7930, 3)) and HqHasAtLeast(7690, 20))">
+			<!-- Gigant Clams: Heavy Steel Jig  -->
+			<If condition="IsTimeBetween(22,24) or IsTimeBetween(0,2)">
+				<If condition="not HqHasAtLeast(10123, 30)">
+					<If condition="HasAtLeast(2619, 1)">
+						<If condition="not IsOnMap(137)">
+							<TeleportTo name="Costa Del Sol" aetheryteId="11" />
+						</If>
+						<Fish
+							condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and HasAtLeast(2619, 1) and (IsTimeBetween(22,24) or IsTimeBetween(0,2))"
+							mooch="1"
+							bait="Heavy Steel Jig"
+							patience="Patience2"
+							confirmKey="Return" moveCursorRightKey="Right"
+							minFish="15" maxFish="25">
+							<Keepers>
+								<Keeper name="Gigant Clam" />
+								<Keeper name="Silver Shark" />
+								<Keeper name="Blue Coral" />
+							</Keepers>
+							<FishSpots>
+								<FishSpot xyz="541.28, 8.70105, 579.5362" />
+								<FishSpot xyz="560.7628, 8.698034, 585.7589" />
+								<FishSpot xyz="564.9565, 8.663778, 608.3327" />
+								<FishSpot xyz="542.0089, 8.659445, 617.5783" />
+							</FishSpots>
+						</Fish>
+					</If>
+				</If>
+			</If>
+			<!-- Olgoi bait: Sand Leech -->
+			<If condition="not HasAtLeast(7930, 3) and not HqHasAtLeast(7930, 2)">
+				<If
+					condition="SkywatcherPlugin.IsWeatherInZone(146, 14) or SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14)">
+					<If condition="not IsOnMap(146)">
+						<TeleportTo name="Forgotten Springs" aetheryteId="20" />
+					</If>
+					<If condition="not HasAtLeast(2600,99)">
+						<LogMessage Message="You need more Sand Leeches!" />
+						<NoCombatMoveTo name="Merchant &amp; Mender" xyz="-279.1685, 8.091489, 381.3083" />
+						<BuyItem itemId="2600" itemCount="198" dialogOption="1" interactDistance="3.0" npcId="1004430"
+								xyz="-279.1685, 8.091489, 381.3083" />
+					</If>
+					<Fish condition="WorldManager.CurrentWeatherId == 14"
+						mooch="2"
+						bait="Sand Leech"
+						patience="Patience2"
+						confirmKey="Return" moveCursorRightKey="Right"
+						minFish="15" maxFish="25">
+						<Keepers>
+							<Keeper name="Olgoi-Khorkhoi" />
+							<Keeper name="Caravan Eel" />
+							<Keeper name="Dune Manta" />
+						</Keepers>
+						<FishSpots>
+							<FishSpot xyz="266.2189, 3.158592, 787.3333" heading="2.87004" sit="true" />
+							<FishSpot xyz="246.0735, 3.331366, 785.5537" heading="3.298501" />
+							<FishSpot xyz="222.0359, 2.438, 788.9343" heading="2.82899" />
+							<FishSpot xyz="200.8448, 1.601419, 778.8091" heading="2.849515" />
+							<FishSpot xyz="182.2277, -0.05929565, 759.106" heading="1.966938" sit="true" />
+							<FishSpot xyz="179.372, -1.953371, 723.9963" heading="1.525649" />
+							<FishSpot xyz="203.0785, 8.177773, 718.6793" heading="5.556135" />
+							<FishSpot xyz="223.0831, 8.223236, 741.1038" heading="6.23519" sit="true" />
+							<FishSpot xyz="251.2831, 7.842719, 735.34" heading="6.047903" />
+							<FishSpot xyz="268.2501, 7.062006, 748.8503" heading="6.014554" sit="true" />
+							<FishSpot xyz="294.3003, 6.960706, 751.697" heading="0.1880524" />
+						</FishSpots>
+					</Fish>
+				</If>
+			</If>
+			<!-- Silver Sovereign bait: Yumizuno -->
+			<If condition="not HqHasAtLeast(7690, 20)">
+				<If condition="HasAtLeast(2628, 1)">
+					<If condition="not IsOnMap(135)">
+						<TeleportTo name="Moraby Drydocks" aetheryteId="10" />
+					</If>
+					<Fish
+						condition="not SkywatcherPlugin.IsWeatherInZone(146, 14) and not SkywatcherPlugin.PredictWeatherInZone(146, TimeSpan.FromHours(2), 14) and not IsTimeBetween(22,24) and not IsTimeBetween(0,2) and HasAtLeast(2628, 1)"
+						bait="Yumizuno"
+						patience="Patience2"
+						shuffleFishSpots="true"
+						confirmKey="Return" moveCursorRightKey="Right"
+						minFish="15" maxFish="25">
+						<Keepers>
+							<Keeper name="Silver Sovereign" />
+							<Keeper name="Mahi-Mahi" />
+							<Keeper name="Rothlyt Oyster" />
+						</Keepers>
+						<FishSpots>
+							<FishSpot xyz="142.4022, 57.68546, 930.2143" heading="0.8122025" sit="true" />
+							<FishSpot xyz="135.7394, 58.55893, 940.8663" heading="0.9687042" />
+							<FishSpot xyz="130.9483, 59.73428, 948.3847" heading="0.6300395" sit="true" />
+							<FishSpot xyz="109.0178, 59.71759, 950.4835" heading="6.053735" />
+							<FishSpot xyz="97.6573, 60.01523, 948.7998" heading="5.830524" />
+							<FishSpot xyz="90.14629, 59.66103, 943.6596" heading="5.4739" sit="true" />
+						</FishSpots>
+					</Fish>
+				</If>
+				<If condition="not HasAtLeast(2628, 1)">
+					<LogMessage Message="Need more Yumizuno" />
+				</If>
+			</If>
+			<If condition="HqHasAtLeast(10123, 30) and (HasAtLeast(7930, 3) or HqHasAtLeast(7930, 2))">
+				<If condition="not HqHasAtLeast(7690, 20)">
+					<If condition="HasAtLeast(2628, 1)">
+						<If condition="not IsOnMap(135)">
+							<TeleportTo name="Moraby Drydocks" aetheryteId="10" />
+						</If>
+						<Fish condition="HasAtLeast(2628, 1)"
+							bait="Yumizuno"
+							patience="Patience2"
+							shuffleFishSpots="true"
+							confirmKey="Return" moveCursorRightKey="Right"
+							minFish="15" maxFish="25">
+							<Keepers>
+								<Keeper name="Silver Sovereign" />
+								<Keeper name="Mahi-Mahi" />
+								<Keeper name="Rothlyt Oyster" />
+							</Keepers>
+							<FishSpots>
+								<FishSpot xyz="142.4022, 57.68546, 930.2143" heading="0.8122025" sit="true" />
+								<FishSpot xyz="135.7394, 58.55893, 940.8663" heading="0.9687042" />
+								<FishSpot xyz="130.9483, 59.73428, 948.3847" heading="0.6300395" sit="true" />
+								<FishSpot xyz="109.0178, 59.71759, 950.4835" heading="6.053735" />
+								<FishSpot xyz="97.6573, 60.01523, 948.7998" heading="5.830524" />
+								<FishSpot xyz="90.14629, 59.66103, 943.6596" heading="5.4739" sit="true" />
+							</FishSpots>
+						</Fish>
+					</If>
+					<If condition="not HasAtLeast(2628, 1)">
+						<LogMessage Message="Need more Yumizuno" />
+					</If>
+				</If>
+			</If>
+		</While>
+		<!-- Todo: add if conditions here to output what the user should do if the profile isn't running -->
+	</Order>
 </Profile>

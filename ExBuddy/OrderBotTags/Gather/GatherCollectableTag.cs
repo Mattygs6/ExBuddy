@@ -1116,13 +1116,16 @@
 
         private async Task<bool> Gather()
         {
-            if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
+            if (!IsUnspoiled())
             {
-                var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-                                          ? TimeSpan.FromSeconds(15)
-                                          : TimeSpan.FromSeconds(
-                                              Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
-                Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
+                {
+                    var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
+                                              ? TimeSpan.FromSeconds(15)
+                                              : TimeSpan.FromSeconds(
+                                                  Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+                    Blacklist.Add(Poi.Current.Unit, BlacklistFlags.Interact, timeToBlacklist, "Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                }
             }
 
             return await InteractWithNode()

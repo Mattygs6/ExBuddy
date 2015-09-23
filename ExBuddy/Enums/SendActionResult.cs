@@ -4,8 +4,8 @@ namespace ExBuddy.Enums
     {
         None = 0,
         InjectionError = 1,
-        InvalidWindow = 2,
-        UnexpectedResult = 3,
+        UnexpectedResult = 2,
+        InvalidWindow = 3,
         Success = 4
     }
 }

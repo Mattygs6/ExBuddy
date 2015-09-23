@@ -62,9 +62,9 @@
             }
         }
 
-        public static bool Close()
+        public static void Close()
         {
-            return new T().CloseInstance() == SendActionResult.Success;
+            new T().Control.TrySendAction(1, 3, uint.MaxValue);
         }
 
         public static async Task<bool> CloseGently(byte maxTicks = 10, ushort interval = 200)
@@ -90,15 +90,32 @@
             }
         }
 
-        public virtual SendActionResult CloseInstance()
+        public virtual async Task<SendActionResult> CloseInstance(ushort interval = 200)
         {
             Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
 
+            await Sleep(interval);
+
             var result = TrySendAction(1, 3, uint.MaxValue);
 
-            if (result == SendActionResult.Success && !IsValid)
+            await Coroutine.Yield();
+            Refresh();
+
+            if (result == SendActionResult.Success)
             {
-                Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+                if (!IsValid)
+                {
+                    Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+                    return result;
+                }
+
+                Logger.Instance.Verbose("Unexpected result while closing [{0}], we may be trying to close too early.", Name);
+                return SendActionResult.UnexpectedResult;
+            }
+
+            if (result == SendActionResult.InvalidWindow)
+            {
+                Logger.Instance.Verbose("The [{0}] window was not valid, it was either not open or closed on its own.", Name);
             }
 
             return result;
@@ -113,11 +130,8 @@
 
             await Sleep(interval);
 
-            if (CloseInstance() == SendActionResult.Success)
+            if (await CloseInstance(interval) == SendActionResult.Success)
             {
-                Refresh();
-                await Coroutine.Yield();
-
                 if (!IsValid)
                 {
                     return true;
@@ -135,12 +149,10 @@
                     return true;
                 }
 
-                result = CloseInstance();
-                Refresh();
-                await Sleep(interval);
+                result = await CloseInstance(interval);
             }
 
-            return result > SendActionResult.InjectionError && !IsValid;
+            return result > SendActionResult.UnexpectedResult && !IsValid;
         }
 
         public virtual SendActionResult TrySendAction(int pairCount, params uint[] param)
@@ -155,9 +167,9 @@
             return (T)this;
         }
 
-        public async Task<bool> Refresh(int timeoutMs)
+        public async Task<bool> Refresh(int timeoutMs, bool valid = true)
         {
-            return await Coroutine.Wait(timeoutMs, () => Refresh().IsValid);
+            return await Coroutine.Wait(timeoutMs, () => Refresh().IsValid == valid);
         }
 
         protected async Task Sleep(int interval)

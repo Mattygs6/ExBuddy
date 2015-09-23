@@ -310,7 +310,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                     if (!await shopExchangeCurrency.PurchaseItem(purchaseItemInfo.Index, 20))
                     {
                         Logger.Error("Timeout during purchase of {0}", purchaseItemData.EnglishName);
-                        shopExchangeCurrency.CloseInstance();
+                        await shopExchangeCurrency.CloseInstance();
                         isDone = true;
                         return true;
                     }
@@ -343,7 +343,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
                 SelectIconString.ClickSlot(uint.MaxValue);
             }
 
-            shopExchangeCurrency.CloseInstance();
+            await shopExchangeCurrency.CloseInstance();
             isDone = true;
             return true;
         }

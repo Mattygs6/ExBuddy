@@ -72,6 +72,8 @@
     <Compile Include="Interfaces\IFlightMovementArgs.cs" />
     <Compile Include="Interfaces\IFlightNavigationArgs.cs" />
     <Compile Include="Interfaces\IFlightVars.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Data.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\LocationData.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Locations.cs" />
@@ -109,20 +111,23 @@
     <Compile Include="Enums\KeeperAction.cs" />
     <Compile Include="Enums\VirtualKeys.cs" />
     <Compile Include="OrderBotTags\Gather\GatherCollectableTag.cs" />
-    <Compile Include="OrderBotTags\Gather\GatherIncrease.cs" />
+    <Compile Include="Enums\GatherIncrease.cs" />
     <Compile Include="Attributes\GatheringRotationAttribute.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpot.cs" />
-    <Compile Include="OrderBotTags\Gather\GatherSpotType.cs" />
+    <Compile Include="Enums\GatherSpotType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherStrategy.cs" />
     <Compile Include="Interfaces\IGatheringRotation.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
+    <Compile Include="Plugins\RetainerMaid\RetainerMaid.cs" />
     <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />
     <Compile Include="RemoteAgents\Agent{T}.cs" />
     <Compile Include="RemoteAgents\Desynthesis.cs" />
     <Compile Include="RemoteWindows\Bait.cs" />
     <Compile Include="RemoteWindows\Gathering.cs" />
     <Compile Include="RemoteWindows\GatheringMasterpiece.cs" />
+    <Compile Include="RemoteWindows\GuildLeve.cs" />
     <Compile Include="RemoteWindows\MasterPieceSupply.cs" />
+    <Compile Include="RemoteWindows\SelectYesnoCount.cs" />
     <Compile Include="RemoteWindows\ShopExchangeCurrency.cs" />
     <Compile Include="RemoteWindows\Window{T}.cs" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
@@ -164,6 +169,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Data\msd.xml" />
+    <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_IlluminatiPerch.xml" />

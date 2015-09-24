@@ -45,6 +45,16 @@
 			return param.All(IsTrue);
 		}
 
+		public static float Distance2D(float x, float y, float z)
+		{
+			return GameObjectManager.LocalPlayer.Location.Distance2D(new Vector3(x, y, z));
+		}
+
+		public static float Distance3D(float x, float y, float z)
+		{
+			return GameObjectManager.LocalPlayer.Location.Distance3D(new Vector3(x, y, z));
+		}
+
 		public static bool IsTrue(this object value)
 		{
 			var result = string.Concat(value).ConvertToBoolean().GetValueOrDefault();

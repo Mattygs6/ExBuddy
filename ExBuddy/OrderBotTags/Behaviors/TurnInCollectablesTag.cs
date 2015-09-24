@@ -36,8 +36,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	[XmlElement("TurnInCollectables")]
 	public class TurnInCollectablesTag : ExProfileBehavior
 	{
-		private bool isDone;
-
 		private bool turnedItemsIn;
 
 		private BagSlot item;
@@ -100,10 +98,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 		}
 
-		protected override void OnResetCachedDone()
+		protected override void DoReset()
 		{
-			StatusText = string.Empty;
-			isDone = false;
 			turnedItemsIn = false;
 			item = null;
 			index = 0;
@@ -112,14 +108,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		protected override Composite CreateBehavior()
 		{
 			return new ActionRunCoroutine(ctx => Main());
-		}
-
-		public override bool IsDone
-		{
-			get
-			{
-				return isDone;
-			}
 		}
 
 		private async Task<bool> Main()
@@ -438,8 +426,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			StatusText = "Moving to Npc -> " + locationData.NpcId;
 
 			await Behaviors.MoveTo(locationData.NpcLocation, radius: 4.0f, name: Location + " NpcId: " + locationData.NpcId);
-
-			Navigator.Stop();
 
 			return false;
 		}

@@ -93,14 +93,13 @@
 
 		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 200)
 		{
-			Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
+			await Sleep(interval / 2);
 
-			await Sleep(interval);
+			Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
 
 			var result = TrySendAction(1, 3, uint.MaxValue);
 
-			await Coroutine.Yield();
-			Refresh();
+			await Refresh(interval / 2, false);
 
 			if (result == SendActionResult.Success)
 			{
@@ -128,8 +127,6 @@
 			{
 				return true;
 			}
-
-			await Sleep(interval);
 
 			if (await CloseInstance(interval) == SendActionResult.Success)
 			{

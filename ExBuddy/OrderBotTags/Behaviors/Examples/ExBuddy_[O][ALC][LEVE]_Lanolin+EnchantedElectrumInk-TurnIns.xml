@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Profile>
+	<Name>Levequests</Name>
+	<KillRadius>50</KillRadius>
+	<Order>
+		<!-- Turn in lots of lanolin and enchanted electrum ink -->
+		<!-- we need the movetos for this profile because of the issue with the navmesh around the fire pit -->
+		<While condition="ItemCount(5517) &gt; 14 or ItemCount(5479) &gt; 2">
+			<ExPickupGuildLeve leveIds="374,372" leveType="Tradecraft" npcId="1002401" npcLocation="-441.1231, 211, -235.5231" />
+			<MoveTo XYZ="-441.1231, 211, -245.5231"/>
+			<ExTurnInGuildLeve npcId="1002402" npcLocation="-405.7527, 210.7882, -267.7501" />
+			<MoveTo XYZ="-441.1231, 211, -245.5231"/>
+		</While>
+	</Order>
+</Profile>

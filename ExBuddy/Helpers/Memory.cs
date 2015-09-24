@@ -8,9 +8,20 @@
 
 	public static class Memory
 	{
+		public static class Request
+		{
+			public static uint CurrentItemId
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FD7C);
+				}
+			}
+		}
+
 		public static class Scrips
 		{
-			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.Process.MainModule.BaseAddress, 0x010379AC);
+			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x010379AC);
 
 			public static int BlueCrafter
 			{

@@ -22,23 +22,14 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 	using TreeSharp;
 
-	[LoggerName("FlightPathTo")]
+	[LoggerName("ExFlyTo")]
+	[XmlElement("ExFlyTo")]
 	[XmlElement("FlightPathTo")]
 	public class FlightPathTo : ExProfileBehavior, IFlightVars
 	{
 		private readonly Stopwatch landingStopwatch = new Stopwatch();
 
-		private bool isDone;
-
 		private readonly IPlayerMover playerMover = new SlideMover();
-
-		public override bool IsDone
-		{
-			get
-			{
-				return isDone;
-			}
-		}
 
 		protected override Color Info
 		{
@@ -211,12 +202,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			landingStopwatch.Reset();
 
 			return true;
-		}
-
-		protected override void OnResetCachedDone()
-		{
-			StatusText = string.Empty;
-			isDone = false;
 		}
 	}
 }

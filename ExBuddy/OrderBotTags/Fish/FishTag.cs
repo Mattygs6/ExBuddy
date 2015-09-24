@@ -15,6 +15,7 @@ namespace ExBuddy.OrderBotTags.Fish
 	using Clio.Utilities;
 	using Clio.XmlEngine;
 
+	using ExBuddy.Attributes;
 	using ExBuddy.Enums;
 	using ExBuddy.Helpers;
 	using ExBuddy.OrderBotTags.Behaviors;
@@ -31,6 +32,8 @@ namespace ExBuddy.OrderBotTags.Fish
 
 	using Action = TreeSharp.Action;
 
+	[LoggerName("ExFish")]
+	[XmlElement("ExFish")]
 	[XmlElement("Fish")]
 	public class FishTag : ExProfileBehavior
 	{
@@ -84,7 +87,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x0103906C);
+				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103906C);
 			}
 		}
 
@@ -92,7 +95,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x00FDD298) % 500000;
+				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x00FDD298) % 500000;
 			}
 		}
 
@@ -271,10 +274,8 @@ namespace ExBuddy.OrderBotTags.Fish
 			CharacterSettings.Instance.UseMount = initialMountSetting;
 		}
 
-		protected override void OnResetCachedDone()
+		protected override void DoReset()
 		{
-			StatusText = string.Empty;
-			isDone = false;
 			mooch = 0;
 			sitRoll = 1.0;
 			spotinit = false;
@@ -515,8 +516,6 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		private bool isSitting;
 
-		private bool isDone;
-
 		private bool isFishIdentified;
 
 		private int mooch;
@@ -626,14 +625,6 @@ namespace ExBuddy.OrderBotTags.Fish
 		[DefaultValue(Abilities.PowerfulHookset)]
 		[XmlAttribute("Hookset")]
 		public Abilities Hookset { get; set; }
-
-		public override bool IsDone
-		{
-			get
-			{
-				return isDone;
-			}
-		}
 
 		public Version Version
 		{

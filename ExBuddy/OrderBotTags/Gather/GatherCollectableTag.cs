@@ -33,7 +33,8 @@
 
 	using TreeSharp;
 
-	[LoggerName("GatherCollectable")]
+	[LoggerName("ExGather")]
+	[XmlElement("ExGather")]
 	[XmlElement("GatherCollectable")]
 	public sealed class GatherCollectableTag : ExProfileBehavior
 	{
@@ -47,8 +48,6 @@
 		{
 			return distance <= radius || !WhileFunc() || Me.IsDead;
 		}
-
-		private bool isDone;
 
 		private int loopCount;
 
@@ -89,14 +88,6 @@
 						Rotations = LoadRotationTypes();
 					}
 				}
-			}
-		}
-
-		public override bool IsDone
-		{
-			get
-			{
-				return isDone;
 			}
 		}
 
@@ -235,21 +226,8 @@
 			return true;
 		}
 
-		protected override void OnResetCachedDone()
+		protected override void DoReset()
 		{
-			// TODO: find out why this method gets called about 5000 times a minute.
-			////if (!isDone)
-			////{
-			////    Logger.Info("Resetting Caches -> Name: " + Name);
-			////}
-			////else
-			////{
-			////    Logger.Info("Resetting Cached Done -> Name: " + Name);
-			////}
-
-			StatusText = string.Empty;
-			interactedWithNode = false;
-			isDone = false;
 			loopCount = 0;
 			NodesGatheredAtMaxGp = 0;
 			HotSpots.Index = 0;
@@ -258,6 +236,7 @@
 
 		internal void ResetInternal()
 		{
+			interactedWithNode = false;
 			GatherSpot = null;
 			Node = null;
 			GatherItem = null;
@@ -274,6 +253,7 @@
 
 			SpellDelay = SpellDelay < 0 ? 0 : SpellDelay;
 			WindowDelay = WindowDelay < 500 ? 500 : WindowDelay;
+			SkipWindowDelay = SkipWindowDelay < 200 ? 200 : SkipWindowDelay;
 
 			if (Distance > 3.5f)
 			{
@@ -640,7 +620,7 @@
 							Blacklist.Add(
 								node,
 								BlacklistFlags.Interact,
-								TimeSpan.FromSeconds(30),
+								TimeSpan.FromSeconds(18),
 								"Skip furthest nodes in hotspot. We only want 1.");
 						}
 					}
@@ -657,8 +637,7 @@
 					if (HotSpots != null)
 					{
 						nodes =
-							nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location))
-								.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
+							nodes.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location));
 					}
 				}
 
@@ -669,11 +648,12 @@
 						nodes.OrderBy(
 							gpo =>
 							GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
+							.ThenBy(gpo => gpo.Location.Distance2D(Me.Location))
 							.FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
 				}
 				else
 				{
-					Node = nodes.FirstOrDefault();
+					Node = nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location)).FirstOrDefault();
 				}
 
 				if (Node == null)
@@ -681,11 +661,21 @@
 					if (HotSpots != null)
 					{
 						var myLocation = Me.Location;
+
+						var distanceToFurthestVisibleGameObject =
+							GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
+								.OrderByDescending(o => o)
+								.FirstOrDefault();
+
+						var distanceToFurthestVectorInHotspot = myLocation.Distance2D(HotSpots.CurrentOrDefault)
+																+ HotSpots.CurrentOrDefault.Radius;
+
 						if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
-							&& GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
-									.OrderByDescending(o => o)
-									.FirstOrDefault() <= myLocation.Distance2D(HotSpots.CurrentOrDefault) + HotSpots.CurrentOrDefault.Radius)
+							&& distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
 						{
+							Logger.Verbose("Distance to furthest visible game object -> " + distanceToFurthestVisibleGameObject);
+							Logger.Verbose("Distance to furthest vector in hotspot -> " + distanceToFurthestVectorInHotspot);
+
 							Logger.Warn(
 								"Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
 							await Behaviors.MoveTo(HotSpots.CurrentOrDefault, radius: Radius, name: HotSpots.CurrentOrDefault.Name);
@@ -931,8 +921,12 @@
 
 		private async Task<bool> AfterGather()
 		{
-			// in case we failed our rotation
-			await CloseGatheringWindow();
+			// in case we failed our rotation or window stuck open because items are somehow left
+			if (GatheringManager.SwingsRemaining > 0)
+			{
+				// TODO: Look into possibly smarter behavior.
+				await CloseGatheringWindow();
+			}
 
 			if (Me.CurrentGP >= Me.MaxGP - 30)
 			{
@@ -1002,7 +996,7 @@
 		{
 			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
 			{
-				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.Item.Id == (uint)cordialType);
+				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
 
 				if (cordial != null)
 				{
@@ -1026,9 +1020,9 @@
 								return cordial.CanUse(Me);
 							}))
 					{
-						cordial.UseItem(Me);
-						await Coroutine.Yield();
 						Logger.Info("Using " + cordialType);
+						cordial.UseItem(Me);
+						await Coroutine.Sleep(1000);
 						return true;
 					}
 				}
@@ -1048,10 +1042,11 @@
 			var attempts = 0;
 			while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
 			{
-				while (MovementManager.IsFlying && Behaviors.ShouldContinue)
+				var ticks = 0;
+				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
 				{
 					Navigator.Stop();
-					await Coroutine.Yield();
+					await Coroutine.Sleep(200);
 				}
 
 				Poi.Current.Unit.Interact();
@@ -1122,13 +1117,14 @@
 			}
 
 			return await InteractWithNode() && await gatherRotation.Prepare(this) && await gatherRotation.ExecuteRotation(this)
-					&& await gatherRotation.Gather(this) && await Coroutine.Wait(6000, () => !Node.CanGather)
+					&& await gatherRotation.Gather(this) && await Coroutine.Wait(4000, () => !Node.CanGather)
 					&& await WaitForGatherWindowToClose();
 		}
 
 		private async Task<bool> WaitForGatherWindowToClose()
 		{
-			while (GatheringManager.WindowOpen && Behaviors.ShouldContinue)
+			var ticks = 0;
+			while (GatheringManager.WindowOpen && ticks++ < 100 && Behaviors.ShouldContinue)
 			{
 				await Coroutine.Yield();
 			}

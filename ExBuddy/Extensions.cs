@@ -196,6 +196,22 @@
 			return defaultValue;
 		}
 
+		public static int IndexOf<T>(this IList<T> list, T value, [NotNull]IEqualityComparer<T> comparer)
+		{
+			var index = -1;
+
+			foreach (var item in list)
+			{
+				index++;
+				if (comparer.Equals(item, value))
+				{
+					return index;
+				}
+			}
+
+			return -1;
+		}
+
 		public static bool InRange<T>(this T value, T from, T to) where T : IComparable<T>
 		{
 			return value.CompareTo(from) >= 1 && value.CompareTo(to) <= -1;
@@ -218,6 +234,11 @@
 				Logger.Instance.Error(ex.Message);
 				return SendActionResult.InjectionError;
 			}
+		}
+
+		public static bool IsFullStack(this BagSlot bagSlot, bool includeNonStackable = false)
+		{
+			return bagSlot != null && bagSlot.Item != null && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1)) ;
 		}
 
 		public static bool IsUnknownChance(this GatheringItem gatheringItem)

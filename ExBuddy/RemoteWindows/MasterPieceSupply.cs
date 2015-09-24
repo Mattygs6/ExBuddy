@@ -9,7 +9,6 @@
 	using ExBuddy.Helpers;
 	using ExBuddy.Logging;
 
-	using ff14bot;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
@@ -18,14 +17,6 @@
 	{
 		public MasterPieceSupply()
 			: base("MasterPieceSupply") {}
-
-		public static uint CurrentRequestWindowItemId
-		{
-			get
-			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.Process.MainModule.BaseAddress + 0x0103FD7C);
-			}
-		}
 
 		public static uint GetClassIndex(ClassJobType classJobType)
 		{
@@ -83,10 +74,10 @@
 				}
 			}
 
-			if (CurrentRequestWindowItemId != bagSlot.RawItemId)
+			if (Memory.Request.CurrentItemId != bagSlot.RawItemId)
 			{
 				Request.Cancel();
-				var item = DataManager.GetItem(CurrentRequestWindowItemId);
+				var item = DataManager.GetItem(Memory.Request.CurrentItemId);
 				Logger.Instance.Warn(
 					"[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'",
 					bagSlot.EnglishName,

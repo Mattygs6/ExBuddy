@@ -1,5 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
+	using System;
 	using System.Windows.Media;
 
 	using Clio.XmlEngine;
@@ -15,6 +16,8 @@
 
 	public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
 	{
+		// ReSharper disable once InconsistentNaming
+		protected bool isDone;
 		private string statusText;
 
 		protected internal readonly Logger Logger;
@@ -32,7 +35,7 @@
 		[XmlElement("Name")]
 		public string Name { get; set; }
 
-		public override string StatusText
+		public sealed override string StatusText
 		{
 			get
 			{
@@ -42,6 +45,14 @@
 			set
 			{
 				statusText = value;
+			}
+		}
+
+		public sealed override bool IsDone
+		{
+			get
+			{
+				return isDone;
 			}
 		}
 
@@ -99,6 +110,14 @@
 			{
 				return this.Info;
 			}
+		}
+
+		protected virtual void DoReset() {}
+
+		protected sealed override void OnResetCachedDone()
+		{
+			DoReset();
+			isDone = false;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags.Gather
+namespace ExBuddy.Enums
 {
 	public enum GatherSpotType
 	{

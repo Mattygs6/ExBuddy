@@ -6,6 +6,8 @@
 
 	using ExBuddy.Helpers;
 
+	////[System.Xml.Serialization.XmlInclude(typeof(StealthGatherSpot))]
+	////[System.Xml.Serialization.XmlInclude(typeof(StealthApproachGatherSpot))]
 	[XmlElement("GatherSpot")]
 	public class GatherSpot : StealthGatherSpot
 	{

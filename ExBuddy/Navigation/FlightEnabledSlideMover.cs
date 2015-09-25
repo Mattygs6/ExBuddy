@@ -42,11 +42,7 @@
 
 		private Coroutine landingCoroutine;
 
-		private bool isTakingOff;
-
-		private bool isLanding;
-
-		private bool isMovingTowardsLocation;
+		internal bool IsMovingTowardsLocation;
 
 		private bool disposed;
 
@@ -65,7 +61,7 @@
 			{
 				throw new NullReferenceException("flightMovementArgs is null");
 			}
-
+			
 			Logger = new Logger(this);
 			this.innerMover = innerMover;
 			this.flightMovementArgs = flightMovementArgs;
@@ -100,6 +96,10 @@
 			}
 		}
 
+		public bool IsTakingOff { get; protected set; }
+
+		public bool IsLanding { get; protected set; }
+
 		protected internal bool ShouldFly { get; private set; }
 
 		public override Color Info
@@ -112,31 +112,31 @@
 
 		public void MoveStop()
 		{
-			isMovingTowardsLocation = false;
+			IsMovingTowardsLocation = false;
 
-			if (!isLanding)
+			if (!IsLanding)
 			{
 				innerMover.MoveStop();
 			}
 
-			if (!isLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(6)))
+			if (!IsLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(6)))
 			{
-				isLanding = true;
+				IsLanding = true;
 				ForceLanding();
 			}
 		}
 
 		public void MoveTowards(Vector3 location)
 		{
-			if (ShouldFly && !MovementManager.IsFlying && !isTakingOff)
+			if (ShouldFly && !MovementManager.IsFlying && !IsTakingOff)
 			{
-				isTakingOff = true;
+				IsTakingOff = true;
 				EnsureFlying();
 			}
 
-			if (!isTakingOff)
+			if (!IsTakingOff)
 			{
-				isMovingTowardsLocation = true;
+				IsMovingTowardsLocation = true;
 				innerMover.MoveTowards(location);
 			}
 		}
@@ -179,7 +179,7 @@
 								{
 									Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
 									takeoffStopwatch.Reset();
-									isTakingOff = false;
+									IsTakingOff = false;
 									takeoffTask = null;
 								}
 							});
@@ -187,7 +187,7 @@
 			}
 			else
 			{
-				isTakingOff = false;
+				IsTakingOff = false;
 			}
 		}
 
@@ -213,7 +213,7 @@
 							{
 								try
 								{
-									while (MovementManager.IsFlying && Behaviors.ShouldContinue && !isMovingTowardsLocation)
+									while (MovementManager.IsFlying && Behaviors.ShouldContinue && !IsMovingTowardsLocation)
 									{
 										if (landingStopwatch.ElapsedMilliseconds < 2000)
 										{
@@ -252,7 +252,7 @@
 								}
 								finally
 								{
-									if (isMovingTowardsLocation)
+									if (IsMovingTowardsLocation)
 									{
 										Logger.Warn("Landing cancelled after {0} ms. New destination requested.", totalLandingStopwatch.Elapsed);
 									}
@@ -263,7 +263,7 @@
 
 									totalLandingStopwatch.Reset();
 									landingStopwatch.Reset();
-									isLanding = false;
+									IsLanding = false;
 									landingTask = null;
 								}
 							});
@@ -271,7 +271,7 @@
 			}
 			else
 			{
-				isLanding = false;
+				IsLanding = false;
 			}
 		}
 

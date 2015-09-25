@@ -11,6 +11,10 @@ namespace ExBuddy.Interfaces
 	{
 		bool CanFly { get; }
 
+		bool IsLanding { get; }
+
+		bool IsTakingOff { get; }
+
 		IFlightMovementArgs FlightMovementArgs { get; }
 
 		bool ShouldFlyTo(Vector3 destination);

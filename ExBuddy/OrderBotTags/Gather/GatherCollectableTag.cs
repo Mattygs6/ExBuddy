@@ -1045,7 +1045,16 @@
 				var ticks = 0;
 				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
 				{
-					Navigator.Stop();
+					var ground = Me.Location.GetFloor(6);
+					if (Math.Abs(ground.Y - Me.Location.Y) < float.Epsilon)
+					{
+						var mover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
+						if (mover != null && !mover.IsLanding)
+						{
+							await CommonTasks.DescendTo(ground.Y);
+						}
+					}
+
 					await Coroutine.Sleep(200);
 				}
 

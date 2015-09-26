@@ -13,14 +13,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Unspoiled", 500, 21)]
 	public sealed class UnspoiledGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> Prepare(GatherCollectableTag tag)
+		public override async Task<bool> Prepare(ExGatherTag tag)
 		{
 			await Wait();
 
 			return tag.GatherItem.TryGatherItem() && await base.Prepare(tag);
 		}
 
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			if (Core.Player.CurrentGP >= 500)
 			{
@@ -30,7 +30,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return await base.ExecuteRotation(tag);
 		}
 
-		protected override async Task<bool> IncreaseChance(GatherCollectableTag tag)
+		protected override async Task<bool> IncreaseChance(ExGatherTag tag)
 		{
 			var level = Core.Player.ClassLevel;
 			if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 95)
@@ -56,7 +56,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled() && tag.CollectableItem == null)
 			{

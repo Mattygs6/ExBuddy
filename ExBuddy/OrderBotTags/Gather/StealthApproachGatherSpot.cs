@@ -33,7 +33,7 @@
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
 
-		public async Task<bool> MoveFromSpot(GatherCollectableTag tag)
+		public async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving from " + this;
 
@@ -52,7 +52,7 @@
 			return result;
 		}
 
-		public async Task<bool> MoveToSpot(GatherCollectableTag tag)
+		public async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 

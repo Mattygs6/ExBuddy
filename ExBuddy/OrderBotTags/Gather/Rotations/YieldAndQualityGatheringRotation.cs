@@ -14,7 +14,7 @@
 	[GatheringRotation("YieldAndQuality", 0, 22)]
 	public class YieldAndQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			var level = Core.Player.ClassLevel;
 
@@ -36,7 +36,7 @@
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.CollectableItem != null)
 			{

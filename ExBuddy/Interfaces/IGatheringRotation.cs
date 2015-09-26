@@ -13,12 +13,12 @@
 
 		bool ShouldForceGather { get; }
 
-		Task<bool> Prepare(GatherCollectableTag tag);
+		Task<bool> Prepare(ExGatherTag tag);
 
-		Task<bool> ExecuteRotation(GatherCollectableTag tag);
+		Task<bool> ExecuteRotation(ExGatherTag tag);
 
-		Task<bool> Gather(GatherCollectableTag tag);
+		Task<bool> Gather(ExGatherTag tag);
 
-		int ResolveOverridePriority(GatherCollectableTag tag);
+		int ResolveOverridePriority(ExGatherTag tag);
 	}
 }

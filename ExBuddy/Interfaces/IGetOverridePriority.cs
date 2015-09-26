@@ -4,6 +4,6 @@ namespace ExBuddy.Interfaces
 
 	public interface IGetOverridePriority
 	{
-		int GetOverridePriority(GatherCollectableTag tag);
+		int GetOverridePriority(ExGatherTag tag);
 	}
 }

@@ -10,7 +10,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Map", 0, 8)]
 	public class MapGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// Only override if the item name ends with ' map'
 			if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" map", StringComparison.InvariantCultureIgnoreCase))

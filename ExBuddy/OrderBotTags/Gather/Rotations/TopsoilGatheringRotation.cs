@@ -11,7 +11,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Topsoil", 0, 8)]
 	public class TopsoilGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// Only override if the item name ends with ' topsoil'
 			if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" topsoil", StringComparison.InvariantCultureIgnoreCase))

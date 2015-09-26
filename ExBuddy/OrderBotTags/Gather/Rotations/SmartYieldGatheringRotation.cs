@@ -14,7 +14,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("SmartYield", 0, 21)]
 	public class SmartYieldGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			var level = Core.Player.ClassLevel;
 
@@ -49,7 +49,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.CollectableItem != null)
 			{

@@ -10,7 +10,7 @@
 	[GatheringRotation("Collect570", 600, 34)]
 	public sealed class Collect570GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await DiscerningUtmostMethodical(tag);
 			await DiscerningUtmostMethodical(tag);
@@ -22,7 +22,7 @@
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// We need 5 swings to use this rotation
 			if (GatheringManager.SwingsRemaining < 5)

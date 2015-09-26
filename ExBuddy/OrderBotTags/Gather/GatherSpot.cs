@@ -11,7 +11,7 @@
 	[XmlElement("GatherSpot")]
 	public class GatherSpot : StealthGatherSpot
 	{
-		public override async Task<bool> MoveToSpot(GatherCollectableTag tag)
+		public override async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 

@@ -31,7 +31,7 @@
 			}
 		}
 
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			var gpRequired = 0U;
 			var skillList = new List<SpellData>();

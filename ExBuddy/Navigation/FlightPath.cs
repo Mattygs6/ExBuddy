@@ -54,7 +54,7 @@ namespace ExBuddy.Navigation
 				}
 
 				int waypointsRemaining;
-				if ((waypointsRemaining = (int)desiredNumberOfPoints - Count) > 5)
+				if ((waypointsRemaining = (int)desiredNumberOfPoints - Count) > 4)
 				{
 					waypoint = waypoint.HeightCorrection(ForcedAltitude);
 				}

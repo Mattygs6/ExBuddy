@@ -10,7 +10,7 @@
 	//[GatheringRotation("Collect240Dynamic", 200, 28)]
 	public sealed class Collect240DynamicGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> Prepare(GatherCollectableTag tag)
+		public override async Task<bool> Prepare(ExGatherTag tag)
 		{
 			// TODO: how much gathering to 1 hit?  needs to be added into this logic.
 			if (Core.Player.CurrentGP >= 500)
@@ -21,7 +21,7 @@
 			return await base.Prepare(tag);
 		}
 
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			if (Core.Player.ClassLevel > 50)
 			{
@@ -31,7 +31,7 @@
 			return await DoLevel50Rotation(tag);
 		}
 
-		private async Task<bool> DoLevel50Rotation(GatherCollectableTag tag)
+		private async Task<bool> DoLevel50Rotation(ExGatherTag tag)
 		{
 			// 240-345 collectability
 			await Methodical(tag);
@@ -46,7 +46,7 @@
 			return true;
 		}
 
-		private async Task<bool> DoRotation(GatherCollectableTag tag)
+		private async Task<bool> DoRotation(ExGatherTag tag)
 		{
 			// 96-180 with min perception
 			// 138-259 with max perception
@@ -72,7 +72,7 @@
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// if we have a collectable && the collectable value is greater than or equal to 240: Priority 240
 			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 240)

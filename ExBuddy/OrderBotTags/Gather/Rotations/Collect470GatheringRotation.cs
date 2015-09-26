@@ -11,7 +11,7 @@
 	[GatheringRotation("Collect470", 600, 30)]
 	public sealed class Collect470GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await tag.Cast(Ability.DiscerningEye);
 
@@ -25,7 +25,7 @@
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled())
 			{

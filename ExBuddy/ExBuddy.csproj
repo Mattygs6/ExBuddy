@@ -103,8 +103,8 @@
     <Compile Include="Navigation\FlightPath.cs" />
     <Compile Include="Navigation\FlightPoint.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExProfileBehavior.cs" />
-    <Compile Include="OrderBotTags\Behaviors\FlightPathTo.cs" />
-    <Compile Include="OrderBotTags\Behaviors\TurnInCollectablesTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExFlyToTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExTurnInCollectablesTag.cs" />
     <Compile Include="OrderBotTags\Fish\Bait.cs" />
     <Compile Include="OrderBotTags\Fish\FishTag.cs" />
     <Compile Include="OrderBotTags\Fish\FishResult.cs" />
@@ -112,7 +112,7 @@
     <Compile Include="OrderBotTags\Fish\Keeper.cs" />
     <Compile Include="Enums\KeeperAction.cs" />
     <Compile Include="Enums\VirtualKeys.cs" />
-    <Compile Include="OrderBotTags\Gather\GatherCollectableTag.cs" />
+    <Compile Include="OrderBotTags\Gather\ExGatherTag.cs" />
     <Compile Include="Enums\GatherIncrease.cs" />
     <Compile Include="Attributes\GatheringRotationAttribute.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpot.cs" />

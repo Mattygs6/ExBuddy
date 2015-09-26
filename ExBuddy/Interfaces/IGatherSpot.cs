@@ -10,8 +10,8 @@
 	{
 		Vector3 NodeLocation { get; set; }
 
-		Task<bool> MoveFromSpot(GatherCollectableTag tag);
+		Task<bool> MoveFromSpot(ExGatherTag tag);
 
-		Task<bool> MoveToSpot(GatherCollectableTag tag);
+		Task<bool> MoveToSpot(ExGatherTag tag);
 	}
 }

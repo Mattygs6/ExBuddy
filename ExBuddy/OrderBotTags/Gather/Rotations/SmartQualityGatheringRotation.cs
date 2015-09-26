@@ -14,7 +14,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("SmartQuality", 0, 21)]
 	public class SmartQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			if (Core.Player.CurrentGP >= 300 && GatheringManager.SwingsRemaining > 4)
 			{
@@ -46,7 +46,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.CollectableItem != null)
 			{

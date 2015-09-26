@@ -26,7 +26,7 @@ namespace ExBuddy.OrderBotTags.Gather
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
 
-		public virtual async Task<bool> MoveFromSpot(GatherCollectableTag tag)
+		public virtual async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving from " + this;
 
@@ -38,7 +38,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			return true;
 		}
 
-		public virtual async Task<bool> MoveToSpot(GatherCollectableTag tag)
+		public virtual async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 

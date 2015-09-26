@@ -8,7 +8,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("DefaultCollect", 600, 30)]
 	public sealed class DefaultCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled())
 			{

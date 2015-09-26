@@ -6,22 +6,22 @@
 
 	public abstract class SmartGatheringRotation : GatheringRotation
 	{
-		public override Task<bool> Prepare(GatherCollectableTag tag)
+		public override Task<bool> Prepare(ExGatherTag tag)
 		{
 			return ResolveInternalGatheringRotation(tag).Prepare(tag);
 		}
 
-		protected virtual IGatheringRotation ResolveInternalGatheringRotation(GatherCollectableTag tag)
+		protected virtual IGatheringRotation ResolveInternalGatheringRotation(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled())
 			{
-				return GatherCollectableTag.Rotations["Unspoiled"];
+				return ExGatherTag.Rotations["Unspoiled"];
 			}
 
-			return GatherCollectableTag.Rotations["RegularNode"];
+			return ExGatherTag.Rotations["RegularNode"];
 		}
 
-		protected bool ShouldForceUseRotation(GatherCollectableTag tag, uint level)
+		protected bool ShouldForceUseRotation(ExGatherTag tag, uint level)
 		{
 			if (!tag.GatherItemIsFallback && ((level < 50 && tag.NodesGatheredAtMaxGp > 4) || tag.NodesGatheredAtMaxGp > 6))
 			{

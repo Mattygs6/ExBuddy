@@ -46,7 +46,7 @@
 			GetOverridePriorityCached = this as IGetOverridePriority;
 		}
 
-		public virtual async Task<bool> Prepare(GatherCollectableTag tag)
+		public virtual async Task<bool> Prepare(ExGatherTag tag)
 		{
 			if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
 			{
@@ -56,13 +56,13 @@
 			return true;
 		}
 
-		public virtual async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public virtual async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await IncreaseChance(tag);
 			return true;
 		}
 
-		public virtual async Task<bool> Gather(GatherCollectableTag tag)
+		public virtual async Task<bool> Gather(ExGatherTag tag)
 		{
 			tag.StatusText = "Gathering items";
 
@@ -101,7 +101,7 @@
 			return true;
 		}
 
-		public int ResolveOverridePriority(GatherCollectableTag tag)
+		public int ResolveOverridePriority(ExGatherTag tag)
 		{
 			if (GetOverridePriorityCached != null)
 			{
@@ -128,7 +128,7 @@
 			}
 		}
 
-		protected virtual async Task<bool> IncreaseChance(GatherCollectableTag tag)
+		protected virtual async Task<bool> IncreaseChance(ExGatherTag tag)
 		{
 			var level = Core.Player.ClassLevel;
 			if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)

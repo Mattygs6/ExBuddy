@@ -8,7 +8,7 @@
 	[GatheringRotation("Collect115", 0, 24)]
 	public sealed class Collect115GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await Methodical(tag);
 
@@ -17,7 +17,7 @@
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// if we have a collectable && the collectable value is greater than or equal to 115: Priority 115
 			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 115)

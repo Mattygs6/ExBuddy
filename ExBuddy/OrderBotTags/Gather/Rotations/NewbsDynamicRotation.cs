@@ -12,7 +12,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("NewbCollect", 600, 24)]
 	public sealed class NewbCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(GatherCollectableTag tag)
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			var rarity = 0;
 			if (tag.CollectableItem.PlusPlus == 0)
@@ -173,16 +173,16 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 		}
 
 		private static async Task CallRotation(
-			GatherCollectableTag tag,
+			ExGatherTag tag,
 			string rotationName,
-			Func<GatherCollectableTag, Task<bool>> callBack)
+			Func<ExGatherTag, Task<bool>> callBack)
 		{
 			tag.Logger.Info("Using Rotation: " + rotationName);
 			await callBack(tag);
 			tag.Logger.Info("Exiting Rotation: " + rotationName);
 		}
 
-		public async Task<bool> TryHard(GatherCollectableTag tag)
+		public async Task<bool> TryHard(ExGatherTag tag)
 		{
 			//Try Hard - Level 53 Minimum           
 			await UtmostImpulsive(tag);
@@ -205,7 +205,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> TryHarder(GatherCollectableTag tag)
+		public async Task<bool> TryHarder(ExGatherTag tag)
 		{
 			//Try Harder - Level 53 Minimum            
 			await DiscerningImpulsive(tag);
@@ -215,7 +215,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOne(GatherCollectableTag tag)
+		public async Task<bool> GetOne(ExGatherTag tag)
 		{
 			//Get One - Level 53 Minimum           
 			await DiscerningMethodical(tag);
@@ -225,7 +225,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOnePlus(GatherCollectableTag tag)
+		public async Task<bool> GetOnePlus(ExGatherTag tag)
 		{
 			//Get One+ - Level 57 Minimum
 			await UtmostCaution(tag);
@@ -236,7 +236,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOnePlusPlusAlternate(GatherCollectableTag tag)
+		public async Task<bool> GetOnePlusPlusAlternate(ExGatherTag tag)
 		{
 			//Get One++ Alternative - Level 53 Minimum
 			tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One for now... :'(");
@@ -247,7 +247,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOnePlusPlus(GatherCollectableTag tag)
+		public async Task<bool> GetOnePlusPlus(ExGatherTag tag)
 		{
 			//Get One++ - Level 57 Minimum
 			await UtmostCaution(tag);
@@ -260,7 +260,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetTwo(GatherCollectableTag tag)
+		public async Task<bool> GetTwo(ExGatherTag tag)
 		{
 			//Get Two - Level 50 Minimum
 			await DiscerningMethodical(tag);
@@ -269,7 +269,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetTwoPlus(GatherCollectableTag tag)
+		public async Task<bool> GetTwoPlus(ExGatherTag tag)
 		{
 			//Get Two+ - Level 53 Minimum
 			await Discerning(tag);
@@ -279,7 +279,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetTwoPlusPlusAlternate(GatherCollectableTag tag)
+		public async Task<bool> GetTwoPlusPlusAlternate(ExGatherTag tag)
 		{
 			//Get Two++ Alternative - Level 50 Minimum
 			tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two for now... :'(");
@@ -289,7 +289,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetTwoPlusPlus(GatherCollectableTag tag)
+		public async Task<bool> GetTwoPlusPlus(ExGatherTag tag)
 		{
 			//Get Two++ - Level 57 Minimum
 			await Discerning(tag);
@@ -300,7 +300,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetThree(GatherCollectableTag tag)
+		public async Task<bool> GetThree(ExGatherTag tag)
 		{
 			//Get Three - Level 57 Minimum
 			await DiscerningMethodical(tag);
@@ -309,7 +309,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		int IGetOverridePriority.GetOverridePriority(GatherCollectableTag tag)
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled())
 			{

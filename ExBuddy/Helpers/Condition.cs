@@ -5,13 +5,14 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Reflection;
-	using System.Threading;
 
 	using Clio.Utilities;
 
 	using ExBuddy.Logging;
 
 	using ff14bot.Managers;
+
+	using Timer = System.Threading.Timer;
 
 	public static class Condition
 	{
@@ -22,7 +23,7 @@
 			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 		}
 
-		private static readonly ConcurrentDictionary<int, ConditionTimer> Timers =
+		internal static readonly ConcurrentDictionary<int, ConditionTimer> Timers =
 			new ConcurrentDictionary<int, ConditionTimer>();
 
 		public static bool Any(params object[] param)
@@ -91,14 +92,15 @@
 			{
 				if (timer.TimeSpan != span)
 				{
-					Timers[id] = new ConditionTimer(span);
+					Timers[id] = new ConditionTimer(id, span);
 					timer.Timer.Dispose();
 					return true;
 				}
+
 				return timer.IsValid;
 			}
 
-			Timers[id] = new ConditionTimer(span);
+			Timers[id] = new ConditionTimer(id, span);
 
 			return true;
 		}
@@ -138,8 +140,12 @@
 		}
 	}
 
-	public class ConditionTimer
+	public class ConditionTimer : IDisposable
 	{
+		private bool disposed;
+
+		public int Id { get; private set; }
+
 		public Timer Timer { get; private set; }
 
 		public TimeSpan TimeSpan { get; private set; }
@@ -152,16 +158,18 @@
 			{
 				if (!isValid)
 				{
-					Timer.Change(1, -1);
-					return false;
+					ConditionTimer timer;
+					Condition.Timers.TryRemove(Id, out timer);
+					Dispose();
 				}
 
 				return isValid;
 			}
 		}
 
-		public ConditionTimer(TimeSpan timeSpan)
+		public ConditionTimer(int id, TimeSpan timeSpan)
 		{
+			Id = id;
 			TimeSpan = timeSpan;
 			Timer = new Timer(ToggleValid, this, timeSpan, TimeSpan.FromMilliseconds(-1));
 		}
@@ -173,6 +181,18 @@
 			{
 				_this.isValid = !_this.isValid;
 				_this.Timer.Change(_this.TimeSpan, TimeSpan.FromMilliseconds(-1));
+			}
+		}
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+				if (Timer != null)
+				{
+					Timer.Dispose();
+				}
 			}
 		}
 	}

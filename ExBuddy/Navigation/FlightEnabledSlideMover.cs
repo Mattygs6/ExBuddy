@@ -160,6 +160,14 @@
 								{
 									while (!MovementManager.IsFlying && Behaviors.ShouldContinue)
 									{
+										if (takeoffStopwatch.ElapsedMilliseconds > 10000)
+										{
+											Logger.Error("Takeoff failed. Passing back control.");
+											innerMover.MoveStop();
+											IsTakingOff = false;
+											return;
+										}
+
 										if (coroutine == null || coroutine.IsFinished)
 										{
 											Logger.Info("Created new Takeoff Coroutine");
@@ -177,7 +185,11 @@
 								}
 								finally
 								{
-									Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
+									if (IsTakingOff)
+									{
+										Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
+									}
+									
 									takeoffStopwatch.Reset();
 									IsTakingOff = false;
 									takeoffTask = null;
@@ -217,6 +229,7 @@
 									{
 										if (landingStopwatch.ElapsedMilliseconds < 2000)
 										{
+											// TODO: possible check to see if floor is more than 80 or 100 below us to not bother? or check for last destination and compare the Y value of the floor.
 											MovementManager.StartDescending();
 										}
 										else
@@ -224,6 +237,7 @@
 											if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
 											{
 												Logger.Error("Landing failed. Passing back control.");
+												innerMover.MoveStop();
 												return;
 											}
 

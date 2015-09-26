@@ -490,6 +490,7 @@
 				return false;
 			}
 
+			// TODO: Look into forcing casting this when flying under certain conditions.
 			if (MovementManager.IsFlying || Me.ClassLevel < 46
 				|| Me.HasAura(
 					(int)(Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)))
@@ -611,9 +612,9 @@
 
 					foreach (
 						var node in
-							nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location))
-								.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location))
-								.Skip(1))
+							nodes.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location))
+							.OrderBy(gpo => gpo.Location.Distance2D(Me.Location))
+							.Skip(1))
 					{
 						if (!Blacklist.Contains(node.ObjectId, BlacklistFlags.Interact))
 						{
@@ -994,6 +995,7 @@
 
 		private async Task<bool> UseCordial(CordialType cordialType, int maxTimeoutSeconds = 5)
 		{
+			maxTimeoutSeconds -= 2;
 			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
 			{
 				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
@@ -1011,7 +1013,7 @@
 						TimeSpan.FromSeconds(maxTimeoutSeconds),
 						() =>
 							{
-								if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 0.5)
+								if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 								{
 									Actionmanager.Dismount();
 									return false;
@@ -1020,9 +1022,10 @@
 								return cordial.CanUse(Me);
 							}))
 					{
+						await Coroutine.Sleep(500);
 						Logger.Info("Using " + cordialType);
 						cordial.UseItem(Me);
-						await Coroutine.Sleep(1000);
+						await Coroutine.Sleep(1500);
 						return true;
 					}
 				}
@@ -1049,7 +1052,7 @@
 					if (Math.Abs(ground.Y - Me.Location.Y) < float.Epsilon)
 					{
 						var mover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
-						if (mover != null && !mover.IsLanding)
+						if (mover != null && !mover.IsLanding && !mover.IsTakingOff)
 						{
 							await CommonTasks.DescendTo(ground.Y);
 						}
@@ -1096,21 +1099,7 @@
 
 			interactedWithNode = true;
 
-			if (!await ResolveGatherItem())
-			{
-				await CloseGatheringWindow();
-				ResetInternal();
-				return false;
-			}
-
-			CheckForGatherRotationOverride();
-
-			return true;
-		}
-
-		private async Task<bool> Gather()
-		{
-			if (!IsUnspoiled())
+			if (!IsUnspoiled() && !IsConcealed())
 			{
 				if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
 				{
@@ -1125,6 +1114,20 @@
 				}
 			}
 
+			if (!await ResolveGatherItem())
+			{
+				await CloseGatheringWindow();
+				ResetInternal();
+				return false;
+			}
+
+			CheckForGatherRotationOverride();
+
+			return true;
+		}
+
+		private async Task<bool> Gather()
+		{
 			return await InteractWithNode() && await gatherRotation.Prepare(this) && await gatherRotation.ExecuteRotation(this)
 					&& await gatherRotation.Gather(this) && await Coroutine.Wait(4000, () => !Node.CanGather)
 					&& await WaitForGatherWindowToClose();
@@ -1389,6 +1392,11 @@
 				Gathering.CloseGently(
 					(byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)),
 					(ushort)SkipWindowDelay);
+		}
+
+		internal bool IsConcealed()
+		{
+			return Node.EnglishName.IndexOf("concealed", StringComparison.InvariantCultureIgnoreCase) >= 0;
 		}
 
 		internal bool IsEphemeral()

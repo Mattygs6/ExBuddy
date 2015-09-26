@@ -54,7 +54,7 @@
 				await Wait(interval, () => Request.IsOpen);
 			}
 
-			if (result != SendActionResult.Success || requestAttempts > attempts)
+			if (requestAttempts > attempts)
 			{
 				return false;
 			}

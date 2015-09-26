@@ -72,6 +72,8 @@
     <Compile Include="Interfaces\IFlightMovementArgs.cs" />
     <Compile Include="Interfaces\IFlightNavigationArgs.cs" />
     <Compile Include="Interfaces\IFlightVars.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExComplexNodeTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Data.cs" />

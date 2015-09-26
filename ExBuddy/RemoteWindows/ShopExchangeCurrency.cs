@@ -37,7 +37,7 @@
 				}
 			}
 
-			if (result != SendActionResult.Success || purchaseAttempts > attempts)
+			if (purchaseAttempts > attempts)
 			{
 				return false;
 			}

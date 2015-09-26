@@ -1,6 +1,5 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
-	using System;
 	using System.Windows.Media;
 
 	using Clio.XmlEngine;

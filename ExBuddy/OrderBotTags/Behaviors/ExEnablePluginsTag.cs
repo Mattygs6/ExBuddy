@@ -14,7 +14,7 @@
 	[XmlElement("ExEnablePlugins")]
 	public sealed class ExEnablePluginsTag : ExProfileBehavior
 	{
-		[XmlElement("Names")]
+		[XmlAttribute("Names")]
 		public string[] Names { get; set; }
 
 		protected override Color Info

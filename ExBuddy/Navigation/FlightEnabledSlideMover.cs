@@ -269,6 +269,7 @@
 									if (IsMovingTowardsLocation)
 									{
 										Logger.Warn("Landing cancelled after {0} ms. New destination requested.", totalLandingStopwatch.Elapsed);
+										innerMover.MoveStop();
 									}
 									else
 									{

@@ -1,6 +1,7 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Linq;
 	using System.Windows.Media;
 
@@ -14,8 +15,18 @@
 	[XmlElement("ExEnablePlugins")]
 	public sealed class ExEnablePluginsTag : ExProfileBehavior
 	{
+		private IList<string> namesList;
+
 		[XmlAttribute("Names")]
-		public string[] Names { get; set; }
+		public string Names { get; set; }
+
+		private IList<string> NamesList
+		{
+			get
+			{
+				return namesList ?? (namesList = Names.Split(',').Select(s => s.Trim()).ToArray());
+			}
+		} 
 
 		protected override Color Info
 		{
@@ -27,17 +38,17 @@
 
 		protected override void OnStart()
 		{
-			if (Names == null || Names.Length == 0)
+			if (NamesList == null || NamesList.Count == 0)
 			{
 				isDone = true;
 				return;
 			}
 
-			StatusText = "Enabling Plugins: " + string.Join(", ", Names);
-			Logger.Info("Enabling Plugins: " + string.Join(", ", Names));
+			StatusText = "Enabling Plugins: " + Names;
+			Logger.Info("Enabling Plugins: " + Names);
 			foreach (
 				var plugin in
-					PluginManager.Plugins.Where(p => Names.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
+					PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
 			{
 				try
 				{

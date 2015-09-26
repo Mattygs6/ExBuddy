@@ -230,7 +230,12 @@
 		{
 			loopCount = 0;
 			NodesGatheredAtMaxGp = 0;
-			HotSpots.Index = 0;
+
+			if (HotSpots != null)
+			{
+				HotSpots.Index = 0;
+			}
+			
 			ResetInternal();
 		}
 

@@ -250,6 +250,7 @@
 												Logger.Info("Created new Landing Unstuck Coroutine, moving to {0}", move);
 											}
 
+											// TODO: loop unstuck coroutine until done before leaving here. it is being cancelled as soon as we move.
 											if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
 											{
 												Logger.Info("Resumed Landing Unstuck Coroutine");

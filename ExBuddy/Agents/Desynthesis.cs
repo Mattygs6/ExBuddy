@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.RemoteAgents
+﻿namespace ExBuddy.Agents
 {
 	public sealed class Desynthesis : Agent<Desynthesis>
 	{

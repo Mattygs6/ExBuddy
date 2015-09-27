@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.Enums
+﻿namespace ExBuddy.Enumerations
 {
 	/// <summary>
 	///     Enumeration for virtual keys.

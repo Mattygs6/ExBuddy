@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.Enums
+﻿namespace ExBuddy.Enumerations
 {
 	using System;
 

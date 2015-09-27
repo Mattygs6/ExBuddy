@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
 	public sealed class Gathering : Window<Gathering>
 	{

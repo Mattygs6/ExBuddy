@@ -1,11 +1,11 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
 	using System;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
 
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Logging;
 

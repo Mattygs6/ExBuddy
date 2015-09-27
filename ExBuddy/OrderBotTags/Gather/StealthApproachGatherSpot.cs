@@ -9,16 +9,12 @@
 	using Clio.XmlEngine;
 
 	using ExBuddy.Helpers;
-	using ExBuddy.Interfaces;
 
 	using ff14bot;
 
 	[XmlElement("StealthApproachGatherSpot")]
-	public class StealthApproachGatherSpot : IGatherSpot
+	public class StealthApproachGatherSpot : GatherSpot
 	{
-		[XmlAttribute("NodeLocation")]
-		public Vector3 NodeLocation { get; set; }
-
 		[XmlAttribute("StealthLocation")]
 		public Vector3 StealthLocation { get; set; }
 
@@ -26,14 +22,10 @@
 		[XmlAttribute("ReturnToStealthLocation")]
 		public bool ReturnToStealthLocation { get; set; }
 
-		[DefaultValue(true)]
-		[XmlAttribute("UseMesh")]
-		public bool UseMesh { get; set; }
-
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
 
-		public async Task<bool> MoveFromSpot(ExGatherTag tag)
+		public override async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving from " + this;
 
@@ -52,7 +44,7 @@
 			return result;
 		}
 
-		public async Task<bool> MoveToSpot(ExGatherTag tag)
+		public override async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 

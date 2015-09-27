@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.RemoteAgents
+﻿namespace ExBuddy.Agents
 {
 	using ff14bot.Managers;
 

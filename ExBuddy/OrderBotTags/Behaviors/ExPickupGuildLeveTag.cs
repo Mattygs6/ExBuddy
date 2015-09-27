@@ -14,7 +14,7 @@
 
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
-	using ExBuddy.RemoteWindows;
+	using ExBuddy.Windows;
 
 	using ff14bot;
 	using ff14bot.Managers;

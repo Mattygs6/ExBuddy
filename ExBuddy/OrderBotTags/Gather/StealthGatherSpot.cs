@@ -1,32 +1,21 @@
 namespace ExBuddy.OrderBotTags.Gather
 {
-	using System.ComponentModel;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
 
-	using Clio.Utilities;
 	using Clio.XmlEngine;
 
 	using ExBuddy.Helpers;
-	using ExBuddy.Interfaces;
-
 	using ff14bot;
 
 	[XmlElement("StealthGatherSpot")]
-	public class StealthGatherSpot : IGatherSpot
+	public class StealthGatherSpot : GatherSpot
 	{
-		[XmlAttribute("NodeLocation")]
-		public Vector3 NodeLocation { get; set; }
-
-		[DefaultValue(true)]
-		[XmlAttribute("UseMesh")]
-		public bool UseMesh { get; set; }
-
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
 
-		public virtual async Task<bool> MoveFromSpot(ExGatherTag tag)
+		public override async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving from " + this;
 
@@ -38,7 +27,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			return true;
 		}
 
-		public virtual async Task<bool> MoveToSpot(ExGatherTag tag)
+		public override async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 
@@ -61,11 +50,6 @@ namespace ExBuddy.OrderBotTags.Gather
 			await Coroutine.Yield();
 
 			return result;
-		}
-
-		public override string ToString()
-		{
-			return string.Format("GatherSpot -> NodeLocation: {0}, UseMesh: {1}", NodeLocation, UseMesh);
 		}
 	}
 }

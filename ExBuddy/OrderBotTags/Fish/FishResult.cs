@@ -2,7 +2,7 @@
 {
 	using System;
 
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 
 	public class FishResult
 	{

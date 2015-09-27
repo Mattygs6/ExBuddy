@@ -3,7 +3,7 @@
 	using System.Threading.Tasks;
 
 	using ExBuddy.Attributes;
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 

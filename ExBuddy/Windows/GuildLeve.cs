@@ -1,10 +1,10 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
 	using System;
 	using System.Linq;
 	using System.Reflection;
 
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 
 	using ff14bot;
 	using ff14bot.Managers;

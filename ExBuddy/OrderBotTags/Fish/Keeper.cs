@@ -4,7 +4,7 @@ namespace ExBuddy.OrderBotTags.Fish
 	using System.ComponentModel;
 	using System.Xml.Serialization;
 
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 
 	[XmlRoot(IsNullable = true, Namespace = "")]
 	[Clio.XmlEngine.XmlElement("Keeper")]

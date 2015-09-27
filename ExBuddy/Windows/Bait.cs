@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
 	internal class Bait : Window<Bait>
 	{

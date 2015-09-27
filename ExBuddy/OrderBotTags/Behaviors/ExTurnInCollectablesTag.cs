@@ -19,7 +19,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using ExBuddy.OrderBotTags.Behaviors.Objects;
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Providers;
-	using ExBuddy.RemoteWindows;
+	using ExBuddy.Windows;
 
 	using ff14bot;
 	using ff14bot.Behavior;

@@ -1,17 +1,33 @@
-﻿namespace ExBuddy.OrderBotTags.Gather
+﻿#pragma warning disable 1998
+namespace ExBuddy.OrderBotTags.Gather
 {
+	using System.ComponentModel;
 	using System.Threading.Tasks;
 
+	using Clio.Utilities;
 	using Clio.XmlEngine;
 
 	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 
-	////[System.Xml.Serialization.XmlInclude(typeof(StealthGatherSpot))]
-	////[System.Xml.Serialization.XmlInclude(typeof(StealthApproachGatherSpot))]
 	[XmlElement("GatherSpot")]
-	public class GatherSpot : StealthGatherSpot
+	public class GatherSpot : IGatherSpot
 	{
-		public override async Task<bool> MoveToSpot(ExGatherTag tag)
+		[XmlAttribute("NodeLocation")]
+		public Vector3 NodeLocation { get; set; }
+
+		[DefaultValue(true)]
+		[XmlAttribute("UseMesh")]
+		public bool UseMesh { get; set; }
+
+		public virtual async Task<bool> MoveFromSpot(ExGatherTag tag)
+		{
+			tag.StatusText = "Moving from " + this;
+
+			return true;
+		}
+
+		public virtual async Task<bool> MoveToSpot(ExGatherTag tag)
 		{
 			tag.StatusText = "Moving to " + this;
 
@@ -25,6 +41,11 @@
 					stopCallback: tag.MovementStopCallback);
 
 			return result;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} -> NodeLocation: {1}, UseMesh: {2}", this.GetType().Name, NodeLocation, UseMesh);
 		}
 	}
 }

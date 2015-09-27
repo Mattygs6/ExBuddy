@@ -1,6 +1,6 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 
 	public sealed class SelectYesnoCount : Window<SelectYesnoCount>
 	{

@@ -14,13 +14,13 @@
 	using Clio.XmlEngine;
 
 	using ExBuddy.Attributes;
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.OrderBotTags.Behaviors;
 	using ExBuddy.OrderBotTags.Gather.Rotations;
 	using ExBuddy.OrderBotTags.Objects;
-	using ExBuddy.RemoteWindows;
+	using ExBuddy.Windows;
 
 	using ff14bot;
 	using ff14bot.Behavior;
@@ -152,7 +152,7 @@
 		public string GatherRotation { get; set; }
 
 		[XmlElement("GatherSpots")]
-		public List<StealthApproachGatherSpot> GatherSpots { get; set; }
+		public GatherSpotCollection GatherSpots { get; set; }
 
 		[DefaultValue(GatherIncrease.Auto)]
 		[XmlAttribute("GatherIncrease")]
@@ -1048,10 +1048,10 @@
 			StatusText = "Interacting with node";
 
 			var attempts = 0;
-			while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue)
+			while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible && Poi.Current.Unit.IsValid)
 			{
 				var ticks = 0;
-				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
+				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible && Poi.Current.Unit.IsValid)
 				{
 					var ground = Me.Location.GetFloor(6);
 					if (Math.Abs(ground.Y - Me.Location.Y) < float.Epsilon)
@@ -1311,7 +1311,6 @@
 			{
 				// TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
 				// If flying, land in area closest to node not in sight of an enemy and stealth.
-				case GatherSpotType.StealthApproachGatherSpot:
 				case GatherSpotType.StealthGatherSpot:
 					GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };
 					break;

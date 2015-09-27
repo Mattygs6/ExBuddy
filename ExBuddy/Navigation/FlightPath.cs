@@ -244,7 +244,7 @@ namespace ExBuddy.Navigation
 
 		protected virtual async Task<bool> Build()
 		{
-			const int MaxUncorrectedErrors = 20;
+			const int MaxUncorrectedErrors = 5;
 			var uncorrectedErrors = 0;
 			var from = Start;
 			var target = End;

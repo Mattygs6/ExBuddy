@@ -16,7 +16,7 @@ namespace ExBuddy.OrderBotTags.Fish
 	using Clio.XmlEngine;
 
 	using ExBuddy.Attributes;
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.OrderBotTags.Behaviors;
 	using ExBuddy.OrderBotTags.Objects;
@@ -37,7 +37,7 @@ namespace ExBuddy.OrderBotTags.Fish
 	[XmlElement("Fish")]
 	public class FishTag : ExProfileBehavior
 	{
-		private readonly RemoteWindows.Bait baitWindow = new RemoteWindows.Bait();
+		private readonly Windows.Bait baitWindow = new Windows.Bait();
 
 		[Serializable]
 		public enum Abilities

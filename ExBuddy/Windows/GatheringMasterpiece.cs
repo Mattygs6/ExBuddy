@@ -1,6 +1,6 @@
-﻿namespace ExBuddy.RemoteWindows
+﻿namespace ExBuddy.Windows
 {
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 
 	using ff14bot;
 

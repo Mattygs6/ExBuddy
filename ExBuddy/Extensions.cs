@@ -10,7 +10,7 @@
 	using Clio.Common;
 	using Clio.Utilities;
 
-	using ExBuddy.Enums;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Logging;
 

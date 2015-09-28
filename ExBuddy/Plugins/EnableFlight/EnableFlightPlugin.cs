@@ -87,7 +87,7 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		private async Task<bool> Start()
 		{
-			if (navigator == null)
+			if (navigator == null && BotManager.Current.EnglishName != "Fate Bot")
 			{
 				var settings = EnableFlightSettings.Instance;
 				navigator = new FlightEnabledNavigator(
@@ -158,24 +158,18 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		public override void OnDisabled()
 		{
-			if (BotManager.Current.EnglishName != "Fate Bot")
-			{
-				TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
-				TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
-				TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
-				TreeRoot.OnStop -= cleanup;
-				DoCleanup();
-			}
+			TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
+			TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+			TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
+			TreeRoot.OnStop -= cleanup;
+			DoCleanup();
 		}
 
 		public override void OnEnabled()
 		{
-			if (BotManager.Current.EnglishName != "Fate Bot")
-			{
-				TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
-				TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
-				TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
-			}
+			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
+			TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
 		}
 
 		private void OnHooksCleared(object sender, EventArgs args)

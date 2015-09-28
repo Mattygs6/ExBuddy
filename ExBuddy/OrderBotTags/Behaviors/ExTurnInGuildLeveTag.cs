@@ -294,12 +294,32 @@
 		protected override void OnDone()
 		{
 			interactTimeout.Stop();
+
+			if (SelectYesno.IsOpen)
+			{
+				SelectYesno.ClickNo();
+			}
+
+			if (Request.IsOpen)
+			{
+				Request.Cancel();
+			}
+
+			if (JournalResult.IsOpen)
+			{
+				JournalResult.Decline();
+			}
+
+			if (SelectIconString.IsOpen)
+			{
+				SelectIconString.ClickSlot(uint.MaxValue);
+			}
 		}
 
 		private async Task<bool> InteractWithNpc()
 		{
 			var ticks = 0;
-			while (ticks++ < 3 && !SelectIconString.IsOpen && !SelectString.IsOpen && !Request.IsOpen
+			while (ticks++ < 3 && !SelectIconString.IsOpen && !SelectString.IsOpen && !Request.IsOpen && !JournalResult.IsOpen
 					&& Behaviors.ShouldContinue)
 			{
 				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
@@ -312,7 +332,7 @@
 					await Coroutine.Yield();
 				}
 
-				await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen);
+				await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 			}
 
 			if (ticks > 3)

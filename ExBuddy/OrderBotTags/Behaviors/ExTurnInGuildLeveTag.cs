@@ -226,7 +226,7 @@
 				{
 					item.Handover();
 
-					await Coroutine.Wait(500, () => Request.HandOverButtonClickable);
+					await Coroutine.Wait(1000, () => Request.HandOverButtonClickable);
 
 					if (Request.HandOverButtonClickable)
 					{
@@ -266,17 +266,16 @@
 					Logger.Info("Turned in {0} on {1} ET", itemName, WorldManager.EorzaTime);
 				}
 
-				await Coroutine.Sleep(250);
-
+				await Coroutine.Wait(2000, () => JournalResult.IsOpen);
 				return true;
 			}
 
 			if (JournalResult.IsOpen)
 			{
-				await Coroutine.Wait(1000, () => JournalResult.ButtonClickable);
+				await Coroutine.Wait(2000, () => JournalResult.ButtonClickable);
 				JournalResult.Complete();
-				await Coroutine.Sleep(250);
 
+				await Coroutine.Wait(2000, () => !JournalResult.IsOpen);
 				return true;
 			}
 

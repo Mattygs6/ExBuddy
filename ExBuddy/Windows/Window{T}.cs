@@ -91,7 +91,7 @@
 			}
 		}
 
-		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 200)
+		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 250)
 		{
 			await Sleep(interval / 2);
 
@@ -109,7 +109,16 @@
 					return result;
 				}
 
-				Logger.Instance.Verbose("Unexpected result while closing [{0}], we may be trying to close too early.", Name);
+				Logger.Instance.Verbose("Waiting {0} ms for [{1}] window to close", interval * 2, Name);
+				await Refresh(interval * 2, false);
+
+				if (!IsValid)
+				{
+					Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+					return result;
+				}
+
+				Logger.Instance.Verbose("Unexpected result while closing [{0}]", Name);
 				return SendActionResult.UnexpectedResult;
 			}
 

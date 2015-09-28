@@ -192,10 +192,9 @@
 			if (Request.IsOpen)
 			{
 				////TODO: Want to support 3 turn ins of the same item (armor pieces etc.)  Probably going to have to either find out how to check if there are multiple requests, or just check the hand over prop and try to find new items to turn in...but this is...
-
 				var itemId = Memory.Request.CurrentItemId;
 
-				IEnumerable<BagSlot> itemSlots = InventoryManager.FilledSlots
+				IEnumerable<BagSlot> itemSlots = InventoryManager.FilledInventoryAndArmory
 					.Where(bs => bs.RawItemId == itemId && !Blacklist.Contains((uint)bs.Pointer.ToInt32(), BlacklistFlags.Loot))
 					.ToArray();
 

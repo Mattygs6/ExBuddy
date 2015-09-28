@@ -594,9 +594,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				return false;
 			}
-
+			
 			var slots =
-				InventoryManager.FilledSlots.Where(i => !Blacklist.Contains((uint)i.Pointer.ToInt32(), BlacklistFlags.Loot))
+				InventoryManager.FilledInventoryAndArmory.Where(i => !Blacklist.Contains((uint)i.Pointer.ToInt32(), BlacklistFlags.Loot))
 					.ToArray();
 
 			if (Collectables == null)

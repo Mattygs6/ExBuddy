@@ -19,6 +19,7 @@ namespace ExBuddy.Plugins.EnableFlight
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
 	using ff14bot.Helpers;
+	using ff14bot.Managers;
 	using ff14bot.Navigation;
 	using ff14bot.RemoteWindows;
 
@@ -157,18 +158,24 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		public override void OnDisabled()
 		{
-			TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
-			TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
-			TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
-			TreeRoot.OnStop -= cleanup;
-			DoCleanup();
+			if (BotManager.Current.EnglishName != "Fate Bot")
+			{
+				TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
+				TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+				TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
+				TreeRoot.OnStop -= cleanup;
+				DoCleanup();
+			}
 		}
 
 		public override void OnEnabled()
 		{
-			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
-			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
-			TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
+			if (BotManager.Current.EnglishName != "Fate Bot")
+			{
+				TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+				TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
+				TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
+			}
 		}
 
 		private void OnHooksCleared(object sender, EventArgs args)

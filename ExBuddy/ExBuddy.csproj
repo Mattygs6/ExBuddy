@@ -110,7 +110,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExFlyToTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInCollectablesTag.cs" />
     <Compile Include="OrderBotTags\Fish\Bait.cs" />
-    <Compile Include="OrderBotTags\Fish\FishTag.cs" />
+    <Compile Include="OrderBotTags\Fish\ExFishTag.cs" />
     <Compile Include="OrderBotTags\Fish\FishResult.cs" />
     <Compile Include="OrderBotTags\Fish\FishSpot.cs" />
     <Compile Include="OrderBotTags\Fish\Keeper.cs" />

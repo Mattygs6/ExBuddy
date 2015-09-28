@@ -35,7 +35,7 @@ namespace ExBuddy.OrderBotTags.Fish
 	[LoggerName("ExFish")]
 	[XmlElement("ExFish")]
 	[XmlElement("Fish")]
-	public class FishTag : ExProfileBehavior
+	public class ExFishTag : ExProfileBehavior
 	{
 		private readonly Windows.Bait baitWindow = new Windows.Bait();
 

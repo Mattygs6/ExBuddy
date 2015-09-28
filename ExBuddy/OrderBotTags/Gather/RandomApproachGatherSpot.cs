@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather
 {
 	using System.Collections.Generic;
-	using System.ComponentModel;
 	using System.Linq;
 	using System.Threading.Tasks;
 
@@ -23,7 +22,6 @@
 		[XmlAttribute("Stealth")]
 		public bool Stealth { get; set; }
 
-		[DefaultValue(true)]
 		[XmlAttribute("ReturnToApproachLocation")]
 		public bool ReturnToApproachLocation { get; set; }
 

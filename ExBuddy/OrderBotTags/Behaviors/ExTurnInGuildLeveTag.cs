@@ -23,8 +23,6 @@
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
 
-	using TreeSharp;
-
 	[LoggerName("ExGuildLeve")]
 	[XmlElement("ExTurnInGuildLeve")]
 	public class ExTurnInGuildLeveTag : ExProfileBehavior
@@ -73,12 +71,7 @@
 			}
 		}
 
-		protected override Composite CreateBehavior()
-		{
-			return new ActionRunCoroutine(ctx => Main());
-		}
-
-		private async Task<bool> Main()
+		protected override async Task<bool> Main()
 		{
 			if (interactTimeout.Elapsed.TotalSeconds > Timeout)
 			{

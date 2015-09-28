@@ -310,12 +310,7 @@
 			TreeHooks.Instance.RemoveHook("PoiAction", poiCoroutine);
 		}
 
-		protected override Composite CreateBehavior()
-		{
-			return new ActionRunCoroutine(ctx => Main());
-		}
-
-		private async Task<bool> Main()
+		protected override async Task<bool> Main()
 		{
 			await CommonTasks.HandleLoading();
 

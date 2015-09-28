@@ -274,6 +274,11 @@ namespace ExBuddy.OrderBotTags.Fish
 			CharacterSettings.Instance.UseMount = initialMountSetting;
 		}
 
+		protected override Task<bool> Main()
+		{
+			throw new NotImplementedException();
+		}
+
 		protected override void DoReset()
 		{
 			mooch = 0;

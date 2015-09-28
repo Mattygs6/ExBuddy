@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
+	using System.Threading.Tasks;
 	using System.Windows.Media;
 
 	using Clio.XmlEngine;
@@ -34,6 +35,11 @@
 			{
 				return Colors.GreenYellow;
 			}
+		}
+
+		protected override async Task<bool> Main()
+		{
+			return true;
 		}
 
 		protected override void OnStart()

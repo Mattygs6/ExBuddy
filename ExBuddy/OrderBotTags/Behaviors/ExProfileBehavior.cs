@@ -1,5 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
+	using System.Threading.Tasks;
 	using System.Windows.Media;
 
 	using Clio.XmlEngine;
@@ -12,6 +13,8 @@
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
 	using ff14bot.Objects;
+
+	using TreeSharp;
 
 	public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
 	{
@@ -31,7 +34,7 @@
 			Logger = new Logger(this, includeVersion: true);
 		}
 
-		[XmlElement("Name")]
+		[XmlAttribute("Name")]
 		public string Name { get; set; }
 
 		public sealed override string StatusText
@@ -110,6 +113,13 @@
 				return this.Info;
 			}
 		}
+
+		protected override Composite CreateBehavior()
+		{
+			return new ActionRunCoroutine(ctx => Main());
+		}
+
+		protected abstract Task<bool> Main();
 
 		protected virtual void DoReset() {}
 

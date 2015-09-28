@@ -60,9 +60,9 @@
 			Name = type.GetCustomAttributePropertyValue<LoggerNameAttribute, string>(attr => attr.Name, type.Name);
 		}
 
-		public bool IncludeVersion { get; private set; }
+		public bool IncludeVersion { get; internal set; }
 
-		public string Name { get; private set; }
+		public string Name { get; internal set; }
 
 		private string Prefix
 		{

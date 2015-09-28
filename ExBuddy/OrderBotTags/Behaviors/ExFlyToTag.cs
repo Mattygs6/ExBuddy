@@ -20,8 +20,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
 
-	using TreeSharp;
-
 	[LoggerName("ExFlyTo")]
 	[XmlElement("ExFlyTo")]
 	[XmlElement("FlightPathTo")]
@@ -65,12 +63,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		[XmlAttribute("ForceLanding")]
 		public bool ForceLanding { get; set; }
 
-		protected override Composite CreateBehavior()
-		{
-			return new ActionRunCoroutine(r => Fly());
-		}
-
-		public async Task<bool> Fly()
+		protected override async Task<bool> Main()
 		{
 			FlightPath flightPath = new StraightOrParabolicFlightPath(Me.Location, Target, this);
 

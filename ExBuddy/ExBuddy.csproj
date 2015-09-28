@@ -76,6 +76,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExDisablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExEnablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Data.cs" />

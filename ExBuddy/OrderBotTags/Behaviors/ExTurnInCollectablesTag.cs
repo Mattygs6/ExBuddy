@@ -106,12 +106,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			index = 0;
 		}
 
-		protected override Composite CreateBehavior()
-		{
-			return new ActionRunCoroutine(ctx => Main());
-		}
-
-		private async Task<bool> Main()
+		protected override async Task<bool> Main()
 		{
 			await CommonTasks.HandleLoading();
 

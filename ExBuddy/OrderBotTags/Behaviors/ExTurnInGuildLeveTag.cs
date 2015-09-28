@@ -31,6 +31,8 @@
 	{
 		private readonly Stopwatch interactTimeout = new Stopwatch();
 
+		private bool turnedItemsIn;
+
 		private bool checkedTransport;
 
 		private uint iconStringIndex = 9001;
@@ -256,6 +258,8 @@
 					return true;
 				}
 
+				turnedItemsIn = true;
+
 				if (SelectYesno.IsOpen)
 				{
 					SelectYesno.ClickYes();
@@ -289,6 +293,7 @@
 		protected override void DoReset()
 		{
 			interactTimeout.Reset();
+			turnedItemsIn = false;
 			checkedTransport = false;
 			iconStringIndex = 9001;
 		}
@@ -342,7 +347,16 @@
 
 				await HandleTalk();
 
-				await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
+				if (
+					!await
+					Coroutine.Wait(
+						2000,
+						() => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen) && turnedItemsIn)
+				{
+					Logger.Warn("No more quests to turn in.");
+					isDone = true;
+					return true;
+				}
 			}
 
 			if (ticks > 3)

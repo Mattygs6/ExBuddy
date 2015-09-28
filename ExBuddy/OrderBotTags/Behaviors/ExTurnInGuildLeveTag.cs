@@ -266,6 +266,8 @@
 					Logger.Info("Turned in {0} on {1} ET", itemName, WorldManager.EorzaTime);
 				}
 
+				await HandleTalk();
+
 				await Coroutine.Wait(2000, () => JournalResult.IsOpen);
 				return true;
 			}
@@ -316,6 +318,20 @@
 			}
 		}
 
+		private async Task<bool> HandleTalk(int interval = 100)
+		{
+			await Coroutine.Wait(1000, () => Talk.DialogOpen);
+
+			var ticks = 0;
+			while (ticks++ < 50 && Talk.DialogOpen && Behaviors.ShouldContinue)
+			{
+				Talk.Next();
+				await Coroutine.Sleep(interval);
+			}
+
+			return true;
+		}
+
 		private async Task<bool> InteractWithNpc()
 		{
 			var ticks = 0;
@@ -324,13 +340,7 @@
 			{
 				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
 
-				await Coroutine.Wait(1000, () => Talk.DialogOpen);
-
-				while (Talk.DialogOpen && Behaviors.ShouldContinue)
-				{
-					Talk.Next();
-					await Coroutine.Yield();
-				}
+				await HandleTalk();
 
 				await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 			}

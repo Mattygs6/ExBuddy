@@ -79,7 +79,7 @@
 				}
 				catch (Exception ex)
 				{
-					Logger.Error(ex.Message);
+					Logger.Error(ex.Message + " - Using default color, are you missing the '#'?");
 				}
 				
 			}

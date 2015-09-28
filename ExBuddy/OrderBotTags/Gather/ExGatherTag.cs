@@ -18,6 +18,7 @@
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.OrderBotTags.Behaviors;
+	using ExBuddy.OrderBotTags.Gather.GatherSpots;
 	using ExBuddy.OrderBotTags.Gather.Rotations;
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Windows;

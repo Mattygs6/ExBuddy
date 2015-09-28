@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.OrderBotTags.Gather
+﻿namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 {
 	using System.Collections;
 	using System.Collections.Generic;

@@ -87,10 +87,11 @@
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopPurchase.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopType.cs" />
     <Compile Include="Interfaces\IGatherSpot.cs" />
-    <Compile Include="OrderBotTags\Gather\GatherSpotCollection.cs" />
-    <Compile Include="OrderBotTags\Gather\RandomApproachGatherSpot.cs" />
-    <Compile Include="OrderBotTags\Gather\StealthApproachGatherSpot.cs" />
-    <Compile Include="OrderBotTags\Gather\StealthGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\GatherSpotCollection.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\IndirectApproachGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\RandomApproachGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\StealthApproachGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\StealthGatherSpot.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
     <Compile Include="Navigation\Collisions.cs" />
     <Compile Include="Helpers\Condition.cs" />
@@ -120,7 +121,7 @@
     <Compile Include="OrderBotTags\Gather\ExGatherTag.cs" />
     <Compile Include="Enumerations\GatherIncrease.cs" />
     <Compile Include="Attributes\GatheringRotationAttribute.cs" />
-    <Compile Include="OrderBotTags\Gather\GatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\GatherSpots\GatherSpot.cs" />
     <Compile Include="Enumerations\GatherSpotType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherStrategy.cs" />
     <Compile Include="Interfaces\IGatheringRotation.cs" />

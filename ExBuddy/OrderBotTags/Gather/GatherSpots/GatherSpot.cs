@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1998
-namespace ExBuddy.OrderBotTags.Gather
+namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;

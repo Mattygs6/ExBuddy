@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags.Gather
+namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 {
 	using System.Threading.Tasks;
 
@@ -7,6 +7,7 @@ namespace ExBuddy.OrderBotTags.Gather
 	using Clio.XmlEngine;
 
 	using ExBuddy.Helpers;
+
 	using ff14bot;
 
 	[XmlElement("StealthGatherSpot")]

@@ -279,6 +279,8 @@
 				Logger.Info("Completed on {0} ET", WorldManager.EorzaTime);
 
 				await Coroutine.Wait(2000, () => !JournalResult.IsOpen);
+				await HandleTalk();
+
 				return true;
 			}
 
@@ -337,7 +339,7 @@
 
 		private async Task<bool> WaitForOpenWindow()
 		{
-			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen); ;
+			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
 
 		private async Task<bool> HandleTalk(int interval = 100)

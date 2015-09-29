@@ -27,6 +27,7 @@
 								{ Ability.Truth, 221 },
 								{ Ability.IncreaseGatherChance50, 294 },
 								{ Ability.IncreaseGatherChanceOnce15, 4086 },
+								{ Ability.IncreaseGatherYieldOnce, 4087 },
 								{ Ability.CollectorsGlove, 4088 },
 								{ Ability.MethodicalAppraisal, 4089 },
 								{ Ability.InstinctualAppraisal, 4090 },
@@ -55,6 +56,7 @@
 								{ Ability.Truth, 238 },
 								{ Ability.IncreaseGatherChance50, 295 },
 								{ Ability.IncreaseGatherChanceOnce15, 4072 },
+								{ Ability.IncreaseGatherYieldOnce, 4073 },
 								{ Ability.CollectorsGlove, 4074 },
 								{ Ability.MethodicalAppraisal, 4075 },
 								{ Ability.InstinctualAppraisal, 4076 },
@@ -114,6 +116,8 @@
 		IncreaseGatherChance50, // = 295,294
 
 		IncreaseGatherChanceOnce15, // 4072, 4086
+
+		IncreaseGatherYieldOnce, // 4073, 4087
 
 		CollectorsGlove, // = 4074,4088
 

@@ -10,19 +10,9 @@
 	using ff14bot;
 	using ff14bot.Managers;
 
+	[GatheringRotation("GetTwoHQ", 600, 18)]
 	public sealed class GetTwoHqGatheringRotation : GatheringRotation
 	{
-		// ReSharper disable once InconsistentNaming
-		private static readonly GatheringRotationAttribute attributes = new GatheringRotationAttribute("GetTwoHQ", 600, 18);
-
-		public override GatheringRotationAttribute Attributes
-		{
-			get
-			{
-				return attributes;
-			}
-		}
-
 		public override bool CanBeOverriden
 		{
 			get

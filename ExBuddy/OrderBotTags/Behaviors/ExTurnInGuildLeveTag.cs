@@ -327,8 +327,7 @@
 				await Coroutine.Sleep(interval);
 			}
 
-			await Coroutine.Sleep(Math.Min(500, interval * 5));
-			return true;
+			return await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);;
 		}
 
 		private async Task<bool> InteractWithNpc()
@@ -339,13 +338,7 @@
 			{
 				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
 
-				await HandleTalk();
-
-				if (
-					!await
-					Coroutine.Wait(
-						2000,
-						() => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen) && turnedItemsIn)
+				if (!await HandleTalk() && turnedItemsIn)
 				{
 					Logger.Warn("No more quests to turn in.");
 					isDone = true;

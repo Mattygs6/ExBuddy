@@ -278,8 +278,12 @@
 				return true;
 			}
 
-			Logger.Info("Looks like no windows are open, lets clear our target and try again.");
-			Me.ClearTarget();
+			if (!await WaitForOpenWindow())
+			{
+				Logger.Info("Looks like no windows are open, lets clear our target and try again.");
+				Me.ClearTarget();
+			}
+			
 			return true;
 		}
 
@@ -316,6 +320,11 @@
 			}
 		}
 
+		private async Task<bool> WaitForOpenWindow()
+		{
+			return await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen); ;
+		}
+
 		private async Task<bool> HandleTalk(int interval = 100)
 		{
 			await Coroutine.Wait(1000, () => Talk.DialogOpen);
@@ -327,7 +336,7 @@
 				await Coroutine.Sleep(interval);
 			}
 
-			return await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);;
+			return await WaitForOpenWindow();
 		}
 
 		private async Task<bool> InteractWithNpc()

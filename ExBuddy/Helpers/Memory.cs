@@ -1,6 +1,7 @@
 ﻿namespace ExBuddy.Helpers
 {
 	using System;
+	using System.Linq;
 
 	using ExBuddy.OrderBotTags.Behaviors.Objects;
 
@@ -10,11 +11,35 @@
 	{
 		public static class Request
 		{
-			public static uint CurrentItemId
+			public static uint ItemId1
 			{
 				get
 				{
 					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FD7C);
+				}
+			}
+
+			public static uint ItemId2
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FDF4);
+				}
+			}
+
+			public static uint ItemId3
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FE6C);
+				}
+			}
+
+			public static uint[] ItemsToTurnIn
+			{
+				get
+				{
+					return new[] { ItemId1, ItemId2, ItemId3 }.Where(i => i > 0).ToArray();
 				}
 			}
 		}

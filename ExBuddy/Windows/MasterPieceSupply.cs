@@ -74,10 +74,10 @@
 				}
 			}
 
-			if (Memory.Request.CurrentItemId != bagSlot.RawItemId)
+			if (Memory.Request.ItemId1 != bagSlot.RawItemId)
 			{
 				Request.Cancel();
-				var item = DataManager.GetItem(Memory.Request.CurrentItemId);
+				var item = DataManager.GetItem(Memory.Request.ItemId1);
 				Logger.Instance.Warn(
 					"[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'",
 					bagSlot.EnglishName,

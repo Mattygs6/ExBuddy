@@ -188,8 +188,9 @@
 
 			if (Request.IsOpen)
 			{
-				////TODO: Want to support 3 turn ins of the same item (armor pieces etc.)  Probably going to have to either find out how to check if there are multiple requests, or just check the hand over prop and try to find new items to turn in...but this is...
-				var itemId = Memory.Request.CurrentItemId;
+				var itemCount = Memory.Request.ItemsToTurnIn.Length;
+				
+				var itemId = Memory.Request.ItemId1;
 
 				IEnumerable<BagSlot> itemSlots = InventoryManager.FilledInventoryAndArmory
 					.Where(bs => bs.RawItemId == itemId && !Blacklist.Contains((uint)bs.Pointer.ToInt32(), BlacklistFlags.Loot))
@@ -205,9 +206,9 @@
 					itemSlots = itemSlots.Where(bs => !bs.IsHighQuality);
 				}
 
-				var item = itemSlots.FirstOrDefault();
+				var items = itemSlots.Take(itemCount).ToArray();
 
-				if (item == null)
+				if (items.Length == 0)
 				{
 					Logger.Warn("No items to turn in. Settings -> HqOnly: {0}, NqOnly: {1}, ItemId: {2}", HqOnly, NqOnly, itemId);
 					isDone = true;
@@ -216,13 +217,17 @@
 
 				StatusText = "Turning in items";
 
-				var isHq = item.IsHighQuality;
-				var itemName = item.EnglishName;
+				var isHq = items.Any(i => i.IsHighQuality);
+				var itemName = items[0].EnglishName;
 				var requestAttempts = 0;
-				while (Request.IsOpen && requestAttempts++ < 5 && Behaviors.ShouldContinue && item.Item != null)
+				while (Request.IsOpen && requestAttempts++ < 5 && Behaviors.ShouldContinue)
 				{
-					item.Handover();
-
+					foreach (var item in items)
+					{
+						item.Handover();
+						await Coroutine.Yield();
+					}
+					
 					await Coroutine.Wait(1000, () => Request.HandOverButtonClickable);
 
 					if (Request.HandOverButtonClickable)
@@ -238,19 +243,6 @@
 							await Coroutine.Wait(2000, () => !Request.IsOpen);
 						}
 					}
-				}
-
-				if (Request.IsOpen)
-				{
-					Logger.Warn("We can't turn in Name: {0}, Count: {1}, SlotId: 0x{2}", itemName, item.Count, item.Pointer.ToString("X8"));
-
-					Blacklist.Add(
-						(uint)item.Pointer.ToInt32(),
-						BlacklistFlags.Loot,
-						TimeSpan.FromMinutes(5),
-						"Don't turn in this item for 5 minutes");
-
-					return true;
 				}
 
 				turnedItemsIn = true;

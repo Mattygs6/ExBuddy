@@ -164,6 +164,7 @@
 				{
 					Logger.Info("Collecting reward on {0} ET", WorldManager.EorzaTime);
 					SelectString.ClickSlot(index);
+					await Coroutine.Yield();
 					return true;
 				}
 
@@ -174,12 +175,14 @@
 				{
 					Logger.Info("Turning in more items on {0} ET", WorldManager.EorzaTime);
 					SelectString.ClickSlot(index);
+					await Coroutine.Yield();
 					return true;
 				}
 
 				Logger.Warn("No rewards left, turn-ins complete.");
 				isDone = true;
 				SelectString.ClickSlot(index);
+				await Coroutine.Yield();
 				return true;
 			}
 
@@ -255,6 +258,7 @@
 				if (SelectYesno.IsOpen)
 				{
 					SelectYesno.ClickYes();
+					await Coroutine.Yield();
 					Logger.Info("Turned in HQ {0} on {1} ET", itemName, WorldManager.EorzaTime);
 				}
 				else
@@ -281,6 +285,7 @@
 			if (!await WaitForOpenWindow())
 			{
 				Logger.Info("Looks like no windows are open, lets clear our target and try again.");
+				CloseWindows();
 				Me.ClearTarget();
 			}
 			
@@ -299,6 +304,11 @@
 		{
 			interactTimeout.Stop();
 
+			CloseWindows();
+		}
+
+		private void CloseWindows()
+		{
 			if (SelectYesno.IsOpen)
 			{
 				SelectYesno.ClickNo();
@@ -314,6 +324,11 @@
 				JournalResult.Decline();
 			}
 
+			if (SelectString.IsOpen)
+			{
+				SelectString.ClickSlot(uint.MaxValue);
+			}
+
 			if (SelectIconString.IsOpen)
 			{
 				SelectIconString.ClickSlot(uint.MaxValue);
@@ -322,7 +337,7 @@
 
 		private async Task<bool> WaitForOpenWindow()
 		{
-			return await Coroutine.Wait(2000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen); ;
+			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen); ;
 		}
 
 		private async Task<bool> HandleTalk(int interval = 100)

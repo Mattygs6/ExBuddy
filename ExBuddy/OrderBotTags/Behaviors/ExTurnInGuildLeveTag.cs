@@ -275,6 +275,7 @@
 				JournalResult.Complete();
 
 				await Coroutine.Wait(2000, () => !JournalResult.IsOpen);
+				await Coroutine.Wait(1000, () => SelectString.IsOpen);
 				return true;
 			}
 

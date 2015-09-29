@@ -326,6 +326,7 @@
 				await Coroutine.Sleep(interval);
 			}
 
+			await Coroutine.Sleep(250);
 			return true;
 		}
 

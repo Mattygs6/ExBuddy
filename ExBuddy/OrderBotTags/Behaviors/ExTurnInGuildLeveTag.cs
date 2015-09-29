@@ -272,6 +272,7 @@
 			{
 				await Coroutine.Wait(2000, () => JournalResult.ButtonClickable);
 				JournalResult.Complete();
+				Logger.Info("Completed on {0} ET", WorldManager.EorzaTime);
 
 				await Coroutine.Wait(2000, () => !JournalResult.IsOpen);
 				return true;
@@ -326,7 +327,7 @@
 				await Coroutine.Sleep(interval);
 			}
 
-			await Coroutine.Sleep(250);
+			await Coroutine.Sleep(Math.Min(500, interval * 5));
 			return true;
 		}
 

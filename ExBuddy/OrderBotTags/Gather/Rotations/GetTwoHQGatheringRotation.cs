@@ -43,8 +43,9 @@
 					await tag.Cast(Ability.IncreaseGatherYieldOnce);
 					await Wait();
 				}
-
-				if (GatheringManager.GatheringCombo == 0 && GatheringManager.SwingsRemaining < 6 && !Core.Player.HasAura(220))
+				
+				// No way to tell if we missed the first swing afaik... so we have to check if we have a combo of 0 anytime after the second swing.
+				if (GatheringManager.GatheringCombo == 0 && GatheringManager.SwingsRemaining < 5 && !Core.Player.HasAura(220))
 				{
 					await tag.Cast(Ability.IncreaseGatherQuality10);
 				}

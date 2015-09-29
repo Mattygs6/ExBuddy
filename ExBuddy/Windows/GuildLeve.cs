@@ -35,7 +35,7 @@
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<int>(Core.Memory.ImageBase + 0x0103ABEC);
+				return Core.Memory.NoCacheRead<int>(Core.Memory.ImageBase + 0x01052248);
 			}
 		}
 

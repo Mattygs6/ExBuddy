@@ -75,13 +75,14 @@
 		{
 			if (Talk.DialogOpen)
 			{
-				Talk.Next();
+				await HandleTalk();
 				return true;
 			}
 
 			if (SelectYesno.IsOpen)
 			{
 				SelectYesno.ClickYes();
+				await Coroutine.Yield();
 				return true;
 			}
 
@@ -89,6 +90,7 @@
 			{
 				await Coroutine.Wait(1000, () => JournalResult.ButtonClickable);
 				JournalResult.Complete();
+				await Coroutine.Yield();
 				return true;
 			}
 
@@ -110,12 +112,13 @@
 			if (Core.Target == null && Me.Distance(NpcLocation) <= 3.5)
 			{
 				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
+				await Coroutine.Yield();
 				return true;
 			}
 
 			if (SelectString.IsOpen)
 			{
-				if (interactTimeout.Elapsed.TotalSeconds > Timeout || GuildLeve.HasLeves(Ids) || GuildLeve.Allowances == 0)
+				if (interactTimeout.Elapsed.TotalSeconds > Timeout || GuildLeve.HasLeves(Ids) || GuildLeve.Allowances == 0 )
 				{
 					SelectString.ClickSlot(uint.MaxValue);
 					isDone = true;
@@ -161,6 +164,25 @@
 			}
 
 			return true;
+		}
+
+		private async Task<bool> WaitForOpenWindow()
+		{
+			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
+		}
+
+		private async Task<bool> HandleTalk(int interval = 100)
+		{
+			await Coroutine.Wait(1000, () => Talk.DialogOpen);
+
+			var ticks = 0;
+			while (ticks++ < 50 && Talk.DialogOpen && Behaviors.ShouldContinue)
+			{
+				Talk.Next();
+				await Coroutine.Sleep(interval);
+			}
+
+			return await WaitForOpenWindow();
 		}
 	}
 }

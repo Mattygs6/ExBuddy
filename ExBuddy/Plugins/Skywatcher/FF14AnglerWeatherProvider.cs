@@ -7,6 +7,7 @@
 	using System.Text.RegularExpressions;
 	using System.Threading;
 
+	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
 

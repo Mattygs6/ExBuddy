@@ -27,14 +27,8 @@
 					&& Behaviors.ShouldContinue)
 			{
 				result = PurchaseItem(index);
-				if (interval <= 33)
-				{
-					await Coroutine.Yield();
-				}
-				else
-				{
-					await Coroutine.Wait(interval, () => SelectYesno.IsOpen);
-				}
+
+				await Wait(interval, () => SelectYesno.IsOpen);
 			}
 
 			if (purchaseAttempts > attempts)
@@ -50,14 +44,7 @@
 			{
 				SelectYesno.ClickYes();
 
-				if (interval <= 33)
-				{
-					await Coroutine.Yield();
-				}
-				else
-				{
-					await Coroutine.Wait(interval, () => !SelectYesno.IsOpen);
-				}
+				await Wait(interval, () => !SelectYesno.IsOpen);
 			}
 
 			return !SelectYesno.IsOpen;

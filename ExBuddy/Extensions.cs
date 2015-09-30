@@ -12,10 +12,12 @@
 
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
 
 	using ff14bot;
 	using ff14bot.Managers;
+	using ff14bot.Objects;
 
 	using GreyMagic;
 
@@ -238,7 +240,7 @@
 
 		public static bool IsFullStack(this BagSlot bagSlot, bool includeNonStackable = false)
 		{
-			return bagSlot != null && bagSlot.Item != null && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1)) ;
+			return bagSlot != null && bagSlot.Item != null && bagSlot.IsFilled && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1)) ;
 		}
 
 		public static bool IsUnknownChance(this GatheringItem gatheringItem)
@@ -297,6 +299,15 @@
 
 				return false;
 			}
+		}
+
+		public static GameObject Interact(this IInteractWithNpc npc)
+		{
+			// TODO: could add another method, or just use this method to check distance and move
+			var obj = GameObjectManager.GetObjectByNPCId(npc.NpcId);
+			obj.Interact();
+
+			return obj;
 		}
 
 		public static bool IsGround(this Vector3 vector, float range = 3.0f)

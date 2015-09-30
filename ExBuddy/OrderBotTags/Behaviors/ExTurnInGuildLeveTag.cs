@@ -15,6 +15,7 @@
 
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 	using ExBuddy.Windows;
 
 	using ff14bot;
@@ -25,7 +26,7 @@
 
 	[LoggerName("ExGuildLeve")]
 	[XmlElement("ExTurnInGuildLeve")]
-	public class ExTurnInGuildLeveTag : ExProfileBehavior
+	public class ExTurnInGuildLeveTag : ExProfileBehavior, IInteractWithNpc
 	{
 		private readonly Stopwatch interactTimeout = new Stopwatch();
 
@@ -49,7 +50,7 @@
 		public uint NpcId { get; set; }
 
 		[XmlAttribute("NpcLocation")]
-		public Vector3 NpcLocation { get; set; }
+		public Vector3 Location { get; set; }
 
 		[DefaultValue(60)]
 		[XmlAttribute("Timeout")]
@@ -107,11 +108,11 @@
 			}
 
 			// Movement
-			if (Me.Distance(NpcLocation) > 3.5)
+			if (Me.Distance(Location) > 3.5)
 			{
 				StatusText = "Moving to Npc -> " + NpcId;
 
-				await Behaviors.MoveTo(NpcLocation, radius: 3.4f, name: " NpcId: " + NpcId);
+				await Behaviors.MoveTo(Location, radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
 			}
 
@@ -121,7 +122,7 @@
 			}
 
 			// Interact
-			if (Core.Target == null && Me.Distance(NpcLocation) <= 3.5)
+			if (Core.Target == null && Me.Distance(Location) <= 3.5)
 			{
 				return await InteractWithNpc();
 			}
@@ -354,7 +355,7 @@
 			while (ticks++ < 3 && !SelectIconString.IsOpen && !SelectString.IsOpen && !Request.IsOpen && !JournalResult.IsOpen
 					&& Behaviors.ShouldContinue)
 			{
-				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
+				this.Interact();
 
 				if (!await HandleTalk() && turnedItemsIn)
 				{

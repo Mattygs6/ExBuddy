@@ -26,7 +26,7 @@ namespace ExBuddy.Plugins.EnableFlight
 	using TreeSharp;
 
 	[LoggerName("EnableFlight")]
-	public class EnableFlightPlugin : ExBotPlugin<EnableFlightPlugin>
+	public class EnableFlight : ExBotPlugin<EnableFlight>
 	{
 		private Composite startCoroutine;
 

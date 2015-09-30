@@ -54,8 +54,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
+    <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
+    <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
+    <Compile Include="GameObjects\Npcs\SummoningBell.cs" />
+    <Compile Include="GameObjects\Npcs\MasterPieceSupply.cs" />
+    <Compile Include="GameObjects\Npcs\ShopExchangeCurrency.cs" />
     <Compile Include="Helpers\Memory.cs" />
+    <Compile Include="Helpers\SkywatcherPlugin.cs" />
+    <Compile Include="Interfaces\IAetheryteId.cs" />
+    <Compile Include="Interfaces\IInteractWithNpc.cs" />
     <Compile Include="Interfaces\ILogColors.cs" />
+    <Compile Include="Interfaces\INpc.cs" />
+    <Compile Include="Interfaces\ITeleportLocation.cs" />
+    <Compile Include="Interfaces\IZoneId.cs" />
     <Compile Include="Logging\LogColors.cs" />
     <Compile Include="Enumerations\CordialTime.cs" />
     <Compile Include="Enumerations\CordialType.cs" />
@@ -75,12 +86,12 @@
     <Compile Include="OrderBotTags\Behaviors\ExComplexNodeTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExDisablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExEnablePluginsTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExCompanyChestDepositTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Data.cs" />
-    <Compile Include="OrderBotTags\Behaviors\Objects\LocationData.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Locations.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopItem.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopItemInfo.cs" />
@@ -132,9 +143,11 @@
     <Compile Include="Agents\Agent{T}.cs" />
     <Compile Include="Agents\Desynthesis.cs" />
     <Compile Include="Windows\Bait.cs" />
+    <Compile Include="Windows\FreeCompanyChest.cs" />
     <Compile Include="Windows\Gathering.cs" />
     <Compile Include="Windows\GatheringMasterpiece.cs" />
     <Compile Include="Windows\GuildLeve.cs" />
+    <Compile Include="Windows\InputNumeric.cs" />
     <Compile Include="Windows\MasterPieceSupply.cs" />
     <Compile Include="Windows\SelectYesnoCount.cs" />
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
@@ -165,11 +178,11 @@
     <Compile Include="OrderBotTags\Gather\StealthMoveToTag.cs" />
     <Compile Include="OrderBotTags\Objects\CollectableBase.cs" />
     <Compile Include="OrderBotTags\Objects\CollectableTurnIn.cs" />
-    <Compile Include="Plugins\EnableFlight\EnableFlightPlugin.cs" />
+    <Compile Include="Plugins\EnableFlight\EnableFlight.cs" />
     <Compile Include="Plugins\Skywatcher\FF14AnglerWeatherProvider.cs" />
     <Compile Include="Plugins\Skywatcher\HttpClientExtensions.cs" />
     <Compile Include="Interfaces\IWeatherProvider.cs" />
-    <Compile Include="Plugins\Skywatcher\SkywatcherPlugin.cs" />
+    <Compile Include="Plugins\Skywatcher\Skywatcher.cs" />
     <Compile Include="Plugins\Skywatcher\WeatherData.cs" />
     <Compile Include="Plugins\Skywatcher\WeatherResponse.cs" />
     <Compile Include="Plugins\Skywatcher\WeatherResult.cs" />

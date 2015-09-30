@@ -21,6 +21,8 @@
 		static ExBotPlugin()
 		{
 			ReflectionHelper.CustomAttributes<LoggerNameAttribute>.RegisterByAssembly();
+
+			Condition.AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 		}
 
 		protected ExBotPlugin()

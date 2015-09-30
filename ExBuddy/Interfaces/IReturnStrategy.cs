@@ -4,12 +4,8 @@ namespace ExBuddy.Interfaces
 
 	using Clio.Utilities;
 
-	public interface IReturnStrategy
+	public interface IReturnStrategy : ITeleportLocation
 	{
-		ushort ZoneId { get; set; }
-
-		uint AetheryteId { get; set; }
-
 		Vector3 InitialLocation { get; set; }
 
 		Task<bool> ReturnToZone();

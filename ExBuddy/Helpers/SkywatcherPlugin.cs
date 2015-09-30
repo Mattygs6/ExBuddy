@@ -1,23 +1,12 @@
-﻿namespace ExBuddy.Plugins.Skywatcher
+﻿namespace ExBuddy.Helpers
 {
 	using System;
 	using System.Linq;
-
-	using ExBuddy.Attributes;
-	using ExBuddy.Helpers;
-	using ExBuddy.Interfaces;
-
 	using ff14bot.Managers;
 
-	[LoggerName("Skywatcher")]
-	public class SkywatcherPlugin : ExBotPlugin<SkywatcherPlugin>
+	public static class SkywatcherPlugin
 	{
-		// 1 eorzea hour > 175 seconds > 2.91 minutes
-		public const double RefreshRate = 3600 * 1000 * (7.0 / 144.0);
-
 		public static readonly DateTime EorzeaStartTime = new DateTime(2010, 7, 13);
-
-		public static IWeatherProvider WeatherProvider { get; private set; }
 
 		public static int GetIntervalNumber()
 		{
@@ -54,13 +43,13 @@
 
 		public static bool IsWeatherInZone(int zoneId, params byte[] weatherIds)
 		{
-			return WeatherProvider.CurrentWeatherData.Any(w => w.ZoneId == zoneId && weatherIds.Any(wid => wid == w.WeatherId));
+			return ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.CurrentWeatherData.Any(w => w.ZoneId == zoneId && weatherIds.Any(wid => wid == w.WeatherId));
 		}
 
 		public static bool IsWeatherInZone(int zoneId, params string[] weatherNames)
 		{
 			return
-				WeatherProvider.CurrentWeatherData.Any(
+				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.CurrentWeatherData.Any(
 					w =>
 					w.ZoneId == zoneId
 					&& weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
@@ -85,7 +74,7 @@
 			}
 
 			return
-				WeatherProvider.WeatherData.Any(
+				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.WeatherData.Any(
 					w => w.Time == time && w.ZoneId == zoneId && weatherIds.Any(wid => w.WeatherId == wid));
 		}
 
@@ -108,7 +97,7 @@
 			}
 
 			return
-				WeatherProvider.WeatherData.Any(
+				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.WeatherData.Any(
 					w =>
 					w.Time == time && w.ZoneId == zoneId
 					&& weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
@@ -130,45 +119,5 @@
 		{
 			return string.Equals(weatherName, WorldManager.CurrentWeather, StringComparison.InvariantCultureIgnoreCase);
 		}
-
-		#region IBotPlugin
-
-		public override void OnButtonPress()
-		{
-			// TODO: Bring up timetable
-		}
-
-		public override void OnInitialize()
-		{
-			WeatherProvider = new FF14AnglerWeatherProvider();
-
-			Condition.AddNamespacesToScriptManager("ExBuddy.Plugins.Skywatcher");
-		}
-
-		public override void OnShutdown()
-		{
-			WeatherProvider = null;
-		}
-
-		public override void OnEnabled()
-		{
-			WeatherProvider.Enable();
-		}
-
-		public override void OnDisabled()
-		{
-			WeatherProvider.Disable();
-			// TODO: if timetable implemented, close window
-		}
-
-		public override string Name
-		{
-			get
-			{
-				return "Skywatcher";
-			}
-		}
-
-		#endregion
 	}
 }

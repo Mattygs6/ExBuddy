@@ -1,11 +1,30 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors.Objects
 {
 	using System.Collections.Generic;
+	using System.Linq;
 
 	using Clio.Utilities;
 
+	using ExBuddy.GameObjects.Npcs;
+	using ExBuddy.Interfaces;
+
 	internal static class Data
 	{
+		public static IEnumerable<INpc> GetNpcsByLocation(Locations location)
+		{
+			IList<INpc> npcs;
+			if (NpcMap.TryGetValue(location, out npcs))
+			{
+				return npcs;
+			}
+
+			return Enumerable.Empty<INpc>();
+		}
+		public static IEnumerable<T> GetNpcsByLocation<T>(Locations location) where T : INpc
+		{
+			return GetNpcsByLocation(location).OfType<T>();
+		}
+
 		public static readonly Dictionary<ShopItem, ShopItemInfo> ShopItemMap = new Dictionary<ShopItem, ShopItemInfo>
 																					{
 																						{
@@ -208,32 +227,76 @@
 																						},
 																					};
 
-		public static readonly Dictionary<Locations, LocationData> LocationMap = new Dictionary<Locations, LocationData>
+		public static readonly Dictionary<Locations, IList<INpc>> NpcMap = new Dictionary<Locations, IList<INpc>>
+																				{
 																					{
-																						{
-																							Locations.MorDhona,
-																							new LocationData
-																								{
-																									AetheryteId = 24,
-																									ZoneId = 156,
-																									NpcId = 1013396,
-																									NpcLocation = new Vector3("50.33948, 31.13618, -737.4532"),
-																									ShopNpcId = 1013397,
-																									ShopNpcLocation = new Vector3("47.34875, 31.15659, -737.4838")
-																								}
-																						},
-																						{
-																							Locations.Idyllshire,
-																							new LocationData
-																								{
-																									AetheryteId = 75,
-																									ZoneId = 478,
-																									NpcId = 1012300,
-																									NpcLocation = new Vector3("-15.64056, 211, 0.1677856"),
-																									ShopNpcId = 1012301,
-																									ShopNpcLocation = new Vector3("-17.38013, 211, -1.66333")
-																								}
-																						}
-																					};
+																						Locations.MorDhona,
+																						new INpc[]
+																							{
+																								new MasterPieceSupply
+																									{
+																										AetheryteId = 24,
+																										ZoneId = 156,
+																										Location = new Vector3("50.33948, 31.13618, -737.4532"),
+																										NpcId = 1013396
+																									},
+																								new ShopExchangeCurrency
+																									{
+																										AetheryteId = 24,
+																										ZoneId = 156,
+																										Location = new Vector3("47.34875, 31.15659, -737.4838"),
+																										NpcId = 1013397
+																									}
+																							}
+																					},
+																					{
+																						Locations.Idyllshire,
+																						new INpc[]
+																							{
+																								new MasterPieceSupply
+																									{
+																										AetheryteId = 75,
+																										ZoneId = 478,
+																										Location = new Vector3("-15.64056, 211, 0.1677856"),
+																										NpcId = 1012300
+																									},
+																								new ShopExchangeCurrency
+																									{
+																										AetheryteId = 75,
+																										ZoneId = 478,
+																										Location = new Vector3("-17.38013, 211, -1.66333"),
+																										NpcId = 1012301
+																									}
+																							}
+																					},
+																					{
+																						Locations.LimsaLominsaLowerDecks,
+																						new INpc[]
+																							{
+																								new FreeCompanyChest
+																									{
+																										AetheryteId = 8,
+																										ZoneId = 129,
+																										Location = new Vector3("-200, 17.04425, 58.76245"),
+																										NpcId = 2000470,
+																										Name = "Company Chest"
+																									}
+																							}
+																					},
+																					{
+																						Locations.UldahStepsOfNald,
+																						new INpc[]
+																							{
+																								new FreeCompanyChest
+																									{
+																										AetheryteId = 9,
+																										ZoneId = 130,
+																										Location = new Vector3("-149.3096, 4.53186, -91.38635"),
+																										NpcId = 2000470,
+																										Name = "Company Chest"
+																									}
+																							}
+																					}
+																				};
 	}
 }

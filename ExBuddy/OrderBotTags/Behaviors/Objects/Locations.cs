@@ -2,8 +2,14 @@
 {
 	public enum Locations
 	{
+		Custom,
+
 		MorDhona,
 
-		Idyllshire
+		Idyllshire,
+
+		UldahStepsOfNald,
+
+		LimsaLominsaLowerDecks
 	}
 }

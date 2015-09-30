@@ -27,6 +27,9 @@
 		static ExProfileBehavior()
 		{
 			ReflectionHelper.CustomAttributes<LoggerNameAttribute>.RegisterByAssembly();
+
+			// Until we find a better way to do it.
+			Condition.AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 		}
 
 		protected ExProfileBehavior()

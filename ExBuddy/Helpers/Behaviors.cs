@@ -300,14 +300,9 @@ namespace ExBuddy.Helpers
 			return await TeleportTo((ushort)zoneId, aetheryteId);
 		}
 
-		public static async Task<bool> TeleportTo(LocationData locationData)
+		public static async Task<bool> TeleportTo(ITeleportLocation teleportLocation)
 		{
-			return await TeleportTo(locationData.ZoneId, locationData.AetheryteId);
-		}
-
-		public static async Task<bool> TeleportTo(IReturnStrategy returnStrategy)
-		{
-			return await TeleportTo(returnStrategy.ZoneId, returnStrategy.AetheryteId);
+			return await TeleportTo(teleportLocation.ZoneId, teleportLocation.AetheryteId);
 		}
 
 		public static async Task<bool> Unstuck()

@@ -14,18 +14,17 @@
 
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 	using ExBuddy.Windows;
 
 	using ff14bot;
-	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
-
-	using TreeSharp;
 
 	[LoggerName("ExGuildLeve")]
 	[XmlElement("ExPickupGuildLeve")]
-	public class ExPickupGuildLeveTag : ExProfileBehavior
+	public class ExPickupGuildLeveTag : ExProfileBehavior, IInteractWithNpc
 	{
+		private uint[] ids;
 		private readonly Stopwatch interactTimeout = new Stopwatch();
 
 		[XmlAttribute("LeveIds")]
@@ -39,7 +38,7 @@
 		public uint NpcId { get; set; }
 
 		[XmlAttribute("NpcLocation")]
-		public Vector3 NpcLocation { get; set; }
+		public Vector3 Location { get; set; }
 
 		[DefaultValue(30)]
 		[XmlAttribute("Timeout")]
@@ -57,7 +56,7 @@
 		{
 			get
 			{
-				return LeveIds.Select(Convert.ToUInt32).ToArray();
+				return ids ?? (ids = LeveIds.Select(Convert.ToUInt32).ToArray());
 			}
 		}
 
@@ -95,11 +94,11 @@
 			}
 
 			// Movement
-			if (Me.Distance(NpcLocation) > 3.5)
+			if (Me.Distance(Location) > 3.5)
 			{
 				StatusText = "Moving to Npc -> " + NpcId;
 
-				await Behaviors.MoveTo(NpcLocation, radius: 3.4f, name: " NpcId: " + NpcId);
+				await Behaviors.MoveTo(Location, radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
 			}
 
@@ -109,9 +108,9 @@
 			}
 
 			// Interact
-			if (Core.Target == null && Me.Distance(NpcLocation) <= 3.5)
+			if (Core.Target == null && Me.Distance(Location) <= 3.5)
 			{
-				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
+				this.Interact();
 				await Coroutine.Yield();
 				return true;
 			}
@@ -157,9 +156,9 @@
 			}
 
 			// Interact if targetting but not null (if combat behaviors prevented the first one)
-			if (Me.Distance(NpcLocation) <= 3.5)
+			if (Me.Distance(Location) <= 3.5)
 			{
-				GameObjectManager.GetObjectByNPCId(NpcId).Interact();
+				this.Interact();
 				return true;
 			}
 

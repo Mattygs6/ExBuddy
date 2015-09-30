@@ -16,6 +16,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 	using ExBuddy.OrderBotTags.Behaviors.Objects;
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Providers;
@@ -30,8 +31,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using ff14bot.NeoProfiles;
 	using ff14bot.RemoteWindows;
 
-	using TreeSharp;
-
 	[LoggerName("ExTurnInCollectables")]
 	[XmlElement("ExTurnInCollectables")]
 	[XmlElement("TurnInCollectables")]
@@ -41,9 +40,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private BagSlot item;
 
-		private uint index;
+		private INpc masterPieceSupplyNpc;
+		private INpc shopExchangeCurrencyNpc;
 
-		private LocationData locationData;
+		private uint index;
 
 		[DefaultValue(Locations.Idyllshire)]
 		[XmlAttribute("Location")]
@@ -68,7 +68,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override void OnStart()
 		{
-			locationData = Data.LocationMap[Location];
+			var npcs = Data.GetNpcsByLocation(Location).ToArray();
+
+			masterPieceSupplyNpc = npcs.OfType<GameObjects.Npcs.MasterPieceSupply>().FirstOrDefault();
+			shopExchangeCurrencyNpc = npcs.OfType<GameObjects.Npcs.ShopExchangeCurrency>().FirstOrDefault();
 		}
 
 		protected override void OnDone()
@@ -110,7 +113,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			await CommonTasks.HandleLoading();
 
-			return await ResolveItem() || HandleDeath() || await Behaviors.TeleportTo(locationData) || await MoveToNpc()
+			return await ResolveItem() || HandleDeath() || await Behaviors.TeleportTo(masterPieceSupplyNpc) || await MoveToNpc()
 					|| await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
 					|| await MoveToShopNpc() || await PurchaseItems();
 		}
@@ -179,7 +182,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private async Task<bool> MoveToShopNpc()
 		{
-			if (Me.Location.Distance(locationData.ShopNpcLocation) <= 4)
+			if (Me.Location.Distance(shopExchangeCurrencyNpc.Location) <= 4)
 			{
 				// we are already there, continue
 				return false;
@@ -187,9 +190,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			await
 				Behaviors.MoveTo(
-					locationData.ShopNpcLocation,
-					radius: 4.0f,
-					name: Location + " ShopNpcId: " + locationData.ShopNpcId);
+					shopExchangeCurrencyNpc.Location,
+					radius: 3.9f,
+					name: Location + " ShopNpcId: " + shopExchangeCurrencyNpc.NpcId);
 
 			Navigator.Stop();
 
@@ -198,7 +201,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private async Task<bool> PurchaseItems()
 		{
-			if (Me.Location.Distance(locationData.ShopNpcLocation) > 4)
+			if (Me.Location.Distance(shopExchangeCurrencyNpc.Location) > 4)
 			{
 				// too far away, should go back to MoveToNpc
 				return true;
@@ -207,7 +210,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			StatusText = "Purchasing items";
 
 			var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
-			var npc = GameObjectManager.GetObjectByNPCId(locationData.ShopNpcId);
+			var npc = GameObjectManager.GetObjectByNPCId(shopExchangeCurrencyNpc.NpcId);
 			var shopType = ShopType.BlueGatherer;
 			var shopExchangeCurrency = new ShopExchangeCurrency();
 			foreach (var purchaseItem in itemsToPurchase)
@@ -413,15 +416,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			if (Me.Location.Distance(locationData.NpcLocation) <= 4)
+			if (Me.Location.Distance(masterPieceSupplyNpc.Location) <= 4)
 			{
 				// we are already there, continue
 				return false;
 			}
 
-			StatusText = "Moving to Npc -> " + locationData.NpcId;
+			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
 
-			await Behaviors.MoveTo(locationData.NpcLocation, radius: 4.0f, name: Location + " NpcId: " + locationData.NpcId);
+			await Behaviors.MoveTo(masterPieceSupplyNpc.Location, radius: 3.9f, name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
 
 			return false;
 		}
@@ -433,7 +436,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			if (Me.Location.Distance(locationData.NpcLocation) > 4)
+			if (Me.Location.Distance(masterPieceSupplyNpc.Location) > 4)
 			{
 				// too far away, should go back to MoveToNpc
 				return true;
@@ -445,11 +448,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			var npc = GameObjectManager.GetObjectByNPCId(locationData.NpcId);
-			npc.Target();
-			npc.Interact();
+			masterPieceSupplyNpc.Interact();
 
-			StatusText = "Interacting with Npc -> " + npc.EnglishName;
+			StatusText = "Interacting with Npc -> " + masterPieceSupplyNpc.NpcId;
+			await Coroutine.Yield();
 
 			return false;
 		}

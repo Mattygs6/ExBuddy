@@ -251,12 +251,6 @@
 
 		protected override void OnStart()
 		{
-			if (FreeRange)
-			{
-				// Until we find a better way to do it.
-				Condition.AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
-			}
-
 			SpellDelay = SpellDelay < 0 ? 0 : SpellDelay;
 			WindowDelay = WindowDelay < 500 ? 500 : WindowDelay;
 			SkipWindowDelay = SkipWindowDelay < 200 ? 200 : SkipWindowDelay;

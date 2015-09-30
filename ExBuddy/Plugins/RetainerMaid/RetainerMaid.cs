@@ -27,6 +27,16 @@
 
 	using TreeSharp;
 
+	public class BagSlotSnapshot
+	{
+		public BagSlotSnapshot(BagSlot slot)
+		{
+			
+		}
+
+		public InventoryBagId BagId { get; set; }
+	}
+
 	public class Retainer
 	{
 		public static readonly InventoryBagId[] BagIds =
@@ -121,7 +131,8 @@
 			}
 
 			// If target is retainer summon object and select string is open?
-			var bell = GameObjectManager.GetObjectByObjectId(4627756);
+			//var bell = GameObjectManager.GetObjectByObjectId(4627756);
+			var bell = GameObjectManager.GetObjectByObjectId(4469206);
 			bell.Interact();
 
 			await Coroutine.Wait(3000, () => SelectString.IsOpen);

@@ -34,7 +34,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			get
 			{
-				return namesList ?? (namesList = Names.Split(',').Select(s => s.Trim()).ToArray());
+				return namesList ?? (namesList = Names.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
 			}
 		}
 

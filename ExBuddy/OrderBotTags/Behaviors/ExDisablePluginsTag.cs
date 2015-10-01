@@ -26,7 +26,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			get
 			{
-				return Colors.SandyBrown;
+				return Colors.PaleGoldenrod;
 			}
 		}
 
@@ -34,6 +34,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			get
 			{
+				if (Names == null)
+				{
+					return new string[] { };
+				}
+
 				return namesList ?? (namesList = Names.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
 			}
 		}

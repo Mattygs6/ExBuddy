@@ -2,8 +2,8 @@
 {
 	public interface IFlightMovementArgs
 	{
-		int MountId { get; set; }
-
 		bool ForceLanding { get; set; }
+
+		int MountId { get; set; }
 	}
 }

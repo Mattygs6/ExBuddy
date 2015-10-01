@@ -10,17 +10,7 @@
 	[GatheringRotation("Collect570", 600, 34)]
 	public sealed class Collect570GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
-		{
-			await DiscerningUtmostMethodical(tag);
-			await DiscerningUtmostMethodical(tag);
-			await Methodical(tag);
-			await Methodical(tag);
-
-			await IncreaseChance(tag);
-
-			return true;
-		}
+		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
@@ -37,6 +27,20 @@
 			}
 
 			return -1;
+		}
+
+		#endregion
+
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
+		{
+			await UtmostMethodical(tag);
+			await UtmostMethodical(tag);
+			await DiscerningMethodical(tag);
+			await DiscerningMethodical(tag);
+
+			await IncreaseChance(tag);
+
+			return true;
 		}
 	}
 }

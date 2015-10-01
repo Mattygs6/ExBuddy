@@ -8,8 +8,8 @@ namespace ExBuddy.Interfaces
 	{
 		Vector3 InitialLocation { get; set; }
 
-		Task<bool> ReturnToZone();
-
 		Task<bool> ReturnToLocation();
+
+		Task<bool> ReturnToZone();
 	}
 }

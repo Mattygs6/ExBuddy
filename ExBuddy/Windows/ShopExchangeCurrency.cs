@@ -28,7 +28,7 @@
 			{
 				result = PurchaseItem(index);
 
-				await Wait(interval, () => SelectYesno.IsOpen);
+				await Behaviors.Wait(interval, () => SelectYesno.IsOpen);
 			}
 
 			if (purchaseAttempts > attempts)
@@ -44,7 +44,7 @@
 			{
 				SelectYesno.ClickYes();
 
-				await Wait(interval, () => !SelectYesno.IsOpen);
+				await Behaviors.Wait(interval, () => !SelectYesno.IsOpen);
 			}
 
 			return !SelectYesno.IsOpen;

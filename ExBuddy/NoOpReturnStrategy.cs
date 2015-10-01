@@ -12,11 +12,20 @@ namespace ExBuddy
 
 	public class NoOpReturnStrategy : IReturnStrategy
 	{
-		public ushort ZoneId { get; set; }
+		#region IAetheryteId Members
 
 		public uint AetheryteId { get; set; }
 
+		#endregion
+
+		#region IReturnStrategy Members
+
 		public Vector3 InitialLocation { get; set; }
+
+		public async Task<bool> ReturnToLocation()
+		{
+			return true;
+		}
 
 		public async Task<bool> ReturnToZone()
 		{
@@ -24,10 +33,13 @@ namespace ExBuddy
 			return true;
 		}
 
-		public async Task<bool> ReturnToLocation()
-		{
-			return true;
-		}
+		#endregion
+
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
 
 		public override string ToString()
 		{

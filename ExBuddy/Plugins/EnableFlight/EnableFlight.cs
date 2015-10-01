@@ -28,13 +28,13 @@ namespace ExBuddy.Plugins.EnableFlight
 	[LoggerName("EnableFlight")]
 	public class EnableFlight : ExBotPlugin<EnableFlight>
 	{
-		private Composite startCoroutine;
+		private BotEvent cleanup;
 
 		private Composite deathCoroutine;
 
 		private FlightEnabledNavigator navigator;
 
-		private BotEvent cleanup;
+		private Composite startCoroutine;
 
 		public override string Name
 		{
@@ -49,6 +49,62 @@ namespace ExBuddy.Plugins.EnableFlight
 			get
 			{
 				return Colors.LightSteelBlue;
+			}
+		}
+
+		public override void OnDisabled()
+		{
+			TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
+			TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
+			TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
+			TreeRoot.OnStop -= cleanup;
+			DoCleanup();
+		}
+
+		public override void OnEnabled()
+		{
+			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
+			TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
+		}
+
+		public override void OnInitialize()
+		{
+			startCoroutine = new ActionRunCoroutine(ctx => Start());
+			deathCoroutine = new ActionRunCoroutine(ctx => HandleDeath());
+		}
+
+		public override void OnShutdown()
+		{
+			TreeRoot.OnStop -= cleanup;
+			DoCleanup();
+		}
+
+		private void DisposeNav()
+		{
+			var nav = Navigator.NavigationProvider as GaiaNavigator;
+			if (nav != null)
+			{
+				Logger.Info("Disposing the GaiaNavigator");
+				try
+				{
+					nav.Dispose();
+				}
+				catch (NullReferenceException) {}
+				finally
+				{
+					Navigator.NavigationProvider = null;
+				}
+			}
+		}
+
+		private void DoCleanup()
+		{
+			if (navigator != null)
+			{
+				Logger.Info("Stopped Flight Navigator.");
+				navigator.Dispose();
+				navigator = null;
 			}
 		}
 
@@ -85,6 +141,12 @@ namespace ExBuddy.Plugins.EnableFlight
 			return false;
 		}
 
+		private void OnHooksCleared(object sender, EventArgs args)
+		{
+			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
+			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
+		}
+
 		private async Task<bool> Start()
 		{
 			if (navigator == null && BotManager.Current.EnglishName != "Fate Bot")
@@ -115,73 +177,18 @@ namespace ExBuddy.Plugins.EnableFlight
 
 			return false;
 		}
-
-		private void DoCleanup()
-		{
-			if (navigator != null)
-			{
-				Logger.Info("Stopped Flight Navigator.");
-				navigator.Dispose();
-				navigator = null;
-			}
-		}
-
-		private void DisposeNav()
-		{
-			var nav = Navigator.NavigationProvider as GaiaNavigator;
-			if (nav != null)
-			{
-				Logger.Info("Disposing the GaiaNavigator");
-				try
-				{
-					nav.Dispose();
-				}
-				catch (NullReferenceException) {}
-				finally
-				{
-					Navigator.NavigationProvider = null;
-				}
-			}
-		}
-
-		public override void OnShutdown()
-		{
-			TreeRoot.OnStop -= cleanup;
-			DoCleanup();
-		}
-
-		public override void OnInitialize()
-		{
-			startCoroutine = new ActionRunCoroutine(ctx => Start());
-			deathCoroutine = new ActionRunCoroutine(ctx => HandleDeath());
-		}
-
-		public override void OnDisabled()
-		{
-			TreeHooks.Instance.OnHooksCleared -= OnHooksCleared;
-			TreeHooks.Instance.RemoveHook("TreeStart", startCoroutine);
-			TreeHooks.Instance.RemoveHook("PoiAction", deathCoroutine);
-			TreeRoot.OnStop -= cleanup;
-			DoCleanup();
-		}
-
-		public override void OnEnabled()
-		{
-			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
-			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
-			TreeHooks.Instance.OnHooksCleared += OnHooksCleared;
-		}
-
-		private void OnHooksCleared(object sender, EventArgs args)
-		{
-			TreeHooks.Instance.AddHook("TreeStart", startCoroutine);
-			TreeHooks.Instance.AddHook("PoiAction", deathCoroutine);
-		}
 	}
 
 	public class EnableFlightSettings : JsonSettings
 	{
 		private static EnableFlightSettings instance;
+
+		// ReSharper disable once UnusedParameter.Local
+		public EnableFlightSettings(string path)
+			: base(Path.Combine(SettingsPath, "EnableFlight.json")) {}
+
+		[DefaultValue(6.0f)]
+		public float ForcedAltitude { get; set; }
 
 		public static EnableFlightSettings Instance
 		{
@@ -191,26 +198,19 @@ namespace ExBuddy.Plugins.EnableFlight
 			}
 		}
 
-		// ReSharper disable once UnusedParameter.Local
-		public EnableFlightSettings(string path)
-			: base(Path.Combine(SettingsPath, "EnableFlight.json")) {}
+		[DefaultValue(5)]
+		public int InverseParabolicMagnitude { get; set; }
+
+		[DefaultValue(0)]
+		public int MountId { get; set; }
 
 		[DefaultValue(3.0f)]
 		public float Radius { get; set; }
 
-		[DefaultValue(5)]
-		public int InverseParabolicMagnitude { get; set; }
-
-		[DefaultValue(0.1f)]
-		public float Smoothing { get; set; }
-
-		[DefaultValue(6.0f)]
-		public float ForcedAltitude { get; set; }
-
 		[DefaultValue(false)]
 		public bool ReturnToLocationOnDeath { get; set; }
 
-		[DefaultValue(0)]
-		public int MountId { get; set; }
+		[DefaultValue(0.1f)]
+		public float Smoothing { get; set; }
 	}
 }

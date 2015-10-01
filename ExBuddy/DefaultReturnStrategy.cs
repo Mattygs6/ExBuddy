@@ -13,18 +13,15 @@
 
 	public class DefaultReturnStrategy : IReturnStrategy
 	{
-		public ushort ZoneId { get; set; }
+		#region IAetheryteId Members
 
 		public uint AetheryteId { get; set; }
 
+		#endregion
+
+		#region IReturnStrategy Members
+
 		public Vector3 InitialLocation { get; set; }
-
-		public async Task<bool> ReturnToZone()
-		{
-			await Behaviors.TeleportTo(this);
-
-			return true;
-		}
 
 		public async Task<bool> ReturnToLocation()
 		{
@@ -36,6 +33,21 @@
 			await Coroutine.Sleep(1000);
 			return true;
 		}
+
+		public async Task<bool> ReturnToZone()
+		{
+			await Behaviors.TeleportTo(this);
+
+			return true;
+		}
+
+		#endregion
+
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
 
 		public override string ToString()
 		{

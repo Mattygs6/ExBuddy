@@ -29,6 +29,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private readonly IPlayerMover playerMover = new SlideMover();
 
+		[XmlAttribute("XYZ")]
+		public Vector3 Target { get; set; }
+
 		protected override Color Info
 		{
 			get
@@ -37,31 +40,105 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 		}
 
-		[XmlAttribute("XYZ")]
-		public Vector3 Target { get; set; }
+		#region IFlightMovementArgs Members
 
-		[DefaultValue(3.0f)]
-		[XmlAttribute("Radius")]
-		public float Radius { get; set; }
-
-		[DefaultValue(6)]
-		[XmlAttribute("InverseParabolicMagnitude")]
-		public int InverseParabolicMagnitude { get; set; }
-
-		[DefaultValue(0.05f)]
-		[XmlAttribute("Smoothing")]
-		public float Smoothing { get; set; }
+		[XmlAttribute("ForceLanding")]
+		public bool ForceLanding { get; set; }
 
 		[DefaultValue(0)]
 		[XmlAttribute("MountId")]
 		public int MountId { get; set; }
 
+		#endregion
+
+		#region IFlightNavigationArgs Members
+
 		[DefaultValue(6.0f)]
 		[XmlAttribute("ForcedAltitude")]
 		public float ForcedAltitude { get; set; }
 
-		[XmlAttribute("ForceLanding")]
-		public bool ForceLanding { get; set; }
+		[DefaultValue(6)]
+		[XmlAttribute("InverseParabolicMagnitude")]
+		public int InverseParabolicMagnitude { get; set; }
+
+		[DefaultValue(3.0f)]
+		[XmlAttribute("Radius")]
+		public float Radius { get; set; }
+
+		[DefaultValue(0.05f)]
+		[XmlAttribute("Smoothing")]
+		public float Smoothing { get; set; }
+
+		#endregion
+
+		public async Task<bool> EnsureFlying()
+		{
+			await EnsureMounted();
+			if (!MovementManager.IsFlying)
+			{
+				return await CommonTasks.TakeOff();
+			}
+			return true;
+		}
+
+		public async Task<bool> EnsureMounted()
+		{
+			while (!Me.IsMounted && Behaviors.ShouldContinue)
+			{
+				if (MountId > 0)
+				{
+					if (!await CommonTasks.MountUp((uint)MountId))
+					{
+						await CommonTasks.MountUp();
+					}
+				}
+				else
+				{
+					await CommonTasks.MountUp();
+				}
+
+				await Coroutine.Yield();
+			}
+			return true;
+		}
+
+		public async Task<bool> ForceLand()
+		{
+			StatusText = "Landing";
+			landingStopwatch.Restart();
+			while (MovementManager.IsFlying && Behaviors.ShouldContinue)
+			{
+				MovementManager.StartDescending();
+
+				if (landingStopwatch.ElapsedMilliseconds > 2000 && MovementManager.IsFlying)
+				{
+					var move = Me.Location.AddRandomDirection2D(10).GetFloor(15);
+					await Behaviors.MoveToNoMount(move, false, 0.5f);
+					landingStopwatch.Restart();
+				}
+
+				await Coroutine.Yield();
+			}
+
+			Logger.Info("Landing took {0} ms", landingStopwatch.Elapsed);
+
+			landingStopwatch.Reset();
+
+			return true;
+		}
+
+		public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
+		{
+			while (Me.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
+			{
+				await EnsureFlying();
+
+				playerMover.MoveTowards(to);
+				await Coroutine.Yield();
+			}
+			playerMover.MoveStop();
+			return true;
+		}
 
 		protected override async Task<bool> Main()
 		{
@@ -125,75 +202,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 
 			isDone = true;
-			return true;
-		}
-
-		public async Task<bool> EnsureMounted()
-		{
-			while (!Me.IsMounted && Behaviors.ShouldContinue)
-			{
-				if (MountId > 0)
-				{
-					if (!await CommonTasks.MountUp((uint)MountId))
-					{
-						await CommonTasks.MountUp();
-					}
-				}
-				else
-				{
-					await CommonTasks.MountUp();
-				}
-
-				await Coroutine.Yield();
-			}
-			return true;
-		}
-
-		public async Task<bool> EnsureFlying()
-		{
-			await EnsureMounted();
-			if (!ff14bot.Managers.MovementManager.IsFlying)
-			{
-				return await CommonTasks.TakeOff();
-			}
-			return true;
-		}
-
-		public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
-		{
-			while (Me.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
-			{
-				await EnsureFlying();
-
-				playerMover.MoveTowards(to);
-				await Coroutine.Yield();
-			}
-			playerMover.MoveStop();
-			return true;
-		}
-
-		public async Task<bool> ForceLand()
-		{
-			StatusText = "Landing";
-			landingStopwatch.Restart();
-			while (MovementManager.IsFlying && Behaviors.ShouldContinue)
-			{
-				MovementManager.StartDescending();
-
-				if (landingStopwatch.ElapsedMilliseconds > 2000 && MovementManager.IsFlying)
-				{
-					var move = Me.Location.AddRandomDirection2D(10).GetFloor(15);
-					await Behaviors.MoveToNoMount(move, false, 0.5f);
-					landingStopwatch.Restart();
-				}
-
-				await Coroutine.Yield();
-			}
-
-			Logger.Info("Landing took {0} ms", landingStopwatch.Elapsed);
-
-			landingStopwatch.Reset();
-
 			return true;
 		}
 	}

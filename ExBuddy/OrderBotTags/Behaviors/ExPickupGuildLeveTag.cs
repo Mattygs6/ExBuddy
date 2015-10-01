@@ -24,8 +24,9 @@
 	[XmlElement("ExPickupGuildLeve")]
 	public class ExPickupGuildLeveTag : ExProfileBehavior, IInteractWithNpc
 	{
-		private uint[] ids;
 		private readonly Stopwatch interactTimeout = new Stopwatch();
+
+		private uint[] ids;
 
 		[XmlAttribute("LeveIds")]
 		public int[] LeveIds { get; set; }
@@ -33,12 +34,6 @@
 		// Not doing enum so i can support other languages
 		[XmlAttribute("LeveType")]
 		public string LeveType { get; set; }
-
-		[XmlAttribute("NpcId")]
-		public uint NpcId { get; set; }
-
-		[XmlAttribute("NpcLocation")]
-		public Vector3 Location { get; set; }
 
 		[DefaultValue(30)]
 		[XmlAttribute("Timeout")]
@@ -60,14 +55,19 @@
 			}
 		}
 
+		#region IInteractWithNpc Members
+
+		[XmlAttribute("NpcLocation")]
+		public Vector3 Location { get; set; }
+
+		[XmlAttribute("NpcId")]
+		public uint NpcId { get; set; }
+
+		#endregion
+
 		protected override void DoReset()
 		{
 			interactTimeout.Reset();
-		}
-
-		protected override void OnDone()
-		{
-			interactTimeout.Stop();
 		}
 
 		protected override async Task<bool> Main()
@@ -117,7 +117,7 @@
 
 			if (SelectString.IsOpen)
 			{
-				if (interactTimeout.Elapsed.TotalSeconds > Timeout || GuildLeve.HasLeves(Ids) || GuildLeve.Allowances == 0 )
+				if (interactTimeout.Elapsed.TotalSeconds > Timeout || GuildLeve.HasLeves(Ids) || GuildLeve.Allowances == 0)
 				{
 					SelectString.ClickSlot(uint.MaxValue);
 					isDone = true;
@@ -165,9 +165,9 @@
 			return true;
 		}
 
-		private async Task<bool> WaitForOpenWindow()
+		protected override void OnDone()
 		{
-			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
+			interactTimeout.Stop();
 		}
 
 		private async Task<bool> HandleTalk(int interval = 100)
@@ -182,6 +182,13 @@
 			}
 
 			return await WaitForOpenWindow();
+		}
+
+		private async Task<bool> WaitForOpenWindow()
+		{
+			return
+				await
+				Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
 	}
 }

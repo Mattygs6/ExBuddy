@@ -12,8 +12,6 @@
 
 	using Buddy.Coroutines;
 
-	using Clio.Utilities;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 
@@ -29,10 +27,7 @@
 
 	public class BagSlotSnapshot
 	{
-		public BagSlotSnapshot(BagSlot slot)
-		{
-			
-		}
+		public BagSlotSnapshot(BagSlot slot) {}
 
 		public InventoryBagId BagId { get; set; }
 	}
@@ -40,22 +35,20 @@
 	public class Retainer
 	{
 		public static readonly InventoryBagId[] BagIds =
-		{
-			InventoryBagId.Retainer_Page1,
-			InventoryBagId.Retainer_Page2,
-			InventoryBagId.Retainer_Page3,
-			InventoryBagId.Retainer_Page4,
-			InventoryBagId.Retainer_Page5,
-			InventoryBagId.Retainer_Page6,
-			InventoryBagId.Retainer_Page7
-		};
+			{
+				InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2,
+				InventoryBagId.Retainer_Page3, InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5,
+				InventoryBagId.Retainer_Page6, InventoryBagId.Retainer_Page7
+			};
 
 		public readonly IList<BagSlot> BagSlots;
 
 		public Retainer(int index)
 		{
 			Index = index;
-			BagSlots = new List<BagSlot>(InventoryManager.GetBagsByInventoryBagId(BagIds).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
+			BagSlots =
+				new List<BagSlot>(
+					InventoryManager.GetBagsByInventoryBagId(BagIds).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
 		}
 
 		public int Index { get; private set; }
@@ -65,9 +58,18 @@
 	public class RetainerMaid : ExBotPlugin<RetainerMaid>
 	{
 		private readonly Stopwatch checkStopwatch = new Stopwatch();
+
 		private readonly IList<Retainer> retainers = new List<Retainer>(8);
 
 		private Composite mainCoroutine;
+
+		public override string ButtonText
+		{
+			get
+			{
+				return "Housekeeping?!?";
+			}
+		}
 
 		public override string Name
 		{
@@ -77,9 +79,31 @@
 			}
 		}
 
-		public override void OnInitialize()
+		public override bool WantButton
 		{
-			mainCoroutine = new ActionRunCoroutine(ctx => Main());
+			get
+			{
+				return true;
+			}
+		}
+
+		public override void OnButtonPress()
+		{
+			// go to summon object, interact, do the things.
+			INavigationProvider navigator;
+			if (!TreeRoot.IsRunning) {}
+
+			// For now, going to just build the logic here!
+
+			var coroutine = new Coroutine(() => Main());
+			coroutine.Resume();
+
+			while (coroutine != null && !coroutine.IsFinished)
+			{
+				Thread.Sleep(33);
+				Pulsator.Pulse(PulseFlags.All);
+				coroutine.Resume();
+			}
 		}
 
 		public override void OnDisabled()
@@ -96,9 +120,9 @@
 			checkStopwatch.Restart();
 		}
 
-		private void OnHooksCleared(object sender, EventArgs args)
+		public override void OnInitialize()
 		{
-			////TreeHooks.Instance.AddHook("TreeStart", mainCoroutine);
+			mainCoroutine = new ActionRunCoroutine(ctx => Main());
 		}
 
 		private async Task<bool> Main()
@@ -156,7 +180,6 @@
 				{
 					Talk.Next();
 				}
-				
 
 				await Coroutine.Wait(5000, () => SelectString.IsOpen);
 
@@ -184,7 +207,7 @@
 				return false;
 			}
 
-			var openSlots =  new Stack<BagSlot>(retainer.BagSlots.Where(bs => !bs.IsFilled));
+			var openSlots = new Stack<BagSlot>(retainer.BagSlots.Where(bs => !bs.IsFilled));
 
 			SelectString.ClickSlot((uint)retainer.Index);
 			await Coroutine.Wait(2000, () => !SelectString.IsOpen);
@@ -207,53 +230,14 @@
 			return false;
 		}
 
-		public override bool WantButton
+		private void OnHooksCleared(object sender, EventArgs args)
 		{
-			get
-			{
-				return true;
-			}
-		}
-
-		public override string ButtonText
-		{
-			get
-			{
-				return "Housekeeping?!?";
-			}
-		}
-
-		public override void OnButtonPress()
-		{
-			// go to summon object, interact, do the things.
-			INavigationProvider navigator;
-			if (!TreeRoot.IsRunning) {}
-
-			// For now, going to just build the logic here!
-
-			var coroutine = new Coroutine(() => Main());
-			coroutine.Resume();
-
-			while (coroutine != null && !coroutine.IsFinished)
-			{
-
-				Thread.Sleep(33);
-				Pulsator.Pulse(PulseFlags.All);
-				coroutine.Resume();
-			}
+			////TreeHooks.Instance.AddHook("TreeStart", mainCoroutine);
 		}
 
 		public class RetainerMaidSettings : JsonSettings
 		{
-			private static RetainerMaid.RetainerMaidSettings instance;
-
-			public static RetainerMaid.RetainerMaidSettings Instance
-			{
-				get
-				{
-					return instance ?? (instance = new RetainerMaid.RetainerMaidSettings("RetainerMaidSettings"));
-				}
-			}
+			private static RetainerMaidSettings instance;
 
 			// ReSharper disable once UnusedParameter.Local
 			public RetainerMaidSettings(string path)
@@ -265,6 +249,14 @@
 			[DisplayName("Deposit Full Stacks")]
 			[Description("If you have 99/99 of an item, it will try to deposit it into open spots your retainer has.")]
 			public bool DepositFullStacks { get; set; }
+
+			public static RetainerMaidSettings Instance
+			{
+				get
+				{
+					return instance ?? (instance = new RetainerMaidSettings("RetainerMaidSettings"));
+				}
+			}
 
 			[Setting]
 			[Category]

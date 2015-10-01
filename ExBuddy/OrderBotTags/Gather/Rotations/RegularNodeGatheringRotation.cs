@@ -7,6 +7,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("RegularNode", 0, 0)]
 	public sealed class RegularNodeGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsEphemeral() || tag.IsUnspoiled())
@@ -16,5 +18,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			return 8000;
 		}
+
+		#endregion
 	}
 }

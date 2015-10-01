@@ -39,9 +39,35 @@
 
 	public class Collider
 	{
-		private readonly float forwardRange;
+		public Vector3 Direction2D;
+
+		public Vector3 Down;
+
+		public CollisionFlags Flags;
+
+		public Vector3 Forward;
+
+		public Vector3 ForwardDown;
+
+		public Vector3 ForwardHit;
+
+		public Vector3 ForwardLeft;
+
+		public Vector3 ForwardRight;
+
+		public Vector3 ForwardUp;
+
+		public Vector3 Left;
+
+		public Vector3 Position;
+
+		public Vector3 Right;
+
+		public Vector3 Up;
 
 		private readonly Vector3 forwardNormal;
+
+		private readonly float forwardRange;
 
 		public Collider(Vector3 position, Vector3 direction, float forwardRange)
 		{
@@ -52,23 +78,6 @@
 			this.Direction2D.Normalize();
 			this.Position = position;
 			this.forwardRange = forwardRange;
-		}
-
-		public bool IsFowardCollision()
-		{
-			Vector3 hit;
-			Vector3 distances;
-
-			//  Forward
-			if (!WorldManager.Raycast(this.Position, this.Position + this.Forward, out hit, out distances))
-			{
-				return false;
-			}
-
-			this.Flags |= CollisionFlags.Forward;
-			this.ForwardHit = hit;
-
-			return true;
 		}
 
 		public void BuildCollider()
@@ -274,31 +283,22 @@
 			return valueFound;
 		}
 
-		public CollisionFlags Flags;
+		public bool IsFowardCollision()
+		{
+			Vector3 hit;
+			Vector3 distances;
 
-		public Vector3 Direction2D;
+			//  Forward
+			if (!WorldManager.Raycast(this.Position, this.Position + this.Forward, out hit, out distances))
+			{
+				return false;
+			}
 
-		public Vector3 Position;
+			this.Flags |= CollisionFlags.Forward;
+			this.ForwardHit = hit;
 
-		public Vector3 Forward;
-
-		public Vector3 ForwardHit;
-
-		public Vector3 Up;
-
-		public Vector3 Down;
-
-		public Vector3 Left;
-
-		public Vector3 Right;
-
-		public Vector3 ForwardLeft;
-
-		public Vector3 ForwardRight;
-
-		public Vector3 ForwardUp;
-
-		public Vector3 ForwardDown;
+			return true;
+		}
 	}
 
 	public class Collisions

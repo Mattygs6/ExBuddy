@@ -2,13 +2,13 @@
 
 <!--User Configuration-->
 <!DOCTYPE Profile [
-	<!ENTITY Cluster_Wind "0"><!-- Todo: add aethersands and clusters etc -->
+<!ENTITY Cluster_Wind "0"><!-- Todo: add aethersands and clusters etc -->
 
-	<!ENTITY Miner "1">	
-	<!ENTITY Botanist "1">
+<!ENTITY Miner "1">	
+<!ENTITY Botanist "1">
 
-	<!ENTITY TeleportLoc "Limsa Lominsa"><!--Name of location to teleport to-->
-	<!ENTITY TeleportID "8"><!--ID of the above location-->
+<!ENTITY TeleportLoc "Limsa Lominsa"><!--Name of location to teleport to-->
+<!ENTITY TeleportID "8"><!--ID of the above location-->
 ]>
 <!--End User Configuration-->
 
@@ -72,11 +72,11 @@
 			<If condition="IsTimeBetween(20,24) and &Botanist; == 1">
 				<If condition="not IsOnMap(401)">
 					<TeleportTo name="Camp Cloudtop" aetheryteId="72" />
-					<MoveTo XYZ="-609.702, -122.2933, 562.6233"/>
+					<MoveTo XYZ="-609.702, -122.2933, 562.6233" />
 				</If>
-				<RunCode Name="BTN"/>
+				<RunCode Name="BTN" />
 				<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" GatherStrategy="TouchAndGo"
-				CordialType="Cordial" CordialTime="AfterGather">
+									CordialType="Cordial" CordialTime="AfterGather">
 					<Collectables>
 						<Collectable Name="Clary Sage" Value="550" />
 						<Collectable Name="Furymint" Value="550" />
@@ -95,7 +95,7 @@
 			</If>
 		</While>
 		<!-- Will get to this later -->
-		<LogMessage Message="All tasks complete!"/>
+		<LogMessage Message="All tasks complete!" />
 		<TeleportTo Name="&TeleportLoc;" AetheryteId="&TeleportID;" />
 	</Order>
 </Profile>

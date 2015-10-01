@@ -9,24 +9,6 @@
 		public GatheringMasterpiece()
 			: base("GatheringMasterpiece") {}
 
-		public static SendActionResult ClickCollect()
-		{
-			return new GatheringMasterpiece().Collect();
-		}
-
-		public SendActionResult Collect()
-		{
-			return TrySendAction(1, 1, 0);
-		}
-
-		public static int Rarity
-		{
-			get
-			{
-				return new GatheringMasterpiece().CurrentRarity;
-			}
-		}
-
 		public int CurrentRarity
 		{
 			get
@@ -38,6 +20,24 @@
 
 				return 0;
 			}
+		}
+
+		public static int Rarity
+		{
+			get
+			{
+				return new GatheringMasterpiece().CurrentRarity;
+			}
+		}
+
+		public static SendActionResult ClickCollect()
+		{
+			return new GatheringMasterpiece().Collect();
+		}
+
+		public SendActionResult Collect()
+		{
+			return TrySendAction(1, 1, 0);
 		}
 	}
 }

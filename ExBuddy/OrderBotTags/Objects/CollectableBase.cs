@@ -1,11 +1,18 @@
 ﻿namespace ExBuddy.OrderBotTags.Objects
 {
+	using Clio.XmlEngine;
+
 	public abstract class CollectableBase
 	{
-		[Clio.XmlEngine.XmlAttribute("Name")]
+		[XmlAttribute("Name")]
 		public string Name { get; set; }
 
-		[Clio.XmlEngine.XmlAttribute("Value")]
+		[XmlAttribute("Value")]
 		public int Value { get; set; }
+
+		public override string ToString()
+		{
+			return this.DynamicToString();
+		}
 	}
 }

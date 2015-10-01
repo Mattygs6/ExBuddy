@@ -8,7 +8,7 @@ namespace ExBuddy.Helpers
 	public static class AsyncHelper
 	{
 		/// <summary>
-		/// Execute's an async Task method which has a void return value synchronously
+		///     Execute's an async Task method which has a void return value synchronously
 		/// </summary>
 		/// <param name="task">Task method to execute</param>
 		public static void RunSync(Func<Task> task)
@@ -40,7 +40,7 @@ namespace ExBuddy.Helpers
 		}
 
 		/// <summary>
-		/// Execute's an async Task method which has a T return type synchronously
+		///     Execute's an async Task method which has a T return type synchronously
 		/// </summary>
 		/// <typeparam name="T">Return Type</typeparam>
 		/// <param name="task">Task method to execute</param>
@@ -76,32 +76,13 @@ namespace ExBuddy.Helpers
 
 		private class ExclusiveSynchronizationContext : SynchronizationContext
 		{
-			private bool done;
-
-			public Exception InnerException { get; set; }
+			private readonly Queue<Tuple<SendOrPostCallback, object>> items = new Queue<Tuple<SendOrPostCallback, object>>();
 
 			private readonly AutoResetEvent workItemsWaiting = new AutoResetEvent(false);
 
-			private readonly Queue<Tuple<SendOrPostCallback, object>> items = new Queue<Tuple<SendOrPostCallback, object>>();
+			private bool done;
 
-			public override void Send(SendOrPostCallback d, object state)
-			{
-				throw new NotSupportedException("We cannot send to our same thread");
-			}
-
-			public override void Post(SendOrPostCallback d, object state)
-			{
-				lock (items)
-				{
-					items.Enqueue(Tuple.Create(d, state));
-				}
-				workItemsWaiting.Set();
-			}
-
-			public void EndMessageLoop()
-			{
-				Post(_ => done = true, null);
-			}
+			public Exception InnerException { get; set; }
 
 			public void BeginMessageLoop()
 			{
@@ -133,6 +114,25 @@ namespace ExBuddy.Helpers
 			public override SynchronizationContext CreateCopy()
 			{
 				return this;
+			}
+
+			public void EndMessageLoop()
+			{
+				Post(_ => done = true, null);
+			}
+
+			public override void Post(SendOrPostCallback d, object state)
+			{
+				lock (items)
+				{
+					items.Enqueue(Tuple.Create(d, state));
+				}
+				workItemsWaiting.Set();
+			}
+
+			public override void Send(SendOrPostCallback d, object state)
+			{
+				throw new NotSupportedException("We cannot send to our same thread");
 			}
 		}
 	}

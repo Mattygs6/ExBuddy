@@ -23,12 +23,6 @@
 			this.InteractDistance = 4.0f;
 		}
 
-		public ushort ZoneId { get; set; }
-
-		public uint AetheryteId { get; set; }
-
-		public Vector3 InitialLocation { get; set; }
-
 		public int DialogOption { get; set; }
 
 		public float InteractDistance { get; set; }
@@ -36,6 +30,27 @@
 		public uint NpcId { get; set; }
 
 		public Vector3 NpcLocation { get; set; }
+
+		#region IAetheryteId Members
+
+		public uint AetheryteId { get; set; }
+
+		#endregion
+
+		#region IReturnStrategy Members
+
+		public Vector3 InitialLocation { get; set; }
+
+		public async Task<bool> ReturnToLocation()
+		{
+			if (BotManager.Current.EnglishName != "Fate Bot")
+			{
+				return await Behaviors.MoveTo(this.InitialLocation);
+			}
+
+			await Coroutine.Sleep(1000);
+			return true;
+		}
 
 		public async Task<bool> ReturnToZone()
 		{
@@ -55,16 +70,13 @@
 			return true;
 		}
 
-		public async Task<bool> ReturnToLocation()
-		{
-			if (BotManager.Current.EnglishName != "Fate Bot")
-			{
-				return await Behaviors.MoveTo(this.InitialLocation);
-			}
+		#endregion
 
-			await Coroutine.Sleep(1000);
-			return true;
-		}
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
 
 		public override string ToString()
 		{

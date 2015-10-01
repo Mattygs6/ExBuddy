@@ -17,19 +17,26 @@ namespace ExBuddy.OrderBotTags.Fish
 	[Serializable]
 	public class Bait
 	{
-		private Func<bool> conditionFunc;
-
 		internal Item BaitItem;
 
-		[Clio.XmlEngine.XmlAttribute("Name")]
-		public string Name { get; set; }
-
-		[Clio.XmlEngine.XmlAttribute("Id")]
-		public uint Id { get; set; }
+		private Func<bool> conditionFunc;
 
 		[DefaultValue("True")]
 		[Clio.XmlEngine.XmlAttribute("Condition")]
 		public string Condition { get; set; }
+
+		[Clio.XmlEngine.XmlAttribute("Id")]
+		public uint Id { get; set; }
+
+		[Clio.XmlEngine.XmlAttribute("Name")]
+		public string Name { get; set; }
+
+		public static Bait FindMatch([NotNull] IList<Bait> baits)
+		{
+			var match = baits.FirstOrDefault(b => b.IsMatch()) ?? baits[0];
+
+			return match;
+		}
 
 		public bool IsMatch()
 		{
@@ -67,11 +74,9 @@ namespace ExBuddy.OrderBotTags.Fish
 			return conditionFunc();
 		}
 
-		public static Bait FindMatch([NotNull] IList<Bait> baits)
+		public override string ToString()
 		{
-			var match = baits.FirstOrDefault(b => b.IsMatch()) ?? baits[0];
-
-			return match;
+			return this.DynamicToString();
 		}
 	}
 }

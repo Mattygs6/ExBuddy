@@ -18,11 +18,12 @@
 
 	public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
 	{
+		protected internal readonly Logger Logger;
+
 		// ReSharper disable once InconsistentNaming
 		protected bool isDone;
-		private string statusText;
 
-		protected internal readonly Logger Logger;
+		private string statusText;
 
 		static ExProfileBehavior()
 		{
@@ -37,10 +38,18 @@
 			Logger = new Logger(this, includeVersion: true);
 		}
 
+		public override sealed bool IsDone
+		{
+			get
+			{
+				return isDone;
+			}
+		}
+
 		[XmlAttribute("Name")]
 		public string Name { get; set; }
 
-		public sealed override string StatusText
+		public override sealed string StatusText
 		{
 			get
 			{
@@ -50,14 +59,6 @@
 			set
 			{
 				statusText = value;
-			}
-		}
-
-		public sealed override bool IsDone
-		{
-			get
-			{
-				return isDone;
 			}
 		}
 
@@ -77,14 +78,6 @@
 			}
 		}
 
-		protected virtual Color Warn
-		{
-			get
-			{
-				return Logger.Colors.Warn;
-			}
-		}
-
 		protected virtual Color Info
 		{
 			get
@@ -93,19 +86,21 @@
 			}
 		}
 
+		protected virtual Color Warn
+		{
+			get
+			{
+				return Logger.Colors.Warn;
+			}
+		}
+
+		#region ILogColors Members
+
 		Color ILogColors.Error
 		{
 			get
 			{
 				return this.Error;
-			}
-		}
-
-		Color ILogColors.Warn
-		{
-			get
-			{
-				return this.Warn;
 			}
 		}
 
@@ -117,16 +112,31 @@
 			}
 		}
 
+		Color ILogColors.Warn
+		{
+			get
+			{
+				return this.Warn;
+			}
+		}
+
+		#endregion
+
+		public override string ToString()
+		{
+			return this.DynamicToString("StatusText");
+		}
+
 		protected override Composite CreateBehavior()
 		{
 			return new ActionRunCoroutine(ctx => Main());
 		}
 
-		protected abstract Task<bool> Main();
-
 		protected virtual void DoReset() {}
 
-		protected sealed override void OnResetCachedDone()
+		protected abstract Task<bool> Main();
+
+		protected override sealed void OnResetCachedDone()
 		{
 			DoReset();
 			isDone = false;

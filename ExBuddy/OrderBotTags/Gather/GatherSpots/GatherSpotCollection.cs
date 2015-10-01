@@ -11,14 +11,22 @@
 		[XmlElement(XmlEngine.GENERIC_BODY)]
 		private List<GatherSpot> Locations { get; set; }
 
-		public IEnumerator<GatherSpot> GetEnumerator()
+		#region ICollection<GatherSpot> Members
+
+		public int Count
 		{
-			return Locations.GetEnumerator();
+			get
+			{
+				return Locations.Count;
+			}
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
+		public bool IsReadOnly
 		{
-			return GetEnumerator();
+			get
+			{
+				return false;
+			}
 		}
 
 		public void Add(GatherSpot item)
@@ -46,21 +54,27 @@
 			return Locations.Remove(item);
 		}
 
-		public int Count
+		#endregion
+
+		#region IEnumerable Members
+
+		IEnumerator IEnumerable.GetEnumerator()
 		{
-			get
-			{
-				return Locations.Count;
-			}
+			return GetEnumerator();
 		}
 
-		public bool IsReadOnly
+		#endregion
+
+		#region IEnumerable<GatherSpot> Members
+
+		public IEnumerator<GatherSpot> GetEnumerator()
 		{
-			get
-			{
-				return false;
-			}
+			return Locations.GetEnumerator();
 		}
+
+		#endregion
+
+		#region IList<GatherSpot> Members
 
 		public int IndexOf(GatherSpot item)
 		{
@@ -70,11 +84,6 @@
 		public void Insert(int index, GatherSpot item)
 		{
 			Locations.Insert(index, item);
-		}
-
-		public void RemoveAt(int index)
-		{
-			Locations.RemoveAt(index);
 		}
 
 		public GatherSpot this[int index]
@@ -88,5 +97,12 @@
 				Locations[index] = value;
 			}
 		}
+
+		public void RemoveAt(int index)
+		{
+			Locations.RemoveAt(index);
+		}
+
+		#endregion
 	}
 }

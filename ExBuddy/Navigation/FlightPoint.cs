@@ -6,9 +6,9 @@
 
 	public struct FlightPoint
 	{
-		public Vector3 Location;
-
 		public bool IsDeviation;
+
+		public Vector3 Location;
 
 		public bool FuzzyEquals(FlightPoint other)
 		{
@@ -22,11 +22,6 @@
 						&& Math.Abs(other.Location.Z - Location.Z) < float.Epsilon);
 		}
 
-		public override string ToString()
-		{
-			return Location + (IsDeviation ? " *D*" : string.Empty);
-		}
-
 		public static implicit operator Vector3(FlightPoint flightPoint)
 		{
 			return flightPoint.Location;
@@ -35,6 +30,11 @@
 		public static implicit operator FlightPoint(Vector3 vector)
 		{
 			return new FlightPoint { Location = vector };
+		}
+
+		public override string ToString()
+		{
+			return Location + (IsDeviation ? " *D*" : string.Empty);
 		}
 	}
 }

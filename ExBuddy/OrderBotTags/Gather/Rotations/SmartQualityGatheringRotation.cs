@@ -14,6 +14,31 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("SmartQuality", 0, 21)]
 	public class SmartQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
+		{
+			if (tag.CollectableItem != null)
+			{
+				return -1;
+			}
+
+			if (tag.GatherItem.HqChance < 1)
+			{
+				return -1;
+			}
+
+			if (tag.GatherIncrease == GatherIncrease.Quality
+				|| (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel >= 15 && Core.Player.ClassLevel < 40))
+			{
+				return 9001;
+			}
+
+			return -1;
+		}
+
+		#endregion
+
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			if (Core.Player.CurrentGP >= 300 && GatheringManager.SwingsRemaining > 4)
@@ -44,27 +69,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			return true;
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			if (tag.CollectableItem != null)
-			{
-				return -1;
-			}
-
-			if (tag.GatherItem.HqChance < 1)
-			{
-				return -1;
-			}
-
-			if (tag.GatherIncrease == GatherIncrease.Quality
-				|| (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel >= 15 && Core.Player.ClassLevel < 40))
-			{
-				return 9001;
-			}
-
-			return -1;
 		}
 	}
 }

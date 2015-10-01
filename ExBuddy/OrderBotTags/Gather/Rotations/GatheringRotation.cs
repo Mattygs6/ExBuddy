@@ -13,9 +13,16 @@
 
 	public abstract class GatheringRotation : IGatheringRotation
 	{
+		protected internal static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
+
 		protected internal readonly IGetOverridePriority GetOverridePriorityCached;
 
-		protected internal static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
+		protected GatheringRotation()
+		{
+			GetOverridePriorityCached = this as IGetOverridePriority;
+		}
+
+		#region IGatheringRotation Members
 
 		public virtual GatheringRotationAttribute Attributes
 		{
@@ -39,21 +46,6 @@
 			{
 				return false;
 			}
-		}
-
-		protected GatheringRotation()
-		{
-			GetOverridePriorityCached = this as IGetOverridePriority;
-		}
-
-		public virtual async Task<bool> Prepare(ExGatherTag tag)
-		{
-			if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
-			{
-				return await tag.Cast(Ability.CollectorsGlove);
-			}
-
-			return true;
 		}
 
 		public virtual async Task<bool> ExecuteRotation(ExGatherTag tag)
@@ -101,6 +93,16 @@
 			return true;
 		}
 
+		public virtual async Task<bool> Prepare(ExGatherTag tag)
+		{
+			if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+			{
+				return await tag.Cast(Ability.CollectorsGlove);
+			}
+
+			return true;
+		}
+
 		public int ResolveOverridePriority(ExGatherTag tag)
 		{
 			if (GetOverridePriorityCached != null)
@@ -110,6 +112,8 @@
 
 			return -1;
 		}
+
+		#endregion
 
 		protected internal static async Task Wait()
 		{

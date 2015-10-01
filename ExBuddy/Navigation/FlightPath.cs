@@ -81,17 +81,17 @@ namespace ExBuddy.Navigation
 	{
 		public static readonly ConcurrentDictionary<Guid, FlightPath> Paths = new ConcurrentDictionary<Guid, FlightPath>();
 
-		private readonly Vector3 startCenterOfCube;
-
 		private readonly Vector3 endCenterOfCube;
-
-		private readonly ushort zoneId;
-
-		private Guid key;
 
 		private readonly IFlightNavigationArgs flightNavigationArgs;
 
 		private readonly Queue<FlightPoint> queuedFlightPoints = new Queue<FlightPoint>(8);
+
+		private readonly Vector3 startCenterOfCube;
+
+		private readonly ushort zoneId;
+
+		private Guid key;
 
 		public FlightPath(Vector3 start, Vector3 end, ushort zoneId = 0)
 			: this(start, end, new FlightNavigationArgs(), zoneId) {}
@@ -104,49 +104,6 @@ namespace ExBuddy.Navigation
 			endCenterOfCube = GetCenterOfCube(end, flightNavigationArgs.Radius);
 			Start = start;
 			End = end;
-		}
-
-		public Vector3 Start { get; private set; }
-
-		public Vector3 End { get; private set; }
-
-		public Guid Key
-		{
-			get
-			{
-				if (key == Guid.Empty)
-				{
-					key =
-						String.Concat("S: ", startCenterOfCube, ", E: ", endCenterOfCube, "Z: ", zoneId, ", Args: ", flightNavigationArgs)
-							.ToGuid();
-				}
-
-				return key;
-			}
-		}
-
-		public float Smoothing
-		{
-			get
-			{
-				return flightNavigationArgs.Smoothing;
-			}
-		}
-
-		public float ForcedAltitude
-		{
-			get
-			{
-				return flightNavigationArgs.ForcedAltitude;
-			}
-		}
-
-		public float InverseParabolicMagnitude
-		{
-			get
-			{
-				return flightNavigationArgs.InverseParabolicMagnitude;
-			}
 		}
 
 		public float Distance
@@ -165,27 +122,57 @@ namespace ExBuddy.Navigation
 			}
 		}
 
-		public static Vector3 GetCenterOfCube(Vector3 vector, float radius)
+		public Vector3 End { get; private set; }
+
+		public float ForcedAltitude
 		{
-			var side = radius / (float)(2 * Math.Sqrt(3));
-
-			var x = (vector.X - (vector.X % radius)) + side;
-			var y = (vector.Y - (vector.Y % radius)) + side;
-			var z = (vector.Z - (vector.Z % radius)) + side;
-			var centerPoint = new Vector3(x, y, z);
-
-			return centerPoint;
+			get
+			{
+				return flightNavigationArgs.ForcedAltitude;
+			}
 		}
 
-		public static Guid GetKey(FlightPath flightPath)
+		public float InverseParabolicMagnitude
 		{
-			return flightPath.Key;
+			get
+			{
+				return flightNavigationArgs.InverseParabolicMagnitude;
+			}
 		}
 
-		public static Guid GetKey(Vector3 start, Vector3 end, IFlightNavigationArgs args)
+		public Guid Key
 		{
-			return GetKey(new FlightPath(start, end, args));
+			get
+			{
+				if (key == Guid.Empty)
+				{
+					key =
+						string.Concat("S: ", startCenterOfCube, ", E: ", endCenterOfCube, "Z: ", zoneId, ", Args: ", flightNavigationArgs)
+							.ToGuid();
+				}
+
+				return key;
+			}
 		}
+
+		public float Smoothing
+		{
+			get
+			{
+				return flightNavigationArgs.Smoothing;
+			}
+		}
+
+		public Vector3 Start { get; private set; }
+
+		#region IEquatable<FlightPath> Members
+
+		public bool Equals(FlightPath other)
+		{
+			return Equals(other.Start, other.End, other.flightNavigationArgs);
+		}
+
+		#endregion
 
 		public static Vector3 Arc(Vector3 start, Vector3 end, float height, float t)
 		{
@@ -214,6 +201,60 @@ namespace ExBuddy.Navigation
 			return computed;
 		}
 
+		public async Task<bool> BuildPath()
+		{
+			Clear();
+			Index = 0;
+			return await Build();
+		}
+
+		public bool Equals(Vector3 start, Vector3 end, IFlightNavigationArgs args)
+		{
+			if (Math.Abs(flightNavigationArgs.ForcedAltitude - args.ForcedAltitude) > float.Epsilon)
+			{
+				return false;
+			}
+
+			if (Math.Abs(flightNavigationArgs.Smoothing - args.Smoothing) > float.Epsilon)
+			{
+				return false;
+			}
+
+			if (Math.Abs(flightNavigationArgs.InverseParabolicMagnitude - args.InverseParabolicMagnitude) > float.Epsilon)
+			{
+				return false;
+			}
+
+			return start.Distance3D(Start) < args.Radius / 2 && end.Distance3D(End) < args.Radius / 2;
+		}
+
+		public static Vector3 GetCenterOfCube(Vector3 vector, float radius)
+		{
+			var side = radius / (float)(2 * Math.Sqrt(3));
+
+			var x = (vector.X - (vector.X % radius)) + side;
+			var y = (vector.Y - (vector.Y % radius)) + side;
+			var z = (vector.Z - (vector.Z % radius)) + side;
+			var centerPoint = new Vector3(x, y, z);
+
+			return centerPoint;
+		}
+
+		public override int GetHashCode()
+		{
+			return Key.GetHashCode();
+		}
+
+		public static Guid GetKey(FlightPath flightPath)
+		{
+			return flightPath.Key;
+		}
+
+		public static Guid GetKey(Vector3 start, Vector3 end, IFlightNavigationArgs args)
+		{
+			return GetKey(new FlightPath(start, end, args));
+		}
+
 		public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
 		{
 			return new Vector3(
@@ -222,24 +263,12 @@ namespace ExBuddy.Navigation
 				MathEx.Lerp(value1.Z, value2.Z, amount));
 		}
 
-		public async Task<bool> BuildPath()
-		{
-			Clear();
-			Index = 0;
-			return await Build();
-		}
-
 		public void Reset()
 		{
 			if (Index != 0)
 			{
 				Index = 0;
 			}
-		}
-
-		protected static Vector3 Straight(Vector3 start, Vector3 end, float height, float t)
-		{
-			return Lerp(start, end, t);
 		}
 
 		protected virtual async Task<bool> Build()
@@ -392,49 +421,9 @@ namespace ExBuddy.Navigation
 			return Count > 0;
 		}
 
-		public bool Equals(FlightPath other)
+		protected static Vector3 Straight(Vector3 start, Vector3 end, float height, float t)
 		{
-			return Equals(other.Start, other.End, other.flightNavigationArgs);
-		}
-
-		public bool Equals(Vector3 start, Vector3 end, IFlightNavigationArgs args)
-		{
-			if (Math.Abs(flightNavigationArgs.ForcedAltitude - args.ForcedAltitude) > Single.Epsilon)
-			{
-				return false;
-			}
-
-			if (Math.Abs(flightNavigationArgs.Smoothing - args.Smoothing) > Single.Epsilon)
-			{
-				return false;
-			}
-
-			if (Math.Abs(flightNavigationArgs.InverseParabolicMagnitude - args.InverseParabolicMagnitude) > Single.Epsilon)
-			{
-				return false;
-			}
-
-			return start.Distance3D(Start) < args.Radius / 2 && end.Distance3D(End) < args.Radius / 2;
-		}
-
-		public override int GetHashCode()
-		{
-			return Key.GetHashCode();
-		}
-
-		private int FlightPointCount()
-		{
-			return Count + queuedFlightPoints.Count;
-		}
-
-		private void QueueFlightPoint(FlightPoint flightPoint)
-		{
-			queuedFlightPoints.Enqueue(flightPoint);
-
-			if (queuedFlightPoints.Count == 8)
-			{
-				Add(queuedFlightPoints.Dequeue());
-			}
+			return Lerp(start, end, t);
 		}
 
 		private void ClearQueuedFlightPoints()
@@ -442,9 +431,24 @@ namespace ExBuddy.Navigation
 			queuedFlightPoints.Clear();
 		}
 
+		private int FlightPointCount()
+		{
+			return Count + queuedFlightPoints.Count;
+		}
+
 		private void FlushQueuedFlightPoints()
 		{
 			while (queuedFlightPoints.Count > 0)
+			{
+				Add(queuedFlightPoints.Dequeue());
+			}
+		}
+
+		private void QueueFlightPoint(FlightPoint flightPoint)
+		{
+			queuedFlightPoints.Enqueue(flightPoint);
+
+			if (queuedFlightPoints.Count == 8)
 			{
 				Add(queuedFlightPoints.Dequeue());
 			}

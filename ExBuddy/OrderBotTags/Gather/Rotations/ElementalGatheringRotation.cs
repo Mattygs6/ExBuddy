@@ -13,6 +13,26 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Elemental", 0, 0)]
 	public class ElementalGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
+		{
+			// Don't use unless ward increases item yield.
+			if (!DoesWardIncreaseItemYield(tag))
+			{
+				return -1;
+			}
+
+			if (!tag.GatherItem.IsUnknown && tag.GatherItem.ItemId < 20)
+			{
+				return 10000;
+			}
+
+			return -1;
+		}
+
+		#endregion
+
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			if (Core.Player.CurrentGP < 400 || tag.GatherItemIsFallback)
@@ -31,22 +51,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			return true;
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			// Don't use unless ward increases item yield.
-			if (!DoesWardIncreaseItemYield(tag))
-			{
-				return -1;
-			}
-
-			if (!tag.GatherItem.IsUnknown && tag.GatherItem.ItemId < 20)
-			{
-				return 10000;
-			}
-
-			return -1;
 		}
 
 		protected bool DoesWardIncreaseItemYield(ExGatherTag tag)

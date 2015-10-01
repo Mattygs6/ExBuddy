@@ -1,69 +1,24 @@
-﻿namespace ExBuddy.OrderBotTags.Behaviors
+﻿#pragma warning disable 1998
+namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
-	using Clio.XmlEngine;
+	using System.Xml.Serialization;
 
 	using ExBuddy.Attributes;
 
 	[LoggerName("ExLog")]
-	[XmlElement("ExLog")]
+	[Clio.XmlEngine.XmlElement("ExLog")]
 	public class ExLogTag : ExProfileBehavior
 	{
-		protected override Color Info
-		{
-			get
-			{
-				if (Color.HasValue)
-				{
-					return Color.Value;
-				}
-
-				return base.Info;
-			}
-		}
-
-		protected override void OnStart()
-		{
-			if (!string.IsNullOrWhiteSpace(Name))
-			{
-				Logger.Name = Name;	
-			}
-
-			Logger.IncludeVersion = false;
-		}
-
-		protected override async Task<bool> Main()
-		{
-			if (!string.IsNullOrWhiteSpace(Message))
-			{
-				Logger.Info(Message);
-			}
-			else if (!string.IsNullOrWhiteSpace(Body))
-			{
-				var lines = Body.Split(new [] { Environment.NewLine }, StringSplitOptions.None);
-
-				foreach (var line in lines)
-				{
-					Logger.Info(line);
-				}
-			}
-
-			return isDone = true;
-		}
-
-		[XmlElement("Message")]
+		[Clio.XmlEngine.XmlElement("Message")]
 		public string Body { get; set; }
 
-		[XmlAttribute("Message")]
-		public string Message { get; set; }
-
-		[System.Xml.Serialization.XmlIgnore]
+		[XmlIgnore]
 		public Color? Color { get; set; }
 
-		[XmlAttribute("Color")]
+		[Clio.XmlEngine.XmlAttribute("Color")]
 		public string ColorString
 		{
 			get
@@ -81,13 +36,57 @@
 				{
 					Logger.Error(ex.Message + " - Using default color, are you missing the '#'?");
 				}
-				
+			}
+		}
+
+		[Clio.XmlEngine.XmlAttribute("Message")]
+		public string Message { get; set; }
+
+		protected override Color Info
+		{
+			get
+			{
+				if (Color.HasValue)
+				{
+					return Color.Value;
+				}
+
+				return base.Info;
 			}
 		}
 
 		public override string ToString()
 		{
 			return "ExLogTag";
+		}
+
+		protected override async Task<bool> Main()
+		{
+			if (!string.IsNullOrWhiteSpace(Message))
+			{
+				Logger.Info(Message);
+			}
+			else if (!string.IsNullOrWhiteSpace(Body))
+			{
+				var lines = Body.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+				foreach (var line in lines)
+				{
+					Logger.Info(line);
+				}
+			}
+
+			return isDone = true;
+		}
+
+		protected override void OnStart()
+		{
+			if (!string.IsNullOrWhiteSpace(Name))
+			{
+				Logger.Name = Name;
+			}
+
+			Logger.IncludeVersion = false;
 		}
 	}
 }

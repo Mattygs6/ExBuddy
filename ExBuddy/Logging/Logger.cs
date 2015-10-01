@@ -77,15 +77,15 @@
 			}
 		}
 
-		public void Verbose(string message)
+		public void Error(string message)
 		{
-			Logging.WriteVerbose(logColors.Info, Prefix + message);
+			Logging.Write(logColors.Error, Prefix + message);
 		}
 
 		[StringFormatMethod("format")]
-		public void Verbose(string format, params object[] args)
+		public void Error(string format, params object[] args)
 		{
-			Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+			Logging.Write(logColors.Error, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
 		}
 
 		public void Info(string message)
@@ -99,6 +99,17 @@
 			Logging.Write(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
 		}
 
+		public void Verbose(string message)
+		{
+			Logging.WriteVerbose(logColors.Info, Prefix + message);
+		}
+
+		[StringFormatMethod("format")]
+		public void Verbose(string format, params object[] args)
+		{
+			Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+		}
+
 		public void Warn(string message)
 		{
 			Logging.Write(logColors.Warn, Prefix + message);
@@ -108,17 +119,6 @@
 		public void Warn(string format, params object[] args)
 		{
 			Logging.Write(logColors.Warn, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
-		}
-
-		public void Error(string message)
-		{
-			Logging.Write(logColors.Error, Prefix + message);
-		}
-
-		[StringFormatMethod("format")]
-		public void Error(string format, params object[] args)
-		{
-			Logging.Write(logColors.Error, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
 		}
 	}
 }

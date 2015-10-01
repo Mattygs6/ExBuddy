@@ -5,7 +5,7 @@
 	public sealed class InputNumeric : Window<InputNumeric>
 	{
 		public InputNumeric()
-			: base("InputNumeric") { }
+			: base("InputNumeric") {}
 
 		public static SendActionResult AddOrRemoveCount(uint count)
 		{

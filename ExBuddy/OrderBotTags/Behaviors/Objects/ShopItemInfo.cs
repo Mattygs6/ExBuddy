@@ -4,15 +4,9 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 
 	public struct ShopItemInfo
 	{
-		public uint Index { get; set; }
-
-		public ShopType ShopType { get; set; }
-
-		public uint ItemId { get; set; }
-
 		public ushort Cost { get; set; }
 
-		public byte Yield { get; set; }
+		public uint Index { get; set; }
 
 		public Item ItemData
 		{
@@ -21,5 +15,11 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 				return DataManager.ItemCache[this.ItemId];
 			}
 		}
+
+		public uint ItemId { get; set; }
+
+		public ShopType ShopType { get; set; }
+
+		public byte Yield { get; set; }
 	}
 }

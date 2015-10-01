@@ -12,14 +12,27 @@
 	public static class ReflectionHelper
 	{
 		/// <summary>
-		/// The custom attributes.
+		///     The custom attributes.
 		/// </summary>
 		/// <typeparam name="TAttribute">
-		/// The attribute type
+		///     The attribute type
 		/// </typeparam>
 		public static class CustomAttributes<TAttribute>
 			where TAttribute : Attribute
 		{
+			#region Constructors and Destructors
+
+			/// <summary>
+			///     Initializes static members of the <see cref="CustomAttributes{TAttribute}" /> class.
+			/// </summary>
+			static CustomAttributes()
+			{
+				NotInherited = new ConcurrentDictionary<Guid, IList<TAttribute>>();
+				Inherited = new ConcurrentDictionary<Guid, IList<TAttribute>>();
+			}
+
+			#endregion
+
 			#region Static Fields
 
 			/// <summary>
@@ -34,26 +47,13 @@
 
 			#endregion
 
-			#region Constructors and Destructors
-
-			/// <summary>
-			///     Initializes static members of the <see cref="CustomAttributes{TAttribute}"/> class.
-			/// </summary>
-			static CustomAttributes()
-			{
-				NotInherited = new ConcurrentDictionary<Guid, IList<TAttribute>>();
-				Inherited = new ConcurrentDictionary<Guid, IList<TAttribute>>();
-			}
-
-			#endregion
-
 			#region Public Methods and Operators
 
 			/// <summary>
-			/// The register type.
+			///     The register type.
 			/// </summary>
 			/// <param name="type">
-			/// The type.
+			///     The type.
 			/// </param>
 			public static void RegisterType(Type type)
 			{
@@ -81,10 +81,10 @@
 			}
 
 			/// <summary>
-			/// The register types.
+			///     The register types.
 			/// </summary>
 			/// <param name="types">
-			/// The types.
+			///     The types.
 			/// </param>
 			public static void RegisterTypes(params Type[] types)
 			{
@@ -114,7 +114,7 @@
 	}
 
 	/// <summary>
-	/// The reflection helper.
+	///     The reflection helper.
 	/// </summary>
 	/// <typeparam name="T">
 	/// </typeparam>
@@ -124,15 +124,15 @@
 		#region Public Methods and Operators
 
 		/// <summary>
-		/// The make delegate.
+		///     The make delegate.
 		/// </summary>
 		/// <param name="get">
-		/// The get.
+		///     The get.
 		/// </param>
 		/// <typeparam name="TResult">
 		/// </typeparam>
 		/// <returns>
-		/// The <see cref="Delegate"/>.
+		///     The <see cref="Delegate" />.
 		/// </returns>
 		public static Func<T, object> MakeDelegate<TResult>(MethodInfo @get)
 		{
@@ -143,7 +143,7 @@
 		#endregion
 
 		/// <summary>
-		/// The custom attributes.
+		///     The custom attributes.
 		/// </summary>
 		/// <typeparam name="TAttribute">
 		/// </typeparam>

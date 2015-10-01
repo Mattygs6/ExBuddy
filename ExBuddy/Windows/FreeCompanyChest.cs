@@ -8,12 +8,7 @@
 	public sealed class FreeCompanyChest : Window<FreeCompanyChest>
 	{
 		public FreeCompanyChest()
-			: base("FreeCompanyChest") { }
-
-		public SendActionResult ItemsSection()
-		{
-			return SelectSection(0);
-		}
+			: base("FreeCompanyChest") {}
 
 		public SendActionResult CrystalsSection()
 		{
@@ -28,6 +23,11 @@
 		public SendActionResult HistorySection()
 		{
 			return SelectSection(3);
+		}
+
+		public SendActionResult ItemsSection()
+		{
+			return SelectSection(0);
 		}
 
 		public SendActionResult RemoveItemBySlotIndex(byte index)
@@ -55,7 +55,8 @@
 
 			result = SendActionResult.None;
 			removeAttempts = 0;
-			while (result != SendActionResult.Success && inputNumericWindow.IsValid && removeAttempts++ < attempts && Behaviors.ShouldContinue)
+			while (result != SendActionResult.Success && inputNumericWindow.IsValid && removeAttempts++ < attempts
+					&& Behaviors.ShouldContinue)
 			{
 				result = inputNumericWindow.Count(count);
 
@@ -72,7 +73,7 @@
 
 		public SendActionResult SelectSection(byte section)
 		{
-			return TrySendAction(2, 1, section, 0,0);
+			return TrySendAction(2, 1, section, 0, 0);
 		}
 	}
 }

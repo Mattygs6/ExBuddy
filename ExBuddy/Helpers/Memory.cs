@@ -56,19 +56,19 @@
 				}
 			}
 
-			public static int RedCrafter
-			{
-				get
-				{
-					return Core.Memory.NoCacheRead<int>(BasePointer + 8);
-				}
-			}
-
 			public static int BlueGatherer
 			{
 				get
 				{
 					return Core.Memory.NoCacheRead<int>(BasePointer + 16);
+				}
+			}
+
+			public static int RedCrafter
+			{
+				get
+				{
+					return Core.Memory.NoCacheRead<int>(BasePointer + 8);
 				}
 			}
 

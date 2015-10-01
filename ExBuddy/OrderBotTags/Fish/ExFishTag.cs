@@ -37,8 +37,6 @@ namespace ExBuddy.OrderBotTags.Fish
 	[XmlElement("Fish")]
 	public class ExFishTag : ExProfileBehavior
 	{
-		private readonly Windows.Bait baitWindow = new Windows.Bait();
-
 		[Serializable]
 		public enum Abilities
 		{
@@ -83,13 +81,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		private const uint WmKeyup = 0x0101;
 
-		protected uint SelectedBaitItemId
-		{
-			get
-			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103906C);
-			}
-		}
+		private readonly Windows.Bait baitWindow = new Windows.Bait();
 
 		protected uint CurrentCollectableItemId
 		{
@@ -107,75 +99,100 @@ namespace ExBuddy.OrderBotTags.Fish
 			}
 		}
 
-		#region Aura Properties
-
-		protected bool HasPatience
+		protected uint SelectedBaitItemId
 		{
 			get
 			{
-				// Gathering Fortune Up (Fishing)
-				return Me.HasAura(850);
+				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103906C);
 			}
-		}
-
-		protected bool HasSnagging
-		{
-			get
-			{
-				// Snagging
-				return Me.HasAura(761);
-			}
-		}
-
-		protected bool HasCollectorsGlove
-		{
-			get
-			{
-				// Collector's Glove
-				return Me.HasAura(805);
-			}
-		}
-
-		protected bool HasChum
-		{
-			get
-			{
-				// Chum
-				return Me.HasAura(763);
-			}
-		}
-
-		protected bool HasFishEyes
-		{
-			get
-			{
-				// Fish Eyes
-				return Me.HasAura(762);
-			}
-		}
-
-		#endregion
-
-		[return: MarshalAs(UnmanagedType.Bool)]
-		[DllImport("user32.dll")]
-		// ReSharper disable once InconsistentNaming
-		protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-		protected static async Task PostKeyPress(VirtualKeys key, int delay)
-		{
-			PostKeyPress((int)key);
-			await Coroutine.Sleep(delay);
-		}
-
-		protected static void PostKeyPress(int key)
-		{
-			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeydown, new IntPtr(key), IntPtr.Zero);
-			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeyup, new IntPtr(key), IntPtr.Zero);
 		}
 
 		public static bool IsFishing()
 		{
 			return isFishing;
+		}
+
+		protected override Composite CreateBehavior()
+		{
+			fishlimit = GetFishLimit();
+
+			return new PrioritySelector(
+				StateTransitionAlwaysSucceed,
+				Conditional,
+				Blacklist,
+				MoveToFishSpot,
+				GoFish(
+					StopMovingComposite,
+					DismountComposite,
+					CheckStealthComposite,
+					CheckWeatherComposite,
+					// Waits up to 10 hours, might want to rethink this one.
+					new ActionRunCoroutine(ctx => HandleBait()),
+					InitFishSpotComposite,
+					new ActionRunCoroutine(ctx => HandleCollectable()),
+					ReleaseComposite,
+					MoochComposite,
+					FishCountLimitComposite,
+					InventoryFullComposite,
+					SitComposite,
+					CollectorsGloveComposite,
+					SnaggingComposite,
+					PatienceComposite,
+					FishEyesComposite,
+					ChumComposite,
+					CastComposite,
+					HookComposite));
+		}
+
+		protected virtual void DoCleanup()
+		{
+			try
+			{
+				GamelogManager.MessageRecevied -= ReceiveMessage;
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(ex.Message);
+			}
+
+			isFishing = false;
+			CharacterSettings.Instance.UseMount = initialMountSetting;
+		}
+
+		protected override void DoReset()
+		{
+			mooch = 0;
+			sitRoll = 1.0;
+			spotinit = false;
+			fishcount = 0;
+			amissfish = 0;
+			isFishing = false;
+			isSitting = false;
+			isFishIdentified = false;
+			fishlimit = GetFishLimit();
+			checkRelease = false;
+
+			CharacterSettings.Instance.UseMount = initialMountSetting;
+		}
+
+		protected Composite GoFish(params Composite[] children)
+		{
+			return
+				new PrioritySelector(
+					new Decorator(
+						ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.Location) < 2,
+						new PrioritySelector(children)));
+		}
+
+		protected override Task<bool> Main()
+		{
+			throw new NotImplementedException();
+		}
+
+		protected override void OnDone()
+		{
+			TreeRoot.OnStop -= cleanup;
+			DoCleanup();
 		}
 
 		protected override void OnStart()
@@ -253,79 +270,22 @@ namespace ExBuddy.OrderBotTags.Fish
 			TreeRoot.OnStop += cleanup;
 		}
 
-		protected override void OnDone()
+		protected static async Task PostKeyPress(VirtualKeys key, int delay)
 		{
-			TreeRoot.OnStop -= cleanup;
-			DoCleanup();
+			PostKeyPress((int)key);
+			await Coroutine.Sleep(delay);
 		}
 
-		protected virtual void DoCleanup()
+		protected static void PostKeyPress(int key)
 		{
-			try
-			{
-				GamelogManager.MessageRecevied -= ReceiveMessage;
-			}
-			catch (Exception ex)
-			{
-				Logger.Error(ex.Message);
-			}
-
-			isFishing = false;
-			CharacterSettings.Instance.UseMount = initialMountSetting;
+			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeydown, new IntPtr(key), IntPtr.Zero);
+			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeyup, new IntPtr(key), IntPtr.Zero);
 		}
 
-		protected override Task<bool> Main()
-		{
-			throw new NotImplementedException();
-		}
-
-		protected override void DoReset()
-		{
-			mooch = 0;
-			sitRoll = 1.0;
-			spotinit = false;
-			fishcount = 0;
-			amissfish = 0;
-			isFishing = false;
-			isSitting = false;
-			isFishIdentified = false;
-			fishlimit = GetFishLimit();
-			checkRelease = false;
-
-			CharacterSettings.Instance.UseMount = initialMountSetting;
-		}
-
-		protected override Composite CreateBehavior()
-		{
-			fishlimit = GetFishLimit();
-
-			return new PrioritySelector(
-				StateTransitionAlwaysSucceed,
-				Conditional,
-				Blacklist,
-				MoveToFishSpot,
-				GoFish(
-					StopMovingComposite,
-					DismountComposite,
-					CheckStealthComposite,
-					CheckWeatherComposite,
-					// Waits up to 10 hours, might want to rethink this one.
-					new ActionRunCoroutine(ctx => HandleBait()),
-					InitFishSpotComposite,
-					new ActionRunCoroutine(ctx => HandleCollectable()),
-					ReleaseComposite,
-					MoochComposite,
-					FishCountLimitComposite,
-					InventoryFullComposite,
-					SitComposite,
-					CollectorsGloveComposite,
-					SnaggingComposite,
-					PatienceComposite,
-					FishEyesComposite,
-					ChumComposite,
-					CastComposite,
-					HookComposite));
-		}
+		[return: MarshalAs(UnmanagedType.Bool)]
+		[DllImport("user32.dll")]
+		// ReSharper disable once InconsistentNaming
+		protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
 		private async Task<bool> HandleBait()
 		{
@@ -488,14 +448,54 @@ namespace ExBuddy.OrderBotTags.Fish
 			return true;
 		}
 
-		protected Composite GoFish(params Composite[] children)
+		#region Aura Properties
+
+		protected bool HasPatience
 		{
-			return
-				new PrioritySelector(
-					new Decorator(
-						ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.XYZ) < 2,
-						new PrioritySelector(children)));
+			get
+			{
+				// Gathering Fortune Up (Fishing)
+				return Me.HasAura(850);
+			}
 		}
+
+		protected bool HasSnagging
+		{
+			get
+			{
+				// Snagging
+				return Me.HasAura(761);
+			}
+		}
+
+		protected bool HasCollectorsGlove
+		{
+			get
+			{
+				// Collector's Glove
+				return Me.HasAura(805);
+			}
+		}
+
+		protected bool HasChum
+		{
+			get
+			{
+				// Chum
+				return Me.HasAura(763);
+			}
+		}
+
+		protected bool HasFishEyes
+		{
+			get
+			{
+				// Fish Eyes
+				return Me.HasAura(762);
+			}
+		}
+
+		#endregion
 
 		#region Fields
 
@@ -1009,8 +1009,8 @@ namespace ExBuddy.OrderBotTags.Fish
 			get
 			{
 				return new Decorator(
-					ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.XYZ) > 1,
-					CommonBehaviors.MoveAndStop(ret => FishSpots.CurrentOrDefault.XYZ, 1, true));
+					ret => Vector3.Distance(Me.Location, FishSpots.CurrentOrDefault.Location) > 1,
+					CommonBehaviors.MoveAndStop(ret => FishSpots.CurrentOrDefault.Location, 1, true));
 			}
 		}
 

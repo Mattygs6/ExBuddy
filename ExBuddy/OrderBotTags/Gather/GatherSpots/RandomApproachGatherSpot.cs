@@ -19,17 +19,17 @@
 	{
 		public HotSpot ApproachLocation { get; protected set; }
 
-		[XmlAttribute("Stealth")]
-		public bool Stealth { get; set; }
+		[XmlElement("HotSpots")]
+		public List<HotSpot> HotSpots { get; set; }
 
 		[XmlAttribute("ReturnToApproachLocation")]
 		public bool ReturnToApproachLocation { get; set; }
 
+		[XmlAttribute("Stealth")]
+		public bool Stealth { get; set; }
+
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
-
-		[XmlElement("HotSpots")]
-		public List<HotSpot> HotSpots { get; set; }
 
 		public override async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
@@ -39,7 +39,8 @@
 			if (ReturnToApproachLocation)
 			{
 				result &=
-					await Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					await
+					Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
@@ -56,7 +57,7 @@
 
 			if (ApproachLocation == Vector3.Zero)
 			{
-				if(HotSpots == null || HotSpots.Count == 0)
+				if (HotSpots == null || HotSpots.Count == 0)
 				{
 					return false;
 				}
@@ -66,12 +67,10 @@
 
 			var result =
 				await
-				Behaviors.MoveTo(
+				Behaviors.MoveToPointWithin(
 					ApproachLocation,
-					UseMesh,
-					radius: ApproachLocation.Radius, // TODO: make new method for MoveToSpotWithin
+					ApproachLocation.Radius,
 					name: "Approach Location",
-					stopCallback: tag.MovementStopCallback,
 					dismountAtDestination: Stealth);
 
 			if (result)
@@ -87,7 +86,13 @@
 				else
 				{
 					result =
-						await Behaviors.MoveTo(NodeLocation, UseMesh, radius: tag.Distance, name: tag.Node.EnglishName, stopCallback: tag.MovementStopCallback);
+						await
+						Behaviors.MoveTo(
+							NodeLocation,
+							UseMesh,
+							radius: tag.Distance,
+							name: tag.Node.EnglishName,
+							stopCallback: tag.MovementStopCallback);
 				}
 			}
 
@@ -96,13 +101,7 @@
 
 		public override string ToString()
 		{
-			return
-				string.Format(
-					"RandomApproachGatherSpot -> ApproachLocation: {0}, NodeLocation: {1}, ReturnToApproachLocation: {2}, UseMesh: {3}",
-					ApproachLocation,
-					NodeLocation,
-					ReturnToApproachLocation,
-					UseMesh);
+			return this.DynamicToString("HotSpots", "Stealth", "UnstealthAfter");
 		}
 	}
 }

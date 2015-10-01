@@ -10,6 +10,7 @@
 	using ExBuddy.Logging;
 
 	using ff14bot;
+	using ff14bot.AClasses;
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
 
@@ -19,6 +20,8 @@
 		// ReSharper disable once StaticMemberInGenericType
 		private static Action updateWindows;
 
+		private AtkAddonControl control;
+
 		static Window()
 		{
 			updateWindows = RaptureAtkUnitManager.Update;
@@ -26,33 +29,10 @@
 			TreeRoot.OnStop += TreeRootOnStop;
 		}
 
-		private static void TreeRootOnStop(ff14bot.AClasses.BotBase bot)
-		{
-			updateWindows = RaptureAtkUnitManager.Update;
-		}
-
-		private static void TreeRootOnStart(ff14bot.AClasses.BotBase bot)
-		{
-			if (bot.PulseFlags.HasFlag(PulseFlags.Windows))
-			{
-				updateWindows = () => { };
-			}
-		}
-
-		private AtkAddonControl control;
-
 		protected Window(string name)
 		{
 			Name = name;
 			control = RaptureAtkUnitManager.GetWindowByName(name);
-		}
-
-		public static bool IsOpen
-		{
-			get
-			{
-				return new T().Control != null;
-			}
 		}
 
 		public static AtkAddonControl AtkAddonControl
@@ -63,14 +43,20 @@
 			}
 		}
 
-		public static void Close()
+		public virtual AtkAddonControl Control
 		{
-			new T().Control.TrySendAction(1, 3, uint.MaxValue);
+			get
+			{
+				return control ?? Refresh().control;
+			}
 		}
 
-		public static async Task<bool> CloseGently(byte maxTicks = 10, ushort interval = 200)
+		public static bool IsOpen
 		{
-			return await new T().CloseInstanceGently(maxTicks, interval);
+			get
+			{
+				return new T().Control != null;
+			}
 		}
 
 		public bool IsValid
@@ -83,17 +69,19 @@
 
 		public string Name { get; private set; }
 
-		public virtual AtkAddonControl Control
+		public static void Close()
 		{
-			get
-			{
-				return control ?? Refresh().control;
-			}
+			new T().Control.TrySendAction(1, 3, uint.MaxValue);
+		}
+
+		public static async Task<bool> CloseGently(byte maxTicks = 10, ushort interval = 200)
+		{
+			return await new T().CloseInstanceGently(maxTicks, interval);
 		}
 
 		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 250)
 		{
-			await Sleep(interval / 2);
+			await Behaviors.Sleep(interval / 2);
 
 			Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
 
@@ -145,7 +133,7 @@
 				}
 			}
 
-			await Sleep(interval);
+			await Behaviors.Sleep(interval);
 
 			var result = SendActionResult.None;
 			var ticks = 0;
@@ -162,11 +150,6 @@
 			return result > SendActionResult.UnexpectedResult && !IsValid;
 		}
 
-		public virtual SendActionResult TrySendAction(int pairCount, params uint[] param)
-		{
-			return Control.TrySendAction(pairCount, param);
-		}
-
 		public T Refresh()
 		{
 			updateWindows();
@@ -179,28 +162,22 @@
 			return await Coroutine.Wait(timeoutMs, () => Refresh().IsValid == valid);
 		}
 
-		protected async Task Sleep(int interval)
+		public virtual SendActionResult TrySendAction(int pairCount, params uint[] param)
 		{
-			if (interval <= 33)
+			return Control.TrySendAction(pairCount, param);
+		}
+
+		private static void TreeRootOnStart(BotBase bot)
+		{
+			if (bot.PulseFlags.HasFlag(PulseFlags.Windows))
 			{
-				await Coroutine.Yield();
-			}
-			else
-			{
-				await Coroutine.Sleep(interval);
+				updateWindows = () => { };
 			}
 		}
 
-		protected async Task Wait(int interval, Func<bool> condition)
+		private static void TreeRootOnStop(BotBase bot)
 		{
-			if (interval <= 33)
-			{
-				await Coroutine.Yield();
-			}
-			else
-			{
-				await Coroutine.Wait(interval, condition);
-			}
+			updateWindows = RaptureAtkUnitManager.Update;
 		}
 	}
 }

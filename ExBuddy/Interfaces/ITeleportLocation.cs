@@ -1,6 +1,4 @@
 ﻿namespace ExBuddy.Interfaces
 {
-	public interface ITeleportLocation : IAetheryteId, IZoneId
-	{
-	}
+	public interface ITeleportLocation : IAetheryteId, IZoneId {}
 }

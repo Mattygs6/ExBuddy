@@ -15,6 +15,20 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("DiscoverUnknowns", 250, 0)]
 	public class DiscoverUnknownsGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
+		{
+			if (tag.GatherItem.IsUnknown || (tag.IsUnspoiled() && tag.GatherItem.Chance == 25))
+			{
+				return int.MaxValue;
+			}
+
+			return -1;
+		}
+
+		#endregion
+
 		public override async Task<bool> Prepare(ExGatherTag tag)
 		{
 			var unknownItems = GatheringManager.GatheringWindowItems.Where(i => i.IsUnknownChance() && i.Amount > 0).ToArray();
@@ -25,16 +39,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			return await base.Prepare(tag);
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			if (tag.GatherItem.IsUnknown || (tag.IsUnspoiled() && tag.GatherItem.Chance == 25))
-			{
-				return int.MaxValue;
-			}
-
-			return -1;
 		}
 	}
 }

@@ -28,10 +28,15 @@
 	[XmlElement("ExCompanyChestDeposit")]
 	public sealed class ExCompanyChestDepositTag : ExProfileBehavior, INpc
 	{
-		private INpc freeCompanyChestNpc;
 		private readonly Stopwatch interactTimeout = new Stopwatch();
 
+		private INpc freeCompanyChestNpc;
+
 		private uint[] ids;
+
+		[DefaultValue(true)]
+		[XmlAttribute("Consolidate")]
+		public bool Consolidate { get; set; }
 
 		[XmlAttribute("ItemIds")]
 		public int[] ItemIds { get; set; }
@@ -43,26 +48,6 @@
 		[DefaultValue(60)]
 		[XmlAttribute("Timeout")]
 		public int Timeout { get; set; }
-
-		[DefaultValue(true)]
-		[XmlAttribute("Consolidate")]
-		public bool Consolidate { get; set; }
-
-		#region CustomLocationInfo
-
-		[XmlAttribute("NpcId")]
-		public uint NpcId { get; set; }
-
-		[XmlAttribute("AetheryteId")]
-		public uint AetheryteId { get; set; }
-
-		[XmlAttribute("ZoneId")]
-		public ushort ZoneId { get; set; }
-
-		[XmlAttribute("NpcLocation")]
-		Vector3 IInteractWithNpc.Location { get; set; }
-
-		#endregion
 
 		protected override Color Info
 		{
@@ -80,32 +65,9 @@
 			}
 		}
 
-		protected override void OnStart()
-		{
-			if (Location == Locations.Custom)
-			{
-				freeCompanyChestNpc = this;
-			}
-			else
-			{
-				freeCompanyChestNpc = Data.GetNpcsByLocation<GameObjects.Npcs.FreeCompanyChest>(Location).FirstOrDefault();
-			}
-
-		}
-
 		protected override void DoReset()
 		{
 			interactTimeout.Reset();
-		}
-
-		protected override void OnDone()
-		{
-			interactTimeout.Stop();
-
-			if (FreeCompanyChest.IsOpen)
-			{
-				FreeCompanyChest.Close();
-			}
 		}
 
 		protected override async Task<bool> Main()
@@ -162,12 +124,15 @@
 					var chestBagSlots =
 						new List<BagSlot>(
 							InventoryManager.GetBagsByInventoryBagId(
-								InventoryBagId.GrandCompany_Page1, InventoryBagId.GrandCompany_Page2, InventoryBagId.GrandCompany_Page3)
-								.SelectMany(bag => bag.Select(bagSlot => bagSlot)));
+								InventoryBagId.GrandCompany_Page1,
+								InventoryBagId.GrandCompany_Page2,
+								InventoryBagId.GrandCompany_Page3).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
 
 					var bagGroups =
-						chestBagSlots.Where(bs => bs.IsFilled).GroupBy(bs => bs.TrueItemId)
-							.Select(g => new { g.Key, BagSlots = g.Where(bs => !bs.IsFullStack(true)).OrderByDescending(bs => bs.Count).ToList() })
+						chestBagSlots.Where(bs => bs.IsFilled)
+							.GroupBy(bs => bs.TrueItemId)
+							.Select(
+								g => new { g.Key, BagSlots = g.Where(bs => !bs.IsFullStack(true)).OrderByDescending(bs => bs.Count).ToList() })
 							.ToArray();
 
 					foreach (var bagGroup in bagGroups.Where(g => g.BagSlots.Count > 1))
@@ -229,26 +194,32 @@
 				foreach (var itemId in Ids)
 				{
 					// TODO: Might need unique check, but most likely not, spiritbond should take care of collectable
-					var myBagSlots = InventoryManager.FilledInventoryAndArmory
-						.Where(bs => itemId == bs.RawItemId && bs.SpiritBond < float.Epsilon && !bs.Item.Untradeable)
-						.GroupBy(bs => bs.TrueItemId)
-						.Select(g => new { g.Key, BagSlots = g.OrderBy(bs => bs.Count).ToList() })
-						.ToArray();
+					var myBagSlots =
+						InventoryManager.FilledInventoryAndArmory.Where(
+							bs => itemId == bs.RawItemId && bs.SpiritBond < float.Epsilon && !bs.Item.Untradeable)
+							.GroupBy(bs => bs.TrueItemId)
+							.Select(g => new { g.Key, BagSlots = g.OrderBy(bs => bs.Count).ToList() })
+							.ToArray();
 
 					var chestSlots =
 						new List<BagSlot>(
 							InventoryManager.GetBagsByInventoryBagId(
-								InventoryBagId.GrandCompany_Page1, InventoryBagId.GrandCompany_Page2, InventoryBagId.GrandCompany_Page3)
-								.SelectMany(bag => bag.Where(bagSlot => !bagSlot.IsFilled || (itemId == bagSlot.RawItemId && !bagSlot.IsFullStack(true)))).OrderByDescending(bs => bs.Count));
+								InventoryBagId.GrandCompany_Page1,
+								InventoryBagId.GrandCompany_Page2,
+								InventoryBagId.GrandCompany_Page3)
+								.SelectMany(
+									bag => bag.Where(bagSlot => !bagSlot.IsFilled || (itemId == bagSlot.RawItemId && !bagSlot.IsFullStack(true))))
+								.OrderByDescending(bs => bs.Count));
 
-					var groups =
-						chestSlots.GroupBy(bs => bs.TrueItemId)
-							.Select(g => new { g.Key, BagSlots = g.ToArray() })
-							.ToArray();
+					var groups = chestSlots.GroupBy(bs => bs.TrueItemId).Select(g => new { g.Key, BagSlots = g.ToArray() }).ToArray();
 
 					foreach (var sourceBags in myBagSlots)
 					{
-						var destBags = groups.Where(g => g.Key == sourceBags.Key || g.Key == 0).SelectMany(g => g.BagSlots).OrderByDescending(bs => bs.Count).ToList();
+						var destBags =
+							groups.Where(g => g.Key == sourceBags.Key || g.Key == 0)
+								.SelectMany(g => g.BagSlots)
+								.OrderByDescending(bs => bs.Count)
+								.ToList();
 
 						foreach (var destinationBagSlot in destBags)
 						{
@@ -282,6 +253,28 @@
 			return true;
 		}
 
+		protected override void OnDone()
+		{
+			interactTimeout.Stop();
+
+			if (FreeCompanyChest.IsOpen)
+			{
+				FreeCompanyChest.Close();
+			}
+		}
+
+		protected override void OnStart()
+		{
+			if (Location == Locations.Custom)
+			{
+				freeCompanyChestNpc = this;
+			}
+			else
+			{
+				freeCompanyChestNpc = Data.GetNpcsByLocation<GameObjects.Npcs.FreeCompanyChest>(Location).FirstOrDefault();
+			}
+		}
+
 		private void MoveItem(BagSlot source, BagSlot destination)
 		{
 			Logger.Verbose(
@@ -295,5 +288,21 @@
 
 			source.Move(destination);
 		}
+
+		#region CustomLocationInfo
+
+		[XmlAttribute("NpcId")]
+		public uint NpcId { get; set; }
+
+		[XmlAttribute("AetheryteId")]
+		public uint AetheryteId { get; set; }
+
+		[XmlAttribute("ZoneId")]
+		public ushort ZoneId { get; set; }
+
+		[XmlAttribute("NpcLocation")]
+		Vector3 IInteractWithNpc.Location { get; set; }
+
+		#endregion
 	}
 }

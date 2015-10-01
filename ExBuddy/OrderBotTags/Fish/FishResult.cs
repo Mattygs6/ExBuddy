@@ -6,12 +6,6 @@
 
 	public class FishResult
 	{
-		public bool IsHighQuality { get; set; }
-
-		public string Name { get; set; }
-
-		public float Size { get; set; }
-
 		public string FishName
 		{
 			get
@@ -24,6 +18,12 @@
 				return Name;
 			}
 		}
+
+		public bool IsHighQuality { get; set; }
+
+		public string Name { get; set; }
+
+		public float Size { get; set; }
 
 		public bool IsKeeper(Keeper keeper)
 		{

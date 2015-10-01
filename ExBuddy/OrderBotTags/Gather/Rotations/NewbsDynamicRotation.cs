@@ -12,6 +12,39 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("NewbCollect", 600, 24)]
 	public sealed class NewbCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
+		{
+			if (tag.IsUnspoiled())
+			{
+				// We need 5 swings to use this rotation
+				if (GatheringManager.SwingsRemaining < 5)
+				{
+					return -1;
+				}
+			}
+
+			if (tag.IsEphemeral())
+			{
+				// We need 4 swings to use this rotation
+				if (GatheringManager.SwingsRemaining < 4)
+				{
+					return -1;
+				}
+			}
+
+			// if we have a collectable Priority 0
+			if (tag.CollectableItem != null && tag.CollectableItem.Value == 0)
+			{
+				return 80;
+			}
+
+			return -1;
+		}
+
+		#endregion
+
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			var rarity = 0;
@@ -172,14 +205,98 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return false;
 		}
 
-		private static async Task CallRotation(
-			ExGatherTag tag,
-			string rotationName,
-			Func<ExGatherTag, Task<bool>> callBack)
+		public async Task<bool> GetOne(ExGatherTag tag)
 		{
-			tag.Logger.Info("Using Rotation: " + rotationName);
-			await callBack(tag);
-			tag.Logger.Info("Exiting Rotation: " + rotationName);
+			//Get One - Level 53 Minimum           
+			await DiscerningMethodical(tag);
+			await UtmostMethodical(tag);
+			await UtmostMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetOnePlus(ExGatherTag tag)
+		{
+			//Get One+ - Level 57 Minimum
+			await UtmostCaution(tag);
+			await AppraiseAndRebuff(tag);
+			await Methodical(tag);
+			await UtmostMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetOnePlusPlus(ExGatherTag tag)
+		{
+			//Get One++ - Level 57 Minimum
+			await UtmostCaution(tag);
+			await AppraiseAndRebuff(tag);
+			await Methodical(tag);
+			await UtmostCaution(tag);
+			await AppraiseAndRebuff(tag);
+			await Methodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetOnePlusPlusAlternate(ExGatherTag tag)
+		{
+			//Get One++ Alternative - Level 53 Minimum
+			tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One for now... :'(");
+			await DiscerningMethodical(tag);
+			await UtmostMethodical(tag);
+			await UtmostMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetThree(ExGatherTag tag)
+		{
+			//Get Three - Level 57 Minimum
+			await DiscerningMethodical(tag);
+			await SingleMindMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetTwo(ExGatherTag tag)
+		{
+			//Get Two - Level 50 Minimum
+			await DiscerningMethodical(tag);
+			await DiscerningMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetTwoPlus(ExGatherTag tag)
+		{
+			//Get Two+ - Level 53 Minimum
+			await Discerning(tag);
+			await AppraiseAndRebuff(tag);
+			await Methodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetTwoPlusPlus(ExGatherTag tag)
+		{
+			//Get Two++ - Level 57 Minimum
+			await Discerning(tag);
+			await AppraiseAndRebuff(tag);
+			await AppraiseAndRebuff(tag);
+			await Methodical(tag);
+			await IncreaseChance(tag);
+			return true;
+		}
+
+		public async Task<bool> GetTwoPlusPlusAlternate(ExGatherTag tag)
+		{
+			//Get Two++ Alternative - Level 50 Minimum
+			tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two for now... :'(");
+			await DiscerningMethodical(tag);
+			await DiscerningMethodical(tag);
+			await IncreaseChance(tag);
+			return true;
 		}
 
 		public async Task<bool> TryHard(ExGatherTag tag)
@@ -215,127 +332,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOne(ExGatherTag tag)
+		private static async Task CallRotation(ExGatherTag tag, string rotationName, Func<ExGatherTag, Task<bool>> callBack)
 		{
-			//Get One - Level 53 Minimum           
-			await DiscerningMethodical(tag);
-			await UtmostMethodical(tag);
-			await UtmostMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetOnePlus(ExGatherTag tag)
-		{
-			//Get One+ - Level 57 Minimum
-			await UtmostCaution(tag);
-			await AppraiseAndRebuff(tag);
-			await Methodical(tag);
-			await UtmostMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetOnePlusPlusAlternate(ExGatherTag tag)
-		{
-			//Get One++ Alternative - Level 53 Minimum
-			tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One for now... :'(");
-			await DiscerningMethodical(tag);
-			await UtmostMethodical(tag);
-			await UtmostMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetOnePlusPlus(ExGatherTag tag)
-		{
-			//Get One++ - Level 57 Minimum
-			await UtmostCaution(tag);
-			await AppraiseAndRebuff(tag);
-			await Methodical(tag);
-			await UtmostCaution(tag);
-			await AppraiseAndRebuff(tag);
-			await Methodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetTwo(ExGatherTag tag)
-		{
-			//Get Two - Level 50 Minimum
-			await DiscerningMethodical(tag);
-			await DiscerningMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetTwoPlus(ExGatherTag tag)
-		{
-			//Get Two+ - Level 53 Minimum
-			await Discerning(tag);
-			await AppraiseAndRebuff(tag);
-			await Methodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetTwoPlusPlusAlternate(ExGatherTag tag)
-		{
-			//Get Two++ Alternative - Level 50 Minimum
-			tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two for now... :'(");
-			await DiscerningMethodical(tag);
-			await DiscerningMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetTwoPlusPlus(ExGatherTag tag)
-		{
-			//Get Two++ - Level 57 Minimum
-			await Discerning(tag);
-			await AppraiseAndRebuff(tag);
-			await AppraiseAndRebuff(tag);
-			await Methodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetThree(ExGatherTag tag)
-		{
-			//Get Three - Level 57 Minimum
-			await DiscerningMethodical(tag);
-			await SingleMindMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			if (tag.IsUnspoiled())
-			{
-				// We need 5 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 5)
-				{
-					return -1;
-				}
-			}
-
-			if (tag.IsEphemeral())
-			{
-				// We need 4 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 4)
-				{
-					return -1;
-				}
-			}
-
-			// if we have a collectable Priority 0
-			if (tag.CollectableItem != null && tag.CollectableItem.Value == 0)
-			{
-				return 80;
-			}
-
-			return -1;
+			tag.Logger.Info("Using Rotation: " + rotationName);
+			await callBack(tag);
+			tag.Logger.Info("Exiting Rotation: " + rotationName);
 		}
 	}
 }

@@ -4,8 +4,12 @@
 
 	public class FlightMovementArgs : IFlightMovementArgs
 	{
-		public int MountId { get; set; }
+		#region IFlightMovementArgs Members
 
 		public bool ForceLanding { get; set; }
+
+		public int MountId { get; set; }
+
+		#endregion
 	}
 }

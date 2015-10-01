@@ -48,10 +48,10 @@
 				result = TurnIn(index);
 				if (result == SendActionResult.InjectionError)
 				{
-					await Sleep(interval);
+					await Behaviors.Sleep(interval);
 				}
 
-				await Wait(interval, () => Request.IsOpen);
+				await Behaviors.Wait(interval, () => Request.IsOpen);
 			}
 
 			if (requestAttempts > attempts)
@@ -59,7 +59,7 @@
 				return false;
 			}
 
-			await Sleep(interval);
+			await Behaviors.Sleep(interval);
 
 			// Try waiting half of the overall set time, up to 3 seconds
 			if (!Request.IsOpen)
@@ -90,11 +90,11 @@
 			{
 				bagSlot.Handover();
 
-				await Wait(interval, () => Request.HandOverButtonClickable);
+				await Behaviors.Wait(interval, () => Request.HandOverButtonClickable);
 
 				Request.HandOver();
 
-				await Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
+				await Behaviors.Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
 			}
 
 			if (SelectYesno.IsOpen)

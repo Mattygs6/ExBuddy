@@ -11,6 +11,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Topsoil", 0, 8)]
 	public class TopsoilGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// Only override if the item name ends with ' topsoil'
@@ -28,5 +30,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			return 10000;
 		}
+
+		#endregion
 	}
 }

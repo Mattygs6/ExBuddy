@@ -12,13 +12,17 @@
 			this.ForcedAltitude = 8.0f;
 		}
 
-		public float Radius { get; set; }
+		#region IFlightNavigationArgs Members
+
+		public float ForcedAltitude { get; set; }
 
 		public int InverseParabolicMagnitude { get; set; }
 
+		public float Radius { get; set; }
+
 		public float Smoothing { get; set; }
 
-		public float ForcedAltitude { get; set; }
+		#endregion
 
 		public override string ToString()
 		{

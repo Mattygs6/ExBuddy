@@ -1,4 +1,6 @@
-﻿#pragma warning disable 1998
+﻿
+#pragma warning disable 1998
+
 namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 {
 	using System.ComponentModel;
@@ -13,12 +15,14 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 	[XmlElement("GatherSpot")]
 	public class GatherSpot : IGatherSpot
 	{
-		[XmlAttribute("NodeLocation")]
-		public Vector3 NodeLocation { get; set; }
-
 		[DefaultValue(true)]
 		[XmlAttribute("UseMesh")]
 		public bool UseMesh { get; set; }
+
+		#region IGatherSpot Members
+
+		[XmlAttribute("NodeLocation")]
+		public Vector3 NodeLocation { get; set; }
 
 		public virtual async Task<bool> MoveFromSpot(ExGatherTag tag)
 		{
@@ -43,9 +47,11 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 			return result;
 		}
 
+		#endregion
+
 		public override string ToString()
 		{
-			return string.Format("{0} -> NodeLocation: {1}, UseMesh: {2}", this.GetType().Name, NodeLocation, UseMesh);
+			return this.DynamicToString();
 		}
 	}
 }

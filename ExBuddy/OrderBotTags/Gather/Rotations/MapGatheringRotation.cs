@@ -10,6 +10,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("Map", 0, 8)]
 	public class MapGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			// Only override if the item name ends with ' map'
@@ -26,5 +28,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			return 10000;
 		}
+
+		#endregion
 	}
 }

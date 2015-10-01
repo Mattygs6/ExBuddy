@@ -21,19 +21,19 @@
 		[XmlAttribute("Names")]
 		public string Names { get; set; }
 
-		private IList<string> NamesList
-		{
-			get
-			{
-				return namesList ?? (namesList = Names.Split(',').Select(s => s.Trim()).ToArray());
-			}
-		} 
-
 		protected override Color Info
 		{
 			get
 			{
 				return Colors.GreenYellow;
+			}
+		}
+
+		private IList<string> NamesList
+		{
+			get
+			{
+				return namesList ?? (namesList = Names.Split(',').Select(s => s.Trim()).ToArray());
 			}
 		}
 
@@ -52,9 +52,8 @@
 
 			StatusText = "Enabling Plugins: " + Names;
 			Logger.Info("Enabling Plugins: " + Names);
-			foreach (
-				var plugin in
-					PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
+			foreach (var plugin in
+				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
 			{
 				try
 				{

@@ -13,8 +13,6 @@
 			this.agentInterface = AgentModule.GetAgentInterfaceById(id);
 		}
 
-		public int Id { get; private set; }
-
 		public AgentInterface AgentInterface
 		{
 			get
@@ -22,6 +20,8 @@
 				return this.agentInterface;
 			}
 		}
+
+		public int Id { get; private set; }
 
 		public static void Toggle()
 		{

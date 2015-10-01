@@ -15,12 +15,12 @@
 	[XmlElement("StealthApproachGatherSpot")]
 	public class StealthApproachGatherSpot : GatherSpot
 	{
-		[XmlAttribute("StealthLocation")]
-		public Vector3 StealthLocation { get; set; }
-
 		[DefaultValue(true)]
 		[XmlAttribute("ReturnToStealthLocation")]
 		public bool ReturnToStealthLocation { get; set; }
+
+		[XmlAttribute("StealthLocation")]
+		public Vector3 StealthLocation { get; set; }
 
 		[XmlAttribute("UnstealthAfter")]
 		public bool UnstealthAfter { get; set; }
@@ -77,13 +77,7 @@
 
 		public override string ToString()
 		{
-			return
-				string.Format(
-					"StealthApproachGatherSpot -> StealthLocation: {0}, NodeLocation: {1}, ReturnToStealthLocation: {2}, UseMesh: {3}",
-					StealthLocation,
-					NodeLocation,
-					ReturnToStealthLocation,
-					UseMesh);
+			return this.DynamicToString("UnstealthAfter");
 		}
 	}
 }

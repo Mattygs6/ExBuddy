@@ -36,26 +36,27 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	[XmlElement("TurnInCollectables")]
 	public class ExTurnInCollectablesTag : ExProfileBehavior
 	{
-		private bool turnedItemsIn;
+		private uint index;
 
 		private BagSlot item;
 
 		private INpc masterPieceSupplyNpc;
+
 		private INpc shopExchangeCurrencyNpc;
 
-		private uint index;
+		private bool turnedItemsIn;
+
+		[XmlElement("Collectables")]
+		public List<CollectableTurnIn> Collectables { get; set; }
+
+		[XmlAttribute("ForcePurchase")]
+		public bool ForcePurchase { get; set; }
 
 		[DefaultValue(Locations.Idyllshire)]
 		[XmlAttribute("Location")]
 		public Locations Location { get; set; }
 
-		[XmlAttribute("ForcePurchase")]
-		public bool ForcePurchase { get; set; }
-
-		[Clio.XmlEngine.XmlElement("Collectables")]
-		public List<CollectableTurnIn> Collectables { get; set; }
-
-		[Clio.XmlEngine.XmlElement("ShopPurchases")]
+		[XmlElement("ShopPurchases")]
 		public List<ShopPurchase> ShopPurchases { get; set; }
 
 		protected override Color Info
@@ -66,12 +67,20 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 		}
 
-		protected override void OnStart()
+		protected override void DoReset()
 		{
-			var npcs = Data.GetNpcsByLocation(Location).ToArray();
+			turnedItemsIn = false;
+			item = null;
+			index = 0;
+		}
 
-			masterPieceSupplyNpc = npcs.OfType<GameObjects.Npcs.MasterPieceSupply>().FirstOrDefault();
-			shopExchangeCurrencyNpc = npcs.OfType<GameObjects.Npcs.ShopExchangeCurrency>().FirstOrDefault();
+		protected override async Task<bool> Main()
+		{
+			await CommonTasks.HandleLoading();
+
+			return await ResolveItem() || HandleDeath() || await Behaviors.TeleportTo(masterPieceSupplyNpc) || await MoveToNpc()
+					|| await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
+					|| await MoveToShopNpc() || await PurchaseItems();
 		}
 
 		protected override void OnDone()
@@ -102,20 +111,23 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 		}
 
-		protected override void DoReset()
+		protected override void OnStart()
 		{
-			turnedItemsIn = false;
-			item = null;
-			index = 0;
+			var npcs = Data.GetNpcsByLocation(Location).ToArray();
+
+			masterPieceSupplyNpc = npcs.OfType<GameObjects.Npcs.MasterPieceSupply>().FirstOrDefault();
+			shopExchangeCurrencyNpc = npcs.OfType<GameObjects.Npcs.ShopExchangeCurrency>().FirstOrDefault();
 		}
 
-		protected override async Task<bool> Main()
+		private bool HandleDeath()
 		{
-			await CommonTasks.HandleLoading();
+			if (Me.IsDead && Poi.Current.Type != PoiType.Death)
+			{
+				Poi.Current = new Poi(Me, PoiType.Death);
+				return true;
+			}
 
-			return await ResolveItem() || HandleDeath() || await Behaviors.TeleportTo(masterPieceSupplyNpc) || await MoveToNpc()
-					|| await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
-					|| await MoveToShopNpc() || await PurchaseItems();
+			return false;
 		}
 
 		private async Task<bool> HandleSkipPurchase()
@@ -130,54 +142,114 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			return false;
 		}
 
-		private bool ShouldPurchaseItem(ShopPurchase shopPurchase)
+		private async Task<bool> HandOver()
 		{
-			var info = Data.ShopItemMap[shopPurchase.ShopItem];
-
-			var itemData = info.ItemData;
-
-			var itemCount = itemData.ItemCount();
-			// check inventory count
-			if (itemCount >= shopPurchase.MaxCount)
+			var masterpieceSupply = new MasterPieceSupply();
+			if (!masterpieceSupply.IsValid && !await masterpieceSupply.Refresh(2000))
 			{
 				return false;
 			}
 
-			if (ConditionParser.FreeItemSlots() == 0 && itemCount == 0)
+			if (item == null || item.Item == null)
 			{
+				SelectYesno.ClickNo();
+				await masterpieceSupply.CloseInstanceGently(15);
+
 				return false;
 			}
 
-			// check cost
-			switch (info.ShopType)
+			StatusText = "Turning in items";
+
+			var itemName = item.Item.EnglishName;
+
+			if (!await masterpieceSupply.TurnInAndHandOver(index, item))
 			{
-				case ShopType.BlueCrafter:
-					if (Memory.Scrips.BlueCrafter < info.Cost)
-					{
-						return false;
-					}
-					break;
-				case ShopType.RedCrafter:
-					if (Memory.Scrips.RedCrafter < info.Cost)
-					{
-						return false;
-					}
-					break;
-				case ShopType.BlueGatherer:
-					if (Memory.Scrips.BlueGatherer < info.Cost)
-					{
-						return false;
-					}
-					break;
-				case ShopType.RedGatherer:
-					if (Memory.Scrips.RedGatherer < info.Cost)
-					{
-						return false;
-					}
-					break;
+				Logger.Error("An error has occured while turning in the item");
+				Blacklist.Add(
+					(uint)item.Pointer.ToInt32(),
+					BlacklistFlags.Loot,
+					TimeSpan.FromMinutes(3),
+					"Don't turn in this item for 3 minutes");
+				item = null;
+				index = 0;
+
+				if (SelectYesno.IsOpen)
+				{
+					SelectYesno.ClickNo();
+					await Coroutine.Sleep(200);
+				}
+
+				if (Request.IsOpen)
+				{
+					Request.Cancel();
+					await Coroutine.Sleep(200);
+				}
+
+				return true;
+			}
+
+			Logger.Info("Turned in {0} at {1} ET", itemName, WorldManager.EorzaTime);
+
+			turnedItemsIn = true;
+
+			index = 0;
+			if (!await Coroutine.Wait(1000, () => item == null))
+			{
+				item = null;
 			}
 
 			return true;
+		}
+
+		private async Task<bool> InteractWithNpc()
+		{
+			if (item == null || item.Item == null)
+			{
+				return false;
+			}
+
+			if (Me.Location.Distance(masterPieceSupplyNpc.Location) > 4)
+			{
+				// too far away, should go back to MoveToNpc
+				return true;
+			}
+
+			if (GameObjectManager.Target != null && MasterPieceSupply.IsOpen)
+			{
+				// already met conditions
+				return false;
+			}
+
+			masterPieceSupplyNpc.Interact();
+
+			StatusText = "Interacting with Npc -> " + masterPieceSupplyNpc.NpcId;
+			await Coroutine.Yield();
+
+			return false;
+		}
+
+		private async Task<bool> MoveToNpc()
+		{
+			if (item == null || item.Item == null)
+			{
+				return false;
+			}
+
+			if (Me.Location.Distance(masterPieceSupplyNpc.Location) <= 4)
+			{
+				// we are already there, continue
+				return false;
+			}
+
+			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
+
+			await
+				Behaviors.MoveTo(
+					masterPieceSupplyNpc.Location,
+					radius: 3.9f,
+					name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
+
+			return false;
 		}
 
 		private async Task<bool> MoveToShopNpc()
@@ -339,123 +411,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			return true;
 		}
 
-		private bool HandleDeath()
-		{
-			if (Me.IsDead && Poi.Current.Type != PoiType.Death)
-			{
-				Poi.Current = new Poi(Me, PoiType.Death);
-				return true;
-			}
-
-			return false;
-		}
-
-		private async Task<bool> HandOver()
-		{
-			var masterpieceSupply = new MasterPieceSupply();
-			if (!masterpieceSupply.IsValid && !await masterpieceSupply.Refresh(2000))
-			{
-				return false;
-			}
-
-			if (item == null || item.Item == null)
-			{
-				SelectYesno.ClickNo();
-				await masterpieceSupply.CloseInstanceGently(15);
-
-				return false;
-			}
-
-			StatusText = "Turning in items";
-
-			var itemName = item.Item.EnglishName;
-
-			if (!await masterpieceSupply.TurnInAndHandOver(index, item))
-			{
-				Logger.Error("An error has occured while turning in the item");
-				Blacklist.Add(
-					(uint)item.Pointer.ToInt32(),
-					BlacklistFlags.Loot,
-					TimeSpan.FromMinutes(3),
-					"Don't turn in this item for 3 minutes");
-				item = null;
-				index = 0;
-
-				if (SelectYesno.IsOpen)
-				{
-					SelectYesno.ClickNo();
-					await Coroutine.Sleep(200);
-				}
-
-				if (Request.IsOpen)
-				{
-					Request.Cancel();
-					await Coroutine.Sleep(200);
-				}
-
-				return true;
-			}
-
-			Logger.Info("Turned in {0} at {1} ET", itemName, WorldManager.EorzaTime);
-
-			turnedItemsIn = true;
-
-			index = 0;
-			if (!await Coroutine.Wait(1000, () => item == null))
-			{
-				item = null;
-			}
-
-			return true;
-		}
-
-		private async Task<bool> MoveToNpc()
-		{
-			if (item == null || item.Item == null)
-			{
-				return false;
-			}
-
-			if (Me.Location.Distance(masterPieceSupplyNpc.Location) <= 4)
-			{
-				// we are already there, continue
-				return false;
-			}
-
-			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
-
-			await Behaviors.MoveTo(masterPieceSupplyNpc.Location, radius: 3.9f, name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
-
-			return false;
-		}
-
-		private async Task<bool> InteractWithNpc()
-		{
-			if (item == null || item.Item == null)
-			{
-				return false;
-			}
-
-			if (Me.Location.Distance(masterPieceSupplyNpc.Location) > 4)
-			{
-				// too far away, should go back to MoveToNpc
-				return true;
-			}
-
-			if (GameObjectManager.Target != null && MasterPieceSupply.IsOpen)
-			{
-				// already met conditions
-				return false;
-			}
-
-			masterPieceSupplyNpc.Interact();
-
-			StatusText = "Interacting with Npc -> " + masterPieceSupplyNpc.NpcId;
-			await Coroutine.Yield();
-
-			return false;
-		}
-
 		private async Task<bool> ResolveIndex()
 		{
 			if (item == null || item.Item == null)
@@ -591,10 +546,10 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				return false;
 			}
-			
+
 			var slots =
-				InventoryManager.FilledInventoryAndArmory.Where(i => !Blacklist.Contains((uint)i.Pointer.ToInt32(), BlacklistFlags.Loot))
-					.ToArray();
+				InventoryManager.FilledInventoryAndArmory.Where(
+					i => !Blacklist.Contains((uint)i.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
 
 			if (Collectables == null)
 			{
@@ -629,6 +584,56 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 
 			isDone = true;
+			return true;
+		}
+
+		private bool ShouldPurchaseItem(ShopPurchase shopPurchase)
+		{
+			var info = Data.ShopItemMap[shopPurchase.ShopItem];
+
+			var itemData = info.ItemData;
+
+			var itemCount = itemData.ItemCount();
+			// check inventory count
+			if (itemCount >= shopPurchase.MaxCount)
+			{
+				return false;
+			}
+
+			if (ConditionParser.FreeItemSlots() == 0 && itemCount == 0)
+			{
+				return false;
+			}
+
+			// check cost
+			switch (info.ShopType)
+			{
+				case ShopType.BlueCrafter:
+					if (Memory.Scrips.BlueCrafter < info.Cost)
+					{
+						return false;
+					}
+					break;
+				case ShopType.RedCrafter:
+					if (Memory.Scrips.RedCrafter < info.Cost)
+					{
+						return false;
+					}
+					break;
+				case ShopType.BlueGatherer:
+					if (Memory.Scrips.BlueGatherer < info.Cost)
+					{
+						return false;
+					}
+					break;
+				case ShopType.RedGatherer:
+					if (Memory.Scrips.RedGatherer < info.Cost)
+					{
+						return false;
+					}
+					break;
+			}
+
 			return true;
 		}
 	}

@@ -28,7 +28,8 @@
 			if (ReturnToApproachLocation)
 			{
 				result &=
-					await Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					await
+					Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;
@@ -60,17 +61,6 @@
 			}
 
 			return result;
-		}
-
-		public override string ToString()
-		{
-			return
-				string.Format(
-					"IndirectApproachGatherSpot -> ApproachLocation: {0}, NodeLocation: {1}, ReturnToApproachLocation: {2}, UseMesh: {3}",
-					ApproachLocation,
-					NodeLocation,
-					ReturnToApproachLocation,
-					UseMesh);
 		}
 	}
 }

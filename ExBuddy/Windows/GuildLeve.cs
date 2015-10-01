@@ -11,17 +11,19 @@
 
 	public sealed class GuildLeve : Window<GuildLeve>
 	{
-		private static readonly Type LeveManagerType = Assembly.GetEntryAssembly().GetTypes().FirstOrDefault(t => t.GetProperties(BindingFlags.Static | BindingFlags.Public).Count(f => f.PropertyType == typeof(LeveWork[])) == 1);
+		private static readonly Type LeveManagerType =
+			Assembly.GetEntryAssembly()
+				.GetTypes()
+				.FirstOrDefault(
+					t =>
+					t.GetProperties(BindingFlags.Static | BindingFlags.Public).Count(f => f.PropertyType == typeof(LeveWork[])) == 1);
 
-		private static readonly PropertyInfo LevesPropertyInfo = LeveManagerType.GetProperties(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(f => f.PropertyType == typeof(LeveWork[]));
+		private static readonly PropertyInfo LevesPropertyInfo =
+			LeveManagerType.GetProperties(BindingFlags.Static | BindingFlags.Public)
+				.FirstOrDefault(f => f.PropertyType == typeof(LeveWork[]));
 
 		public GuildLeve()
 			: base("GuildLeve") {}
-
-		public SendActionResult AcceptLeve(uint guildLeveId)
-		{
-			return TrySendAction(2, 3, 3, 4, guildLeveId);
-		}
 
 		public static LeveWork[] ActiveLeves
 		{
@@ -37,6 +39,11 @@
 			{
 				return Core.Memory.NoCacheRead<int>(Core.Memory.ImageBase + 0x01052248);
 			}
+		}
+
+		public SendActionResult AcceptLeve(uint guildLeveId)
+		{
+			return TrySendAction(2, 3, 3, 4, guildLeveId);
 		}
 
 		public static bool HasLeve(uint leveId)

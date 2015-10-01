@@ -133,6 +133,6 @@
 
 		DeepBreath, // = 4080,4094
 
-		SingleMind, // = 4084,4098
+		SingleMind // = 4084,4098
 	}
 }

@@ -24,7 +24,8 @@
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await tag.Cast(Ability.Toil);
-			await tag.Cast(Ability.IncreaseGatherChance15); // TODO: Could possibly use await IncreaseChance(tag); depending on gathering skill
+			await tag.Cast(Ability.IncreaseGatherChance15);
+			// TODO: Could possibly use await IncreaseChance(tag); depending on gathering skill
 
 			return true;
 		}
@@ -43,7 +44,7 @@
 					await tag.Cast(Ability.IncreaseGatherYieldOnce);
 					await Wait();
 				}
-				
+
 				// No way to tell if we missed the first swing afaik... so we have to check if we have a combo of 0 anytime after the second swing.
 				if (GatheringManager.GatheringCombo == 0 && GatheringManager.SwingsRemaining < 5 && !Core.Player.HasAura(220))
 				{

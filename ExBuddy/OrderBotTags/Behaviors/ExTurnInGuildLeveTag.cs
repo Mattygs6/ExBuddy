@@ -30,15 +30,19 @@
 	{
 		private readonly Stopwatch interactTimeout = new Stopwatch();
 
-		private bool turnedItemsIn;
-
 		private bool checkedTransport;
 
 		private uint iconStringIndex = 9001;
 
+		private bool turnedItemsIn;
+
 		[DefaultValue(true)]
 		[XmlAttribute("AcceptTransport")]
 		public bool AcceptTransport { get; set; }
+
+		[DefaultValue("Collect Reward.")]
+		[XmlAttribute("CollectRewardText")]
+		public string CollectRewardText { get; set; }
 
 		[XmlAttribute("HqOnly")]
 		public bool HqOnly { get; set; }
@@ -46,19 +50,9 @@
 		[XmlAttribute("NqOnly")]
 		public bool NqOnly { get; set; }
 
-		[XmlAttribute("NpcId")]
-		public uint NpcId { get; set; }
-
-		[XmlAttribute("NpcLocation")]
-		public Vector3 Location { get; set; }
-
 		[DefaultValue(60)]
 		[XmlAttribute("Timeout")]
 		public int Timeout { get; set; }
-
-		[DefaultValue("Collect Reward.")]
-		[XmlAttribute("CollectRewardText")]
-		public string CollectRewardText { get; set; }
 
 		[DefaultValue("Yes.")]
 		[XmlAttribute("YesText")]
@@ -70,6 +64,24 @@
 			{
 				return Colors.Plum;
 			}
+		}
+
+		#region IInteractWithNpc Members
+
+		[XmlAttribute("NpcLocation")]
+		public Vector3 Location { get; set; }
+
+		[XmlAttribute("NpcId")]
+		public uint NpcId { get; set; }
+
+		#endregion
+
+		protected override void DoReset()
+		{
+			interactTimeout.Reset();
+			turnedItemsIn = false;
+			checkedTransport = false;
+			iconStringIndex = 9001;
 		}
 
 		protected override async Task<bool> Main()
@@ -190,12 +202,12 @@
 			if (Request.IsOpen)
 			{
 				var itemCount = Memory.Request.ItemsToTurnIn.Length;
-				
+
 				var itemId = Memory.Request.ItemId1;
 
-				IEnumerable<BagSlot> itemSlots = InventoryManager.FilledInventoryAndArmory
-					.Where(bs => bs.RawItemId == itemId && !Blacklist.Contains((uint)bs.Pointer.ToInt32(), BlacklistFlags.Loot))
-					.ToArray();
+				IEnumerable<BagSlot> itemSlots =
+					InventoryManager.FilledInventoryAndArmory.Where(
+						bs => bs.RawItemId == itemId && !Blacklist.Contains((uint)bs.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
 
 				if (HqOnly)
 				{
@@ -228,7 +240,7 @@
 						item.Handover();
 						await Coroutine.Yield();
 					}
-					
+
 					await Coroutine.Wait(1000, () => Request.HandOverButtonClickable);
 
 					if (Request.HandOverButtonClickable)
@@ -283,16 +295,8 @@
 				CloseWindows();
 				Me.ClearTarget();
 			}
-			
-			return true;
-		}
 
-		protected override void DoReset()
-		{
-			interactTimeout.Reset();
-			turnedItemsIn = false;
-			checkedTransport = false;
-			iconStringIndex = 9001;
+			return true;
 		}
 
 		protected override void OnDone()
@@ -328,11 +332,6 @@
 			{
 				SelectIconString.ClickSlot(uint.MaxValue);
 			}
-		}
-
-		private async Task<bool> WaitForOpenWindow()
-		{
-			return await Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
 
 		private async Task<bool> HandleTalk(int interval = 100)
@@ -373,6 +372,13 @@
 			}
 
 			return true;
+		}
+
+		private async Task<bool> WaitForOpenWindow()
+		{
+			return
+				await
+				Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
 	}
 }

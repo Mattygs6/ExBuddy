@@ -6,8 +6,8 @@
 	{
 		Color Error { get; }
 
-		Color Warn { get; }
-
 		Color Info { get; }
+
+		Color Warn { get; }
 	}
 }

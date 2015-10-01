@@ -11,14 +11,14 @@ namespace ExBuddy.Interfaces
 	{
 		bool CanFly { get; }
 
+		IFlightMovementArgs FlightMovementArgs { get; }
+
 		bool IsLanding { get; }
 
 		bool IsTakingOff { get; }
 
-		IFlightMovementArgs FlightMovementArgs { get; }
+		Task SetShouldFlyAsync(Task<Func<Vector3, bool>> shouldFlyToFunc);
 
 		bool ShouldFlyTo(Vector3 destination);
-
-		Task SetShouldFlyAsync(Task<Func<Vector3, bool>> shouldFlyToFunc);
 	}
 }

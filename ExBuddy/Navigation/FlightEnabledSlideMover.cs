@@ -26,31 +26,31 @@
 	[LoggerName("FlightMover")]
 	public class FlightEnabledSlideMover : LogColors, IFlightEnabledPlayerMover
 	{
+		private static Func<Vector3, bool> shouldFlyToFunc = ShouldFlyInternal;
+
 		protected readonly Logger Logger;
+
+		internal bool IsMovingTowardsLocation;
+
+		private readonly IFlightMovementArgs flightMovementArgs;
+
+		private readonly IPlayerMover innerMover;
 
 		private readonly Stopwatch landingStopwatch = new Stopwatch();
 
+		private readonly Stopwatch takeoffStopwatch = new Stopwatch();
+
 		private readonly Stopwatch totalLandingStopwatch = new Stopwatch();
 
-		private readonly Stopwatch takeoffStopwatch = new Stopwatch();
+		private Coroutine coroutine;
+
+		private bool disposed;
+
+		private Coroutine landingCoroutine;
 
 		private Task landingTask;
 
 		private Task takeoffTask;
-
-		private Coroutine coroutine;
-
-		private Coroutine landingCoroutine;
-
-		internal bool IsMovingTowardsLocation;
-
-		private bool disposed;
-
-		private static Func<Vector3, bool> shouldFlyToFunc = ShouldFlyInternal;
-
-		private readonly IPlayerMover innerMover;
-
-		private readonly IFlightMovementArgs flightMovementArgs;
 
 		public FlightEnabledSlideMover(IPlayerMover innerMover, bool forceLanding = false)
 			: this(innerMover, new FlightMovementArgs { ForceLanding = forceLanding }) {}
@@ -61,7 +61,7 @@
 			{
 				throw new NullReferenceException("flightMovementArgs is null");
 			}
-			
+
 			Logger = new Logger(this);
 			this.innerMover = innerMover;
 			this.flightMovementArgs = flightMovementArgs;
@@ -69,15 +69,12 @@
 			GameEvents.OnMapChanged += GameEventsOnMapChanged;
 		}
 
-		private void GameEventsOnMapChanged(object sender, EventArgs e)
+		public override Color Info
 		{
-			ShouldFly = false;
-			Logger.Info("Set default value for flying to false until we can determine if we can fly in this zone.");
-		}
-
-		public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
-		{
-			return playerMover.innerMover as SlideMover;
+			get
+			{
+				return Colors.LightSkyBlue;
+			}
 		}
 
 		public IPlayerMover InnerMover
@@ -85,6 +82,32 @@
 			get
 			{
 				return innerMover;
+			}
+		}
+
+		protected internal bool ShouldFly { get; private set; }
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+				Navigator.PlayerMover = innerMover;
+				GameEvents.OnMapChanged -= GameEventsOnMapChanged;
+			}
+		}
+
+		#endregion
+
+		#region IFlightEnabledPlayerMover Members
+
+		public bool CanFly
+		{
+			get
+			{
+				return WorldManager.CanFly;
 			}
 		}
 
@@ -96,19 +119,28 @@
 			}
 		}
 
-		public bool IsTakingOff { get; protected set; }
-
 		public bool IsLanding { get; protected set; }
 
-		protected internal bool ShouldFly { get; private set; }
+		public bool IsTakingOff { get; protected set; }
 
-		public override Color Info
+		public async Task SetShouldFlyAsync(Task<Func<Vector3, bool>> customShouldFlyToFunc)
 		{
-			get
-			{
-				return Colors.LightSkyBlue;
-			}
+			shouldFlyToFunc = await customShouldFlyToFunc;
 		}
+
+		public bool ShouldFlyTo(Vector3 destination)
+		{
+			if (shouldFlyToFunc == null)
+			{
+				return false;
+			}
+
+			return CanFly && (ShouldFly = shouldFlyToFunc(destination));
+		}
+
+		#endregion
+
+		#region IPlayerMover Members
 
 		public void MoveStop()
 		{
@@ -119,6 +151,7 @@
 				innerMover.MoveStop();
 			}
 
+			// TODO: Check can land!!
 			if (!IsLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(6)))
 			{
 				IsLanding = true;
@@ -140,6 +173,8 @@
 				innerMover.MoveTowards(location);
 			}
 		}
+
+		#endregion
 
 		public void EnsureFlying()
 		{
@@ -189,7 +224,7 @@
 									{
 										Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
 									}
-									
+
 									takeoffStopwatch.Reset();
 									IsTakingOff = false;
 									takeoffTask = null;
@@ -299,27 +334,9 @@
 			}
 		}
 
-		public bool CanFly
+		public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
 		{
-			get
-			{
-				return WorldManager.CanFly;
-			}
-		}
-
-		public bool ShouldFlyTo(Vector3 destination)
-		{
-			if (shouldFlyToFunc == null)
-			{
-				return false;
-			}
-
-			return CanFly && (ShouldFly = shouldFlyToFunc(destination));
-		}
-
-		public async Task SetShouldFlyAsync(Task<Func<Vector3, bool>> customShouldFlyToFunc)
-		{
-			shouldFlyToFunc = await customShouldFlyToFunc;
+			return playerMover.innerMover as SlideMover;
 		}
 
 		internal static bool ShouldFlyInternal(Vector3 destination)
@@ -330,14 +347,10 @@
 							|| !destination.IsGround()));
 		}
 
-		public void Dispose()
+		private void GameEventsOnMapChanged(object sender, EventArgs e)
 		{
-			if (!disposed)
-			{
-				disposed = true;
-				Navigator.PlayerMover = innerMover;
-				ff14bot.NeoProfiles.GameEvents.OnMapChanged -= GameEventsOnMapChanged;
-			}
+			ShouldFly = false;
+			Logger.Info("Set default value for flying to false until we can determine if we can fly in this zone.");
 		}
 	}
 }

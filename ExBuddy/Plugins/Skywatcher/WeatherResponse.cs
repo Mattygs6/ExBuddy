@@ -21,17 +21,17 @@
 		[JsonProperty("data")]
 		public IList<WeatherResult> Data { get; set; }
 
-		[JsonProperty("interval")]
-		public int Interval { get; set; }
-
 		[JsonProperty("hour")]
 		public int Hour { get; set; }
 
-		[JsonProperty("minute")]
-		public int Minute { get; set; }
-
 		[JsonProperty("left_hour")]
 		public int HoursLeft { get; set; }
+
+		[JsonProperty("interval")]
+		public int Interval { get; set; }
+
+		[JsonProperty("minute")]
+		public int Minute { get; set; }
 
 		[JsonProperty("left_minute")]
 		public int MinutesLeft { get; set; }

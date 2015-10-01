@@ -5,6 +5,7 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Reflection;
+	using System.Threading;
 
 	using Clio.Utilities;
 
@@ -12,28 +13,16 @@
 
 	using ff14bot.Managers;
 
-	using Timer = System.Threading.Timer;
-
 	public static class Condition
 	{
 		public static readonly TimeSpan OneDay = new TimeSpan(1, 0, 0, 0);
 
-		static Condition()
-		{
-			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
-		}
-
 		internal static readonly ConcurrentDictionary<int, ConditionTimer> Timers =
 			new ConcurrentDictionary<int, ConditionTimer>();
 
-		public static bool Any(params object[] param)
+		static Condition()
 		{
-			if (param == null || param.Length == 0)
-			{
-				return false;
-			}
-
-			return param.Any(IsTrue);
+			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 		}
 
 		public static bool All(params object[] param)
@@ -46,6 +35,16 @@
 			return param.All(IsTrue);
 		}
 
+		public static bool Any(params object[] param)
+		{
+			if (param == null || param.Length == 0)
+			{
+				return false;
+			}
+
+			return param.Any(IsTrue);
+		}
+
 		public static float Distance2D(float x, float y, float z)
 		{
 			return GameObjectManager.LocalPlayer.Location.Distance2D(new Vector3(x, y, z));
@@ -54,12 +53,6 @@
 		public static float Distance3D(float x, float y, float z)
 		{
 			return GameObjectManager.LocalPlayer.Location.Distance3D(new Vector3(x, y, z));
-		}
-
-		public static bool IsTrue(this object value)
-		{
-			var result = string.Concat(value).ConvertToBoolean().GetValueOrDefault();
-			return result;
 		}
 
 		// Is overnight between =)
@@ -83,6 +76,12 @@
 			}
 
 			return eorzea.InRange(startTimeOffset, endTimeOffset);
+		}
+
+		public static bool IsTrue(this object value)
+		{
+			var result = string.Concat(value).ConvertToBoolean().GetValueOrDefault();
+			return result;
 		}
 
 		public static bool TrueFor(int id, TimeSpan span)
@@ -144,13 +143,16 @@
 	{
 		private bool disposed;
 
-		public int Id { get; private set; }
-
-		public Timer Timer { get; private set; }
-
-		public TimeSpan TimeSpan { get; private set; }
-
 		private bool isValid = true;
+
+		public ConditionTimer(int id, TimeSpan timeSpan)
+		{
+			Id = id;
+			TimeSpan = timeSpan;
+			Timer = new Timer(ToggleValid, this, timeSpan, TimeSpan.FromMilliseconds(-1));
+		}
+
+		public int Id { get; private set; }
 
 		public bool IsValid
 		{
@@ -167,22 +169,11 @@
 			}
 		}
 
-		public ConditionTimer(int id, TimeSpan timeSpan)
-		{
-			Id = id;
-			TimeSpan = timeSpan;
-			Timer = new Timer(ToggleValid, this, timeSpan, TimeSpan.FromMilliseconds(-1));
-		}
+		public Timer Timer { get; private set; }
 
-		private static void ToggleValid(object context)
-		{
-			var _this = context as ConditionTimer;
-			if (_this != null)
-			{
-				_this.isValid = !_this.isValid;
-				_this.Timer.Change(_this.TimeSpan, TimeSpan.FromMilliseconds(-1));
-			}
-		}
+		public TimeSpan TimeSpan { get; private set; }
+
+		#region IDisposable Members
 
 		public void Dispose()
 		{
@@ -193,6 +184,18 @@
 				{
 					Timer.Dispose();
 				}
+			}
+		}
+
+		#endregion
+
+		private static void ToggleValid(object context)
+		{
+			var _this = context as ConditionTimer;
+			if (_this != null)
+			{
+				_this.isValid = !_this.isValid;
+				_this.Timer.Change(_this.TimeSpan, TimeSpan.FromMilliseconds(-1));
 			}
 		}
 	}

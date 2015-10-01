@@ -15,17 +15,15 @@
 
 	public class FF14AnglerWeatherProvider : IWeatherProvider
 	{
+		private static readonly object Locker = new object();
+
 		private static readonly Regex WeatherTitleRegex = new Regex(
 			@"<(img)\b[^>]*title='(.*)'>",
 			RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		private static int lastInterval;
 
-		private static readonly object Locker = new object();
-
 		private static readonly Timer RequestTimer = new Timer(GetEntries);
-
-		private static IList<WeatherResult> weatherResults;
 
 		private static readonly IDictionary<uint, uint> zoneMap = new Dictionary<uint, uint>
 																	{
@@ -65,34 +63,11 @@
 																		{ 24, 156 } // Mor Dhona
 																	};
 
+		private static IList<WeatherResult> weatherResults;
+
 		public bool IsEnabled { get; private set; }
 
-		public void Enable()
-		{
-			lock (Locker)
-			{
-				if (!IsEnabled)
-				{
-					IsEnabled = true;
-					RequestTimer.Change(0, (int)SkywatcherPlugin.GetTimeTillNextInterval());
-				}
-			}
-		}
-
-		public void Disable()
-		{
-			lock (Locker)
-			{
-				if (IsEnabled)
-				{
-					IsEnabled = false;
-					RequestTimer.Change(-1, -1);
-					weatherResults.Clear();
-					weatherResults = null;
-					lastInterval = 0;
-				}
-			}
-		}
+		#region IWeatherProvider Members
 
 		public IEnumerable<WeatherData> CurrentWeatherData
 		{
@@ -130,6 +105,35 @@
 							}).ToArray();
 			}
 		}
+
+		public void Disable()
+		{
+			lock (Locker)
+			{
+				if (IsEnabled)
+				{
+					IsEnabled = false;
+					RequestTimer.Change(-1, -1);
+					weatherResults.Clear();
+					weatherResults = null;
+					lastInterval = 0;
+				}
+			}
+		}
+
+		public void Enable()
+		{
+			lock (Locker)
+			{
+				if (!IsEnabled)
+				{
+					IsEnabled = true;
+					RequestTimer.Change(0, (int)SkywatcherPlugin.GetTimeTillNextInterval());
+				}
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		///     Gets the entries.

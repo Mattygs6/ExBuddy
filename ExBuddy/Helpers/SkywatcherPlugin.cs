@@ -2,19 +2,14 @@
 {
 	using System;
 	using System.Linq;
+
+	using ExBuddy.Plugins.Skywatcher;
+
 	using ff14bot.Managers;
 
 	public static class SkywatcherPlugin
 	{
 		public static readonly DateTime EorzeaStartTime = new DateTime(2010, 7, 13);
-
-		public static int GetIntervalNumber()
-		{
-			//JP differential (8 not 9?..we are matching angler using this calculation) -1 ? + 1 ?
-			var interval = ((DateTime.UtcNow.AddHours(8) - EorzeaStartTime).TotalSeconds / 1400);
-
-			return Convert.ToInt32(interval);
-		}
 
 		public static TimeSpan GetEorzeaTimeTillNextInterval()
 		{
@@ -29,6 +24,14 @@
 			return timeleft;
 		}
 
+		public static int GetIntervalNumber()
+		{
+			//JP differential (8 not 9?..we are matching angler using this calculation) -1 ? + 1 ?
+			var interval = ((DateTime.UtcNow.AddHours(8) - EorzeaStartTime).TotalSeconds / 1400);
+
+			return Convert.ToInt32(interval);
+		}
+
 		public static double GetTimeTillNextInterval()
 		{
 			var timeOfDay = WorldManager.EorzaTime.TimeOfDay;
@@ -41,15 +44,34 @@
 			return timeLeft;
 		}
 
+		public static string GetWeatherNameById(byte weatherId)
+		{
+			string weatherName;
+			WorldManager.WeatherDictionary.TryGetValue(weatherId, out weatherName);
+			return weatherName;
+		}
+
+		public static bool IsWeather(byte weatherId)
+		{
+			return weatherId == WorldManager.CurrentWeatherId;
+		}
+
+		public static bool IsWeather(string weatherName)
+		{
+			return string.Equals(weatherName, WorldManager.CurrentWeather, StringComparison.InvariantCultureIgnoreCase);
+		}
+
 		public static bool IsWeatherInZone(int zoneId, params byte[] weatherIds)
 		{
-			return ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.CurrentWeatherData.Any(w => w.ZoneId == zoneId && weatherIds.Any(wid => wid == w.WeatherId));
+			return
+				Skywatcher.WeatherProvider.CurrentWeatherData.Any(
+					w => w.ZoneId == zoneId && weatherIds.Any(wid => wid == w.WeatherId));
 		}
 
 		public static bool IsWeatherInZone(int zoneId, params string[] weatherNames)
 		{
 			return
-				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.CurrentWeatherData.Any(
+				Skywatcher.WeatherProvider.CurrentWeatherData.Any(
 					w =>
 					w.ZoneId == zoneId
 					&& weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
@@ -74,7 +96,7 @@
 			}
 
 			return
-				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.WeatherData.Any(
+				Skywatcher.WeatherProvider.WeatherData.Any(
 					w => w.Time == time && w.ZoneId == zoneId && weatherIds.Any(wid => w.WeatherId == wid));
 		}
 
@@ -97,27 +119,10 @@
 			}
 
 			return
-				ExBuddy.Plugins.Skywatcher.Skywatcher.WeatherProvider.WeatherData.Any(
+				Skywatcher.WeatherProvider.WeatherData.Any(
 					w =>
 					w.Time == time && w.ZoneId == zoneId
 					&& weatherNames.Any(wn => string.Equals(wn, w.Weather, StringComparison.InvariantCultureIgnoreCase)));
-		}
-
-		public static string GetWeatherNameById(byte weatherId)
-		{
-			string weatherName;
-			WorldManager.WeatherDictionary.TryGetValue(weatherId, out weatherName);
-			return weatherName;
-		}
-
-		public static bool IsWeather(byte weatherId)
-		{
-			return weatherId == WorldManager.CurrentWeatherId;
-		}
-
-		public static bool IsWeather(string weatherName)
-		{
-			return string.Equals(weatherName, WorldManager.CurrentWeather, StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }

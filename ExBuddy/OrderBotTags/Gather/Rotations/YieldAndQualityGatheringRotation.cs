@@ -14,27 +14,7 @@
 	[GatheringRotation("YieldAndQuality", 0, 22)]
 	public class YieldAndQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
-		{
-			var level = Core.Player.ClassLevel;
-
-			if (GatheringManager.SwingsRemaining > 4 || ShouldForceUseRotation(tag, level))
-			{
-				if (Core.Player.CurrentGP >= 500 && level >= 40)
-				{
-					await tag.Cast(Ability.IncreaseGatherYield2);
-
-					if (Core.Player.CurrentGP >= 100)
-					{
-						await tag.Cast(Ability.IncreaseGatherQuality10);
-					}
-
-					return await base.ExecuteRotation(tag);
-				}
-			}
-
-			return true;
-		}
+		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
@@ -55,6 +35,30 @@
 			}
 
 			return -1;
+		}
+
+		#endregion
+
+		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
+		{
+			var level = Core.Player.ClassLevel;
+
+			if (GatheringManager.SwingsRemaining > 4 || ShouldForceUseRotation(tag, level))
+			{
+				if (Core.Player.CurrentGP >= 500 && level >= 40)
+				{
+					await tag.Cast(Ability.IncreaseGatherYield2);
+
+					if (Core.Player.CurrentGP >= 100)
+					{
+						await tag.Cast(Ability.IncreaseGatherQuality10);
+					}
+
+					return await base.ExecuteRotation(tag);
+				}
+			}
+
+			return true;
 		}
 	}
 }

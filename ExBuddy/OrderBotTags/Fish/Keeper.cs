@@ -12,11 +12,16 @@ namespace ExBuddy.OrderBotTags.Fish
 	[Serializable]
 	public class Keeper
 	{
-		[Clio.XmlEngine.XmlAttribute("Name")]
-		public string Name { get; set; }
-
 		[DefaultValue(KeeperAction.KeepAll)]
 		[Clio.XmlEngine.XmlAttribute("Action")]
 		public KeeperAction Action { get; set; }
+
+		[Clio.XmlEngine.XmlAttribute("Name")]
+		public string Name { get; set; }
+
+		public override string ToString()
+		{
+			return string.Concat("{ Name: ", Name, ", Action: ", Action, " }");
+		}
 	}
 }

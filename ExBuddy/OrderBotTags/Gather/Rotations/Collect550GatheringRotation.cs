@@ -11,6 +11,39 @@
 	[GatheringRotation("Collect550", 0, 34)]
 	public sealed class Collect550GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
+		{
+			if (tag.IsUnspoiled())
+			{
+				// We need 5 swings to use this rotation
+				if (GatheringManager.SwingsRemaining < 5)
+				{
+					return -1;
+				}
+			}
+
+			if (tag.IsEphemeral())
+			{
+				// We need 4 swings to use this rotation
+				if (GatheringManager.SwingsRemaining < 4)
+				{
+					return -1;
+				}
+			}
+
+			// if we have a collectable && the collectable value is greater than or equal to 550: Priority 550
+			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 550)
+			{
+				return 550;
+			}
+
+			return -1;
+		}
+
+		#endregion
+
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			// level 56
@@ -54,35 +87,6 @@
 
 			await IncreaseChance(tag);
 			return true;
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			if (tag.IsUnspoiled())
-			{
-				// We need 5 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 5)
-				{
-					return -1;
-				}
-			}
-
-			if (tag.IsEphemeral())
-			{
-				// We need 4 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 4)
-				{
-					return -1;
-				}
-			}
-
-			// if we have a collectable && the collectable value is greater than or equal to 550: Priority 550
-			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 550)
-			{
-				return 550;
-			}
-
-			return -1;
 		}
 	}
 }

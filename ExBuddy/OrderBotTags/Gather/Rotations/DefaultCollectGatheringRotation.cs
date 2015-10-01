@@ -8,6 +8,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	[GatheringRotation("DefaultCollect", 600, 30)]
 	public sealed class DefaultCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
+		#region IGetOverridePriority Members
+
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
 			if (tag.IsUnspoiled())
@@ -36,5 +38,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			return -1;
 		}
+
+		#endregion
 	}
 }

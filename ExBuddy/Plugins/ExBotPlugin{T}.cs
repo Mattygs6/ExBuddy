@@ -30,27 +30,19 @@
 			Logger = new Logger(this);
 		}
 
-		public static bool IsEnabled
-		{
-			get
-			{
-				return PluginManager.Plugins.Any(p => p.Plugin.GetType() == typeof(T));
-			}
-		}
-
-		protected static LocalPlayer Me
-		{
-			get
-			{
-				return GameObjectManager.LocalPlayer;
-			}
-		}
-
 		public override string Author
 		{
 			get
 			{
 				return "ExMatt";
+			}
+		}
+
+		public static bool IsEnabled
+		{
+			get
+			{
+				return PluginManager.Plugins.Any(p => p.Plugin.GetType() == typeof(T));
 			}
 		}
 
@@ -70,14 +62,6 @@
 			}
 		}
 
-		protected virtual Color Warn
-		{
-			get
-			{
-				return Logger.Colors.Warn;
-			}
-		}
-
 		protected virtual Color Info
 		{
 			get
@@ -86,11 +70,37 @@
 			}
 		}
 
+		protected static LocalPlayer Me
+		{
+			get
+			{
+				return GameObjectManager.LocalPlayer;
+			}
+		}
+
+		protected virtual Color Warn
+		{
+			get
+			{
+				return Logger.Colors.Warn;
+			}
+		}
+
+		#region ILogColors Members
+
 		Color ILogColors.Error
 		{
 			get
 			{
 				return this.Error;
+			}
+		}
+
+		Color ILogColors.Info
+		{
+			get
+			{
+				return this.Info;
 			}
 		}
 
@@ -102,12 +112,6 @@
 			}
 		}
 
-		Color ILogColors.Info
-		{
-			get
-			{
-				return this.Info;
-			}
-		}
+		#endregion
 	}
 }

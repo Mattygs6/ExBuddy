@@ -10,16 +10,21 @@
 	//[GatheringRotation("Collect240Dynamic", 200, 28)]
 	public sealed class Collect240DynamicGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
-		public override async Task<bool> Prepare(ExGatherTag tag)
+		#region IGetOverridePriority Members
+
+		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
-			// TODO: how much gathering to 1 hit?  needs to be added into this logic.
-			if (Core.Player.CurrentGP >= 500)
+			// if we have a collectable && the collectable value is greater than or equal to 240: Priority 240
+			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 240)
 			{
-				await tag.Cast(Ability.Toil);
+				// Not complete
+				//return 240;
 			}
 
-			return await base.Prepare(tag);
+			return -1;
 		}
+
+		#endregion
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
@@ -29,6 +34,17 @@
 			}
 
 			return await DoLevel50Rotation(tag);
+		}
+
+		public override async Task<bool> Prepare(ExGatherTag tag)
+		{
+			// TODO: how much gathering to 1 hit?  needs to be added into this logic.
+			if (Core.Player.CurrentGP >= 500)
+			{
+				await tag.Cast(Ability.Toil);
+			}
+
+			return await base.Prepare(tag);
 		}
 
 		private async Task<bool> DoLevel50Rotation(ExGatherTag tag)
@@ -70,18 +86,6 @@
 			await IncreaseChance(tag);
 
 			return true;
-		}
-
-		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
-		{
-			// if we have a collectable && the collectable value is greater than or equal to 240: Priority 240
-			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 240)
-			{
-				// Not complete
-				//return 240;
-			}
-
-			return -1;
 		}
 	}
 }

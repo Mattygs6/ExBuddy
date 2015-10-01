@@ -28,25 +28,25 @@
 	[LoggerName("FlightNav")]
 	public sealed class FlightEnabledNavigator : LogColors, INavigationProvider, IDisposable
 	{
-		private readonly Logger logger;
-
-		private bool disposed;
-
-		private Vector3 origin;
-
-		private Vector3 finalDestination;
-
-		private Vector3 requestedDestination;
-
-		private readonly Stopwatch pathGeneratorStopwatch = new Stopwatch();
-
-		private bool generatingPath;
+		private readonly IFlightNavigationArgs flightNavigationArgs;
 
 		private readonly INavigationProvider innerNavigator;
 
+		private readonly Logger logger;
+
+		private readonly Stopwatch pathGeneratorStopwatch = new Stopwatch();
+
 		private readonly IFlightEnabledPlayerMover playerMover;
 
-		private readonly IFlightNavigationArgs flightNavigationArgs;
+		private bool disposed;
+
+		private Vector3 finalDestination;
+
+		private bool generatingPath;
+
+		private Vector3 origin;
+
+		private Vector3 requestedDestination;
 
 		public FlightEnabledNavigator(INavigationProvider innerNavigator)
 			: this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs()) {}
@@ -67,10 +67,7 @@
 			logger.Verbose("Replacing Navigator with Flight Navigator.");
 		}
 
-		public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
-		{
-			return navigator.innerNavigator as GaiaNavigator;
-		}
+		public FlightPath CurrentPath { get; internal set; }
 
 		public override Color Info
 		{
@@ -80,14 +77,62 @@
 			}
 		}
 
-		public FlightPath CurrentPath { get; internal set; }
-
 		public double PathPrecisionSqr
 		{
 			get
 			{
 				return PathPrecision * PathPrecision;
 			}
+		}
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+				logger.Verbose("Putting original Navigator back!");
+				Navigator.NavigationProvider = innerNavigator;
+				pathGeneratorStopwatch.Stop();
+				playerMover.Dispose();
+			}
+		}
+
+		#endregion
+
+		#region INavigationProvider Members
+
+		public float PathPrecision
+		{
+			get
+			{
+				return innerNavigator.PathPrecision;
+			}
+
+			set
+			{
+				innerNavigator.PathPrecision = value;
+			}
+		}
+
+		public List<CanFullyNavigateResult> CanFullyNavigateTo(IEnumerable<CanFullyNavigateTarget> targets)
+		{
+			return CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId).Result;
+		}
+
+		public async Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(IEnumerable<CanFullyNavigateTarget> targets)
+		{
+			return await CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
+		}
+
+		public Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(
+			IEnumerable<CanFullyNavigateTarget> targets,
+			Vector3 start,
+			ushort zoneid)
+		{
+			// TODO: not sure how much we will have to mess with this, but when I was using it, it was returning true even for Y values in mid air.
+			return innerNavigator.CanFullyNavigateToAsync(targets, start, zoneid);
 		}
 
 		public bool CanNavigateFully(Vector3 @from, Vector3 to, float strictDistance)
@@ -195,72 +240,54 @@
 			return MoveResult.Done;
 		}
 
-		public List<CanFullyNavigateResult> CanFullyNavigateTo(IEnumerable<CanFullyNavigateTarget> targets)
+		#endregion
+
+		public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
 		{
-			return CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId).Result;
+			return new Vector3(
+				MathEx.Lerp(value1.X, value2.X, amount),
+				MathEx.Lerp(value1.Y, value2.Y, amount),
+				MathEx.Lerp(value1.Z, value2.Z, amount));
 		}
 
-		public async Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(IEnumerable<CanFullyNavigateTarget> targets)
+		public static explicit operator GaiaNavigator(FlightEnabledNavigator navigator)
 		{
-			return await CanFullyNavigateToAsync(targets, Core.Player.Location, WorldManager.ZoneId);
+			return navigator.innerNavigator as GaiaNavigator;
 		}
 
-		public Task<List<CanFullyNavigateResult>> CanFullyNavigateToAsync(
-			IEnumerable<CanFullyNavigateTarget> targets,
-			Vector3 start,
-			ushort zoneid)
+		public static Vector3 SampleParabola(Vector3 start, Vector3 end, float height, float t)
 		{
-			// TODO: not sure how much we will have to mess with this, but when I was using it, it was returning true even for Y values in mid air.
-			return innerNavigator.CanFullyNavigateToAsync(targets, start, zoneid);
-		}
-
-		public float PathPrecision
-		{
-			get
+			var direction3 = end - start;
+			var computed = start + t * direction3;
+			if (Math.Abs(start.Y - end.Y) < 3.0f)
 			{
-				return innerNavigator.PathPrecision;
+				//start and end are roughly level, pretend they are - simpler solution with less steps
+				computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
 			}
-
-			set
+			else
 			{
-				innerNavigator.PathPrecision = value;
-			}
-		}
-
-		private bool ShouldGeneratePath(Vector3 target, float radius = 0.0f)
-		{
-			if (origin != Core.Player.Location)
-			{
-				if (requestedDestination == target)
+				//start and end are not level, gets more complicated
+				var direction2 = end - new Vector3(start.X, end.Y, start.Z);
+				var right = Vector3.Cross(direction3, direction2);
+				var up = Vector3.Cross(right, direction3); // Should this be direction2?
+				if (end.Y > start.Y)
 				{
-					return false;
+					up = -up;
 				}
+				up.Normalize();
+
+				computed.Y += ((float)(Math.Sin((t * (float)Math.PI))) * height) * up.Y;
 			}
 
-			if (CurrentPath != null && CurrentPath.Count != 0 && requestedDestination != Vector3.Zero)
-			{
-				// Find the max diagonal of a cube for given radius, this should be the max distance we could receive from random direction method.
-				if (radius > 0 && finalDestination.Distance(target) < Math.Sqrt(3) * radius)
-				{
-					return false;
-				}
-
-				if (requestedDestination.Distance3D(target) <= 2.29)
-				{
-					return false;
-				}
-			}
-
-			return true;
+			return computed;
 		}
 
-		private enum GeneratePathResult
+		public static Vector3 StraightPath(Vector3 from, Vector3 to, float amount)
 		{
-			Failed,
+			// There probably has to be some small usage of height here, but we don't know how many points there are going to be total.
+			var result = Lerp(from, to, amount);
 
-			Success,
-
-			SuccessUseExisting
+			return result;
 		}
 
 		private async Task<GeneratePathResult> GeneratePath(Vector3 start, Vector3 end)
@@ -330,65 +357,6 @@
 			generatingPath = false;
 		}
 
-		public static Vector3 SampleParabola(Vector3 start, Vector3 end, float height, float t)
-		{
-			var direction3 = end - start;
-			var computed = start + t * direction3;
-			if (Math.Abs(start.Y - end.Y) < 3.0f)
-			{
-				//start and end are roughly level, pretend they are - simpler solution with less steps
-				computed.Y += (float)(Math.Sin((t * (float)Math.PI))) * height;
-			}
-			else
-			{
-				//start and end are not level, gets more complicated
-				var direction2 = end - new Vector3(start.X, end.Y, start.Z);
-				var right = Vector3.Cross(direction3, direction2);
-				var up = Vector3.Cross(right, direction3); // Should this be direction2?
-				if (end.Y > start.Y)
-				{
-					up = -up;
-				}
-				up.Normalize();
-
-				computed.Y += ((float)(Math.Sin((t * (float)Math.PI))) * height) * up.Y;
-			}
-
-			return computed;
-		}
-
-		public static Vector3 StraightPath(Vector3 from, Vector3 to, float amount)
-		{
-			// There probably has to be some small usage of height here, but we don't know how many points there are going to be total.
-			var result = Lerp(from, to, amount);
-
-			return result;
-		}
-
-		public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
-		{
-			return new Vector3(
-				MathEx.Lerp(value1.X, value2.X, amount),
-				MathEx.Lerp(value1.Y, value2.Y, amount),
-				MathEx.Lerp(value1.Z, value2.Z, amount));
-		}
-
-		private async Task<bool> MoveToNoFlight(Vector3 location)
-		{
-			var result = MoveResult.GeneratingPath;
-			while (Core.Player.Location.Distance3D(location) > PathPrecision || result != MoveResult.ReachedDestination
-					|| result != MoveResult.Done)
-			{
-				generatingPath = true;
-				result = innerNavigator.MoveTo(location, "Temporary Waypoint");
-				await Coroutine.Yield();
-			}
-
-			generatingPath = false;
-
-			return true;
-		}
-
 		private MoveResult MoveToNextHop(string name)
 		{
 			var location = Core.Me.Location;
@@ -436,16 +404,56 @@
 			return MoveResult.Moved;
 		}
 
-		public void Dispose()
+		private async Task<bool> MoveToNoFlight(Vector3 location)
 		{
-			if (!disposed)
+			var result = MoveResult.GeneratingPath;
+			while (Core.Player.Location.Distance3D(location) > PathPrecision || result != MoveResult.ReachedDestination
+					|| result != MoveResult.Done)
 			{
-				disposed = true;
-				logger.Verbose("Putting original Navigator back!");
-				Navigator.NavigationProvider = innerNavigator;
-				pathGeneratorStopwatch.Stop();
-				playerMover.Dispose();
+				generatingPath = true;
+				result = innerNavigator.MoveTo(location, "Temporary Waypoint");
+				await Coroutine.Yield();
 			}
+
+			generatingPath = false;
+
+			return true;
+		}
+
+		private bool ShouldGeneratePath(Vector3 target, float radius = 0.0f)
+		{
+			if (origin != Core.Player.Location)
+			{
+				if (requestedDestination == target)
+				{
+					return false;
+				}
+			}
+
+			if (CurrentPath != null && CurrentPath.Count != 0 && requestedDestination != Vector3.Zero)
+			{
+				// Find the max diagonal of a cube for given radius, this should be the max distance we could receive from random direction method.
+				if (radius > 0 && finalDestination.Distance(target) < Math.Sqrt(3) * radius)
+				{
+					return false;
+				}
+
+				if (requestedDestination.Distance3D(target) <= 2.29)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private enum GeneratePathResult
+		{
+			Failed,
+
+			Success,
+
+			SuccessUseExisting
 		}
 	}
 }

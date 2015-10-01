@@ -13,6 +13,8 @@
 
 		public static readonly MasterPieceSupplyDataProvider Instance;
 
+		private readonly XDocument data;
+
 		static MasterPieceSupplyDataProvider()
 		{
 			var path = Path.Combine(Environment.CurrentDirectory, "Plugins\\ExBuddy\\Data\\msd.xml");
@@ -29,8 +31,6 @@
 
 			Instance = new MasterPieceSupplyDataProvider(DataFilePath);
 		}
-
-		private readonly XDocument data;
 
 		public MasterPieceSupplyDataProvider(string filePath)
 		{

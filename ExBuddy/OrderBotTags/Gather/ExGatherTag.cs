@@ -43,7 +43,7 @@
 
 		internal static volatile Dictionary<string, IGatheringRotation> Rotations;
 
-		internal static SpellData CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+		internal SpellData CordialSpellData;
 
 		internal bool MovementStopCallback(float distance, float radius)
 		{
@@ -273,10 +273,7 @@
 
 			startTime = DateTime.Now;
 
-			if (CordialSpellData == null)
-			{
-				CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
-			}
+			CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
 			if (string.IsNullOrWhiteSpace(Name))
 			{

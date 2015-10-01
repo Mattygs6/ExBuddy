@@ -279,6 +279,14 @@
 
 									totalLandingStopwatch.Reset();
 									landingStopwatch.Reset();
+
+									if (Coroutine.Current != landingCoroutine && landingCoroutine != null)
+									{
+										landingCoroutine.Dispose();
+									}
+
+									landingCoroutine = null;
+
 									IsLanding = false;
 									landingTask = null;
 								}

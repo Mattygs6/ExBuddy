@@ -175,8 +175,9 @@
 		[XmlAttribute("Radius")]
 		public float Radius { get; set; }
 
+		[DefaultValue(400)]
 		[XmlAttribute("SkipWindowDelay")]
-		public uint SkipWindowDelay { get; set; }
+		public int SkipWindowDelay { get; set; }
 
 		// I want this to be an attribute, but for backwards compatibilty, we will use element
 		[DefaultValue(-1)]

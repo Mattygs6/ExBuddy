@@ -163,10 +163,7 @@ namespace ExBuddy.Helpers
 					{
 						if (!await CommonTasks.MountUp(mountId))
 						{
-							if (!await CommonTasks.MountUp(1))
-							{
-								await CommonTasks.MountUp(45);
-							}
+							await CommonTasks.MountUp();
 						}
 					}
 					else

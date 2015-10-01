@@ -124,7 +124,7 @@
 
 		public override string ToString()
 		{
-			return this.DynamicToString("StatusText");
+			return this.DynamicToString("StatusText", "Behavior");
 		}
 
 		protected override Composite CreateBehavior()

@@ -1,4 +1,5 @@
-﻿namespace ExBuddy.OrderBotTags.Behaviors
+﻿#pragma warning disable 1998
+namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
 	using System.Collections.Generic;

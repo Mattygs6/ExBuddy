@@ -87,7 +87,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x00FDD298) % 500000;
+				return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x00FDD298) % 500000;
 			}
 		}
 
@@ -103,7 +103,15 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103906C);
+				return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103906C);
+			}
+		}
+
+		protected TugType TugType
+		{
+			get
+			{
+				return (TugType)Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x00FDD298);
 			}
 		}
 
@@ -573,7 +581,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlAttribute("BaitId")]
 		public uint BaitId { get; set; }
 
-		[DefaultValue(130)]
+		[DefaultValue(200)]
 		[XmlAttribute("BaitDelay")]
 		public int BaitDelay { get; set; }
 
@@ -627,9 +635,8 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlAttribute("Snagging")]
 		public bool Snagging { get; set; }
 
-		[DefaultValue(Abilities.PowerfulHookset)]
-		[XmlAttribute("Hookset")]
-		public Abilities Hookset { get; set; }
+		[XmlElement("PatienceTugs")]
+		public List<PatienceTug> PatienceTugs { get; set; }
 
 		public Version Version
 		{
@@ -924,10 +931,13 @@ namespace ExBuddy.OrderBotTags.Fish
 					new Action(
 						r =>
 							{
-								if (HasPatience && CanDoAbility(Hookset))
+								var tugType = TugType;
+								var patienceTug = new PatienceTug { MoochLevel = mooch, TugType = tugType };
+								var hookset = tugType == TugType.Light ? Abilities.PrecisionHookset : Abilities.PowerfulHookset;
+								if (HasPatience && CanDoAbility(hookset) && (PatienceTugs == null || PatienceTugs.Contains(patienceTug)))
 								{
-									DoAbility(Hookset);
-									Logger.Info("Using (" + Hookset + ")");
+									DoAbility(hookset);
+									Logger.Info("{0} TugType detected. Using {1}", tugType, hookset);
 								}
 								else
 								{

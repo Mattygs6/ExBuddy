@@ -112,6 +112,7 @@
 
 			if (field == null)
 			{
+				Logger.Instance.Error("RebornBuddy update has moved or changed the type we are modifying, try updating ExBuddy or contact the author ExMatt.");
 				return;
 			}
 

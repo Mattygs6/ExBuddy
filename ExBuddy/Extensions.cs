@@ -157,6 +157,7 @@
 		{
 			if (!string.IsNullOrEmpty(input))
 			{
+				// TODO: maybe check for number that != 0
 				return string.Equals(input, bool.TrueString, StringComparison.OrdinalIgnoreCase)
 						|| string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
 			}

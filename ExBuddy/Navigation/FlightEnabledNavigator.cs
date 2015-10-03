@@ -361,7 +361,7 @@
 		{
 			var location = Core.Me.Location;
 			Vector3 hit;
-			if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
+			if (CurrentPath.Index < CurrentPath.Count - 1 && WorldManager.Raycast(location, CurrentPath.Current, out hit))
 			{
 				MemoryCache.Default.Add(
 					CurrentPath.Current.Location.ToString(),

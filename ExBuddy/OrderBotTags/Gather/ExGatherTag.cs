@@ -1092,6 +1092,8 @@
 
 			interactedWithNode = true;
 
+			Logger.Info("Started gathering from {0} at {1}", Node.EnglishName, WorldManager.EorzaTime.ToShortTimeString());
+
 			if (!IsUnspoiled() && !IsConcealed())
 			{
 				if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))

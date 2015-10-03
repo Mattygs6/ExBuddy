@@ -360,17 +360,23 @@
 		private MoveResult MoveToNextHop(string name)
 		{
 			var location = Core.Me.Location;
-			Vector3 hit;
-			if (CurrentPath.Index < CurrentPath.Count - 1 && WorldManager.Raycast(location, CurrentPath.Current, out hit))
+			// if we are not at the start or end
+			if (CurrentPath.Index.InRange(1, CurrentPath.Count - 2))
 			{
-				MemoryCache.Default.Add(
-					CurrentPath.Current.Location.ToString(),
-					CurrentPath.Current,
-					DateTimeOffset.Now + TimeSpan.FromSeconds(10));
+				Vector3 hit;
+				if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
+				{
 
-				logger.Warn("Collision detected! Generating new path!");
-				Clear();
-				return MoveResult.GeneratingPath;
+
+					MemoryCache.Default.Add(
+						CurrentPath.Current.Location.ToString(),
+						CurrentPath.Current,
+						DateTimeOffset.Now + TimeSpan.FromSeconds(10));
+
+					logger.Warn("Collision detected! Generating new path!");
+					Clear();
+					return MoveResult.GeneratingPath;
+				}
 			}
 
 			double distanceToNextHop = location.Distance3D(CurrentPath.Current);

@@ -17,7 +17,7 @@
 	[XmlElement("RandomApproachGatherSpot")]
 	public class RandomApproachGatherSpot : GatherSpot
 	{
-		public HotSpot ApproachLocation { get; protected set; }
+		private HotSpot approachLocation;
 
 		[XmlElement("HotSpots")]
 		public List<HotSpot> HotSpots { get; set; }
@@ -40,7 +40,7 @@
 			{
 				result &=
 					await
-					Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					Behaviors.MoveToNoMount(approachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
@@ -55,21 +55,21 @@
 		{
 			tag.StatusText = "Moving to " + this;
 
-			if (ApproachLocation == Vector3.Zero)
+			if (approachLocation == Vector3.Zero)
 			{
 				if (HotSpots == null || HotSpots.Count == 0)
 				{
 					return false;
 				}
 
-				ApproachLocation = HotSpots.Shuffle().First();
+				approachLocation = HotSpots.Shuffle().First();
 			}
 
 			var result =
 				await
 				Behaviors.MoveToPointWithin(
-					ApproachLocation,
-					ApproachLocation.Radius,
+					approachLocation,
+					approachLocation.Radius,
 					name: "Approach Location",
 					dismountAtDestination: Stealth);
 

@@ -1092,7 +1092,7 @@
 
 			interactedWithNode = true;
 
-			Logger.Info("Started gathering from {0} with {1} GP at {2}", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
+			Logger.Info("Started gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
 			{

@@ -20,6 +20,7 @@ namespace ExBuddy.Helpers
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
+	using ff14bot.NeoProfiles;
 	using ff14bot.Settings;
 
 	public static class Behaviors
@@ -130,15 +131,6 @@ namespace ExBuddy.Helpers
 				uint flightSpecificMountId = 0;
 				if (mountId == 0)
 				{
-					mountId = CharacterSettings.Instance.MountId;
-					if (mountId == uint.MaxValue)
-					{
-						var mount = Actionmanager.AvailableMounts.Shuffle().FirstOrDefault();
-						if (mount != null)
-						{
-							mountId = mount.Id;
-						}
-					}
 					var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
 					if (playerMover != null)
 					{
@@ -159,14 +151,7 @@ namespace ExBuddy.Helpers
 						}
 					}
 
-					if (mountId > 0)
-					{
-						if (!await CommonTasks.MountUp(mountId))
-						{
-							await CommonTasks.MountUp();
-						}
-					}
-					else
+					if (mountId == 0 || !await CommonTasks.MountUp(mountId))
 					{
 						await CommonTasks.MountUp();
 					}
@@ -179,7 +164,18 @@ namespace ExBuddy.Helpers
 		}
 
 		public static async Task<bool> MoveTo(
-			Vector3 destination,
+			this HotSpot hotspot,
+			bool useMesh = true,
+			uint mountId = 0,
+			string name = null,
+			Func<float, float, bool> stopCallback = null,
+			bool dismountAtDestination = false)
+		{
+			return await MoveTo(hotspot.XYZ, useMesh, mountId, hotspot.Radius, name, stopCallback, dismountAtDestination);
+		}
+		
+		public static async Task<bool> MoveTo(
+			this Vector3 destination,
 			bool useMesh = true,
 			uint mountId = 0,
 			float radius = 2.0f,
@@ -193,7 +189,16 @@ namespace ExBuddy.Helpers
 		}
 
 		public static async Task<bool> MoveToNoMount(
-			Vector3 destination,
+			this HotSpot hotspot,
+			bool useMesh = true,
+			string name = null,
+			Func<float, float, bool> stopCallback = null)
+		{
+			return await MoveToNoMount(hotspot.XYZ, useMesh, hotspot.Radius, name, stopCallback);
+		}
+
+		public static async Task<bool> MoveToNoMount(
+			this Vector3 destination,
 			bool useMesh = true,
 			float radius = 2.0f,
 			string name = null,
@@ -241,7 +246,16 @@ namespace ExBuddy.Helpers
 		}
 
 		public static async Task<bool> MoveToPointWithin(
-			Vector3 destination,
+			this HotSpot hotspot,
+			uint mountId = 0,
+			string name = null,
+			bool dismountAtDestination = false)
+		{
+			return await MoveToPointWithin(hotspot.XYZ, hotspot.Radius, mountId, name, dismountAtDestination);
+		}
+
+		public static async Task<bool> MoveToPointWithin(
+			this Vector3 destination,
 			float radius,
 			uint mountId = 0,
 			string name = null,
@@ -252,7 +266,7 @@ namespace ExBuddy.Helpers
 			return !dismountAtDestination || await Dismount();
 		}
 
-		public static async Task<bool> MoveToPointWithinNoMount(Vector3 destination, float radius, string name = null)
+		public static async Task<bool> MoveToPointWithinNoMount(this Vector3 destination, float radius, string name = null)
 		{
 			var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
 
@@ -389,7 +403,7 @@ namespace ExBuddy.Helpers
 			return await TeleportTo((ushort)zoneId, aetheryteId);
 		}
 
-		public static async Task<bool> TeleportTo(ITeleportLocation teleportLocation)
+		public static async Task<bool> TeleportTo(this ITeleportLocation teleportLocation)
 		{
 			return await TeleportTo(teleportLocation.ZoneId, teleportLocation.AetheryteId);
 		}

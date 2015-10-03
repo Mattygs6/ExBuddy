@@ -72,7 +72,7 @@
 
 			if (start > end)
 			{
-				endTimeOffset += OneDay;
+				return eorzea.InRange(startTimeOffset, OneDay) || eorzea.InRange(TimeSpan.Zero, endTimeOffset);
 			}
 
 			return eorzea.InRange(startTimeOffset, endTimeOffset);

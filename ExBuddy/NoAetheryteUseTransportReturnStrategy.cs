@@ -45,7 +45,7 @@
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await Behaviors.MoveTo(this.InitialLocation);
+				return await this.InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -54,9 +54,9 @@
 
 		public async Task<bool> ReturnToZone()
 		{
-			await Behaviors.TeleportTo(this);
+			await this.TeleportTo();
 
-			await Behaviors.MoveTo(this.NpcLocation, true, radius: this.InteractDistance);
+			await this.NpcLocation.MoveTo(true, radius: this.InteractDistance);
 			GameObjectManager.GetObjectByNPCId(this.NpcId).Target();
 			Core.Player.CurrentTarget.Interact();
 

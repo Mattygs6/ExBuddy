@@ -27,7 +27,7 @@
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await Behaviors.MoveTo(this.InitialLocation);
+				return await this.InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -36,7 +36,7 @@
 
 		public async Task<bool> ReturnToZone()
 		{
-			await Behaviors.TeleportTo(this);
+			await this.TeleportTo();
 
 			return true;
 		}

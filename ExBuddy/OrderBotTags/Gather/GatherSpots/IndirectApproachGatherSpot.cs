@@ -29,7 +29,7 @@
 			{
 				result &=
 					await
-					Behaviors.MoveToNoMount(ApproachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					ApproachLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;
@@ -46,9 +46,7 @@
 
 			var result =
 				await
-				Behaviors.MoveTo(
-					ApproachLocation,
-					UseMesh,
+				ApproachLocation.MoveTo(UseMesh,
 					radius: tag.Radius,
 					name: "Approach Location",
 					stopCallback: tag.MovementStopCallback);
@@ -57,7 +55,7 @@
 			{
 				await Coroutine.Yield();
 				result =
-					await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+					await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;

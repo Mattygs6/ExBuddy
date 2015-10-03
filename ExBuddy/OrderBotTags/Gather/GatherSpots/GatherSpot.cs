@@ -37,9 +37,7 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 
 			var result =
 				await
-				Behaviors.MoveTo(
-					NodeLocation,
-					UseMesh,
+				NodeLocation.MoveTo(UseMesh,
 					radius: tag.Distance,
 					name: tag.Node.EnglishName,
 					stopCallback: tag.MovementStopCallback);

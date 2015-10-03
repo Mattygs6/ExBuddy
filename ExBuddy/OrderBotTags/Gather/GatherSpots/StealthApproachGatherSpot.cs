@@ -33,7 +33,7 @@
 			if (ReturnToStealthLocation)
 			{
 				result &=
-					await Behaviors.MoveToNoMount(StealthLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					await StealthLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
@@ -55,9 +55,7 @@
 
 			var result =
 				await
-				Behaviors.MoveTo(
-					StealthLocation,
-					UseMesh,
+				StealthLocation.MoveTo(UseMesh,
 					radius: tag.Radius,
 					name: "Stealth Location",
 					stopCallback: tag.MovementStopCallback,
@@ -69,7 +67,7 @@
 				await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
 				result =
-					await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+					await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;

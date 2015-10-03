@@ -40,7 +40,7 @@
 			{
 				result &=
 					await
-					Behaviors.MoveToNoMount(approachLocation, UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+					approachLocation.MoveToNoMount(UseMesh, tag.MovementStopCallback);
 			}
 
 			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
@@ -67,11 +67,7 @@
 
 			var result =
 				await
-				Behaviors.MoveToPointWithin(
-					approachLocation,
-					approachLocation.Radius,
-					name: "Approach Location",
-					dismountAtDestination: Stealth);
+				approachLocation.MoveToPointWithin(dismountAtDestination: Stealth);
 
 			if (result)
 			{
@@ -81,15 +77,13 @@
 				{
 					await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 					result =
-						await Behaviors.MoveToNoMount(NodeLocation, UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+						await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 				}
 				else
 				{
 					result =
 						await
-						Behaviors.MoveTo(
-							NodeLocation,
-							UseMesh,
+						NodeLocation.MoveTo(UseMesh,
 							radius: tag.Distance,
 							name: tag.Node.EnglishName,
 							stopCallback: tag.MovementStopCallback);

@@ -79,7 +79,7 @@
 				return true;
 			}
 
-			if (await Behaviors.TeleportTo(freeCompanyChestNpc))
+			if (await freeCompanyChestNpc.TeleportTo())
 			{
 				return true;
 			}
@@ -89,7 +89,7 @@
 			{
 				StatusText = "Moving to Npc -> " + freeCompanyChestNpc.NpcId;
 
-				await Behaviors.MoveTo(freeCompanyChestNpc.Location, radius: 3.4f, name: " NpcId: " + freeCompanyChestNpc.NpcId);
+				await freeCompanyChestNpc.Location.MoveTo(radius: 3.4f, name: " NpcId: " + freeCompanyChestNpc.NpcId);
 				return true;
 			}
 

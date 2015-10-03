@@ -78,7 +78,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			await CommonTasks.HandleLoading();
 
-			return await ResolveItem() || HandleDeath() || await Behaviors.TeleportTo(masterPieceSupplyNpc) || await MoveToNpc()
+			return await ResolveItem() || HandleDeath() || await masterPieceSupplyNpc.TeleportTo() || await MoveToNpc()
 					|| await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
 					|| await MoveToShopNpc() || await PurchaseItems();
 		}
@@ -244,9 +244,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
 
 			await
-				Behaviors.MoveTo(
-					masterPieceSupplyNpc.Location,
-					radius: 3.9f,
+				masterPieceSupplyNpc.Location.MoveTo(radius: 3.9f,
 					name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
 
 			return false;
@@ -261,9 +259,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 
 			await
-				Behaviors.MoveTo(
-					shopExchangeCurrencyNpc.Location,
-					radius: 3.9f,
+				shopExchangeCurrencyNpc.Location.MoveTo(radius: 3.9f,
 					name: Location + " ShopNpcId: " + shopExchangeCurrencyNpc.NpcId);
 
 			Navigator.Stop();

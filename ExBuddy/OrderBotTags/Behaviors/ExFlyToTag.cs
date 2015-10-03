@@ -85,14 +85,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			while (!Me.IsMounted && Behaviors.ShouldContinue)
 			{
-				if (MountId > 0)
-				{
-					if (!await CommonTasks.MountUp((uint)MountId))
-					{
-						await CommonTasks.MountUp();
-					}
-				}
-				else
+				if (MountId == 0 || !await CommonTasks.MountUp((uint)MountId))
 				{
 					await CommonTasks.MountUp();
 				}
@@ -113,7 +106,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				if (landingStopwatch.ElapsedMilliseconds > 2000 && MovementManager.IsFlying)
 				{
 					var move = Me.Location.AddRandomDirection2D(10).GetFloor(15);
-					await Behaviors.MoveToNoMount(move, false, 0.5f);
+					await move.MoveToNoMount(false, 0.5f);
 					landingStopwatch.Restart();
 				}
 

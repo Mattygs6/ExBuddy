@@ -281,7 +281,7 @@
 												var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(15);
 												MovementManager.StopDescending();
 												MovementManager.Jump();
-												landingCoroutine = new Coroutine(() => Behaviors.MoveToNoMount(move, false, 0.5f));
+												landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.5f));
 												Logger.Info("Created new Landing Unstuck Coroutine, moving to {0}", move);
 											}
 

@@ -480,6 +480,8 @@
 
 		private async Task<bool> AfterGather()
 		{
+			Logger.Verbose("Finished gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
+
 			// in case we failed our rotation or window stuck open because items are somehow left
 			if (GatheringManager.SwingsRemaining > 0)
 			{
@@ -844,7 +846,7 @@
 						var distanceToFurthestVectorInHotspot = myLocation.Distance2D(HotSpots.CurrentOrDefault)
 																+ HotSpots.CurrentOrDefault.Radius;
 
-						if (GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
+						if (myLocation.Distance2D(HotSpots.CurrentOrDefault) > Radius && GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
 							&& distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
 						{
 							Logger.Verbose("Distance to furthest visible game object -> " + distanceToFurthestVisibleGameObject);
@@ -852,7 +854,7 @@
 
 							Logger.Warn(
 								"Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
-							await Behaviors.MoveTo(HotSpots.CurrentOrDefault, radius: Radius, name: HotSpots.CurrentOrDefault.Name);
+							await HotSpots.CurrentOrDefault.XYZ.MoveTo(radius: Radius, name: HotSpots.CurrentOrDefault.Name);
 
 							retryCenterHotspot = false;
 							await Coroutine.Yield();
@@ -1092,7 +1094,7 @@
 
 			interactedWithNode = true;
 
-			Logger.Info("Started gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
+			Logger.Verbose("Started gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
 			{
@@ -1194,11 +1196,8 @@
 			{
 				StatusText = "Moving to hotspot at " + HotSpots.CurrentOrDefault;
 
-				//return lets try not caring if we succeed on the move
 				await
-					Behaviors.MoveTo(
-						HotSpots.CurrentOrDefault,
-						radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
+					HotSpots.CurrentOrDefault.XYZ.MoveTo(radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
 						name: HotSpots.CurrentOrDefault.Name,
 						stopCallback: MovementStopCallback);
 

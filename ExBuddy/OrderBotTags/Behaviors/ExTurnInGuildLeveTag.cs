@@ -124,7 +124,7 @@
 			{
 				StatusText = "Moving to Npc -> " + NpcId;
 
-				await Behaviors.MoveTo(Location, radius: 3.4f, name: " NpcId: " + NpcId);
+				await Location.MoveTo(radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
 			}
 

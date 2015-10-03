@@ -167,11 +167,10 @@ namespace ExBuddy.Helpers
 			this HotSpot hotspot,
 			bool useMesh = true,
 			uint mountId = 0,
-			string name = null,
 			Func<float, float, bool> stopCallback = null,
 			bool dismountAtDestination = false)
 		{
-			return await MoveTo(hotspot.XYZ, useMesh, mountId, hotspot.Radius, name, stopCallback, dismountAtDestination);
+			return await MoveTo(hotspot.XYZ, useMesh, mountId, hotspot.Radius, hotspot.Name, stopCallback, dismountAtDestination);
 		}
 		
 		public static async Task<bool> MoveTo(
@@ -191,10 +190,9 @@ namespace ExBuddy.Helpers
 		public static async Task<bool> MoveToNoMount(
 			this HotSpot hotspot,
 			bool useMesh = true,
-			string name = null,
 			Func<float, float, bool> stopCallback = null)
 		{
-			return await MoveToNoMount(hotspot.XYZ, useMesh, hotspot.Radius, name, stopCallback);
+			return await MoveToNoMount(hotspot.XYZ, useMesh, hotspot.Radius, hotspot.Name, stopCallback);
 		}
 
 		public static async Task<bool> MoveToNoMount(
@@ -248,10 +246,9 @@ namespace ExBuddy.Helpers
 		public static async Task<bool> MoveToPointWithin(
 			this HotSpot hotspot,
 			uint mountId = 0,
-			string name = null,
 			bool dismountAtDestination = false)
 		{
-			return await MoveToPointWithin(hotspot.XYZ, hotspot.Radius, mountId, name, dismountAtDestination);
+			return await MoveToPointWithin(hotspot.XYZ, hotspot.Radius, mountId, hotspot.Name, dismountAtDestination);
 		}
 
 		public static async Task<bool> MoveToPointWithin(

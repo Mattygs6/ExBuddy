@@ -8,7 +8,8 @@
 	using ff14bot;
 	using ff14bot.Managers;
 
-	[GatheringRotation("Collect550", 0, 34)]
+	// Get One ++
+	[GatheringRotation("Collect550", 600, 33)]
 	public sealed class Collect550GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
@@ -46,43 +47,54 @@
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
-			// level 56
-			if (tag.GatherItem.Chance > 98 || Core.Player.CurrentGP < 600)
+			if (tag.IsUnspoiled())
 			{
-				await Impulsive(tag);
-				await Impulsive(tag);
-				await Methodical(tag);
-
-				return true;
-			}
-
-			var appraisalsRemaining = 4;
-			await Impulsive(tag);
-			appraisalsRemaining--;
-
-			if (HasDiscerningEye)
-			{
-				await SingleMindUtmostMethodical(tag);
-				appraisalsRemaining--;
-			}
-
-			await Impulsive(tag);
-			appraisalsRemaining--;
-
-			if (HasDiscerningEye)
-			{
-				await SingleMindUtmostMethodical(tag);
-				appraisalsRemaining--;
-			}
-
-			if (appraisalsRemaining == 2)
-			{
+				await UtmostCaution(tag);
+				await AppraiseAndRebuff(tag);
+				await UtmostMethodical(tag);
+				await AppraiseAndRebuff(tag);
 				await Methodical(tag);
 			}
-
-			if (appraisalsRemaining == 1)
+			else
 			{
-				await DiscerningUtmostMethodical(tag);
+				// level 56
+				if (tag.GatherItem.Chance > 98 || Core.Player.CurrentGP < 600)
+				{
+					await Impulsive(tag);
+					await Impulsive(tag);
+					await Methodical(tag);
+
+					return true;
+				}
+
+				var appraisalsRemaining = 4;
+				await Impulsive(tag);
+				appraisalsRemaining--;
+
+				if (HasDiscerningEye)
+				{
+					await UtmostSingleMindMethodical(tag);
+					appraisalsRemaining--;
+				}
+
+				await Impulsive(tag);
+				appraisalsRemaining--;
+
+				if (HasDiscerningEye)
+				{
+					await UtmostSingleMindMethodical(tag);
+					appraisalsRemaining--;
+				}
+
+				if (appraisalsRemaining == 2)
+				{
+					await Methodical(tag);
+				}
+
+				if (appraisalsRemaining == 1)
+				{
+					await UtmostDiscerningMethodical(tag);
+				}
 			}
 
 			await IncreaseChance(tag);

@@ -106,6 +106,7 @@
     <Compile Include="OrderBotTags\Gather\GatherSpots\RandomApproachGatherSpot.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\StealthApproachGatherSpot.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\StealthGatherSpot.cs" />
+    <Compile Include="OrderBotTags\Gather\Rotations\Collect490GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\GetTwoHQGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
     <Compile Include="Navigation\Collisions.cs" />

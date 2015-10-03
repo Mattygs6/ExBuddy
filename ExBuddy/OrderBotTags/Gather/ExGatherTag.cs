@@ -595,7 +595,7 @@
 				var gpNeededTicks = gpNeeded / 5;
 				var gpNeededSeconds = gpNeededTicks * 3;
 
-				if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 3)
+				if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 2)
 				{
 					Logger.Info("GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}", gpNeededSeconds);
 
@@ -1094,7 +1094,7 @@
 
 			interactedWithNode = true;
 
-			Logger.Verbose("Started gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
+			Logger.Verbose("Started gathering from {0} with {1}/{2} GP at {3} ET", Node.EnglishName, Me.CurrentGP, Me.MaxGP, WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
 			{
@@ -1357,7 +1357,7 @@
 
 		private async Task<bool> WaitForGpRegain()
 		{
-			if (gatherRotation.ShouldForceGather)
+			if (gatherRotation.ShouldForceGather || GatherStrategy == GatherStrategy.TouchAndGo)
 			{
 				return true;
 			}

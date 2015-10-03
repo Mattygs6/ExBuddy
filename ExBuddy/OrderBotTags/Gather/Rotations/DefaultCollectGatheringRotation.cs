@@ -30,10 +30,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				}
 			}
 
-			// if we have a collectable Priority 500
-			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 500)
+			// if we have a collectable Priority 510
+			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 510)
 			{
-				return 500;
+				return 510;
 			}
 
 			return -1;

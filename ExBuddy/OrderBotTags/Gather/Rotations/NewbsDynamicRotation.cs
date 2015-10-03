@@ -9,7 +9,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot;
 	using ff14bot.Managers;
 
-	[GatheringRotation("NewbCollect", 600, 24)]
+	[GatheringRotation("NewbCollect", 600, 30)]
 	public sealed class NewbCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
@@ -47,14 +47,26 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
-			var rarity = 0;
-			if (tag.CollectableItem.PlusPlus == 0)
+			var level = Core.Player.ClassLevel;
+
+			if (level >= 57)
 			{
-				await DiscerningMethodical(tag);
-				tag.Logger.Info("Post non-plus Rarity: " + (rarity = CurrentRarity));
+				if (tag.CollectableItem.PlusPlus == 2)
+				{
+					await CallRotation(tag, "Get Two++", GetTwoPlusPlus);
+					return true;
+				}
+
+				if (tag.CollectableItem.PlusPlus == 1)
+				{
+					await CallRotation(tag, "Get One++", GetOnePlusPlus);
+					return true;
+				}
 			}
 
-			var level = Core.Player.ClassLevel;
+			await DiscerningMethodical(tag);
+			var rarity = CurrentRarity;
+			tag.Logger.Info("Post non-plus Rarity: " + rarity);
 
 			if (rarity >= 119 && rarity <= 124)
 			{
@@ -72,7 +84,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			if (rarity >= 125 && rarity <= 134)
 			{
-				if (level >= 51)
+				if (level >= 53)
 				{
 					await CallRotation(tag, "Try Hard", TryHard);
 				}
@@ -86,7 +98,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			if (rarity >= 135 && rarity <= 137)
 			{
-				if (level >= 53)
+				if (level >= 51)
 				{
 					await CallRotation(tag, "Get One", GetOne);
 				}
@@ -104,8 +116,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				{
 					await CallRotation(tag, "Get One+", GetOnePlus);
 				}
-
-				if (level >= 53)
+				else if (level >= 51)
 				{
 					await CallRotation(tag, "Get One", GetOne);
 				}
@@ -121,10 +132,10 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			{
 				if (level >= 57)
 				{
-					await CallRotation(tag, "Get One Alternate", GetOnePlusPlusAlternate);
+					tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One+ for now... :'(");
+					await CallRotation(tag, "Get One+", GetOnePlus);
 				}
-
-				if (level >= 53)
+				else if (level >= 51)
 				{
 					await CallRotation(tag, "Get One", GetOne);
 				}
@@ -136,19 +147,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				return true;
 			}
 
-			if (tag.CollectableItem.PlusPlus == 1)
-			{
-				await CallRotation(tag, "Get One++", GetOnePlusPlus);
-				return true;
-			}
-
 			if (rarity >= 150 && rarity <= 155)
 			{
-				if (level >= 50)
-				{
-					await CallRotation(tag, "Get Two", GetTwo);
-				}
-
+				await CallRotation(tag, "Get Two", GetTwo);
 				return true;
 			}
 
@@ -162,6 +163,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				{
 					await CallRotation(tag, "Get Two", GetTwo);
 				}
+
 				return true;
 			}
 
@@ -169,20 +171,12 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			{
 				if (level >= 57)
 				{
-					await CallRotation(tag, "Get Two Alternate", GetTwoPlusPlusAlternate);
+					tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two+ for now... :'(");
+					await CallRotation(tag, "Get Two+", GetTwoPlus);
 				}
 				else
 				{
-					await CallRotation(tag, "Get Two", GetTwo);
-				}
-
-				return true;
-			}
-
-			if (tag.CollectableItem.PlusPlus == 2)
-			{
-				{
-					await CallRotation(tag, "Get Two++", GetTwoPlusPlus);
+					await CallRotation(tag, "Get Two", GetTwo);	
 				}
 
 				return true;
@@ -207,7 +201,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 		public async Task<bool> GetOne(ExGatherTag tag)
 		{
-			//Get One - Level 53 Minimum           
+			//Get One - Level 51 Minimum           
 			await DiscerningMethodical(tag);
 			await UtmostMethodical(tag);
 			await UtmostMethodical(tag);
@@ -239,17 +233,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			return true;
 		}
 
-		public async Task<bool> GetOnePlusPlusAlternate(ExGatherTag tag)
-		{
-			//Get One++ Alternative - Level 53 Minimum
-			tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One for now... :'(");
-			await DiscerningMethodical(tag);
-			await UtmostMethodical(tag);
-			await UtmostMethodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
 		public async Task<bool> GetThree(ExGatherTag tag)
 		{
 			//Get Three - Level 57 Minimum
@@ -270,7 +253,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 		public async Task<bool> GetTwoPlus(ExGatherTag tag)
 		{
-			//Get Two+ - Level 53 Minimum
+			//Get Two+ - Level 57 Minimum
 			await Discerning(tag);
 			await AppraiseAndRebuff(tag);
 			await Methodical(tag);
@@ -285,16 +268,6 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			await AppraiseAndRebuff(tag);
 			await AppraiseAndRebuff(tag);
 			await Methodical(tag);
-			await IncreaseChance(tag);
-			return true;
-		}
-
-		public async Task<bool> GetTwoPlusPlusAlternate(ExGatherTag tag)
-		{
-			//Get Two++ Alternative - Level 50 Minimum
-			tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two for now... :'(");
-			await DiscerningMethodical(tag);
-			await DiscerningMethodical(tag);
 			await IncreaseChance(tag);
 			return true;
 		}

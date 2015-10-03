@@ -14,6 +14,7 @@ namespace ExBuddy.Helpers
 	{
 		internal static async Task<bool> Cast(uint id, int delay)
 		{
+			//TODO: check affinity, cost type, spell type, and add more informational logging and procedures to casting
 			//Wait till we can cast the spell
 			SpellData spellData;
 			if (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[id]))

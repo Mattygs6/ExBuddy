@@ -7,7 +7,7 @@
 
 	using ff14bot.Managers;
 
-	[GatheringRotation("Collect570", 600, 34)]
+	[GatheringRotation("Collect570", 600, 31)]
 	public sealed class Collect570GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

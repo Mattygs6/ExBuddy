@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.Interfaces
 {
-	public interface INpc : ITeleportLocation, IInteractWithNpc
+	public interface INpc : INamedItem, ITeleportLocation, IInteractWithNpc
 	{
-		string Name { get; set; }
 	}
 }

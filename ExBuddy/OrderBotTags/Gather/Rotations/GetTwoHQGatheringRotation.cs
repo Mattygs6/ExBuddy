@@ -10,7 +10,7 @@
 	using ff14bot;
 	using ff14bot.Managers;
 
-	[GatheringRotation("GetTwoHQ", 600, 18)]
+	[GatheringRotation("GetTwoHQ", 18, 600)]
 	public sealed class GetTwoHqGatheringRotation : GatheringRotation
 	{
 		public override bool CanBeOverriden
@@ -24,10 +24,8 @@
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
 		{
 			await tag.Cast(Ability.Toil);
-			await tag.Cast(Ability.IncreaseGatherChance15);
-			// TODO: Could possibly use await IncreaseChance(tag); depending on gathering skill
 
-			return true;
+			return await base.ExecuteRotation(tag);
 		}
 
 		public override async Task<bool> Gather(ExGatherTag tag)
@@ -71,6 +69,37 @@
 			}
 
 			tag.StatusText = "Gathering items complete";
+
+			return true;
+		}
+
+		protected override async Task<bool> IncreaseChance(ExGatherTag tag)
+		{
+			var level = Core.Player.ClassLevel;
+			if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)
+			{
+				return await tag.Cast(Ability.IncreaseGatherChance50);
+			}
+
+			if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 95 && level > 4)
+			{
+				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+				{
+					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+				}
+
+				return await tag.Cast(Ability.IncreaseGatherChance15);
+			}
+
+			if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100 && level > 3)
+			{
+				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+				{
+					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+				}
+
+				return await tag.Cast(Ability.IncreaseGatherChance5);
+			}
 
 			return true;
 		}

@@ -1,5 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
+	using System;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
@@ -107,7 +108,15 @@
 		{
 			if (GetOverridePriorityCached != null)
 			{
-				return GetOverridePriorityCached.GetOverridePriority(tag);
+				try
+				{
+					return GetOverridePriorityCached.GetOverridePriority(tag);
+				}
+				catch (Exception)
+				{
+					// TODO: do stuff with exceptions.
+					return -1;
+				}
 			}
 
 			return -1;

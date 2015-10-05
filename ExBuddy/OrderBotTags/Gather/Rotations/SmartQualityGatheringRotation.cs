@@ -10,8 +10,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot;
 	using ff14bot.Managers;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("SmartQuality", 0, 21)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("SmartQuality", 18, 300, 100, 0)]
 	public class SmartQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
@@ -23,7 +23,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				return -1;
 			}
 
-			if (tag.GatherItem.HqChance < 1)
+			if (tag.GatherItem != null && tag.GatherItem.HqChance < 1)
 			{
 				return -1;
 			}

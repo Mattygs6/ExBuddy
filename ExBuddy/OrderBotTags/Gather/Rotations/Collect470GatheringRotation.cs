@@ -8,31 +8,13 @@
 	using ff14bot.Managers;
 
 	// Get Two ++
-	[GatheringRotation("Collect470", 600, 31)]
+	[GatheringRotation("Collect470", 31, 600, 400)]
 	public sealed class Collect470GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
-			if (tag.IsUnspoiled())
-			{
-				// We need 5 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 5)
-				{
-					return -1;
-				}
-			}
-
-			if (tag.IsEphemeral())
-			{
-				// We need 4 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 4)
-				{
-					return -1;
-				}
-			}
-
 			// if we have a collectable && the collectable value is greater than or equal to 470: Priority 470
 			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 470)
 			{
@@ -58,7 +40,7 @@
 			}
 			else
 			{
-				tag.Logger.Warn("Using alternate rotation to collect one or two due to current GP: {0} being less than required GP: {1}", gp, 600);
+				tag.Logger.Warn("Using alternate rotation to collect one or two due to CurrentGP: {0} being less than RequiredGP: {1}", gp, 600);
 				// Less than 600 GP collect 1-2 rotation
 				await UtmostImpulsive(tag);
 

@@ -64,6 +64,7 @@
 
 			Logger = new Logger(this);
 			this.innerMover = innerMover;
+			Navigator.PlayerMover = this;
 			this.flightMovementArgs = flightMovementArgs;
 
 			GameEvents.OnMapChanged += GameEventsOnMapChanged;

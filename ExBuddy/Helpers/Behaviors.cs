@@ -1,4 +1,3 @@
-
 #pragma warning disable 1998
 
 namespace ExBuddy.Helpers
@@ -20,7 +19,6 @@ namespace ExBuddy.Helpers
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
-	using ff14bot.NeoProfiles;
 	using ff14bot.Settings;
 
 	public static class Behaviors
@@ -143,7 +141,11 @@ namespace ExBuddy.Helpers
 				{
 					if (WorldManager.CanFly && flightSpecificMountId > 0)
 					{
-						await CommonTasks.MountUp(flightSpecificMountId);
+						if (!await CommonTasks.MountUp(flightSpecificMountId))
+						{
+							await CommonTasks.MountUp();
+						}
+
 						await Coroutine.Yield();
 						if (Core.Player.IsMounted)
 						{
@@ -300,11 +302,11 @@ namespace ExBuddy.Helpers
 					{
 						return false;
 					}
-				}
 
-				if (Core.Player.Location.Distance3D(destination.Value) < CharacterSettings.Instance.MountDistance)
-				{
-					return false;
+					if (Core.Player.Location.Distance3D(destination.Value) < CharacterSettings.Instance.MountDistance)
+					{
+						return false;
+					}
 				}
 			}
 

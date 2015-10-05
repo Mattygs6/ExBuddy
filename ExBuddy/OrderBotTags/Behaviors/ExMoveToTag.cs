@@ -10,17 +10,11 @@
 	using Clio.XmlEngine;
 
 	using ExBuddy.Attributes;
+	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
-
-	public enum MoveToType
-	{
-		StopWithinRange,
-		RandomPointWithin,
-		Auto
-	}
 
 	[LoggerName("ExMoveTo")]
 	[XmlElement("ExMoveTo")]
@@ -79,7 +73,7 @@
 					Type = MoveToType.RandomPointWithin;
 				}
 
-				var locations = new List<HotSpot>(HotSpots) { new HotSpot(Location, Distance) };
+				var locations = new List<HotSpot>(HotSpots) { new HotSpot(Location, Distance) { Name = Name } };
 				destination = locations.Shuffle().First();
 
 				Logger.Info("Using random location -> {0}", Location);
@@ -91,10 +85,11 @@
 					Type = MoveToType.StopWithinRange;
 				}
 
-				destination = new HotSpot(Location, Distance);
+				destination = new HotSpot(Location, Distance) { Name = Name };
 			}
 
-			switch (Type) {
+			switch (Type)
+			{
 				case MoveToType.StopWithinRange:
 					await destination.MoveTo(UseMesh);
 					break;

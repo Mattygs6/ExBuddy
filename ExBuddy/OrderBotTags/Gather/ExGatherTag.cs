@@ -87,22 +87,12 @@
 			}
 		}
 
-		public int AdjustedWaitForGp
-		{
-			get
-			{
-				var requiredGp = gatherRotation == null ? 0 : gatherRotation.Attributes.RequiredGp;
-
-				// Return the lower of your MaxGP rounded down to the nearest 50.
-				return Math.Min(Me.MaxGP - (Me.MaxGP % 50), requiredGp);
-			}
-		}
-
 		[DefaultValue(true)]
 		[XmlAttribute("AlwaysGather")]
 		public bool AlwaysGather { get; set; }
 
 		[XmlElement("Collectables")]
+		[Obsolete("Use Items instead.")]
 		public List<Collectable> Collectables { get; set; }
 
 		[DefaultValue(CordialTime.IfNeeded)]
@@ -165,7 +155,11 @@
 		public IndexedList<HotSpot> HotSpots { get; set; }
 
 		[XmlElement("ItemNames")]
+		[Obsolete("Use Items instead.")]
 		public List<string> ItemNames { get; set; }
+
+		[XmlElement("Items")]
+		public NamedItemCollection Items { get; set; }
 
 		[DefaultValue(-1)]
 		[XmlAttribute("Loops")]
@@ -204,6 +198,43 @@
 			{
 				return Colors.Chartreuse;
 			}
+		}
+
+		public int? GetAdjustedWaitForGp(int gpBeforeGather, int secondsToStartGathering, CordialType cordialType)
+		{
+			if (CordialTime.HasFlag(CordialTime.BeforeGather)
+				&& CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
+			{
+				switch (cordialType)
+				{
+					case CordialType.Cordial:
+						gpBeforeGather += 300;
+						break;
+					case CordialType.HiCordial:
+						gpBeforeGather += 400;
+						break;
+					case CordialType.Auto:
+						if (DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0)
+						{
+							gpBeforeGather += 400;
+						}
+						else
+						{
+							gpBeforeGather += 300;
+						}
+						break;
+				}
+			}
+
+			foreach (var gp in gatherRotation.Attributes.RequiredGpBreakpoints)
+			{
+				if (gp <= gpBeforeGather)
+				{
+					return Math.Min(Me.MaxGP - (Me.MaxGP % 50), gp);
+				}
+			}
+
+			return null;
 		}
 
 		protected override void DoReset()
@@ -258,15 +289,34 @@
 
 			CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
 
+			if (Items == null)
+			{
+				Items = new NamedItemCollection();
+
+#pragma warning disable 618
+				if (ItemNames != null)
+				{
+					foreach (var item in ItemNames)
+					{
+						Items.Add(new GatherItem { Name = item });
+					}
+				}
+
+				if (Collectables != null)
+				{
+					foreach (var collectable in Collectables)
+					{
+						Items.Add(collectable);
+					}
+				}
+#pragma warning restore 618
+			}
+
 			if (string.IsNullOrWhiteSpace(Name))
 			{
-				if (Collectables != null && Collectables.Count > 0)
+				if (Items.Count > 0)
 				{
-					Name = Collectables.First().Name;
-				}
-				else if (ItemNames != null && ItemNames.Count > 0)
-				{
-					Name = ItemNames.First();
+					Name = Items.First().Name;
 				}
 				else
 				{
@@ -359,7 +409,7 @@
 			// TODO: move method to common so we use it on fish too
 			if (InventoryItemCount() >= 100)
 			{
-				if (ItemNames != null && ItemNames.Count > 0)
+				if (Items.Count > 0)
 				{
 					if (
 						SetGatherItemByItemName(
@@ -395,25 +445,7 @@
 				}
 			}
 
-			if (Collectables != null && Collectables.Count > 0)
-			{
-				foreach (var collectable in Collectables)
-				{
-					GatherItem =
-						windowItems.FirstOrDefault(
-							i =>
-							i.IsFilled && !i.IsUnknown
-							&& string.Equals(collectable.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase));
-
-					if (GatherItem != null)
-					{
-						CollectableItem = collectable;
-						return true;
-					}
-				}
-			}
-
-			if (ItemNames != null && ItemNames.Count > 0)
+			if (Items.Count > 0)
 			{
 				if (SetGatherItemByItemName(windowItems))
 				{
@@ -480,7 +512,11 @@
 
 		private async Task<bool> AfterGather()
 		{
-			Logger.Verbose("Finished gathering from {0} with {1} GP at {2} ET", Node.EnglishName, Me.CurrentGP, WorldManager.EorzaTime.ToShortTimeString());
+			Logger.Verbose(
+				"Finished gathering from {0} with {1} GP at {2} ET",
+				Node.EnglishName,
+				Me.CurrentGP,
+				WorldManager.EorzaTime.ToShortTimeString());
 
 			// in case we failed our rotation or window stuck open because items are somehow left
 			if (GatheringManager.SwingsRemaining > 0)
@@ -555,26 +591,37 @@
 
 		private async Task<bool> BeforeGather()
 		{
-			if (Me.CurrentGP >= AdjustedWaitForGp)
-			{
-				return true;
-			}
+			CheckForEstimatedGatherRotation();
 
 			var ttg = GetTimeToGather();
 
 			if (ttg.RealSecondsTillStartGathering < 3)
 			{
 				Logger.Warn("Not enough time to gather, will still make an attempt.");
-				return true;
+				//return true;
 			}
 
 			var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
 
+			var waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType);
+
+			if (!waitForGp.HasValue)
+			{
+				Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+
+				return false;
+			}
+
+			if (Me.CurrentGP >= waitForGp.Value)
+			{
+				return true;
+			}
+
 			if (CordialType <= CordialType.None)
 			{
-				if (gp >= AdjustedWaitForGp)
+				if (gp >= waitForGp.Value)
 				{
-					return await WaitForGpRegain();
+					return await WaitForGpRegain(waitForGp.Value);
 				}
 
 				Logger.Warn("Gathering without the minimum recommended GP for the rotation");
@@ -584,14 +631,28 @@
 				return true;
 			}
 
-			if (gp >= AdjustedWaitForGp)
+			if (!CordialTime.HasFlag(CordialTime.BeforeGather))
+			{
+				if (gp >= waitForGp.Value)
+				{
+					return await WaitForGpRegain(waitForGp.Value);
+				}
+
+				Logger.Warn("Gathering without the minimum recommended GP for the rotation");
+				Logger.Warn(
+					"Before gather cordial not enabled.  To enable, add the 'cordialTime' attribute with value 'BeforeGather', 'IfNeeded', 'IfNeededOrAfter', or 'Auto'");
+
+				return true;
+			}
+
+			if (gp >= waitForGp.Value)
 			{
 				if (CordialTime.HasFlag(CordialTime.IfNeeded))
 				{
-					return await WaitForGpRegain();
+					return await WaitForGpRegain(waitForGp.Value);
 				}
 
-				var gpNeeded = AdjustedWaitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
+				var gpNeeded = waitForGp.Value - (Me.CurrentGP - (Me.CurrentGP % 5));
 				var gpNeededTicks = gpNeeded / 5;
 				var gpNeededSeconds = gpNeededTicks * 3;
 
@@ -600,28 +661,63 @@
 					Logger.Info("GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}", gpNeededSeconds);
 
 					// no need to wait for cordial, we will have GP faster
-					return await WaitForGpRegain();
+					return await WaitForGpRegain(waitForGp.Value);
 				}
 			}
 
-			if (gp + 300 >= AdjustedWaitForGp)
+			if (gp + 300 >= waitForGp.Value)
 			{
 				// If we used the cordial or the CordialType is only Cordial, not Auto or HiCordial, then return
-				if (await UseCordial(CordialType.Cordial, ttg.RealSecondsTillStartGathering) || CordialType == CordialType.Cordial)
+				if (await UseCordial(CordialType.Cordial, ttg.RealSecondsTillStartGathering))
 				{
-					return await WaitForGpRegain();
+					return await WaitForGpRegain(waitForGp.Value);
+				}
+
+				if (CordialType == CordialType.Cordial)
+				{
+					ttg = GetTimeToGather();
+
+					gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+
+					waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
+
+					if (!waitForGp.HasValue)
+					{
+						Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+
+						return false;
+					}
+
+					return await WaitForGpRegain(waitForGp.Value);
 				}
 			}
 
-			if (gp + 400 >= AdjustedWaitForGp)
+			if (gp + 400 >= waitForGp.Value && CordialType > CordialType.Cordial)
 			{
 				if (await UseCordial(CordialType.HiCordial, ttg.RealSecondsTillStartGathering))
 				{
-					return await WaitForGpRegain();
+					return await WaitForGpRegain(waitForGp.Value);
 				}
+
+				ttg = GetTimeToGather();
+
+				gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+
+				waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
+
+				if (!waitForGp.HasValue)
+				{
+					Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+
+					return false;
+				}
+
+				return await WaitForGpRegain(waitForGp.Value);
 			}
 
-			return await WaitForGpRegain();
+			Logger.Error("we should never be here, report error with info GP: {0}, WaitForGp: {1}", gp, waitForGp.Value);
+			return true;
+			//return await WaitForGpRegain(waitForGp.Value);
 		}
 
 		private async Task<bool> CastTruth()
@@ -686,6 +782,37 @@
 			return true;
 		}
 
+		private void CheckForEstimatedGatherRotation()
+		{
+			if (!gatherRotation.CanBeOverriden || DisableRotationOverride)
+			{
+				return;
+			}
+
+			CollectableItem = Items.OfType<Collectable>().FirstOrDefault();
+
+			if (CollectableItem != null)
+			{
+				Logger.Info("Estimating rotation based off {0}", CollectableItem);
+			}
+			else
+			{
+				Logger.Info("Estimating rotation based off GatherIncrease: '{0}'", GatherIncrease);
+			}
+
+			var rotation = GetOverrideRotation();
+
+			if (rotation == null)
+			{
+				Logger.Info("Rotation did not change");
+				return;
+			}
+
+			Logger.Info("Rotation Estimate -> Old: {0} , New: {1}", gatherRotation.Attributes.Name, rotation.Attributes.Name);
+
+			gatherRotation = rotation;
+		}
+
 		private void CheckForGatherRotationOverride()
 		{
 			if (!gatherRotation.CanBeOverriden || DisableRotationOverride)
@@ -698,25 +825,16 @@
 				Logger.Info("Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
 			}
 
-			var rotationAndTypes =
-				Rotations.Select(r => new { Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this) })
-					.Where(r => r.OverrideValue > -1)
-					.OrderByDescending(r => r.OverrideValue)
-					.ToArray();
+			var rotation = GetOverrideRotation();
 
-			var rotation = rotationAndTypes.FirstOrDefault();
-
-			if (rotation == null || ReferenceEquals(rotation.Rotation, gatherRotation))
+			if (rotation == null)
 			{
 				return;
 			}
 
-			Logger.Info(
-				"Rotation Override -> Old: {0} , New: {1}",
-				gatherRotation.Attributes.Name,
-				rotation.Rotation.Attributes.Name);
+			Logger.Info("Rotation Override -> Old: {0} , New: {1}", gatherRotation.Attributes.Name, rotation.Attributes.Name);
 
-			gatherRotation = rotation.Rotation;
+			gatherRotation = rotation;
 		}
 
 		private async Task<bool> ExecutePoiLogic()
@@ -846,8 +964,8 @@
 						var distanceToFurthestVectorInHotspot = myLocation.Distance2D(HotSpots.CurrentOrDefault)
 																+ HotSpots.CurrentOrDefault.Radius;
 
-						if (myLocation.Distance2D(HotSpots.CurrentOrDefault) > Radius && GatherStrategy == GatherStrategy.GatherOrCollect && retryCenterHotspot
-							&& distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
+						if (myLocation.Distance2D(HotSpots.CurrentOrDefault) > Radius && GatherStrategy == GatherStrategy.GatherOrCollect
+							&& retryCenterHotspot && distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
 						{
 							Logger.Verbose("Distance to furthest visible game object -> " + distanceToFurthestVisibleGameObject);
 							Logger.Verbose("Distance to furthest vector in hotspot -> " + distanceToFurthestVectorInHotspot);
@@ -950,6 +1068,24 @@
 							typeof(SmartYieldGatheringRotation), typeof(YieldAndQualityGatheringRotation),
 							typeof(NewbCollectGatheringRotation)
 						};
+		}
+
+		private IGatheringRotation GetOverrideRotation()
+		{
+			var rotationAndTypes =
+				Rotations.Select(r => new { Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this) })
+					.Where(r => r.OverrideValue > -1)
+					.OrderByDescending(r => r.OverrideValue)
+					.ToArray();
+
+			var rotation = rotationAndTypes.FirstOrDefault();
+
+			if (rotation == null || ReferenceEquals(rotation.Rotation, gatherRotation))
+			{
+				return null;
+			}
+
+			return rotation.Rotation;
 		}
 
 		private TimeToGather GetTimeToGather()
@@ -1094,7 +1230,12 @@
 
 			interactedWithNode = true;
 
-			Logger.Verbose("Started gathering from {0} with {1}/{2} GP at {3} ET", Node.EnglishName, Me.CurrentGP, Me.MaxGP, WorldManager.EorzaTime.ToShortTimeString());
+			Logger.Verbose(
+				"Started gathering from {0} with {1}/{2} GP at {3} ET",
+				Node.EnglishName,
+				Me.CurrentGP,
+				Me.MaxGP,
+				WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
 			{
@@ -1161,7 +1302,7 @@
 				Logger.Info(
 					"Loaded Rotation -> {0}, GP: {1}, Time: {2}",
 					instance.Attributes.Name,
-					instance.Attributes.RequiredGp,
+					instance.Attributes.RequiredGpBreakpoints[0],
 					instance.Attributes.RequiredTimeInSeconds);
 			}
 
@@ -1197,7 +1338,8 @@
 				StatusText = "Moving to hotspot at " + HotSpots.CurrentOrDefault;
 
 				await
-					HotSpots.CurrentOrDefault.XYZ.MoveTo(radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
+					HotSpots.CurrentOrDefault.XYZ.MoveTo(
+						radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
 						name: HotSpots.CurrentOrDefault.Name,
 						stopCallback: MovementStopCallback);
 
@@ -1282,16 +1424,18 @@
 
 		private bool SetGatherItemByItemName(ICollection<GatheringItem> windowItems)
 		{
-			foreach (var itemName in ItemNames)
+			foreach (var item in Items)
 			{
 				GatherItem =
 					windowItems.FirstOrDefault(
 						i =>
 						i.IsFilled && !i.IsUnknown
-						&& string.Equals(itemName, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase));
+						&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase));
 
 				if (GatherItem != null && (!GatherItem.ItemData.Unique || GatherItem.ItemData.ItemCount() == 0))
 				{
+					// We don't need to check null...since it will be null anyway.
+					CollectableItem = item as Collectable;
 					return true;
 				}
 			}
@@ -1355,7 +1499,7 @@
 			return true;
 		}
 
-		private async Task<bool> WaitForGpRegain()
+		private async Task<bool> WaitForGpRegain(int waitForGp)
 		{
 			if (gatherRotation.ShouldForceGather || GatherStrategy == GatherStrategy.TouchAndGo)
 			{
@@ -1364,9 +1508,9 @@
 
 			var ttg = GetTimeToGather();
 
-			if (Me.CurrentGP < AdjustedWaitForGp)
+			if (Me.CurrentGP < waitForGp)
 			{
-				var gpNeeded = AdjustedWaitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
+				var gpNeeded = waitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
 				var gpNeededTicks = gpNeeded / 5;
 				var gpNeededSeconds = gpNeededTicks * 3;
 
@@ -1376,12 +1520,12 @@
 					"Waiting for GP -> Seconds: {0}, Current GP: {1}, WaitForGP: {2}",
 					gpNeededSeconds,
 					Me.CurrentGP,
-					AdjustedWaitForGp);
+					waitForGp);
 
 				await
 					Coroutine.Wait(
 						TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
-						() => Me.CurrentGP >= AdjustedWaitForGp || Me.CurrentGP == Me.MaxGP);
+						() => Me.CurrentGP >= waitForGp || Me.CurrentGP == Me.MaxGP);
 			}
 
 			return true;

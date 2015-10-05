@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
+    <Compile Include="ExCoroutineAction.cs" />
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
     <Compile Include="GameObjects\Npcs\SummoningBell.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExMoveToTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
+    <Compile Include="Enumerations\MoveToType.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Data.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\Locations.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopItem.cs" />
@@ -106,6 +108,10 @@
     <Compile Include="OrderBotTags\Gather\GatherSpots\RandomApproachGatherSpot.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\StealthApproachGatherSpot.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\StealthGatherSpot.cs" />
+    <Compile Include="Interfaces\INamedItem.cs" />
+    <Compile Include="OrderBotTags\Gather\NamedItemCollection.cs" />
+    <Compile Include="OrderBotTags\Gather\Rotations\Collect505GatheringRotation.cs" />
+    <Compile Include="OrderBotTags\Gather\Rotations\Collect495GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect490GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\GetTwoHQGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
@@ -141,6 +147,7 @@
     <Compile Include="Enumerations\GatherSpotType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherStrategy.cs" />
     <Compile Include="Interfaces\IGatheringRotation.cs" />
+    <Compile Include="OrderBotTags\Objects\GatherItem.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
     <Compile Include="Plugins\RetainerMaid\RetainerMaid.cs" />
     <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />

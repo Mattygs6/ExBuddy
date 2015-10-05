@@ -5,7 +5,7 @@
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
 
-	[GatheringRotation("Collect115", 0, 24)]
+	[GatheringRotation("Collect115", 24)]
 	public sealed class Collect115GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

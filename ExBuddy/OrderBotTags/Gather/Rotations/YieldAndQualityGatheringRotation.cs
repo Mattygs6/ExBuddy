@@ -10,8 +10,8 @@
 	using ff14bot;
 	using ff14bot.Managers;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("YieldAndQuality", 0, 22)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("YieldAndQuality", 22, 600, 500, 0)]
 	public class YieldAndQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
@@ -23,7 +23,7 @@
 				return -1;
 			}
 
-			if (tag.GatherItem.HqChance < 1)
+			if (tag.GatherItem != null && tag.GatherItem.HqChance < 1)
 			{
 				return -1;
 			}

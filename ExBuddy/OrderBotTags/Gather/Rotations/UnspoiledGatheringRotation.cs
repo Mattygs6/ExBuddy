@@ -9,8 +9,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot;
 	using ff14bot.Managers;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("Unspoiled", 500, 21)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("Unspoiled", 21, 500, 0)]
 	public sealed class UnspoiledGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

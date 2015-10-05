@@ -3,13 +3,20 @@
 	using System.Collections;
 	using System.Collections.Generic;
 
+	using Clio.Utilities;
 	using Clio.XmlEngine;
 
-	[XmlElement("GatherSpots")]
-	public class GatherSpotCollection : IList<GatherSpot>
+	using ExBuddy.Interfaces;
+
+	public class GatherSpotCollection : IList<IGatherSpot>
 	{
+		public GatherSpotCollection()
+		{
+			Locations = new List<IGatherSpot>();
+		}
+
 		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<GatherSpot> Locations { get; set; }
+		private List<IGatherSpot> Locations { get; [UsedImplicitly] set; }
 
 		#region ICollection<GatherSpot> Members
 
@@ -29,7 +36,7 @@
 			}
 		}
 
-		public void Add(GatherSpot item)
+		public void Add(IGatherSpot item)
 		{
 			Locations.Add(item);
 		}
@@ -39,17 +46,17 @@
 			Locations.Clear();
 		}
 
-		public bool Contains(GatherSpot item)
+		public bool Contains(IGatherSpot item)
 		{
 			return Locations.Contains(item);
 		}
 
-		public void CopyTo(GatherSpot[] array, int arrayIndex)
+		public void CopyTo(IGatherSpot[] array, int arrayIndex)
 		{
 			Locations.CopyTo(array, arrayIndex);
 		}
 
-		public bool Remove(GatherSpot item)
+		public bool Remove(IGatherSpot item)
 		{
 			return Locations.Remove(item);
 		}
@@ -67,7 +74,7 @@
 
 		#region IEnumerable<GatherSpot> Members
 
-		public IEnumerator<GatherSpot> GetEnumerator()
+		public IEnumerator<IGatherSpot> GetEnumerator()
 		{
 			return Locations.GetEnumerator();
 		}
@@ -76,17 +83,17 @@
 
 		#region IList<GatherSpot> Members
 
-		public int IndexOf(GatherSpot item)
+		public int IndexOf(IGatherSpot item)
 		{
 			return Locations.IndexOf(item);
 		}
 
-		public void Insert(int index, GatherSpot item)
+		public void Insert(int index, IGatherSpot item)
 		{
 			Locations.Insert(index, item);
 		}
 
-		public GatherSpot this[int index]
+		public IGatherSpot this[int index]
 		{
 			get
 			{

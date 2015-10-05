@@ -8,13 +8,18 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 	using ff14bot.Managers;
 
-	[GatheringRotation("Topsoil", 0, 8)]
+	[GatheringRotation("Topsoil", 8)]
 	public class TopsoilGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
+			if (tag.GatherItem == null)
+			{
+				return -1;
+			}
+
 			// Only override if the item name ends with ' topsoil'
 			if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" topsoil", StringComparison.InvariantCultureIgnoreCase))
 			{
@@ -22,7 +27,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			// Dont' override if we can gather dark matter clusters and they are on our list.
-			if (tag.ItemNames.Contains("Dark Matter Cluster", StringComparer.InvariantCultureIgnoreCase)
+			if (tag.Items.Any(i => i.Name.Equals("Dark Matter Cluster", StringComparison.InvariantCultureIgnoreCase))
 				&& GatheringManager.GatheringWindowItems.Any(i => i.ItemId == 10335))
 			{
 				return -1;

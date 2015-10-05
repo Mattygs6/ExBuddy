@@ -10,8 +10,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot;
 	using ff14bot.Managers;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("SmartYield", 0, 21)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("SmartYield", 18, 500, 400, 300, 0)]
 	public class SmartYieldGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

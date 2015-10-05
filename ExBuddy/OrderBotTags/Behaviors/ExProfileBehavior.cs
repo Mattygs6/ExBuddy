@@ -129,7 +129,7 @@
 
 		protected override Composite CreateBehavior()
 		{
-			return new ActionRunCoroutine(ctx => Main());
+			return new ExCoroutineAction(ctx => Main(), this);
 		}
 
 		protected virtual void DoReset() {}

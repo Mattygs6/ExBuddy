@@ -61,7 +61,6 @@
 			this.playerMover = playerMover;
 			this.flightNavigationArgs = flightNavigationArgs;
 			Navigator.NavigationProvider = this;
-			Navigator.PlayerMover = playerMover;
 			CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
 
 			logger.Verbose("Replacing Navigator with Flight Navigator.");

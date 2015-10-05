@@ -9,14 +9,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot;
 	using ff14bot.Managers;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("Elemental", 0, 0)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("Elemental", 0)]
 	public class ElementalGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
+			if (tag.GatherItem == null)
+			{
+				return -1;
+			}
+
 			// Don't use unless ward increases item yield.
 			if (!DoesWardIncreaseItemYield(tag))
 			{

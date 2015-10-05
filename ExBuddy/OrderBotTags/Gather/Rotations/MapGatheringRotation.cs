@@ -7,13 +7,18 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 	using ff14bot.Managers;
 
-	[GatheringRotation("Map", 0, 8)]
+	[GatheringRotation("Map", 8)]
 	public class MapGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
+			if (tag.GatherItem == null)
+			{
+				return -1;
+			}
+
 			// Only override if the item name ends with ' map'
 			if (!tag.GatherItem.ItemData.EnglishName.EndsWith(" map", StringComparison.InvariantCultureIgnoreCase))
 			{

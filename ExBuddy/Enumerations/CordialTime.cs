@@ -11,7 +11,7 @@
 
 		AfterGather = 1 << 1,
 
-		IfNeeded = 1 << 2,
+		IfNeeded = 1 << 2 | BeforeGather,
 
 		IfNeededOrAfter = IfNeeded | AfterGather,
 

@@ -3,8 +3,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
 
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("RegularNode", 0, 0)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("RegularNode")]
 	public sealed class RegularNodeGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

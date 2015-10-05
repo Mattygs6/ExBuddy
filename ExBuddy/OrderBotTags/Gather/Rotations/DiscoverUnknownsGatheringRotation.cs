@@ -11,14 +11,19 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ff14bot.Managers;
 
 	// TODO: if can peek, then we need to allow it to redo beforegather logic
-	//Name, RequiredGp, RequiredTime
-	[GatheringRotation("DiscoverUnknowns", 250, 0)]
+	//Name, RequiredTime, RequiredGpBreakpoints
+	[GatheringRotation("DiscoverUnknowns", 12, 250)]
 	public class DiscoverUnknownsGatheringRotation : GatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
+			if (tag.GatherItem == null)
+			{
+				return -1;
+			}
+
 			if (tag.GatherItem.IsUnknown || (tag.IsUnspoiled() && tag.GatherItem.Chance == 25))
 			{
 				return int.MaxValue;

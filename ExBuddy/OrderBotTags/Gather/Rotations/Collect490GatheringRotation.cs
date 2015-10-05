@@ -5,33 +5,13 @@
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
 
-	using ff14bot.Managers;
-
-	[GatheringRotation("Collect490", 600, 31)]
+	[GatheringRotation("Collect490", 31, 600, 400)]
 	public sealed class Collect490GatheringRotation : CollectableGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
 
 		int IGetOverridePriority.GetOverridePriority(ExGatherTag tag)
 		{
-			if (tag.IsUnspoiled())
-			{
-				// We need 5 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 5)
-				{
-					return -1;
-				}
-			}
-
-			if (tag.IsEphemeral())
-			{
-				// We need 4 swings to use this rotation
-				if (GatheringManager.SwingsRemaining < 4)
-				{
-					return -1;
-				}
-			}
-
 			// if we have a collectable && the collectable value is greater than or equal to 490: Priority 490
 			if (tag.CollectableItem != null && tag.CollectableItem.Value >= 490)
 			{

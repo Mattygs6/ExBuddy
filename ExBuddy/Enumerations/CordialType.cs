@@ -8,6 +8,6 @@
 
 		HiCordial = 12669,
 
-		Auto
+		Auto = ushort.MaxValue
 	}
 }

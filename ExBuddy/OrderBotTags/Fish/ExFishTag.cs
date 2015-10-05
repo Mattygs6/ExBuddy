@@ -338,9 +338,21 @@ namespace ExBuddy.OrderBotTags.Fish
 				if (ticks > 1)
 				{
 					Logger.Warn("Looks like we may have lost control of the bait window, trying again. Attempt: {0}/5", ticks);
+					if (BaitDelay < 2000)
+					{
+						Logger.Info(
+							"Increasing bait delay by 25% from {0} ms to {1} ms. If the new value works, try setting the 'baitDelay' attribute between these two values.",
+							BaitDelay,
+							(BaitDelay = Math.Min((int)(BaitDelay * 1.25), 2000)));
+					}
+					else
+					{
+						Logger.Error("Reached the maximum bait delay of 2000 ms.  Submit the log to ExMatt for analysis.");
+						return isDone = true;
+					}
 
 					DoAbility(Abilities.Bait);
-					await Coroutine.Wait(5000, () => !baitWindow.IsValid);
+					await baitWindow.Refresh(5000, false);
 					DoAbility(Abilities.Bait);
 					await baitWindow.Refresh(5000);
 				}

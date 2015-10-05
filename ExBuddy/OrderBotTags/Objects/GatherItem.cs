@@ -4,13 +4,11 @@
 
 	using ExBuddy.Interfaces;
 
-	public abstract class CollectableBase : INamedItem
+	[XmlElement("GatherItem")]
+	public class GatherItem : INamedItem
 	{
 		[XmlAttribute("Name")]
 		public string Name { get; set; }
-
-		[XmlAttribute("Value")]
-		public int Value { get; set; }
 
 		public override string ToString()
 		{

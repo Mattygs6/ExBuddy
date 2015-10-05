@@ -202,7 +202,7 @@
 
 		public int? GetAdjustedWaitForGp(int gpBeforeGather, int secondsToStartGathering, CordialType cordialType)
 		{
-			if (CordialTime.HasFlag(CordialTime.BeforeGather)
+			if (CordialTime.HasFlag(CordialTime.BeforeGather) && cordialType > CordialType.None
 				&& CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
 			{
 				switch (cordialType)
@@ -602,6 +602,29 @@
 			}
 
 			var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+
+			if (CordialSpellData == null)
+			{
+				CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+
+				if (CordialSpellData == null)
+				{
+					var item =
+						InventoryManager.FilledSlots.FirstOrDefault(
+							bs => bs.RawItemId == (uint)CordialType.Cordial || bs.RawItemId == (uint)CordialType.HiCordial);
+
+					if (item != null)
+					{
+						CordialSpellData = item.Item.BackingAction;
+					}
+				}
+			}
+
+			if (CordialSpellData == null)
+			{
+				Logger.Error("Unable to resolve cordial data, if this continues, please report logs to ExMatt.");
+				CordialType = CordialType.None;
+			}
 
 			var waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType);
 

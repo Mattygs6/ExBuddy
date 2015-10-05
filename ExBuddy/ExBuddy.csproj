@@ -54,6 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
+    <Compile Include="BotBases\ExFateBot.cs" />
+    <Compile Include="BotBases\ExFateBotSettings.cs" />
+    <Compile Include="BotBases\FateIdleActions.cs" />
     <Compile Include="ExCoroutineAction.cs" />
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
@@ -150,6 +153,8 @@
     <Compile Include="OrderBotTags\Objects\GatherItem.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
     <Compile Include="Plugins\RetainerMaid\RetainerMaid.cs" />
+    <Compile Include="Providers\DefaultFateScoreProvider.cs" />
+    <Compile Include="Providers\ExFateCombatTargetingProvider.cs" />
     <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />
     <Compile Include="Agents\Agent{T}.cs" />
     <Compile Include="Agents\Desynthesis.cs" />

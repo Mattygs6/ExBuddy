@@ -290,6 +290,7 @@
 											{
 												Logger.Info("Resumed Landing Unstuck Coroutine");
 												landingCoroutine.Resume();
+												Thread.Sleep(33);
 											}
 
 											if (MovementManager.IsFlying)

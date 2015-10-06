@@ -36,7 +36,7 @@
 
 			Vector3 hit;
 			var ticks = 0;
-			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 1000)
+			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
 			{
 				random = new Vector3(
 					vector.X + (float)MathEx.Random(-side, side),
@@ -44,7 +44,7 @@
 					vector.Z + (float)MathEx.Random(-side, side));
 			}
 
-			if (ticks > 1000)
+			if (ticks > 200)
 			{
 				Logger.Instance.Error("Attempted to add Random Direction from {0} but failed", vector);
 
@@ -66,7 +66,7 @@
 
 			Vector3 hit;
 			var ticks = 0;
-			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 1000)
+			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
 			{
 				random = new Vector3(
 					vector.X + (float)MathEx.Random(-side, side),
@@ -74,9 +74,9 @@
 					vector.Z + (float)MathEx.Random(-side, side));
 			}
 
-			if (ticks > 1000)
+			if (ticks > 200)
 			{
-				Logger.Instance.Error("Attempted to add Random Direction from {0} but failed", vector);
+				Logger.Instance.Error("Attempted to add Random Direction2D from {0} but failed", vector);
 
 				return vector;
 			}

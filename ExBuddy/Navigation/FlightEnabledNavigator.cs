@@ -359,22 +359,23 @@
 		private MoveResult MoveToNextHop(string name)
 		{
 			var location = Core.Me.Location;
-			// if we are not at the start or end
-			if (CurrentPath.Index.InRange(1, CurrentPath.Count - 2))
+			// if we are not at the start
+			if (CurrentPath.Index > 1)
 			{
 				Vector3 hit;
 				if (WorldManager.Raycast(location, CurrentPath.Current, out hit))
 				{
+					if (hit.Distance(CurrentPath.End) > this.flightNavigationArgs.Radius + 1.0f)
+					{
+						MemoryCache.Default.Add(
+							CurrentPath.Current.Location.ToString(),
+							CurrentPath.Current,
+							DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-
-					MemoryCache.Default.Add(
-						CurrentPath.Current.Location.ToString(),
-						CurrentPath.Current,
-						DateTimeOffset.Now + TimeSpan.FromSeconds(10));
-
-					logger.Warn("Collision detected! Generating new path!");
-					Clear();
-					return MoveResult.GeneratingPath;
+						logger.Warn("Collision detected! Generating new path!");
+						Clear();
+						return MoveResult.GeneratingPath;
+					}
 				}
 			}
 

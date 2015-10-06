@@ -41,12 +41,9 @@
 			}
 		}
 
-		public virtual bool ShouldForceGather
+		public virtual bool ShouldForceGather(ExGatherTag tag)
 		{
-			get
-			{
-				return false;
-			}
+			return false;
 		}
 
 		public virtual async Task<bool> ExecuteRotation(ExGatherTag tag)

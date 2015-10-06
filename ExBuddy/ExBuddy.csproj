@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
     <Compile Include="ExCoroutineAction.cs" />
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExMoveToTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExPurifyTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />
     <Compile Include="Enumerations\MoveToType.cs" />
@@ -160,9 +162,16 @@
     <Compile Include="Windows\GuildLeve.cs" />
     <Compile Include="Windows\InputNumeric.cs" />
     <Compile Include="Windows\MasterPieceSupply.cs" />
+    <Compile Include="Windows\PurifyDialog.cs" />
+    <Compile Include="Windows\PurifyItemSelector.cs" />
+    <Compile Include="Windows\PurifyResult.cs" />
+    <Compile Include="Windows\SalvageDialog.cs" />
+    <Compile Include="Windows\SalvageItemSelector.cs" />
+    <Compile Include="Windows\SalvageResult.cs" />
     <Compile Include="Windows\SelectYesnoCount.cs" />
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
-    <Compile Include="Windows\Window{T}.cs" />
+    <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
+    <Compile Include="Windows\Window{TWindow}.cs" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect240DynamicGatheringRotation.cs" />

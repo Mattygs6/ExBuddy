@@ -1,5 +1,7 @@
 ﻿namespace ExBuddy.Agents
 {
+	using System;
+
 	using ff14bot.Managers;
 
 	public abstract class Agent<T>
@@ -23,6 +25,22 @@
 
 		public int Id { get; private set; }
 
+		public static T Instance
+		{
+			get
+			{
+				return new T();
+			}
+		}
+
+		public IntPtr Pointer
+		{
+			get
+			{
+				return this.agentInterface.Pointer;
+			}
+		}
+
 		public static void Toggle()
 		{
 			new T().ToggleInstance();
@@ -30,7 +48,7 @@
 
 		public void ToggleInstance()
 		{
-			this.agentInterface.Toggle();
+			AgentModule.ToggleAgentInterfaceById(Id);
 		}
 	}
 }

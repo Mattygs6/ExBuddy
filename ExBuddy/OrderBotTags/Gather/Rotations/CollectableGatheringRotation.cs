@@ -1,6 +1,5 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
-	using System;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
@@ -9,7 +8,6 @@
 	using ExBuddy.Windows;
 
 	using ff14bot;
-	using ff14bot.Helpers;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
 
@@ -17,14 +15,9 @@
 	{
 		protected static GatheringMasterpiece MasterpieceWindow = new GatheringMasterpiece();
 
-		public override bool ShouldForceGather
+		public override bool ShouldForceGather(ExGatherTag tag)
 		{
-			get
-			{
-				return Poi.Current != null && Poi.Current.Type == PoiType.Gather
-						&& Poi.Current.Name.IndexOf("ephemeral", StringComparison.InvariantCultureIgnoreCase) == -1
-						&& Poi.Current.Name.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) == -1;
-			}
+			return !tag.IsEphemeral() && !tag.IsUnspoiled();
 		}
 
 		protected int CurrentRarity

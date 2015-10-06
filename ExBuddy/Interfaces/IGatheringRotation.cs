@@ -11,7 +11,7 @@
 
 		bool CanBeOverriden { get; }
 
-		bool ShouldForceGather { get; }
+		bool ShouldForceGather(ExGatherTag tag);
 
 		Task<bool> ExecuteRotation(ExGatherTag tag);
 

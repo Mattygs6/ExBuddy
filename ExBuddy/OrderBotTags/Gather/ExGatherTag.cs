@@ -630,8 +630,13 @@
 
 			if (!waitForGp.HasValue)
 			{
-				Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+				if (GatherStrategy == GatherStrategy.TouchAndGo)
+				{
+					return true;
+				}
 
+				Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+				BlacklistCurrentNode();
 				return false;
 			}
 
@@ -1190,6 +1195,26 @@
 			return true;
 		}
 
+		private void BlacklistCurrentNode()
+		{
+			if (Poi.Current.Type != PoiType.Gather)
+			{
+				return;
+			}
+
+			if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
+			{
+				var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
+										? TimeSpan.FromSeconds(12)
+										: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+				Blacklist.Add(
+					Poi.Current.Unit,
+					BlacklistFlags.Interact,
+					timeToBlacklist,
+					"Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+			}
+		}
+
 		private async Task<bool> InteractWithNode()
 		{
 			StatusText = "Interacting with node";
@@ -1262,17 +1287,7 @@
 
 			if (!IsUnspoiled() && !IsConcealed())
 			{
-				if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
-				{
-					var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-											? TimeSpan.FromSeconds(15)
-											: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
-					Blacklist.Add(
-						Poi.Current.Unit,
-						BlacklistFlags.Interact,
-						timeToBlacklist,
-						"Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
-				}
+				BlacklistCurrentNode();
 			}
 
 			if (!await ResolveGatherItem())
@@ -1469,6 +1484,17 @@
 		private async Task<bool> UseCordial(CordialType cordialType, int maxTimeoutSeconds = 5)
 		{
 			maxTimeoutSeconds -= 2;
+
+			if (GatherStrategy == GatherStrategy.TouchAndGo)
+			{
+				Logger.Info("TouchAndGo override, maxTimeout being set between 2 and 16 seconds");
+				maxTimeoutSeconds = maxTimeoutSeconds.Clamp(2, 16);
+			}
+			else
+			{
+				maxTimeoutSeconds = maxTimeoutSeconds.Clamp(2, 180);
+			}
+
 			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
 			{
 				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
@@ -1524,7 +1550,7 @@
 
 		private async Task<bool> WaitForGpRegain(int waitForGp)
 		{
-			if (gatherRotation.ShouldForceGather || GatherStrategy == GatherStrategy.TouchAndGo)
+			if (gatherRotation.ShouldForceGather(this))
 			{
 				return true;
 			}
@@ -1536,6 +1562,21 @@
 				var gpNeeded = waitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
 				var gpNeededTicks = gpNeeded / 5;
 				var gpNeededSeconds = gpNeededTicks * 3;
+
+				if (GatherStrategy == GatherStrategy.TouchAndGo)
+				{
+					if (!IsEphemeral())
+					{
+						Logger.Info("TouchAndGo strategy override, not waiting for GP unless we are on an ephemeral node");
+						return true;
+					}
+
+					if (gpNeededSeconds > 15)
+					{
+						Logger.Info("TouchAndGo strategy override, not waiting for GP unless it is less than 16 seconds");
+						return true;
+					}
+				}
 
 				StatusText = "Waiting for GP";
 

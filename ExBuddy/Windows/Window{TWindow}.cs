@@ -14,8 +14,8 @@
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
 
-	public abstract class Window<T>
-		where T : Window<T>, new()
+	public abstract class Window<TWindow>
+		where TWindow : Window<TWindow>, new()
 	{
 		// ReSharper disable once StaticMemberInGenericType
 		private static Action updateWindows;
@@ -39,7 +39,7 @@
 		{
 			get
 			{
-				return new T().Control;
+				return new TWindow().Control;
 			}
 		}
 
@@ -55,7 +55,7 @@
 		{
 			get
 			{
-				return new T().Control != null;
+				return new TWindow().Control != null;
 			}
 		}
 
@@ -71,12 +71,12 @@
 
 		public static void Close()
 		{
-			new T().Control.TrySendAction(1, 3, uint.MaxValue);
+			new TWindow().Control.TrySendAction(1, 3, uint.MaxValue);
 		}
 
 		public static async Task<bool> CloseGently(byte maxTicks = 10, ushort interval = 200)
 		{
-			return await new T().CloseInstanceGently(maxTicks, interval);
+			return await new TWindow().CloseInstanceGently(maxTicks, interval);
 		}
 
 		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 250)
@@ -150,11 +150,11 @@
 			return result > SendActionResult.UnexpectedResult && !IsValid;
 		}
 
-		public T Refresh()
+		public TWindow Refresh()
 		{
 			updateWindows();
 			control = RaptureAtkUnitManager.GetWindowByName(Name);
-			return (T)this;
+			return (TWindow)this;
 		}
 
 		public async Task<bool> Refresh(int timeoutMs, bool valid = true)

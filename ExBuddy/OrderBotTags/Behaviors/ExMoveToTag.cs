@@ -28,6 +28,8 @@
 		[XmlAttribute("Distance")]
 		public float Distance { get; set; }
 
+		[DefaultValue(true)]
+		[XmlAttribute("UseMesh")]
 		public bool UseMesh { get; set; }
 
 		[XmlAttribute("XYZ")]

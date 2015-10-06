@@ -285,15 +285,19 @@
 												var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
 												MovementManager.StopDescending();
 												MovementManager.Jump();
-												landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.5f));
+												landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
 												Logger.Info("Created new Landing Unstuck Coroutine, moving to {0}", move);
 											}
 
-											while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue)
+											if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
 											{
 												Logger.Info("Resumed Landing Unstuck Coroutine");
-												landingCoroutine.Resume();
-												Thread.Sleep(33);
+												while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
+														&& !IsMovingTowardsLocation)
+												{
+													landingCoroutine.Resume();
+													Thread.Sleep(66);
+												}
 											}
 
 											if (MovementManager.IsFlying)

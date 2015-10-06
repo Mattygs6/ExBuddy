@@ -6,6 +6,11 @@
 
 	public abstract class SmartGatheringRotation : GatheringRotation
 	{
+		public override bool ShouldForceGather(ExGatherTag tag)
+		{
+			return !tag.IsUnspoiled();
+		}
+
 		public override Task<bool> Prepare(ExGatherTag tag)
 		{
 			return ResolveInternalGatheringRotation(tag).Prepare(tag);

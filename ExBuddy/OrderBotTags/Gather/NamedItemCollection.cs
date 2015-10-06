@@ -8,6 +8,7 @@
 
 	using ExBuddy.Interfaces;
 
+	[XmlElement("Items")]
 	public class NamedItemCollection : IList<INamedItem>
 	{
 		public NamedItemCollection()

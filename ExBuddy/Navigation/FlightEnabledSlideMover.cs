@@ -52,6 +52,8 @@
 
 		private Task takeoffTask;
 
+		private Vector3 lastDestination;
+
 		public FlightEnabledSlideMover(IPlayerMover innerMover, bool forceLanding = false)
 			: this(innerMover, new FlightMovementArgs { ForceLanding = forceLanding }) {}
 
@@ -145,11 +147,10 @@
 
 		public void MoveStop()
 		{
-			IsMovingTowardsLocation = false;
-
 			if (!IsLanding)
 			{
 				innerMover.MoveStop();
+				IsMovingTowardsLocation = false;
 			}
 
 			// TODO: Check can land!!
@@ -162,6 +163,7 @@
 
 		public void MoveTowards(Vector3 location)
 		{
+
 			if (ShouldFly && !MovementManager.IsFlying && !IsTakingOff)
 			{
 				IsTakingOff = true;
@@ -170,6 +172,7 @@
 
 			if (!IsTakingOff)
 			{
+				lastDestination = location;
 				IsMovingTowardsLocation = true;
 				innerMover.MoveTowards(location);
 			}
@@ -279,7 +282,7 @@
 
 											if (landingCoroutine == null || landingCoroutine.IsFinished)
 											{
-												var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(15);
+												var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
 												MovementManager.StopDescending();
 												MovementManager.Jump();
 												landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.5f));

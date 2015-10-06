@@ -8,6 +8,7 @@
 
 	using ExBuddy.Interfaces;
 
+	[XmlElement("GatherSpots")]
 	public class GatherSpotCollection : IList<IGatherSpot>
 	{
 		public GatherSpotCollection()

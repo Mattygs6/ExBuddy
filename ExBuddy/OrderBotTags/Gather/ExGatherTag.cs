@@ -711,8 +711,13 @@
 
 					if (!waitForGp.HasValue)
 					{
-						Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+						if (GatherStrategy == GatherStrategy.TouchAndGo)
+						{
+							return true;
+						}
 
+						Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+						BlacklistCurrentNode();
 						return false;
 					}
 
@@ -735,8 +740,13 @@
 
 				if (!waitForGp.HasValue)
 				{
-					Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+					if (GatherStrategy == GatherStrategy.TouchAndGo)
+					{
+						return true;
+					}
 
+					Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+					BlacklistCurrentNode();
 					return false;
 				}
 

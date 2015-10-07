@@ -154,7 +154,7 @@
 			}
 
 			// TODO: Check can land!!
-			if (!IsLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(6)))
+			if (!IsLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(4.5f)))
 			{
 				IsLanding = true;
 				ForceLanding();

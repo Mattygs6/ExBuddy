@@ -133,6 +133,7 @@
 		/// <returns>The clamped value.</returns>
 		public static int Clamp(this int value, int min, int max)
 		{
+			//TODO: Make clamp methods implement IComparable<T> so we can use generic
 			// First we check to see if we're greater than the max
 			value = (value > max) ? max : value;
 

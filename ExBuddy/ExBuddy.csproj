@@ -92,6 +92,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExMoveToTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExSalvageTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPurifyTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExTurnInGuildLeveTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExPickupGuildLeveTag.cs" />

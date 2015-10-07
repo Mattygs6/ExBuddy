@@ -38,47 +38,53 @@
 			}
 			else
 			{
-				// level 56
-				if (tag.GatherItem.Chance > 98 || Core.Player.CurrentGP < 600)
+				// if 58+
+				if (tag.GatherItem.Chance < 98 && Core.Player.CurrentGP >= 600)
 				{
-					await Impulsive(tag);
-					await Impulsive(tag);
-					await Methodical(tag);
+					// if 60 or cordial is ready and is 58
+					if (tag.GatherItem.Chance < 97 || tag.CanUseCordial(Attributes.RequiredTimeInSeconds))
+					{
+						var appraisalsRemaining = 4;
+						await Impulsive(tag);
+						appraisalsRemaining--;
 
-					return true;
+						if (HasDiscerningEye)
+						{
+							await UtmostSingleMindMethodical(tag);
+							appraisalsRemaining--;
+						}
+
+						await Impulsive(tag);
+						appraisalsRemaining--;
+
+						if (HasDiscerningEye)
+						{
+							await UtmostSingleMindMethodical(tag);
+							appraisalsRemaining--;
+						}
+
+						if (appraisalsRemaining == 2)
+						{
+							await Methodical(tag);
+						}
+
+						if (appraisalsRemaining == 1)
+						{
+							await UtmostDiscerningMethodical(tag);
+						}
+
+						await IncreaseChance(tag);
+						return true;
+					}
 				}
 
-				var appraisalsRemaining = 4;
 				await Impulsive(tag);
-				appraisalsRemaining--;
-
-				if (HasDiscerningEye)
-				{
-					await UtmostSingleMindMethodical(tag);
-					appraisalsRemaining--;
-				}
-
 				await Impulsive(tag);
-				appraisalsRemaining--;
+				await Methodical(tag);
 
-				if (HasDiscerningEye)
-				{
-					await UtmostSingleMindMethodical(tag);
-					appraisalsRemaining--;
-				}
-
-				if (appraisalsRemaining == 2)
-				{
-					await Methodical(tag);
-				}
-
-				if (appraisalsRemaining == 1)
-				{
-					await UtmostDiscerningMethodical(tag);
-				}
+				return true;
 			}
 
-			await IncreaseChance(tag);
 			return true;
 		}
 	}

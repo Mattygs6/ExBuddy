@@ -11,6 +11,7 @@
 	using ExBuddy.Logging;
 
 	using ff14bot;
+	using ff14bot.Enums;
 	using ff14bot.Managers;
 
 	public sealed class SalvageDialog : Window<SalvageDialog>
@@ -69,9 +70,19 @@
 			return true;
 		}
 
-		public static async Task<bool> DesynthesizeByItemId(uint itemId, ushort maxWait = 5000)
+		public static async Task<bool> DesynthesizeByItemId(uint itemId, ushort maxWait = 5000, bool includeArmory = true)
 		{
-			return await DesynthesizeAllItems(InventoryManager.FilledInventoryAndArmory.Where(i => i.RawItemId == itemId));
+			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
+			return await DesynthesizeAllItems(slots.Where(i => i.RawItemId == itemId));
+		}
+
+		public static async Task<bool> DesynthesizeByRepairClass(
+			ClassJobType classJobType,
+			ushort maxWait = 5000,
+			bool includeArmory = true)
+		{
+			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
+			return await DesynthesizeAllItems(slots.Where(i => i.Item != null && classJobType == (ClassJobType)i.Item.RepairClass));
 		}
 
 		public bool Open(BagSlot bagSlot)

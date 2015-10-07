@@ -332,6 +332,12 @@
 			ResolveGatherRotation();
 		}
 
+		internal bool CanUseCordial(ushort withinSeconds = 5)
+		{
+			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && CordialTime > CordialTime.None
+					&& ((CordialType == CordialType.Cordial && HasCordials()) || CordialType > CordialType.Cordial && HasAnyCordials());
+		}
+
 		internal async Task<bool> Cast(uint id)
 		{
 			return await Actions.Cast(id, SpellDelay);
@@ -359,6 +365,21 @@
 				Gathering.CloseGently(
 					(byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)),
 					(ushort)SkipWindowDelay);
+		}
+
+		internal bool HasAnyCordials()
+		{
+			return HasCordials() || HasHiCordials();
+		}
+
+		internal bool HasCordials()
+		{
+			return DataManager.GetItem((uint)CordialType.Cordial).ItemCount() > 0;
+		}
+
+		internal bool HasHiCordials()
+		{
+			return DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0;
 		}
 
 		internal bool IsConcealed()
@@ -756,6 +777,26 @@
 			Logger.Error("we should never be here, report error with info GP: {0}, WaitForGp: {1}", gp, waitForGp.Value);
 			return true;
 			//return await WaitForGpRegain(waitForGp.Value);
+		}
+
+		private void BlacklistCurrentNode()
+		{
+			if (Poi.Current.Type != PoiType.Gather)
+			{
+				return;
+			}
+
+			if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
+			{
+				var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
+										? TimeSpan.FromSeconds(12)
+										: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+				Blacklist.Add(
+					Poi.Current.Unit,
+					BlacklistFlags.Interact,
+					timeToBlacklist,
+					"Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+			}
 		}
 
 		private async Task<bool> CastTruth()
@@ -1205,26 +1246,6 @@
 			return true;
 		}
 
-		private void BlacklistCurrentNode()
-		{
-			if (Poi.Current.Type != PoiType.Gather)
-			{
-				return;
-			}
-
-			if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
-			{
-				var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-										? TimeSpan.FromSeconds(12)
-										: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
-				Blacklist.Add(
-					Poi.Current.Unit,
-					BlacklistFlags.Interact,
-					timeToBlacklist,
-					"Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
-			}
-		}
-
 		private async Task<bool> InteractWithNode()
 		{
 			StatusText = "Interacting with node";
@@ -1246,7 +1267,7 @@
 							await CommonTasks.DescendTo(ground.Y);
 						}
 					}
-
+					
 					await Coroutine.Sleep(200);
 				}
 
@@ -1497,7 +1518,7 @@
 
 			if (GatherStrategy == GatherStrategy.TouchAndGo)
 			{
-				Logger.Info("TouchAndGo override, maxTimeout being set between 2 and 16 seconds");
+				Logger.Verbose("TouchAndGo override, maxTimeout being set between 2 and 16 seconds");
 				maxTimeoutSeconds = maxTimeoutSeconds.Clamp(2, 16);
 			}
 			else
@@ -1577,13 +1598,13 @@
 				{
 					if (!IsEphemeral())
 					{
-						Logger.Info("TouchAndGo strategy override, not waiting for GP unless we are on an ephemeral node");
+						Logger.Verbose("TouchAndGo strategy override, not waiting for GP unless we are on an ephemeral node");
 						return true;
 					}
 
 					if (gpNeededSeconds > 15)
 					{
-						Logger.Info("TouchAndGo strategy override, not waiting for GP unless it is less than 16 seconds");
+						Logger.Verbose("TouchAndGo strategy override, not waiting for GP unless it is less than 16 seconds");
 						return true;
 					}
 				}

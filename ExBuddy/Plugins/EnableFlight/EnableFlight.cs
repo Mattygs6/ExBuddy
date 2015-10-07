@@ -212,5 +212,8 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		[DefaultValue(0.1f)]
 		public float Smoothing { get; set; }
+
+		[DefaultValue(true)]
+		public bool VerboseLogging { get; set; }
 	}
 }

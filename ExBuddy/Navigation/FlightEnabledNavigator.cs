@@ -84,6 +84,8 @@
 			}
 		}
 
+		public bool VerboseLogging { get; set; }
+
 		#region IDisposable Members
 
 		public void Dispose()

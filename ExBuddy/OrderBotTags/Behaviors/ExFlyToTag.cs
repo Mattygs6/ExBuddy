@@ -113,7 +113,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				await Coroutine.Yield();
 			}
 
-			Logger.Info("Landing took {0} ms", landingStopwatch.Elapsed);
+			Logger.Verbose("Landing took {0} ms", landingStopwatch.Elapsed);
 
 			landingStopwatch.Reset();
 

@@ -171,11 +171,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (flightPath.Current.IsDeviation)
 					{
-						Logger.Verbose("Deviating from course to waypoint: {0}", flightPath.Current);
+						Logger.Info("Deviating from course to waypoint: {0}", flightPath.Current);
 					}
 					else
 					{
 						Logger.Verbose("Moving to waypoint: {0}", flightPath.Current);
+						if (!ExBuddySettings.Instance.VerboseLogging && (flightPath.Index % 5 == 0 || flightPath.Index == flightPath.Count - 1))
+						{
+							Logger.Info("Moving to waypoint [{0}]: {1}", flightPath.Index + 1, flightPath.Current);
+						}
 					}
 
 					await MoveToWithinRadius(flightPath.Current, Radius);

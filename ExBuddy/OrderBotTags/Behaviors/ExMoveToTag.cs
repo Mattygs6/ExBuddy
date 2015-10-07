@@ -1,5 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
+	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.Linq;
@@ -78,7 +79,7 @@
 				var locations = new List<HotSpot>(HotSpots) { new HotSpot(Location, Distance) { Name = Name } };
 				destination = locations.Shuffle().First();
 
-				Logger.Info("Using random location -> {0}", Location);
+				Logger.Verbose("Using random location -> {0}", Location);
 			}
 			else
 			{
@@ -89,6 +90,10 @@
 
 				destination = new HotSpot(Location, Distance) { Name = Name };
 			}
+
+			var name = !string.IsNullOrWhiteSpace(destination.Name) ? "[" + destination.Name + "] " : string.Empty;
+
+			StatusText = string.Format("Moving to {0}{1}, {2}", name, destination, Type);
 
 			switch (Type)
 			{

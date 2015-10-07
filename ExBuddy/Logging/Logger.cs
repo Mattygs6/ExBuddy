@@ -101,13 +101,19 @@
 
 		public void Verbose(string message)
 		{
-			Logging.WriteVerbose(logColors.Info, Prefix + message);
+			if (ExBuddySettings.Instance.VerboseLogging)
+			{
+				Logging.WriteVerbose(logColors.Info, Prefix + message);	
+			}
 		}
 
 		[StringFormatMethod("format")]
 		public void Verbose(string format, params object[] args)
 		{
-			Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+			if (ExBuddySettings.Instance.VerboseLogging)
+			{
+				Logging.WriteVerbose(logColors.Info, Prefix + string.Format(CultureInfo.InvariantCulture, format, args));
+			}
 		}
 
 		public void Warn(string message)

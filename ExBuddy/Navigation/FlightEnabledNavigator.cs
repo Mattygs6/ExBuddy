@@ -49,7 +49,7 @@
 		private Vector3 requestedDestination;
 
 		public FlightEnabledNavigator(INavigationProvider innerNavigator)
-			: this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs()) {}
+			: this(innerNavigator, new FlightEnabledSlideMover(Navigator.PlayerMover), new FlightNavigationArgs()) { }
 
 		public FlightEnabledNavigator(
 			INavigationProvider innerNavigator,
@@ -321,12 +321,12 @@
 #pragma warning disable 4014
 			Task.Factory.StartNew(
 #pragma warning restore 4014
-				() =>
-					{
-						Thread.Sleep(10000);
-						logger.Info("Resetting NavigationProvider to Flight Navigator.");
-						Navigator.NavigationProvider = this;
-					});
+() =>
+				{
+					Thread.Sleep(10000);
+					logger.Info("Resetting NavigationProvider to Flight Navigator.");
+					Navigator.NavigationProvider = this;
+				});
 
 			return GeneratePathResult.Failed;
 		}
@@ -403,10 +403,12 @@
 				name = string.Concat(" (", name, ")");
 			}
 
-			var objArray = new object[]
-								{ "Moving to next hop: ", CurrentPath.Current, name, " D: ", location.Distance(CurrentPath.Current) };
+			logger.Verbose("Moving to next hop: {0}{1} D: {2}", CurrentPath.Current, name, location.Distance(CurrentPath.Current));
+			if (!ExBuddySettings.Instance.VerboseLogging && (CurrentPath.Index % 5 == 0 || CurrentPath.Index == CurrentPath.Count - 1))
+			{
+				logger.Info("Moving to next hop [{0}]: {1}{2} D: {3}", CurrentPath.Index + 1, CurrentPath.Current, name, location.Distance(CurrentPath.Current));
+			}
 
-			logger.Verbose(string.Concat(objArray));
 			//Navigator.PlayerMover.MoveTowards(CurrentPath.Current);
 			playerMover.MoveTowards(CurrentPath.Current);
 			return MoveResult.Moved;

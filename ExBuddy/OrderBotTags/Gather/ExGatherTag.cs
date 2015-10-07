@@ -320,7 +320,7 @@
 				}
 				else
 				{
-					Name = string.Format("ZoneId [{0}], Calling Location {1}", WorldManager.ZoneId, Core.Player.Location);
+					Name = string.Format("ZoneId [{0}], Calling Location {1}", WorldManager.ZoneId, Me.Location);
 				}
 			}
 
@@ -827,7 +827,7 @@
 					Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 		}
 
-		private bool ChangeHotSpot()
+		private async Task<bool> ChangeHotSpot()
 		{
 			if (SpawnTimeout > 0 && DateTime.Now < startTime.AddSeconds(SpawnTimeout))
 			{
@@ -857,6 +857,8 @@
 					}
 				}
 			}
+
+			await Coroutine.Wait(2000, () => !Gathering.IsOpen && !GatheringMasterpiece.IsOpen);
 
 			return true;
 		}
@@ -1058,7 +1060,7 @@
 							continue;
 						}
 
-						if (!ChangeHotSpot())
+						if (!await ChangeHotSpot())
 						{
 							retryCenterHotspot = false;
 							await Coroutine.Yield();
@@ -1325,6 +1327,8 @@
 			{
 				await CloseGatheringWindow();
 				ResetInternal();
+
+				await Coroutine.Wait(2000, () => Me.InCombat || Actionmanager.CanMount == 0);
 				return false;
 			}
 
@@ -1404,7 +1408,11 @@
 		{
 			if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Me.Location))
 			{
-				StatusText = "Moving to hotspot at " + HotSpots.CurrentOrDefault;
+				var name = !string.IsNullOrWhiteSpace(HotSpots.CurrentOrDefault.Name)
+								? "[" + HotSpots.CurrentOrDefault.Name + "] "
+								: string.Empty;
+
+				StatusText = string.Format("Moving to hotspot {0}{1}", name, HotSpots.CurrentOrDefault);
 
 				await
 					HotSpots.CurrentOrDefault.XYZ.MoveTo(

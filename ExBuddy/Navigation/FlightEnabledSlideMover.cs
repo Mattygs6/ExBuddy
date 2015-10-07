@@ -209,13 +209,13 @@
 
 										if (coroutine == null || coroutine.IsFinished)
 										{
-											Logger.Info("Created new Takeoff Coroutine");
+											Logger.Verbose("Created new Takeoff Coroutine");
 											coroutine = new Coroutine(() => CommonTasks.TakeOff());
 										}
 
 										if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
 										{
-											Logger.Info("Resumed Takeoff Coroutine");
+											Logger.Verbose("Resumed Takeoff Coroutine");
 											coroutine.Resume();
 										}
 
@@ -291,7 +291,7 @@
 
 											if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
 											{
-												Logger.Info("Resumed Landing Unstuck Coroutine");
+												Logger.Verbose("Resumed Landing Unstuck Coroutine");
 												while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
 														&& !IsMovingTowardsLocation)
 												{

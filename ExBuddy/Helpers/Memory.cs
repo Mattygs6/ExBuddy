@@ -46,13 +46,15 @@
 
 		public static class Scrips
 		{
+			//starts at imagebase + 010379A8 (A4?)
+			// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
 			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x010379AC);
 
 			public static int BlueCrafter
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<int>(BasePointer);
+					return Core.Memory.Read<int>(BasePointer);
 				}
 			}
 
@@ -60,7 +62,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<int>(BasePointer + 16);
+					return Core.Memory.Read<int>(BasePointer + 16);
 				}
 			}
 
@@ -68,7 +70,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<int>(BasePointer + 8);
+					return Core.Memory.Read<int>(BasePointer + 8);
 				}
 			}
 
@@ -76,7 +78,31 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<int>(BasePointer + 24);
+					return Core.Memory.Read<int>(BasePointer + 24);
+				}
+			}
+
+			public static int CenturioSeals
+			{
+				get
+				{
+					return Core.Memory.Read<int>(BasePointer + 32);
+				}
+			}
+
+			public static int WeeklyRedCrafter
+			{
+				get
+				{
+					return Core.Memory.Read<int>(BasePointer + 36);
+				}
+			}
+
+			public static int WeeklyRedGatherer
+			{
+				get
+				{
+					return Core.Memory.Read<int>(BasePointer + 40);
 				}
 			}
 

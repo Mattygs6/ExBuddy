@@ -25,8 +25,14 @@
 		[XmlAttribute("Condition")]
 		public string Condition { get; set; }
 
+		[XmlAttribute("ItemIds")]
+		public int[] ItemIds { get; set; }
+
+		[XmlAttribute("NqOnly")]
+		public bool NqOnly { get; set; }
+
 		[XmlAttribute("RepairClass")]
-		public ClassJobType? RepairClass { get; set; }
+		public ClassJobType RepairClass { get; set; }
 
 		[DefaultValue(true)]
 		[XmlAttribute("IncludeArmory")]
@@ -64,9 +70,17 @@
 
 			await CommonTasks.StopAndDismount();
 
-			if (RepairClass.HasValue)
+			if (RepairClass > ClassJobType.Thaumaturge && RepairClass < ClassJobType.Miner)
 			{
-				await SalvageDialog.DesynthesizeByRepairClass(RepairClass.Value, (ushort)MaxWait, IncludeArmory);
+				await SalvageDialog.DesynthesizeByRepairClass(RepairClass, (ushort)MaxWait, IncludeArmory, NqOnly);
+			}
+
+			if (ItemIds != null && ItemIds.Length > 0)
+			{
+				foreach (var id in ItemIds)
+				{
+					await SalvageDialog.DesynthesizeByItemId((uint)id, (ushort)MaxWait, IncludeArmory, NqOnly);
+				}
 			}
 
 			return isDone = true;

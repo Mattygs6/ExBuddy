@@ -76,7 +76,12 @@
 					Type = MoveToType.RandomPointWithin;
 				}
 
-				var locations = new List<HotSpot>(HotSpots) { new HotSpot(Location, Distance) { Name = Name } };
+				var locations = new List<HotSpot>(HotSpots);
+				if (Location != Vector3.Zero)
+				{
+					locations.Add(new HotSpot(Location, Distance) { Name = Name });
+				}
+
 				destination = locations.Shuffle().First();
 
 				Logger.Verbose("Using random location -> {0}", Location);

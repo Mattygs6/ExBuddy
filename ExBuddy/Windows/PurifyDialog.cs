@@ -70,7 +70,7 @@
 
 		public static async Task<bool> ReduceByItemId(uint itemId, ushort maxWait = 5000)
 		{
-			return await ReduceAllItems(InventoryManager.FilledInventoryAndArmory.Where(i => i.RawItemId == itemId && i.IsCollectable));
+			return await ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.RawItemId == itemId && i.IsCollectable));
 		}
 
 		public bool Open(BagSlot bagSlot)

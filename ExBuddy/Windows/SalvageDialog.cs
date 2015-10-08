@@ -70,19 +70,19 @@
 			return true;
 		}
 
-		public static async Task<bool> DesynthesizeByItemId(uint itemId, ushort maxWait = 5000, bool includeArmory = true)
+		public static async Task<bool> DesynthesizeByItemId(uint itemId, ushort maxWait = 5000, bool includeArmory = true, bool nqOnly = false)
 		{
 			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
-			return await DesynthesizeAllItems(slots.Where(i => i.RawItemId == itemId));
+			return await DesynthesizeAllItems(slots.Where(i => i.RawItemId == itemId && (!nqOnly || i.TrueItemId == itemId)));
 		}
 
 		public static async Task<bool> DesynthesizeByRepairClass(
 			ClassJobType classJobType,
 			ushort maxWait = 5000,
-			bool includeArmory = true)
+			bool includeArmory = true, bool nqOnly = false)
 		{
 			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
-			return await DesynthesizeAllItems(slots.Where(i => i.Item != null && classJobType == (ClassJobType)i.Item.RepairClass));
+			return await DesynthesizeAllItems(slots.Where(i => i.Item != null && classJobType == (ClassJobType)i.Item.RepairClass && (!nqOnly || (!i.IsHighQuality && !i.IsCollectable))));
 		}
 
 		public bool Open(BagSlot bagSlot)

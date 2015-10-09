@@ -38,7 +38,13 @@
 				5224, 	// Radiant Lightning Moraine
 				5214, 	// Fire Moraine
 				12966, 	// Bright Fire Rock
-				5220 	// Radiant Fire Moraine
+				5220, 	// Radiant Fire Moraine
+				12802,	//Caiman
+				12821,	//Pteranodon
+				12831,	//Thaliak Caiman
+				12833,	//Tupuxuara
+				12761,	//Dravanian Bass
+				12784	//Manasail
 			};
 
 		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)

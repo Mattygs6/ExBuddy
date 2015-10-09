@@ -167,6 +167,7 @@
 			if (ShouldFly && !MovementManager.IsFlying && !IsTakingOff)
 			{
 				IsTakingOff = true;
+				IsMovingTowardsLocation = true;
 				EnsureFlying();
 			}
 

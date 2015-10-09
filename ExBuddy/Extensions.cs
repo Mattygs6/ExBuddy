@@ -26,6 +26,21 @@
 
 	public static partial class Extensions
 	{
+		private static readonly List<uint> ReducibleItemIds = new List<uint> { 
+				12968, 	// Granular Clay
+				12969, 	// Peat Moss
+				12970, 	// Black Soil
+				12971, 	// Highland Oregano
+				12972, 	// Furymint
+				12973,	// Clary Sage
+				5218, 	// Lightning Moraine
+				12967, 	// Bright Lightning Rock
+				5224, 	// Radiant Lightning Moraine
+				5214, 	// Fire Moraine
+				12966, 	// Bright Fire Rock
+				5220 	// Radiant Fire Moraine
+			};
+
 		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
 		{
 			var side = range / Math.Sqrt(3);
@@ -477,6 +492,16 @@
 			}
 
 			return false;
+		}
+
+		public static bool IsReducible(this BagSlot bagSlot)
+		{
+			return bagSlot.Item != null && bagSlot.Item.IsReducible();
+		}
+
+		public static bool IsReducible(this Item item)
+		{
+			return ReducibleItemIds.Contains(item.Id);
 		}
 
 		public static bool IsSafeSphere(this Vector3 vector, float range = 3.0f)

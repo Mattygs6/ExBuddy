@@ -197,7 +197,7 @@
 							{
 								try
 								{
-									while (!MovementManager.IsFlying && Behaviors.ShouldContinue)
+									while (!MovementManager.IsFlying && Behaviors.ShouldContinue && IsMovingTowardsLocation)
 									{
 										if (takeoffStopwatch.ElapsedMilliseconds > 10000)
 										{
@@ -224,7 +224,11 @@
 								}
 								finally
 								{
-									if (IsTakingOff)
+									if (!IsMovingTowardsLocation)
+									{
+										Logger.Warn("Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called.", takeoffStopwatch.Elapsed);
+									}
+									else
 									{
 										Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
 									}

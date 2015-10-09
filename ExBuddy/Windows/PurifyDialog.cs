@@ -70,20 +70,21 @@
 
 		public static async Task<bool> ReduceByItemId(uint itemId, ushort maxWait = 5000)
 		{
-			return await ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.RawItemId == itemId && i.IsCollectable));
+			return await ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.RawItemId == itemId && i.IsReducible()));
 		}
 
 		public bool Open(BagSlot bagSlot)
 		{
 			if (bagSlot != null && bagSlot.IsFilled)
 			{
-				if (!bagSlot.IsCollectable)
+				// TODO: get mastahg to implement real IsReducible check
+				if (!bagSlot.IsReducible())
 				{
 					return false;
 				}
 
 				var item = bagSlot.Item;
-				// TODO: need some sort of check to see if it is reducable
+				
 				if (item != null)
 				{
 					lock (Core.Memory.Executor.AssemblyLock)

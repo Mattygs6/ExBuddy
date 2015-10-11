@@ -579,8 +579,34 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			isDone = true;
-			return true;
+			if (SelectYesno.IsOpen)
+			{
+				SelectYesno.ClickNo();
+			}
+
+			if (Request.IsOpen)
+			{
+				Request.Cancel();
+			}
+
+			var masterpieceSupply = new MasterPieceSupply();
+			if (masterpieceSupply.IsValid)
+			{
+				await masterpieceSupply.CloseInstanceGently();
+			}
+			
+			var shopExchangeCurrency = new ShopExchangeCurrency();
+			if (shopExchangeCurrency.IsValid)
+			{
+				await shopExchangeCurrency.CloseInstanceGently();
+			}
+
+			if (SelectIconString.IsOpen)
+			{
+				SelectIconString.ClickSlot(uint.MaxValue);
+			}
+
+			return isDone = true;
 		}
 
 		private bool ShouldPurchaseItem(ShopPurchase shopPurchase)

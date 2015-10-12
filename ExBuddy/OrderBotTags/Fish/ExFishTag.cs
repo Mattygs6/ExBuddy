@@ -20,12 +20,14 @@ namespace ExBuddy.OrderBotTags.Fish
 	using ExBuddy.Helpers;
 	using ExBuddy.OrderBotTags.Behaviors;
 	using ExBuddy.OrderBotTags.Objects;
+	using ExBuddy.Windows;
 
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
-	using ff14bot.RemoteWindows;
+	using ff14bot.Objects;
+	//using ff14bot.RemoteWindows;
 	using ff14bot.Settings;
 
 	using TreeSharp;
@@ -81,6 +83,8 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		private const uint WmKeyup = 0x0101;
 
+		internal SpellData CordialSpellData;
+
 		private readonly Windows.Bait baitWindow = new Windows.Bait();
 
 		protected uint CurrentCollectableItemId
@@ -135,9 +139,9 @@ namespace ExBuddy.OrderBotTags.Fish
 					CheckStealthComposite,
 					CheckWeatherComposite,
 					// Waits up to 10 hours, might want to rethink this one.
-					new ActionRunCoroutine(ctx => HandleBait()),
+					new ExCoroutineAction(ctx => HandleBait(), this),
 					InitFishSpotComposite,
-					new ActionRunCoroutine(ctx => HandleCollectable()),
+					new ExCoroutineAction(ctx => HandleCollectable(), this),
 					ReleaseComposite,
 					MoochComposite,
 					FishCountLimitComposite,
@@ -145,6 +149,7 @@ namespace ExBuddy.OrderBotTags.Fish
 					SitComposite,
 					CollectorsGloveComposite,
 					SnaggingComposite,
+					new ExCoroutineAction(ctx => HandleCordial(), this),
 					PatienceComposite,
 					FishEyesComposite,
 					ChumComposite,
@@ -269,6 +274,8 @@ namespace ExBuddy.OrderBotTags.Fish
 				DoAbility(Abilities.Quit);
 			}
 
+			CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+
 			cleanup = bot =>
 				{
 					DoCleanup();
@@ -294,6 +301,13 @@ namespace ExBuddy.OrderBotTags.Fish
 		[DllImport("user32.dll")]
 		// ReSharper disable once InconsistentNaming
 		protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+		internal bool CanUseCordial(ushort withinSeconds = 5)
+		{
+			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && !HasChum && !HasPatience && !HasFishEyes
+					&& ((CordialType == CordialType.Cordial && Cordial.HasCordials())
+						|| CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
+		}
 
 		private async Task<bool> HandleBait()
 		{
@@ -403,19 +417,30 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		private async Task<bool> HandleCollectable()
 		{
-			if (Collectables == null || !SelectYesNoItem.IsOpen)
+			if (Collectables == null)
 			{
-				//we are not collecting or the window isn't open yet
+				//we are not collecting
 				return false;
 			}
 
-			await Coroutine.Wait(5000, () => SelectYesNoItem.CollectabilityValue > 20);
+			if (FishingManager.State != FishingState.Waitin)
+			{
+				// we are not waitin yet!
+				return false;
+			}
+
+			var selectYesNoItem = new SelectYesNoItem();
+			if (!selectYesNoItem.IsValid || !await selectYesNoItem.Refresh(5000))
+			{
+				// window didn't open, continue.
+				return false;
+			}
 
 			var required = CollectabilityValue;
 			var itemName = string.Empty;
 			if (!string.IsNullOrWhiteSpace(Collectables.First().Name))
 			{
-				var item = DataManager.GetItem(CurrentCollectableItemId);
+				var item = selectYesNoItem.Item;
 				if (item == null
 					|| !Collectables.Any(c => string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
 				{
@@ -424,7 +449,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							|| !Collectables.Any(c => string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
 							&& ticks++ < 60 && Behaviors.ShouldContinue)
 					{
-						item = DataManager.GetItem(CurrentCollectableItemId);
+						item = selectYesNoItem.Item;
 						await Coroutine.Yield();
 					}
 
@@ -450,22 +475,124 @@ namespace ExBuddy.OrderBotTags.Fish
 
 			// handle
 
-			var value = SelectYesNoItem.CollectabilityValue;
+			var value = selectYesNoItem.CollectabilityValue;
 
 			if (value >= required)
 			{
 				Logger.Info("Collecting {0} -> Value: {1}, Required: {2}", itemName, value, required);
-				SelectYesNoItem.Yes();
+				selectYesNoItem.Yes();
 			}
 			else
 			{
 				Logger.Info("Declining {0} -> Value: {1}, Required: {2}", itemName, value, required);
-				SelectYesNoItem.No();
+				selectYesNoItem.No();
 			}
 
-			await Coroutine.Wait(2000, () => !SelectYesNoItem.IsOpen);
+			await Coroutine.Wait(3000, () => !selectYesNoItem.IsValid && FishingManager.State != FishingState.Waitin);
 
 			return true;
+		}
+
+		private async Task<bool> HandleCordial()
+		{
+			if (CordialType == CordialType.None)
+			{
+				// Not using cordials, skip method.
+				return false;
+			}
+
+			if (FishingManager.State >= FishingState.Bite)
+			{
+				// Need to wait till we are in the correct state
+				return false;
+			}
+
+			CordialSpellData = CordialSpellData ?? Cordial.GetSpellData();
+
+			if (CordialSpellData == null)
+			{
+				CordialType = CordialType.None;
+				return false;
+			}
+
+			if (!CanUseCordial(8))
+			{
+				// has a buff or cordial cooldown not ready or we have no cordials.
+				return false;
+			}
+
+			var missingGp = Me.MaxGP - Me.CurrentGP;
+
+			if (missingGp < 300 && !ForceCordial)
+			{
+				// Not forcing cordial and less than 300gp missing from max.
+				return false;
+			}
+
+			await Coroutine.Wait(10000, () => CanDoAbility(Abilities.Quit));
+			DoAbility(Abilities.Quit);
+			isSitting = false;
+
+			await Coroutine.Wait(5000, () => FishingManager.State == FishingState.None);
+
+			if (missingGp >= 380 && CordialType >= CordialType.HiCordial)
+			{
+				if (await UseCordial(CordialType.HiCordial))
+				{
+					return true;
+				}
+			}
+
+			if (await UseCordial(CordialType.Cordial))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private async Task<bool> UseCordial(CordialType cordialType, int maxTimeoutSeconds = 5)
+		{
+			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
+			{
+				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
+
+				if (cordial != null)
+				{
+					StatusText = "Using cordial when it becomes available";
+
+					Logger.Info(
+						"Using Cordial -> Waiting (sec): {0}, CurrentGP: {1}",
+						(int)CordialSpellData.Cooldown.TotalSeconds,
+						Me.CurrentGP);
+
+					if (await Coroutine.Wait(
+						TimeSpan.FromSeconds(maxTimeoutSeconds),
+						() =>
+							{
+								if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
+								{
+									Actionmanager.Dismount();
+									return false;
+								}
+
+								return cordial.CanUse(Me);
+							}))
+					{
+						await Coroutine.Sleep(500);
+						Logger.Info("Using " + cordialType);
+						cordial.UseItem(Me);
+						await Coroutine.Sleep(1500);
+						return true;
+					}
+				}
+				else
+				{
+					Logger.Warn("No Cordial avilable, buy more " + cordialType);
+				}
+			}
+
+			return false;
 		}
 
 		#region Aura Properties
@@ -561,6 +688,13 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		[XmlElement("Baits")]
 		public List<Bait> Baits { get; set; }
+
+		[DefaultValue(CordialType.None)]
+		[XmlAttribute("CordialType")]
+		public CordialType CordialType { get; set; }
+
+		[XmlAttribute("ForceCordial")]
+		public bool ForceCordial { get; set; }
 
 		[XmlElement("Keepers")]
 		public List<Keeper> Keepers { get; set; }

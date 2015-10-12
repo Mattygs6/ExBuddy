@@ -62,6 +62,7 @@
     <Compile Include="GameObjects\Npcs\SummoningBell.cs" />
     <Compile Include="GameObjects\Npcs\MasterPieceSupply.cs" />
     <Compile Include="GameObjects\Npcs\ShopExchangeCurrency.cs" />
+    <Compile Include="Helpers\Cordial.cs" />
     <Compile Include="Helpers\Memory.cs" />
     <Compile Include="Helpers\SkywatcherPlugin.cs" />
     <Compile Include="Interfaces\IAetheryteId.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="Windows\SalvageItemSelector.cs" />
     <Compile Include="Windows\SalvageResult.cs" />
     <Compile Include="Windows\SelectYesnoCount.cs" />
+    <Compile Include="Windows\SelectYesNoItem.cs" />
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />

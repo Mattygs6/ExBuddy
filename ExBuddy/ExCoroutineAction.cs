@@ -1,6 +1,7 @@
 ﻿namespace ExBuddy
 {
 	using System;
+	using System.Runtime.CompilerServices;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
@@ -24,14 +25,15 @@
 			{
 				throw new ArgumentNullException("coroutineProducer");
 			}
-				
+
 			this.coroutineProducer = coroutineProducer;
 			this.behavior = behavior;
 		}
 
 		public ExCoroutineAction(Func<object, Task<bool>> taskProducer, ProfileBehavior behavior)
-			: this(obj => new Coroutine(() => taskProducer(obj)), behavior)
+			: this(CreateCoroutineProducer(taskProducer), behavior)
 		{
+
 			this.TaskProducer = taskProducer;
 		}
 
@@ -48,6 +50,48 @@
 		public ExCoroutineAction(Func<object, CoroutineTask> taskProducer, ProfileBehavior behavior)
 			: this(obj => taskProducer(obj).Run(), behavior)
 		{
+		}
+
+		private static Func<object, Coroutine> CreateCoroutineProducer(Func<object, Task<bool>> taskProducer)
+		{
+			return obj =>
+			{
+				return new Coroutine(
+					() =>
+					{
+						var builder = AsyncTaskMethodBuilder<object>.Create();
+						try
+						{
+							var task = taskProducer(obj);
+							var awaiter = task.GetAwaiter();
+							if (!awaiter.IsCompleted)
+							{
+								// Result wasn’t available. Add a continuation, and return the builder. 
+								awaiter.OnCompleted(() =>
+								{
+									try
+									{
+										builder.SetResult(awaiter.GetResult());
+									}
+									catch (Exception e)
+									{
+										builder.SetException(e);
+									}
+								});
+
+								return builder.Task;
+							}
+
+							// Result was already available: proceed synchronously 
+							builder.SetResult(awaiter.GetResult());
+						}
+						catch (Exception e)
+						{
+							builder.SetException(e);
+						}
+						return builder.Task;
+					});
+			};
 		}
 
 		private void DisposeCoroutine()

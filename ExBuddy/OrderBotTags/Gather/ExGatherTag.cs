@@ -335,7 +335,8 @@
 		internal bool CanUseCordial(ushort withinSeconds = 5)
 		{
 			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && CordialTime > CordialTime.None
-					&& ((CordialType == CordialType.Cordial && HasCordials()) || CordialType > CordialType.Cordial && HasAnyCordials());
+					&& ((CordialType == CordialType.Cordial && Cordial.HasCordials())
+						|| CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
 		}
 
 		internal async Task<bool> Cast(uint id)
@@ -365,21 +366,6 @@
 				Gathering.CloseGently(
 					(byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)),
 					(ushort)SkipWindowDelay);
-		}
-
-		internal bool HasAnyCordials()
-		{
-			return HasCordials() || HasHiCordials();
-		}
-
-		internal bool HasCordials()
-		{
-			return DataManager.GetItem((uint)CordialType.Cordial).ItemCount() > 0;
-		}
-
-		internal bool HasHiCordials()
-		{
-			return DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0;
 		}
 
 		internal bool IsConcealed()
@@ -624,26 +610,10 @@
 
 			var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
 
-			if (CordialSpellData == null)
-			{
-				CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
-
-				if (CordialSpellData == null)
-				{
-					var item =
-						InventoryManager.FilledSlots.FirstOrDefault(
-							bs => bs.RawItemId == (uint)CordialType.Cordial || bs.RawItemId == (uint)CordialType.HiCordial);
-
-					if (item != null)
-					{
-						CordialSpellData = item.Item.BackingAction;
-					}
-				}
-			}
+			CordialSpellData = CordialSpellData ?? Cordial.GetSpellData();
 
 			if (CordialSpellData == null)
 			{
-				Logger.Error("Unable to resolve cordial data, if this continues, please report logs to ExMatt.");
 				CordialType = CordialType.None;
 			}
 
@@ -1269,7 +1239,7 @@
 							await CommonTasks.DescendTo(ground.Y);
 						}
 					}
-					
+
 					await Coroutine.Sleep(200);
 				}
 

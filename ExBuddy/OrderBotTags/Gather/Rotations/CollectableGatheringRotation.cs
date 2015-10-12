@@ -9,7 +9,6 @@
 
 	using ff14bot;
 	using ff14bot.Managers;
-	using ff14bot.RemoteWindows;
 
 	public abstract class CollectableGatheringRotation : GatheringRotation
 	{
@@ -51,9 +50,11 @@
 			tag.StatusText = "Gathering collectable items";
 
 			var rarity = CurrentRarity;
+			var selectYesNoItem = new SelectYesNoItem();
 			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
 			{
-				while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0
+				
+				while (!selectYesNoItem.IsValid && tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0
 						&& Behaviors.ShouldContinue)
 				{
 					if (!MasterpieceWindow.IsValid)
@@ -61,39 +62,27 @@
 						await MasterpieceWindow.Refresh(3000);
 					}
 
-					var itemRarity = rarity = CurrentRarity;
-					if (SelectYesNoItem.CollectabilityValue >= itemRarity)
-					{
-						await Coroutine.Wait(1000, () => SelectYesNoItem.CollectabilityValue < itemRarity);
-					}
-
 					if (MasterpieceWindow.IsValid)
 					{
 						MasterpieceWindow.Collect();
 					}
 
-					await Coroutine.Wait(1000, () => SelectYesNoItem.IsOpen);
+					await selectYesNoItem.Refresh(500);
 				}
 
 				await Coroutine.Yield();
 				var swingsRemaining = GatheringManager.SwingsRemaining - 1;
 
-				while (SelectYesNoItem.IsOpen && rarity > 0 && Behaviors.ShouldContinue)
+				while (selectYesNoItem.IsValid && rarity > 0 && Behaviors.ShouldContinue)
 				{
-					var itemRarity = rarity = CurrentRarity;
-					if (SelectYesNoItem.CollectabilityValue < itemRarity)
-					{
-						await Coroutine.Wait(4000, () => SelectYesNoItem.CollectabilityValue >= itemRarity);
-					}
-
 					tag.Logger.Info(
 						"Collected item: {0}, value: {1} at {2} ET",
 						tag.GatherItem.ItemData.EnglishName,
-						SelectYesNoItem.CollectabilityValue,
+						selectYesNoItem.CollectabilityValue,
 						WorldManager.EorzaTime);
 
-					SelectYesNoItem.Yes();
-					await Coroutine.Wait(1000, () => !SelectYesNoItem.IsOpen);
+					selectYesNoItem.Yes();
+					await selectYesNoItem.Refresh(2000, false);
 				}
 
 				var ticks = 0;

@@ -618,17 +618,9 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlAttribute("Chum")]
 		public bool Chum { get; set; }
 
-		[DefaultValue(VirtualKeys.Numpad0)]
-		[XmlAttribute("ConfirmKey")]
-		public VirtualKeys ConfirmKey { get; set; }
-
 		[DefaultValue(30)]
 		[XmlAttribute("LastFishTimeout")]
 		public int LastFishTimeout { get; set; }
-
-		[DefaultValue(VirtualKeys.Numpad6)]
-		[XmlAttribute("MoveCursorRightKey")]
-		public VirtualKeys MoveCursorRightKey { get; set; }
 
 		[DefaultValue("True")]
 		[XmlAttribute("Condition")]

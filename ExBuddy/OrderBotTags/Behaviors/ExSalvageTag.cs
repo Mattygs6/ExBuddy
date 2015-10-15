@@ -34,7 +34,6 @@
 		[XmlAttribute("RepairClass")]
 		public ClassJobType RepairClass { get; set; }
 
-		[DefaultValue(true)]
 		[XmlAttribute("IncludeArmory")]
 		public bool IncludeArmory { get; set; }
 

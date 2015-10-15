@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System.ComponentModel;
-	using System.Linq;
 	using System.Threading.Tasks;
 
 	using Buddy.Coroutines;
@@ -76,7 +75,7 @@
 						return false;
 					}))
 			{
-				await PurifyDialog.ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.IsReducible()), (ushort)MaxWait);
+				await PurifyDialog.ReduceAllItems(InventoryManager.FilledSlots, (ushort)MaxWait);
 			}
 			else
 			{

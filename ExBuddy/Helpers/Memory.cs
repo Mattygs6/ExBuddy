@@ -9,6 +9,17 @@
 
 	public static class Memory
 	{
+		public static class Bait
+		{
+			public static uint SelectedBaitItemId
+			{
+				get
+				{
+					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103906C);
+				}
+			}
+		}
+
 		public static class Request
 		{
 			public static uint ItemId1

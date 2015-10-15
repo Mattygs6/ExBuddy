@@ -31,7 +31,8 @@
 
 		public static async Task<bool> ReduceAllItems(IEnumerable<BagSlot> bagSlots, ushort maxWait = 5000)
 		{
-			foreach (var bagSlot in bagSlots)
+			// TODO: Maybe log info why we can't reduce better
+			foreach (var bagSlot in bagSlots.Where(bs => bs.IsReducable))
 			{
 				var dialog = OpenDialog(bagSlot);
 				if (dialog == null)
@@ -70,21 +71,20 @@
 
 		public static async Task<bool> ReduceByItemId(uint itemId, ushort maxWait = 5000)
 		{
-			return await ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.RawItemId == itemId && i.IsReducible()));
+			return await ReduceAllItems(InventoryManager.FilledSlots.Where(i => i.RawItemId == itemId));
 		}
 
 		public bool Open(BagSlot bagSlot)
 		{
 			if (bagSlot != null && bagSlot.IsFilled)
 			{
-				// TODO: get mastahg to implement real IsReducible check
-				if (!bagSlot.IsReducible())
+				if (!bagSlot.IsReducable)
 				{
 					return false;
 				}
 
 				var item = bagSlot.Item;
-				
+
 				if (item != null)
 				{
 					lock (Core.Memory.Executor.AssemblyLock)

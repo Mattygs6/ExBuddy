@@ -4,7 +4,6 @@ namespace ExBuddy.OrderBotTags.Fish
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.Linq;
-	using System.Runtime.InteropServices;
 	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
@@ -27,7 +26,6 @@ namespace ExBuddy.OrderBotTags.Fish
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.Objects;
-	//using ff14bot.RemoteWindows;
 	using ff14bot.Settings;
 
 	using TreeSharp;
@@ -79,35 +77,15 @@ namespace ExBuddy.OrderBotTags.Fish
 			Patience2 = 4106
 		}
 
-		private const uint WmKeydown = 0x100;
-
-		private const uint WmKeyup = 0x0101;
-
 		internal SpellData CordialSpellData;
 
 		private readonly Windows.Bait baitWindow = new Windows.Bait();
-
-		protected uint CurrentCollectableItemId
-		{
-			get
-			{
-				return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x00FDD298) % 500000;
-			}
-		}
 
 		protected override Color Info
 		{
 			get
 			{
 				return Colors.Gold;
-			}
-		}
-
-		protected uint SelectedBaitItemId
-		{
-			get
-			{
-				return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103906C);
 			}
 		}
 
@@ -241,8 +219,6 @@ namespace ExBuddy.OrderBotTags.Fish
 				Baits.Insert(0, new Bait { Id = baitItem.Id, Name = baitItem.EnglishName, BaitItem = baitItem, Condition = "True" });
 			}
 
-			BaitDelay = BaitDelay < 100 ? 100 : BaitDelay;
-
 			if (baitItem != null && baitItem.Affinity != 19)
 			{
 				isDone = true;
@@ -285,23 +261,6 @@ namespace ExBuddy.OrderBotTags.Fish
 			TreeRoot.OnStop += cleanup;
 		}
 
-		protected static async Task PostKeyPress(VirtualKeys key, int delay)
-		{
-			PostKeyPress((int)key);
-			await Coroutine.Sleep(delay);
-		}
-
-		protected static void PostKeyPress(int key)
-		{
-			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeydown, new IntPtr(key), IntPtr.Zero);
-			PostMessage(Core.Memory.Process.MainWindowHandle, WmKeyup, new IntPtr(key), IntPtr.Zero);
-		}
-
-		[return: MarshalAs(UnmanagedType.Bool)]
-		[DllImport("user32.dll")]
-		// ReSharper disable once InconsistentNaming
-		protected static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
 		internal bool CanUseCordial(ushort withinSeconds = 5)
 		{
 			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && !HasChum && !HasPatience && !HasFishEyes
@@ -329,86 +288,13 @@ namespace ExBuddy.OrderBotTags.Fish
 				return isDone = true;
 			}
 
-			baitWindow.Refresh();
-			if (!baitWindow.IsValid)
-			{
-				DoAbility(Abilities.Bait);
-			}
-
-			await baitWindow.Refresh(3000);
-
-			if (!baitWindow.IsValid)
-			{
-				DoAbility(Abilities.Bait);
-				Logger.Error("Timeout during bait selection.");
-				return isDone = true;
-			}
-
 			var baitItem = Fish.Bait.FindMatch(Baits).BaitItem;
 
-			var ticks = 0;
-			while (!IsCorrectBaitSelected && ticks++ < 5 && Behaviors.ShouldContinue)
+			if (!await baitWindow.SelectBait(baitItem.Id))
 			{
-				if (ticks > 1)
-				{
-					Logger.Warn("Looks like we may have lost control of the bait window, trying again. Attempt: {0}/5", ticks);
-					if (BaitDelay < 2000)
-					{
-						Logger.Info(
-							"Increasing bait delay by 25% from {0} ms to {1} ms. If the new value works, try setting the 'baitDelay' attribute between these two values.",
-							BaitDelay,
-							(BaitDelay = Math.Min((int)(BaitDelay * 1.25), 2000)));
-					}
-					else
-					{
-						Logger.Error("Reached the maximum bait delay of 2000 ms.  Submit the log to ExMatt for analysis.");
-						return isDone = true;
-					}
-
-					DoAbility(Abilities.Bait);
-					await baitWindow.Refresh(5000, false);
-					DoAbility(Abilities.Bait);
-					await baitWindow.Refresh(5000);
-				}
-
-				await Coroutine.Sleep(BaitDelay);
-
-				await PostKeyPress(MoveCursorRightKey, BaitDelay);
-
-				await PostKeyPress(ConfirmKey, BaitDelay);
-
-				await Coroutine.Sleep(BaitDelay);
-
-				var bait = GetBaitIds();
-				var baitIndex = bait.IndexOf(baitItem.Id);
-
-				var currentBaitIndex = bait.IndexOf(SelectedBaitItemId);
-
-				if (baitIndex < currentBaitIndex)
-				{
-					baitIndex += bait.Count;
-				}
-
-				var diff = baitIndex - currentBaitIndex;
-
-				while (diff-- > 0)
-				{
-					await PostKeyPress(MoveCursorRightKey, BaitDelay);
-				}
-
-				await PostKeyPress(ConfirmKey, BaitDelay);
-				await Coroutine.Sleep(BaitDelay);
-			}
-
-			if (ticks > 5)
-			{
-				DoAbility(Abilities.Bait);
-				Logger.Error("Timeout during bait selection.");
+				Logger.Error("An error has occurred during bait selection.");
 				return isDone = true;
 			}
-
-			DoAbility(Abilities.Bait);
-			await Coroutine.Sleep(BaitDelay);
 
 			Logger.Info("Using bait -> " + baitItem.EnglishName);
 
@@ -727,9 +613,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlAttribute("BaitId")]
 		public uint BaitId { get; set; }
 
-		[DefaultValue(200)]
-		[XmlAttribute("BaitDelay")]
-		public int BaitDelay { get; set; }
+
 
 		[XmlAttribute("Chum")]
 		public bool Chum { get; set; }
@@ -752,6 +636,10 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		[XmlAttribute("Weather")]
 		public string Weather { get; set; }
+
+		[DefaultValue(2.0f)]
+		[XmlAttribute("Radius")]
+		public float Radius { get; set; }
 
 		[XmlAttribute("ShuffleFishSpots")]
 		public bool Shuffle { get; set; }
@@ -784,17 +672,14 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlElement("PatienceTugs")]
 		public List<PatienceTug> PatienceTugs { get; set; }
 
-		public Version Version
-		{
-			get
-			{
-				return new Version(3, 0, 7, 201509150);
-			}
-		}
-
 		#endregion
 
 		#region Private Properties
+
+		internal bool MovementStopCallback(float distance, float radius)
+		{
+			return distance <= radius || !ConditionCheck() || Me.IsDead;
+		}
 
 		private bool HasSpecifiedBait
 		{
@@ -816,7 +701,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Fish.Bait.FindMatch(Baits).BaitItem.Id == SelectedBaitItemId;
+				return Fish.Bait.FindMatch(Baits).BaitItem.Id == Memory.Bait.SelectedBaitItemId;
 			}
 		}
 
@@ -1181,7 +1066,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							ret => FishingManager.State < FishingState.Bite,
 							new Sequence(
 								new PrioritySelector(
-									new ActionRunCoroutine(ctx => HandleCollectable()),
+									new ExCoroutineAction(ctx => HandleCollectable(), this),
 									ReleaseComposite,
 									new ActionAlwaysSucceed()),
 								new Sleep(2, 3),
@@ -1195,12 +1080,12 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		#region Ability Checks and Actions
 
-		protected bool CanDoAbility(Abilities ability)
+		internal bool CanDoAbility(Abilities ability)
 		{
 			return Actionmanager.CanCast((uint)ability, Me);
 		}
 
-		protected bool DoAbility(Abilities ability)
+		internal bool DoAbility(Abilities ability)
 		{
 			return Actionmanager.DoAction((uint)ability, Me);
 		}
@@ -1265,24 +1150,6 @@ namespace ExBuddy.OrderBotTags.Fish
 			spotinit = false;
 			isFishing = false;
 			isSitting = false;
-		}
-
-		protected virtual IList<uint> GetBaitIds()
-		{
-			var result = GetBaitInWindowOrder().GroupBy(i => i.RawItemId).Select(i => i.Key).ToArray();
-
-			return result;
-		}
-
-		protected virtual IList<BagSlot> GetBaitInWindowOrder()
-		{
-			var result =
-				InventoryManager.FilledSlots.Where(i => i.Item.Affinity == 19)
-					.OrderBy(i => i.Item.ItemLevel)
-					.ThenByDescending(i => i.RawItemId)
-					.ToArray();
-
-			return result;
 		}
 
 		protected virtual int GetFishLimit()

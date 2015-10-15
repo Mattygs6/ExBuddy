@@ -141,7 +141,7 @@
     <Compile Include="OrderBotTags\Fish\Bait.cs" />
     <Compile Include="OrderBotTags\Fish\ExFishTag.cs" />
     <Compile Include="OrderBotTags\Fish\FishResult.cs" />
-    <Compile Include="OrderBotTags\Fish\FishSpot.cs" />
+    <Compile Include="OrderBotTags\Fish\FishSpots\FishSpot.cs" />
     <Compile Include="OrderBotTags\Fish\Keeper.cs" />
     <Compile Include="Enumerations\KeeperAction.cs" />
     <Compile Include="Enumerations\VirtualKeys.cs" />

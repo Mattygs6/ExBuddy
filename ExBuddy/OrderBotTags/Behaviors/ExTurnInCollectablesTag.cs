@@ -135,11 +135,36 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			if (ShopPurchases == null || ShopPurchases.Count == 0 || ShopPurchases.All(s => !ShouldPurchaseItem(s)))
 			{
 				Logger.Info("No items to purchase");
-				isDone = true;
-				return true;
+				LogInventoryForPurchaseInfos();
+				LogScripsRemainingForPurchaseInfos();
+				return isDone = true;
 			}
 
 			return false;
+		}
+
+		private void LogInventoryForPurchaseInfos()
+		{
+			foreach (var purchaseItem in ShopPurchases)
+			{
+				var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
+				var purchaseItemData = purchaseItemInfo.ItemData;
+
+				Logger.Info("Inventory for {0} -> Count: {1}", purchaseItemData.CurrentLocaleName, purchaseItemData.ItemCount());
+			}
+		}
+
+		private void LogScripsRemainingForPurchaseInfos()
+		{
+			var result = ShopPurchases.Select(sp => Data.ShopItemMap[sp.ShopItem].ShopType).Distinct().ToArray();
+
+			foreach (var shopType in result)
+			{
+				Logger.Info(
+					"Scrips remaining for shop {0} -> Count: {1}",
+					shopType,
+					Memory.Scrips.GetRemainingScripsByShopType(shopType));
+			}
 		}
 
 		private async Task<bool> HandOver()

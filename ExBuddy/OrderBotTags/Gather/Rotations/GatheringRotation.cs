@@ -60,6 +60,13 @@
 			{
 				await Wait();
 
+				if (Memory.Gathering.HqChain == 2 && GatheringManager.SwingsRemaining > 0)
+				{
+					await tag.Cast(Ability.Luck);
+
+					await Wait();
+				}
+
 				if (GatheringManager.GatheringCombo == 4 && GatheringManager.SwingsRemaining > 0)
 				{
 					await tag.Cast(Ability.IncreaseGatherChanceQuality100);

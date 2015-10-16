@@ -20,6 +20,25 @@
 			}
 		}
 
+		public static class Gathering
+		{
+			public static byte Chain
+			{
+				get
+				{
+					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x01051A70 + 1240);
+				}
+			}
+
+			public static byte HqChain
+			{
+				get
+				{
+					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x01051A70 + 1241);
+				}
+			}
+		}
+
 		public static class Request
 		{
 			public static uint ItemId1

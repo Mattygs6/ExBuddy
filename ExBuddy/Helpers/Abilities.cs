@@ -35,6 +35,9 @@
 								{ Ability.DiscerningEye, 4092 },
 								{ Ability.UtmostCaution, 4093 },
 								{ Ability.DeepBreath, 4094 },
+								{ Ability.Luck, 4095 },
+								{ Ability.IncreaseGatherQualityOnce10, 4096 },
+								{ Ability.IncreaseGatherQualityOnce20, 4097 },
 								{ Ability.SingleMind, 4098 }
 							}
 					},
@@ -64,6 +67,9 @@
 								{ Ability.DiscerningEye, 4078 },
 								{ Ability.UtmostCaution, 4079 },
 								{ Ability.DeepBreath, 4080 },
+								{ Ability.Luck, 4081 },
+								{ Ability.IncreaseGatherQualityOnce10, 4082 },
+								{ Ability.IncreaseGatherQualityOnce20, 4083 },
 								{ Ability.SingleMind, 4084 }
 							}
 					}
@@ -132,6 +138,12 @@
 		UtmostCaution, // = 4079,4093
 
 		DeepBreath, // = 4080,4094
+
+		Luck, // = 4081,4095
+
+		IncreaseGatherQualityOnce10, // = 4082, 4096
+
+		IncreaseGatherQualityOnce20, // = 4083, 4097
 
 		SingleMind // = 4084,4098
 	}

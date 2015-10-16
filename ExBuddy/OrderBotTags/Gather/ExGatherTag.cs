@@ -173,6 +173,9 @@
 		[XmlAttribute("SkipWindowDelay")]
 		public int SkipWindowDelay { get; set; }
 
+		[XmlAttribute("SwingsRemaining")]
+		public byte SwingsRemaining { get; set; }
+
 		// I want this to be an attribute, but for backwards compatibilty, we will use element
 		[DefaultValue(-1)]
 		[XmlElement("Slot")]
@@ -526,7 +529,7 @@
 				WorldManager.EorzaTime.ToShortTimeString());
 
 			// in case we failed our rotation or window stuck open because items are somehow left
-			if (GatheringManager.SwingsRemaining > 0)
+			if (GatheringManager.SwingsRemaining > SwingsRemaining)
 			{
 				// TODO: Look into possibly smarter behavior.
 				await CloseGatheringWindow();

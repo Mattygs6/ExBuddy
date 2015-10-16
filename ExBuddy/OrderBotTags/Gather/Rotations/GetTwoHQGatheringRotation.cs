@@ -32,11 +32,11 @@
 		{
 			tag.StatusText = "Gathering items";
 
-			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && Behaviors.ShouldContinue)
+			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && Behaviors.ShouldContinue)
 			{
 				await Wait();
 
-				if (GatheringManager.GatheringCombo == 4 && GatheringManager.SwingsRemaining > 0)
+				if (GatheringManager.GatheringCombo == 4 && GatheringManager.SwingsRemaining > tag.SwingsRemaining)
 				{
 					await tag.Cast(Ability.IncreaseGatherChanceQuality100);
 					await tag.Cast(Ability.IncreaseGatherYieldOnce);

@@ -51,10 +51,10 @@
 
 			var rarity = CurrentRarity;
 			var selectYesNoItem = new SelectYesNoItem();
-			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0 && Behaviors.ShouldContinue)
+			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
 			{
-				
-				while (!selectYesNoItem.IsValid && tag.Node.CanGather && GatheringManager.SwingsRemaining > 0 && rarity > 0
+
+				while (!selectYesNoItem.IsValid && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0
 						&& Behaviors.ShouldContinue)
 				{
 					if (!MasterpieceWindow.IsValid)

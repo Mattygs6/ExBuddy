@@ -119,6 +119,7 @@
     <Compile Include="OrderBotTags\Gather\Rotations\Collect495GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect490GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\GetTwoHQGatheringRotation.cs" />
+    <Compile Include="OrderBotTags\Gather\Rotations\EphemeralRotation.cs" />
     <Compile Include="OrderBotTags\Objects\Collectable.cs" />
     <Compile Include="Navigation\Collisions.cs" />
     <Compile Include="Helpers\Condition.cs" />

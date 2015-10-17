@@ -21,7 +21,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		public override string ToString()
 		{
-			return string.Concat("{ Name: ", Name, ", Action: ", Action, " }");
+			return this.DynamicToString();
 		}
 	}
 }

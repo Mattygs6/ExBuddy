@@ -173,9 +173,6 @@
 		[XmlAttribute("SkipWindowDelay")]
 		public int SkipWindowDelay { get; set; }
 
-		[XmlAttribute("SwingsRemaining")]
-		public byte SwingsRemaining { get; set; }
-
 		// I want this to be an attribute, but for backwards compatibilty, we will use element
 		[DefaultValue(-1)]
 		[XmlElement("Slot")]
@@ -186,6 +183,9 @@
 
 		[XmlAttribute("SpellDelay")]
 		public int SpellDelay { get; set; }
+
+		[XmlAttribute("SwingsRemaining")]
+		public byte SwingsRemaining { get; set; }
 
 		[DefaultValue("True")]
 		[XmlAttribute("While")]
@@ -787,7 +787,8 @@
 				return false;
 			}
 
-			while (Me.IsMounted && Behaviors.ShouldContinue)
+			var ticks = 0;
+			while (Me.IsMounted && Behaviors.ShouldContinue && ticks++ < 10)
 			{
 				await CommonTasks.StopAndDismount();
 				await Coroutine.Yield();
@@ -1100,8 +1101,8 @@
 		private async Task<bool> Gather()
 		{
 			return await InteractWithNode() && await gatherRotation.Prepare(this) && await gatherRotation.ExecuteRotation(this)
-					&& await gatherRotation.Gather(this) && await Coroutine.Wait(4000, () => !Node.CanGather)
-					&& await WaitForGatherWindowToClose();
+					&& await gatherRotation.Gather(this) && await HandleSwingsRemaining()
+					&& await Coroutine.Wait(4000, () => !Node.CanGather) && await WaitForGatherWindowToClose();
 		}
 
 		private async Task<bool> GatherSequence()
@@ -1218,6 +1219,16 @@
 			}
 
 			OnResetCachedDone();
+			return true;
+		}
+
+		private async Task<bool> HandleSwingsRemaining()
+		{
+			if (SwingsRemaining > 0 && Gathering.IsOpen)
+			{
+				await CloseGatheringWindow();
+			}
+
 			return true;
 		}
 

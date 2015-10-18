@@ -2,6 +2,8 @@
 {
 	using System.Threading.Tasks;
 
+	using Buddy.Coroutines;
+
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 
@@ -17,12 +19,13 @@
 			return Control.TrySendAction(4, 0, 0, 0, 0, 0, 0, 1, baitId);
 		}
 
-		public async Task<bool> SelectBait(uint baitId, ushort maxWait = 2000, bool closeWindow = true)
+		public async Task<bool> SelectBait(uint baitId,  ushort baitDelay = 200, ushort maxWait = 2000, bool closeWindow = true)
 		{
 			if (!IsValid)
 			{
 				Actionmanager.DoAction(288, GameObjectManager.LocalPlayer);
 				await Refresh(maxWait);
+				await Behaviors.Sleep(maxWait);
 			}
 
 			var result = SendActionResult.None;

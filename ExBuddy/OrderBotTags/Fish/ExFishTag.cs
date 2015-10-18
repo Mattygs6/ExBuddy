@@ -188,6 +188,8 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		protected override void OnStart()
 		{
+			BaitDelay = BaitDelay.Clamp(0, 5000);
+
 			Item baitItem = null;
 			if (BaitId > 0)
 			{
@@ -290,7 +292,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
 			var baitItem = Fish.Bait.FindMatch(Baits).BaitItem;
 
-			if (!await baitWindow.SelectBait(baitItem.Id))
+			if (!await baitWindow.SelectBait(baitItem.Id, (ushort)BaitDelay))
 			{
 				Logger.Error("An error has occurred during bait selection.");
 				return isDone = true;
@@ -613,7 +615,9 @@ namespace ExBuddy.OrderBotTags.Fish
 		[XmlAttribute("BaitId")]
 		public uint BaitId { get; set; }
 
-
+		[DefaultValue(200)]
+		[XmlAttribute("BaitDelay")]
+		public int BaitDelay { get; set; }
 
 		[XmlAttribute("Chum")]
 		public bool Chum { get; set; }

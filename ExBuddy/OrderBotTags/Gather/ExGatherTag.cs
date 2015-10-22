@@ -1491,9 +1491,10 @@
 					windowItems.FirstOrDefault(
 						i =>
 						i.IsFilled && !i.IsUnknown
-						&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase));
+						&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
+						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
 
-				if (GatherItem != null && (!GatherItem.ItemData.Unique || GatherItem.ItemData.ItemCount() == 0))
+				if (GatherItem != null)
 				{
 					// We don't need to check null...since it will be null anyway.
 					CollectableItem = item as Collectable;

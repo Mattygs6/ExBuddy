@@ -147,6 +147,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			}
 
 			isFishing = false;
+
 			CharacterSettings.Instance.UseMount = initialMountSetting;
 		}
 
@@ -163,7 +164,11 @@ namespace ExBuddy.OrderBotTags.Fish
 			fishlimit = GetFishLimit();
 			checkRelease = false;
 
-			CharacterSettings.Instance.UseMount = initialMountSetting;
+			// Temp fix, only set it to true if it was initially true. Need to find out why this value is false here when it shouldn't be.
+			if (initialMountSetting)
+			{
+				CharacterSettings.Instance.UseMount = initialMountSetting;
+			}
 		}
 
 		protected Composite GoFish(params Composite[] children)

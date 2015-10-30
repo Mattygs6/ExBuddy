@@ -4,17 +4,14 @@ namespace ExBuddy.OrderBotTags.Fish
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.Linq;
-	using System.Xml.Serialization;
 
 	using Clio.Utilities;
+	using Clio.XmlEngine;
 
 	using ff14bot;
 	using ff14bot.Managers;
 
-	[XmlRoot(IsNullable = true, Namespace = "")]
-	[Clio.XmlEngine.XmlElement("Bait")]
-	[XmlType(AnonymousType = true)]
-	[Serializable]
+	[XmlElement("Bait")]
 	public class Bait
 	{
 		internal Item BaitItem;

@@ -1,13 +1,9 @@
 namespace ExBuddy.OrderBotTags.Behaviors.Objects
 {
-	using System;
 	using System.ComponentModel;
-	using System.Xml.Serialization;
+	using Clio.XmlEngine;
 
-	[XmlRoot(IsNullable = true, Namespace = "")]
-	[Clio.XmlEngine.XmlElement("ShopPurchase")]
-	[XmlType(AnonymousType = true)]
-	[Serializable]
+	[XmlElement("ShopPurchase")]
 	public class ShopPurchase
 	{
 		[DefaultValue(198)]

@@ -1,15 +1,11 @@
 ﻿namespace ExBuddy.OrderBotTags.Objects
 {
-	using System;
-	using System.Xml.Serialization;
+	using Clio.XmlEngine;
 
-	[XmlRoot(IsNullable = true, Namespace = "")]
-	[Clio.XmlEngine.XmlElement("Collectable")]
-	[XmlType(AnonymousType = true)]
-	[Serializable]
+	[XmlElement("Collectable")]
 	public class Collectable : CollectableBase
 	{
-		[Clio.XmlEngine.XmlAttribute("PlusPlus")]
+		[XmlAttribute("PlusPlus")]
 		public int PlusPlus { get; set; }
 	}
 }

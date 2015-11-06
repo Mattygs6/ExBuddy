@@ -76,13 +76,8 @@
 
 		public bool Open(BagSlot bagSlot)
 		{
-			if (bagSlot != null && bagSlot.IsFilled)
+			if (bagSlot != null && bagSlot.IsFilled && bagSlot.IsReducable)
 			{
-				if (!bagSlot.IsReducable)
-				{
-					return false;
-				}
-
 				var item = bagSlot.Item;
 
 				if (item != null)

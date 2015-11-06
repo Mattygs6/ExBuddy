@@ -17,6 +17,7 @@
 	{
 		[DefaultValue(true)]
 		[XmlAttribute("ReturnToStealthLocation")]
+		[XmlAttribute("ReturnToApproachLocation")]
 		public bool ReturnToStealthLocation { get; set; }
 
 		[XmlAttribute("StealthLocation")]

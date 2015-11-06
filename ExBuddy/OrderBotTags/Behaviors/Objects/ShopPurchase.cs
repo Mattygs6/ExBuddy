@@ -7,11 +7,11 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 	public class ShopPurchase
 	{
 		[DefaultValue(198)]
-		[Clio.XmlEngine.XmlAttribute("MaxCount")]
+		[XmlAttribute("MaxCount")]
 		public int MaxCount { get; set; }
 
 		[DefaultValue(ShopItem.HiCordial)]
-		[Clio.XmlEngine.XmlAttribute("ShopItem")]
+		[XmlAttribute("ShopItem")]
 		public ShopItem ShopItem { get; set; }
 
 		public override string ToString()

@@ -46,17 +46,6 @@
 
 				await dialog.Refresh(maxWait);
 
-				// TODO: Find some sort of way to determine if we don't meet the requirements
-				if (false)
-				{
-					Logger.Instance.Info("Can not desynthesize {0}, we do not meet the requirements", bagSlot.EnglishName);
-					await dialog.CloseInstanceGently();
-
-					await Behaviors.Sleep(500);
-
-					continue;
-				}
-
 				dialog.Desynthesize();
 				await dialog.Refresh(maxWait, false);
 
@@ -87,10 +76,9 @@
 
 		public bool Open(BagSlot bagSlot)
 		{
-			if (bagSlot != null && bagSlot.IsFilled)
+			if (bagSlot != null && bagSlot.IsFilled && bagSlot.CanDesynthesize)
 			{
 				var item = bagSlot.Item;
-				// TODO: need some sort of check to see if it is desynthable
 				if (item != null)
 				{
 					lock (Core.Memory.Executor.AssemblyLock)

@@ -38,6 +38,9 @@
       <HintPath>..\Assembly\GreyMagic.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="Quest Behaviors_1537820551">
+      <HintPath>..\Assembly\Quest Behaviors_1537820551.dll</HintPath>
+    </Reference>
     <Reference Include="RebornBuddy">
       <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
     </Reference>
@@ -201,7 +204,7 @@
     <Compile Include="OrderBotTags\Gather\Rotations\TopsoilGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\UnspoiledGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\YieldAndQualityGatheringRotation.cs" />
-    <Compile Include="OrderBotTags\Gather\StealthMoveToTag.cs" />
+    <None Include="OrderBotTags\Gather\StealthMoveToTag.cs.proto" />
     <Compile Include="OrderBotTags\Objects\CollectableBase.cs" />
     <Compile Include="OrderBotTags\Objects\CollectableTurnIn.cs" />
     <Compile Include="Plugins\EnableFlight\EnableFlight.cs" />
@@ -214,7 +217,6 @@
     <Compile Include="Plugins\Skywatcher\WeatherResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="Data\msd.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />

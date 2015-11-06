@@ -29,9 +29,8 @@
 			client.GetAsync(requestUrl).ContinueWith(
 				requestTask =>
 					{
-						// ReSharper disable ConditionIsAlwaysTrueOrFalse
+						// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 						if (client != null)
-							// ReSharper restore ConditionIsAlwaysTrueOrFalse
 						{
 							client.Dispose();
 						}

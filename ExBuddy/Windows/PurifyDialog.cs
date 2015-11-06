@@ -11,6 +11,7 @@
 	using ExBuddy.Logging;
 
 	using ff14bot;
+	using ff14bot.Behavior;
 	using ff14bot.Managers;
 
 	public sealed class PurifyDialog : Window<PurifyDialog>
@@ -34,34 +35,36 @@
 			// TODO: Maybe log info why we can't reduce better
 			foreach (var bagSlot in bagSlots.Where(bs => bs.IsReducable))
 			{
-				var dialog = OpenDialog(bagSlot);
-				if (dialog == null)
-				{
-					Logger.Instance.Info("Can not reduce {0}, the item is incompatible.", bagSlot.EnglishName);
-					await Behaviors.Sleep(500);
+				await CommonTasks.AetherialReduction(bagSlot);
 
-					continue;
-				}
+				////var dialog = OpenDialog(bagSlot);
+				////if (dialog == null)
+				////{
+				////	Logger.Instance.Info("Can not reduce {0}, the item is incompatible.", bagSlot.EnglishName);
+				////	await Behaviors.Sleep(500);
 
-				await dialog.Refresh(maxWait);
-				await Behaviors.Wait(maxWait, () => AetherialReduction.Instance.MaxPurity != 0);
+				////	continue;
+				////}
 
-				if (AetherialReduction.Instance.MaxPurity == 0)
-				{
-					Logger.Instance.Info("Can not reduce {0}, we do not meet the requirements or the item is not reducible", bagSlot.EnglishName);
-					await dialog.CloseInstanceGently();
+				////await dialog.Refresh(maxWait);
+				////await Behaviors.Wait(maxWait, () => AetherialReduction.Instance.MaxPurity != 0);
 
-					await Behaviors.Sleep(500);
+				////if (AetherialReduction.Instance.MaxPurity == 0)
+				////{
+				////	Logger.Instance.Info("Can not reduce {0}, we do not meet the requirements or the item is not reducible", bagSlot.EnglishName);
+				////	await dialog.CloseInstanceGently();
 
-					continue;
-				}
+				////	await Behaviors.Sleep(500);
 
-				dialog.Reduce();
-				await dialog.Refresh(maxWait, false);
+				////	continue;
+				////}
 
-				var result = new PurifyResult();
-				await result.Refresh(maxWait);
-				await result.CloseInstanceGently();
+				////dialog.Reduce();
+				////await dialog.Refresh(maxWait, false);
+
+				////var result = new PurifyResult();
+				////await result.Refresh(maxWait);
+				////await result.CloseInstanceGently();
 
 				await Behaviors.Sleep(500);
 			}

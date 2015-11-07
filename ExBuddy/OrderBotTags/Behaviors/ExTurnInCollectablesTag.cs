@@ -117,6 +117,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			masterPieceSupplyNpc = npcs.OfType<GameObjects.Npcs.MasterPieceSupply>().FirstOrDefault();
 			shopExchangeCurrencyNpc = npcs.OfType<GameObjects.Npcs.ShopExchangeCurrency>().FirstOrDefault();
+
+		    ShopPurchases = ShopPurchases ?? new List<ShopPurchase>();
 		}
 
 		private bool HandleDeath()

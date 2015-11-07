@@ -8,7 +8,6 @@
 	using ExBuddy.Agents;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
-	using ExBuddy.Logging;
 
 	using ff14bot;
 	using ff14bot.Behavior;

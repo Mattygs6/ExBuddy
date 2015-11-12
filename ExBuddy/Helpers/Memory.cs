@@ -78,7 +78,7 @@
 		{
 			//starts at imagebase + 010379A8 (A4?)
 			// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
-			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x010379AC);
+            public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x0103E164);
 
 			public static int BlueCrafter
 			{

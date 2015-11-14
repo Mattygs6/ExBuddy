@@ -45,7 +45,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FD7C);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0104616C);
 				}
 			}
 
@@ -53,7 +53,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FDF4);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010461E4);
 				}
 			}
 
@@ -61,7 +61,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0103FE6C);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0104625C);
 				}
 			}
 

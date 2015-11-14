@@ -15,7 +15,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103906C);
+					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103F828);
 				}
 			}
 		}

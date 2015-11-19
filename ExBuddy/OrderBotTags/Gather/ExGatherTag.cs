@@ -1244,8 +1244,8 @@
 				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible
 						&& Poi.Current.Unit.IsValid)
 				{
-					var ground = Me.Location.GetFloor(6);
-					if (Math.Abs(ground.Y - Me.Location.Y) < float.Epsilon)
+					var ground = Me.Location.GetFloor(10);
+					if (Math.Abs(ground.Y - Me.Location.Y) > float.Epsilon)
 					{
 						var mover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
 						if (mover != null && !mover.IsLanding && !mover.IsTakingOff)

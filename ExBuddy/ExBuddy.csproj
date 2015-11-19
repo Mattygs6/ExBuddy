@@ -95,6 +95,7 @@
     <Compile Include="OrderBotTags\Behaviors\ExEnablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExCompanyChestDepositTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\ExUseAethernetTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExMoveToTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExSalvageTag.cs" />

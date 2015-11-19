@@ -93,7 +93,8 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return (TugType)Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x00FDD298);
+				// TODO: Test
+				return (TugType)Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x0105AC00);
 			}
 		}
 

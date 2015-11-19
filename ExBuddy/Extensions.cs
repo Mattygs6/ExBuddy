@@ -8,6 +8,7 @@
 	using System.Reflection;
 	using System.Security.Cryptography;
 	using System.Text;
+	using System.Threading.Tasks;
 
 	using Clio.Common;
 	using Clio.Utilities;
@@ -463,9 +464,13 @@
 			return value.CompareTo(from) >= 1 && value.CompareTo(to) <= -1;
 		}
 
-		public static GameObject Interact(this IInteractWithNpc npc)
+		public static async Task<GameObject> Interact(this IInteractWithNpc npc, float interactDistance = 3.0f)
 		{
-			// TODO: could add another method, or just use this method to check distance and move
+		    if (GameObjectManager.LocalPlayer.Location.Distance3D(npc.Location) > interactDistance)
+		    {
+		        await npc.Location.MoveTo(radius: interactDistance);
+		    }
+
 			var obj = GameObjectManager.GetObjectByNPCId(npc.NpcId);
 			obj.Interact();
 

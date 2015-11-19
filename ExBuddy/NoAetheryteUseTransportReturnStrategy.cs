@@ -65,7 +65,9 @@
 			SelectYesno.ClickYes();
 
 			await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);
-			await Coroutine.Wait(Timeout.Infinite, () => !CommonBehaviors.IsLoading);
+			await CommonTasks.HandleLoading();
+
+			await Coroutine.Sleep(2000);
 
 			return true;
 		}

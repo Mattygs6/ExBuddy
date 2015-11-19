@@ -110,7 +110,7 @@
 			// Interact
 			if (Core.Target == null && Me.Distance(Location) <= 3.5)
 			{
-				this.Interact();
+				await this.Interact();
 				await Coroutine.Yield();
 				return true;
 			}
@@ -158,7 +158,7 @@
 			// Interact if targetting but not null (if combat behaviors prevented the first one)
 			if (Me.Distance(Location) <= 3.5)
 			{
-				this.Interact();
+				await this.Interact();
 				return true;
 			}
 

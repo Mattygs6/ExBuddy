@@ -103,7 +103,7 @@
 			// Interact
 			if (Core.Target == null && Me.Distance(freeCompanyChestNpc.Location) <= 3.5)
 			{
-				freeCompanyChestNpc.Interact();
+				await freeCompanyChestNpc.Interact();
 				await freeCompanyChest.Refresh(2000);
 				return true;
 			}

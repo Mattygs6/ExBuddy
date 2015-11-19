@@ -104,14 +104,25 @@ namespace ExBuddy.Helpers
 			switch (zoneId)
 			{
 				case 399:
-					strategy = new NoAetheryteUseTransportReturnStrategy
+					////strategy = new NoAetheryteUseTransportReturnStrategy
+					////				{
+					////					InteractDistance = 3.0f,
+					////					ZoneId = 478,
+					////					AetheryteId = 75,
+					////					InitialLocation = Core.Player.Location,
+					////					NpcId = 1015570,
+					////					NpcLocation = new Vector3(63.45142f, 207.29f, -2.773367f)
+					////				};
+					//// 3.1 change
+					
+					strategy = new NoAetheryteUseAethernetReturnStrategy
 									{
-										InteractDistance = 3.0f,
 										ZoneId = 478,
 										AetheryteId = 75,
-										InitialLocation = Core.Player.Location,
-										NpcId = 1015570,
-										NpcLocation = new Vector3(63.45142f, 207.29f, -2.773367f)
+										NpcId = 75,
+										InitialLocation = GameObjectManager.LocalPlayer.Location,
+										Location = new Vector3(71.94617f, 211.2611f, -18.90594f),
+										Slot = 2
 									};
 					break;
 				default:

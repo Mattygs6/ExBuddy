@@ -354,7 +354,7 @@
 			while (ticks++ < 3 && !SelectIconString.IsOpen && !SelectString.IsOpen && !Request.IsOpen && !JournalResult.IsOpen
 					&& Behaviors.ShouldContinue)
 			{
-				this.Interact();
+				await this.Interact();
 
 				if (!await HandleTalk() && turnedItemsIn)
 				{

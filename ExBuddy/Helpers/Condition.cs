@@ -11,6 +11,7 @@
 
 	using ExBuddy.Logging;
 
+	using ff14bot.BotBases;
 	using ff14bot.Managers;
 
 	public static class Condition
@@ -91,8 +92,8 @@
 			{
 				if (timer.TimeSpan != span)
 				{
+					timer.Dispose();
 					Timers[id] = new ConditionTimer(id, span);
-					timer.Timer.Dispose();
 					return true;
 				}
 

@@ -58,6 +58,9 @@
 		[XmlAttribute("YesText")]
 		public string YesText { get; set; }
 
+		[XmlAttribute("MultipleQuests")]
+		public bool MultipleQuests { get; set; }
+
 		protected override Color Info
 		{
 			get
@@ -291,9 +294,16 @@
 
 			if (!await WaitForOpenWindow())
 			{
-				Logger.Info("Looks like no windows are open, lets clear our target and try again.");
-				CloseWindows();
-				Me.ClearTarget();
+				if (MultipleQuests)
+				{
+					Logger.Info("Looks like no windows are open, lets clear our target and try again.");
+					CloseWindows();
+					Me.ClearTarget();
+				}
+				else
+				{
+					isDone = true;
+				}
 			}
 
 			return true;
@@ -331,6 +341,11 @@
 			if (SelectIconString.IsOpen)
 			{
 				SelectIconString.ClickSlot(uint.MaxValue);
+			}
+
+			if (Shop.Open)
+			{
+				Shop.Close();
 			}
 		}
 

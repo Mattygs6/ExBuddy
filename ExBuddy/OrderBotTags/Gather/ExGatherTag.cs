@@ -779,19 +779,10 @@
 				return false;
 			}
 
-			// TODO: Look into forcing casting this when flying under certain conditions.
-			if (MovementManager.IsFlying || Me.ClassLevel < 46
-				|| Me.HasAura(
-					(int)(Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)))
+			if (Me.ClassLevel < 46 ||
+				Me.HasAura((int)(Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)))
 			{
 				return false;
-			}
-
-			var ticks = 0;
-			while (Me.IsMounted && Behaviors.ShouldContinue && ticks++ < 10)
-			{
-				await CommonTasks.StopAndDismount();
-				await Coroutine.Yield();
 			}
 
 			return

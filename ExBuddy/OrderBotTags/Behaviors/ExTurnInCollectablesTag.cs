@@ -247,7 +247,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			await masterPieceSupplyNpc.Interact();
+			await masterPieceSupplyNpc.Interact(4);
 
 			StatusText = "Interacting with Npc -> " + masterPieceSupplyNpc.NpcId;
 			await Coroutine.Yield();

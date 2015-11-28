@@ -172,7 +172,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		private async Task<bool> HandOver()
 		{
 			var masterpieceSupply = new MasterPieceSupply();
-			if (!masterpieceSupply.IsValid && !await masterpieceSupply.Refresh(2000))
+			if (!masterpieceSupply.IsValid && !await masterpieceSupply.Refresh(5000))
 			{
 				return false;
 			}
@@ -279,6 +279,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private async Task<bool> MoveToShopNpc()
 		{
+			var masterPieceSupply = new MasterPieceSupply();
+			if (await masterPieceSupply.Refresh(2000))
+			{
+				await masterPieceSupply.CloseInstanceGently();
+			}
+
 			if (Me.Location.Distance(shopExchangeCurrencyNpc.Location) <= 4)
 			{
 				// we are already there, continue

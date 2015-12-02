@@ -630,7 +630,7 @@
 				}
 
 				Logger.Warn("Not enough gp to use rotation, cancelling gather.");
-				BlacklistCurrentNode();
+				isDone = true;
 				return false;
 			}
 

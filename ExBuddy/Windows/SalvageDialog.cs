@@ -68,7 +68,10 @@
 				////await result.Refresh(maxWait);
 				////await result.CloseInstanceGently();
 
-				await CommonTasks.Desynthesize(bagSlot, maxWait);
+				while (bagSlot != null && bagSlot.Count > 0)
+				{
+					await CommonTasks.Desynthesize(bagSlot, maxWait);	
+				}
 
 				await Behaviors.Sleep(500);
 			}

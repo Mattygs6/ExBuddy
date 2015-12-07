@@ -922,6 +922,12 @@
 			// Either GatherSpots is null, the node is already in range, or there are no matches, use fallback
 			if (GatherSpot == null)
 			{
+				if (Node == null || Node.Location == Vector3.Zero)
+				{
+					ResetInternal();
+					return false;
+				}
+
 				SetFallbackGatherSpot(Node.Location, true);
 			}
 
@@ -1048,7 +1054,7 @@
 				{
 					Logger.Warn("Node on blacklist, waiting until we move out of range or it clears.");
 
-					if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius))
+					if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius) || Core.Player.IsDead)
 					{
 						if (!entry.IsFinished)
 						{
@@ -1533,7 +1539,7 @@
 									return false;
 								}
 
-								return cordial.CanUse(Me);
+								return cordial.CanUse(Me) || Core.Player.IsDead;
 							}))
 					{
 						await Coroutine.Sleep(500);
@@ -1604,7 +1610,7 @@
 				await
 					Coroutine.Wait(
 						TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
-						() => Me.CurrentGP >= waitForGp || Me.CurrentGP == Me.MaxGP);
+						() => Me.CurrentGP >= waitForGp || Me.CurrentGP == Me.MaxGP || Core.Player.IsDead);
 			}
 
 			return true;

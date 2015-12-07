@@ -22,5 +22,8 @@
 
 		[DefaultValue(true)]
 		public bool VerboseLogging { get; set; }
+
+		[DefaultValue(true)]
+		public bool CharacterNameInWindowTitle { get; set; }
 	}
 }

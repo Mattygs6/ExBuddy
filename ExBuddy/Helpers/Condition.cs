@@ -11,12 +11,15 @@
 
 	using ExBuddy.Logging;
 
-	using ff14bot.BotBases;
+	using ff14bot.Forms.ugh;
 	using ff14bot.Managers;
+	using ff14bot.NeoProfiles;
 
 	public static class Condition
 	{
 		public static readonly TimeSpan OneDay = new TimeSpan(1, 0, 0, 0);
+
+		private static readonly string RebornBuddyTitle;
 
 		internal static readonly ConcurrentDictionary<int, ConditionTimer> Timers =
 			new ConcurrentDictionary<int, ConditionTimer>();
@@ -24,6 +27,12 @@
 		static Condition()
 		{
 			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
+
+			RebornBuddyTitle = MainWpf.current.Title;
+
+			GameEvents.OnMapChanged += SetPlayerNameInWindowTitle;
+
+			SetPlayerNameInWindowTitle(null, EventArgs.Empty);
 		}
 
 		public static bool All(params object[] param)
@@ -113,7 +122,8 @@
 
 			if (field == null)
 			{
-				Logger.Instance.Error("RebornBuddy update has moved or changed the type we are modifying, try updating ExBuddy or contact the author ExMatt.");
+				Logger.Instance.Error(
+					"RebornBuddy update has moved or changed the type we are modifying, try updating ExBuddy or contact the author ExMatt.");
 				return;
 			}
 
@@ -137,6 +147,15 @@
 			catch
 			{
 				Logger.Instance.Error("Failed to add namespaces to ScriptManager, this can cause issues with some profiles.");
+			}
+		}
+
+		private static void SetPlayerNameInWindowTitle(object sender, EventArgs eventArgs)
+		{
+			if (ExBuddySettings.Instance.CharacterNameInWindowTitle)
+			{
+				MainWpf.current.Dispatcher.Invoke(
+					() => MainWpf.current.Title = string.Concat(RebornBuddyTitle, " - ", GameObjectManager.LocalPlayer.Name));
 			}
 		}
 	}

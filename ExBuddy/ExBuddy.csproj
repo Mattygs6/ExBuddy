@@ -38,6 +38,7 @@
       <HintPath>..\Assembly\GreyMagic.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Quest Behaviors_1537820551">
       <HintPath>..\Assembly\Quest Behaviors_1537820551.dll</HintPath>
     </Reference>
@@ -49,11 +50,13 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\AetherialReduction.cs" />
@@ -161,6 +164,7 @@
     <Compile Include="OrderBotTags\Objects\GatherItem.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
     <Compile Include="Plugins\RetainerMaid\RetainerMaid.cs" />
+    <Compile Include="Plugins\Skywatcher\SaintCoinachWeatherProvider.cs" />
     <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />
     <Compile Include="Agents\Agent{T}.cs" />
     <Compile Include="Agents\Desynthesis.cs" />
@@ -182,6 +186,10 @@
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />
+    <None Include="Data\locationIndex.json" />
+    <None Include="Data\weatherIndex.json" />
+    <None Include="Data\weatherRateIndex.json" />
+    <None Include="Data\zoneIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect240DynamicGatheringRotation.cs" />

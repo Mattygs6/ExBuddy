@@ -15,7 +15,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0103F828);
+					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x01042828);
 				}
 			}
 		}
@@ -26,7 +26,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x01051A70 + 1240);
+					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x010A43C8 + 1260);
 				}
 			}
 
@@ -34,7 +34,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x01051A70 + 1241);
+					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x010A43C8 + 1261);
 				}
 			}
 		}
@@ -45,7 +45,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0104616C);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0);
 				}
 			}
 
@@ -53,7 +53,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010461E4);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0 + 120);
 				}
 			}
 
@@ -61,7 +61,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x0104625C);
+					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0 + 240);
 				}
 			}
 
@@ -78,7 +78,7 @@
 		{
 			//starts at imagebase + 010379A8 (A4?)
 			// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
-			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x0103E164);
+			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x01041164);
 
 			public static int BlueCrafter
 			{

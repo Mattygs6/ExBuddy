@@ -31,7 +31,7 @@
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105AC00) % 500000;
+					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105DC50) % 500000;
 				}
 
 				return null;
@@ -44,7 +44,7 @@
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105AC04);
+					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105DC54);
 				}
 
 				return null;

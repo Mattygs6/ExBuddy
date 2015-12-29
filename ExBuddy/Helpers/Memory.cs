@@ -15,7 +15,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x01042828);
+					return Core.Memory.Read<uint>(SeconadryOffsets.Bait.SelectedBaitItemIdPointer);
 				}
 			}
 		}

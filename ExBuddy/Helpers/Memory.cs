@@ -15,7 +15,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<uint>(SeconadryOffsets.Bait.SelectedBaitItemIdPointer);
+					return Core.Memory.Read<uint>(Offsets.Bait.SelectedBaitItemIdPointer);
 				}
 			}
 		}

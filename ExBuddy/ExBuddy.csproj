@@ -59,9 +59,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Offsets\OffsetAttribute.cs" />
-    <Compile Include="Offsets\SeconadryOffsets.cs" />
-    <Compile Include="Offsets\SecondaryOffsetManager.cs" />
+    <Compile Include="Attributes\OffsetAttribute.cs" />
+    <Compile Include="Offsets\SecondaryOffsets.cs" />
+    <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
     <Compile Include="ExBuddySettings.cs" />

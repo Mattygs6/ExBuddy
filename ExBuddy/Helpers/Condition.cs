@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Helpers
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Helpers
 {
 	using System;
 	using System.Collections.Concurrent;
@@ -26,7 +28,10 @@
 
 		static Condition()
 		{
-			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
+
+            SecondaryOffsetManager.IntalizeOffsets();
+
+            AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 
 			RebornBuddyTitle = MainWpf.current.Title;
 

@@ -76,7 +76,6 @@
 
 		public static class Scrips
 		{
-			//starts at imagebase + 010379A8 (A4?)
 			// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
 			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x01041164);
 

@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Agents
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Agents
 {
 	using System;
 
@@ -13,7 +15,7 @@
 		{
 			get
 			{
-				return Core.Memory.Read<IntPtr>(Pointer + 720);
+				return Core.Memory.Read<IntPtr>(Pointer + DesynthesisOffsets.CurrentBagSlotOffset);
 			}
 		}
 	}

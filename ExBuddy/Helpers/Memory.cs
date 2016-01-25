@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Helpers
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Helpers
 {
 	using System;
 	using System.Linq;
@@ -15,7 +17,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<uint>(Offsets.Bait.SelectedBaitItemIdPointer);
+					return Core.Memory.Read<uint>(FishingOffsets.SelectedBaitItemIdPtr);
 				}
 			}
 		}
@@ -26,15 +28,17 @@
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x010A43C8 + 1260);
+					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.Chain);
 				}
 			}
 
-			public static byte HqChain
+		    
+
+            public static byte HqChain
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x010A43C8 + 1261);
+					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.HqChain);
 				}
 			}
 		}
@@ -45,7 +49,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0);
+					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr);
 				}
 			}
 
@@ -53,7 +57,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0 + 120);
+					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.Item2Offset);
 				}
 			}
 
@@ -61,7 +65,7 @@
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(Core.Memory.ImageBase + 0x010491B0 + 240);
+					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.Item3Offset);
 				}
 			}
 
@@ -76,14 +80,12 @@
 
 		public static class Scrips
 		{
-			// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
-			public static readonly IntPtr BasePointer = IntPtr.Add(Core.Memory.ImageBase, 0x01041164);
 
 			public static int BlueCrafter
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr);
 				}
 			}
 
@@ -91,7 +93,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 16);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.BlueGatherer);
 				}
 			}
 
@@ -99,7 +101,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 8);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedCrafter);
 				}
 			}
 
@@ -107,7 +109,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 24);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedGatherer);
 				}
 			}
 
@@ -115,7 +117,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 32);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.CenturioSeals);
 				}
 			}
 
@@ -123,7 +125,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 36);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedCrafter);
 				}
 			}
 
@@ -131,7 +133,7 @@
 			{
 				get
 				{
-					return Core.Memory.Read<int>(BasePointer + 40);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedGatherer);
 				}
 			}
 

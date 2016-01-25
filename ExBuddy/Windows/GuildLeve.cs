@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Windows
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Windows
 {
 	using System;
 	using System.Linq;
@@ -37,7 +39,7 @@
 		{
 			get
 			{
-				return Core.Memory.NoCacheRead<int>(Core.Memory.ImageBase + 0x010A4BC4);
+				return Core.Memory.NoCacheRead<int>(GuildLeveOffsets.AllowancesPtr);
 			}
 		}
 

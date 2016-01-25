@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Agents
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Agents
 {
 	using System;
 
@@ -13,7 +15,7 @@
 		{
 			get
 			{
-				return Core.Memory.Read<IntPtr>(Pointer + 56);
+				return Core.Memory.Read<IntPtr>(Pointer + AetherialReductionOffsets.CurrentBagSlotOffset);
 			}
 		}
 
@@ -21,7 +23,7 @@
 		{
 			get
 			{
-				return Core.Memory.Read<uint>(Pointer + 60);
+				return Core.Memory.Read<uint>(Pointer + AetherialReductionOffsets.PurityOffset);
 			}
 		}
 
@@ -29,7 +31,7 @@
 		{
 			get
 			{
-				return Core.Memory.Read<uint>(Pointer + 64);
+				return Core.Memory.Read<uint>(Pointer + AetherialReductionOffsets.MaxPurityOffset);
 			}
 		}
 	}

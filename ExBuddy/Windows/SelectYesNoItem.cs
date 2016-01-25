@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Windows
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Windows
 {
 	using ExBuddy.Enumerations;
 
@@ -31,7 +33,7 @@
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105DC50) % 500000;
+					return Core.Memory.Read<uint>(SelectYesNoItemOffsets.ItemIdPtr) % 500000;
 				}
 
 				return null;
@@ -44,7 +46,7 @@
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<uint>(Core.Memory.ImageBase + 0x0105DC54);
+					return Core.Memory.Read<uint>(SelectYesNoItemOffsets.CollectabilityValuePtr);
 				}
 
 				return null;

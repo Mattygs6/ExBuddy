@@ -1,3 +1,5 @@
+using ExBuddy.Offsets;
+
 namespace ExBuddy.OrderBotTags.Fish
 {
 	using System;
@@ -93,7 +95,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return (TugType)Core.Memory.Read<byte>(Core.Memory.ImageBase + 0x0105DC50);
+				return (TugType)Core.Memory.Read<byte>(FishingOffsets.TugTypePtr);
 			}
 		}
 

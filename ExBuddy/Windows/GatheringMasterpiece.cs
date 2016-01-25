@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Windows
+﻿using ExBuddy.Offsets;
+
+namespace ExBuddy.Windows
 {
 	using ExBuddy.Enumerations;
 
@@ -15,7 +17,7 @@
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<int>(Control.Pointer + 0x000001C4);
+					return Core.Memory.Read<int>(Control.Pointer + GatheringMasterpieceOffsets.CurrentRarityOffset);
 				}
 
 				return 0;

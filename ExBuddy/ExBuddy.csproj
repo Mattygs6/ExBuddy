@@ -96,11 +96,9 @@
     <Compile Include="Interfaces\IFlightMovementArgs.cs" />
     <Compile Include="Interfaces\IFlightNavigationArgs.cs" />
     <Compile Include="Interfaces\IFlightVars.cs" />
-    <Compile Include="OrderBotTags\Behaviors\ExComplexNodeTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExDisablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExEnablePluginsTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExCompanyChestDepositTag.cs" />
-    <Compile Include="OrderBotTags\Behaviors\ExIfElseTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExUseAethernetTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExLogTag.cs" />
     <Compile Include="OrderBotTags\Behaviors\ExMoveToTag.cs" />
@@ -116,7 +114,6 @@
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopPurchase.cs" />
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopType.cs" />
     <Compile Include="Interfaces\IGatherSpot.cs" />
-    <Compile Include="OrderBotTags\Craft\ExCraftTag.cs" />
     <Compile Include="OrderBotTags\Fish\PatienceTug.cs" />
     <Compile Include="OrderBotTags\Fish\TugType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\GatherSpotCollection.cs" />
@@ -167,7 +164,6 @@
     <Compile Include="OrderBotTags\Objects\GatherItem.cs" />
     <Compile Include="Plugins\ExBotPlugin{T}.cs" />
     <Compile Include="Plugins\RetainerMaid\RetainerMaid.cs" />
-    <Compile Include="Plugins\Skywatcher\SaintCoinachWeatherProvider.cs" />
     <Compile Include="Providers\MasterPieceSupplyDataProvider.cs" />
     <Compile Include="Agents\Agent{T}.cs" />
     <Compile Include="Agents\Desynthesis.cs" />
@@ -195,7 +191,6 @@
     <None Include="Data\zoneIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
-    <Compile Include="OrderBotTags\Gather\Rotations\Collect240DynamicGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect345GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect450GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect470GatheringRotation.cs" />
@@ -216,7 +211,6 @@
     <Compile Include="OrderBotTags\Gather\Rotations\TopsoilGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\UnspoiledGatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\YieldAndQualityGatheringRotation.cs" />
-    <None Include="OrderBotTags\Gather\StealthMoveToTag.cs.proto" />
     <Compile Include="OrderBotTags\Objects\CollectableBase.cs" />
     <Compile Include="OrderBotTags\Objects\CollectableTurnIn.cs" />
     <Compile Include="Plugins\EnableFlight\EnableFlight.cs" />

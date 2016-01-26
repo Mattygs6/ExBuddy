@@ -46,7 +46,7 @@ namespace ExBuddy.Windows
 			{
 				if (IsValid)
 				{
-					return Core.Memory.Read<uint>(SelectYesNoItemOffsets.CollectabilityValuePtr);
+					return Core.Memory.Read<uint>(SelectYesNoItemOffsets.ItemIdPtr + SelectYesNoItemOffsets.CollectabilityValueOffset);
 				}
 
 				return null;

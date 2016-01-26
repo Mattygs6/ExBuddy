@@ -28,7 +28,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.Chain);
+					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.ChainOffset);
 				}
 			}
 
@@ -38,7 +38,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.HqChain);
+					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.HqChainOffset);
 				}
 			}
 		}
@@ -93,7 +93,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.BlueGatherer);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.BlueGathererOffset);
 				}
 			}
 
@@ -101,7 +101,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedCrafter);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedCrafterOffset);
 				}
 			}
 
@@ -109,7 +109,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedGatherer);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.RedGathererOffset);
 				}
 			}
 
@@ -117,7 +117,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.CenturioSeals);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.CenturioSealsOffset);
 				}
 			}
 
@@ -125,7 +125,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedCrafter);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedCrafterOffset);
 				}
 			}
 
@@ -133,7 +133,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedGatherer);
+					return Core.Memory.Read<int>(ScripsOffsets.BasePtr + ScripsOffsets.WeeklyRedGathererOffset);
 				}
 			}
 

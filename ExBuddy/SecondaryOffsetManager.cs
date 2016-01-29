@@ -115,7 +115,7 @@
 								}
 								else
 								{
-									info.SetValue(null, addrz);
+									info.SetValue(null, (int)addrz);
 								}
 							}
 							catch (Exception e)

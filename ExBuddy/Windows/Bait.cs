@@ -30,7 +30,7 @@
 
 			var result = SendActionResult.None;
 			var attempts = 0;
-			while ((result != SendActionResult.Success || Memory.Bait.SelectedBaitItemId != baitId) && attempts++ < 3 && Behaviors.ShouldContinue)
+			while ((result != SendActionResult.Success || FishingManager.SelectedBaitItemId != baitId) && attempts++ < 3 && Behaviors.ShouldContinue)
 			{
 				result = SetBait(baitId);
 				if (result == SendActionResult.InjectionError)
@@ -38,7 +38,7 @@
 					await Behaviors.Sleep(500);
 				}
 
-				await Behaviors.Wait(maxWait, () => Memory.Bait.SelectedBaitItemId == baitId);
+				await Behaviors.Wait(maxWait, () => FishingManager.SelectedBaitItemId == baitId);
 			}
 
 			if (closeWindow)

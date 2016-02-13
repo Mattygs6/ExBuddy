@@ -4,16 +4,6 @@
 
     using ExBuddy.Attributes;
     using ff14bot;
-    public static class FishingOffsets
-    {
-        [Offset("Search 3B 05 ? ? ? ? 74 D8 Add 2 Read32")]
-        public static IntPtr SelectedBaitItemIdPtr;
-
-        [Offset("Search 68 ? ? ? ? 50 8B 82 Add 1 Read32")]
-        public static IntPtr TugTypePtr;
-
-    }
-
 
     public static class GatheringOffsets
     {

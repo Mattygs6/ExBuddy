@@ -91,14 +91,6 @@ namespace ExBuddy.OrderBotTags.Fish
 			}
 		}
 
-		protected TugType TugType
-		{
-			get
-			{
-				return (TugType)Core.Memory.Read<byte>(FishingOffsets.TugTypePtr);
-			}
-		}
-
 		public static bool IsFishing()
 		{
 			return isFishing;
@@ -704,7 +696,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return Fish.Bait.FindMatch(Baits).BaitItem.Id == Memory.Bait.SelectedBaitItemId;
+				return Fish.Bait.FindMatch(Baits).BaitItem.Id == FishingManager.SelectedBaitItemId;
 			}
 		}
 
@@ -965,7 +957,7 @@ namespace ExBuddy.OrderBotTags.Fish
 					new Action(
 						r =>
 							{
-								var tugType = TugType;
+								var tugType = FishingManager.TugType;
 								var patienceTug = new PatienceTug { MoochLevel = mooch, TugType = tugType };
 								var hookset = tugType == TugType.Light ? Abilities.PrecisionHookset : Abilities.PowerfulHookset;
 								if (HasPatience && CanDoAbility(hookset) && (PatienceTugs == null || PatienceTugs.Contains(patienceTug)))

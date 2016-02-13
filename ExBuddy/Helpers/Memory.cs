@@ -11,37 +11,6 @@ namespace ExBuddy.Helpers
 
 	public static class Memory
 	{
-		public static class Bait
-		{
-			public static uint SelectedBaitItemId
-			{
-				get
-				{
-					return Core.Memory.Read<uint>(FishingOffsets.SelectedBaitItemIdPtr);
-				}
-			}
-		}
-
-		public static class Gathering
-		{
-			public static byte Chain
-			{
-				get
-				{
-					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.ChainOffset);
-				}
-			}
-
-		    
-
-            public static byte HqChain
-			{
-				get
-				{
-					return Core.Memory.Read<byte>(GatheringOffsets.GatheringBasePtr + GatheringOffsets.HqChainOffset);
-				}
-			}
-		}
 
 		public static class Request
 		{

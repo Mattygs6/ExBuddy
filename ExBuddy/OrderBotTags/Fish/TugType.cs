@@ -1,9 +1,1 @@
-namespace ExBuddy.OrderBotTags.Fish
-{
-	public enum TugType
-	{
-		Light = 36,
-		Medium = 37,
-		Heavy = 38
-	}
-}
+//Empty so people who use the zip will have the file replaced

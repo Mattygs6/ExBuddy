@@ -1,3 +1,5 @@
+
+
 namespace ExBuddy.OrderBotTags.Fish
 {
 	using System;
@@ -5,7 +7,9 @@ namespace ExBuddy.OrderBotTags.Fish
 
 	using Clio.XmlEngine;
 
-	[XmlElement("PatienceTug")]
+    using ff14bot.Enums;
+
+    [XmlElement("PatienceTug")]
 	public class PatienceTug : IEquatable<PatienceTug>
 	{
 		[XmlAttribute("MoochLevel")]

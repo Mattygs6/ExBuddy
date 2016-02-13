@@ -115,7 +115,6 @@
     <Compile Include="OrderBotTags\Behaviors\Objects\ShopType.cs" />
     <Compile Include="Interfaces\IGatherSpot.cs" />
     <Compile Include="OrderBotTags\Fish\PatienceTug.cs" />
-    <Compile Include="OrderBotTags\Fish\TugType.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\GatherSpotCollection.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\IndirectApproachGatherSpot.cs" />
     <Compile Include="OrderBotTags\Gather\GatherSpots\RandomApproachGatherSpot.cs" />

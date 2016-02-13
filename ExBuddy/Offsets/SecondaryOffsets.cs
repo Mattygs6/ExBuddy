@@ -5,18 +5,6 @@
     using ExBuddy.Attributes;
     using ff14bot;
 
-    public static class GatheringOffsets
-    {
-        [Offset("Search 68 ? ? ? ? E8 ? ? ? ? 8B 85 ? ? ? ? 83 C4 0C 56 Add 1 Read32")]
-        public static IntPtr GatheringBasePtr;
-
-        [Offset("Search 0F B6 80 ? ? ? ? 8B 4D FC 66 3B 41 14 Add 3 Read32", true)]
-        public static int ChainOffset;
-
-        [Offset("Search 0F B6 90 ? ? ? ? 8B 45 FC Add 3 Read32", true)]
-        public static int HqChainOffset;
-    }
-
     public static class RequestOffsets
     {
         public static IntPtr ItemBasePtr = Core.Memory.ImageBase + 0x010491B0;

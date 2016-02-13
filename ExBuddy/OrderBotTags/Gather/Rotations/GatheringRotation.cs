@@ -60,7 +60,7 @@
 			{
 				await Wait();
 
-				if (Memory.Gathering.HqChain == 2 && GatheringManager.SwingsRemaining > tag.SwingsRemaining)
+				if (GatheringManager.HqGatheringCombo == 2 && GatheringManager.SwingsRemaining > tag.SwingsRemaining)
 				{
 					await tag.Cast(Ability.Luck);
 

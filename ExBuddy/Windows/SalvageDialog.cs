@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Windows
+﻿using ExBuddy.Logging;
+
+namespace ExBuddy.Windows
 {
 	using System.Collections.Generic;
 	using System.Linq;
@@ -68,10 +70,24 @@
 				////await result.Refresh(maxWait);
 				////await result.CloseInstanceGently();
 
-				while (bagSlot != null && bagSlot.Count > 0)
-				{
-					await CommonTasks.Desynthesize(bagSlot, maxWait);	
-				}
+
+			    if (bagSlot != null)
+			    {
+                    var startingId = bagSlot.TrueItemId;
+
+                    //Check to make sure the bagslots contents doesn't change
+                    while (bagSlot.TrueItemId == startingId && bagSlot.Count > 0)
+                    {
+                        var result = await CommonTasks.Desynthesize(bagSlot, maxWait);
+                        if (result.HasFlag(DesynthesisResult.Failure))
+                        {
+                            Logger.Instance.Error("An error has occured during desynthesis. Result was {0}", result);
+                            break;
+                        }
+
+                    }
+                }
+
 
 				await Behaviors.Sleep(500);
 			}

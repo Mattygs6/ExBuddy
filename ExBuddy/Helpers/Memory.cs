@@ -26,7 +26,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.Item2Offset);
+					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.ItemSize );
 				}
 			}
 
@@ -34,7 +34,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.Item3Offset);
+					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.ItemSize * 2);
 				}
 			}
 

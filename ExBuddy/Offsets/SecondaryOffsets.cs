@@ -7,9 +7,11 @@
 
     public static class RequestOffsets
     {
-        public static IntPtr ItemBasePtr = Core.Memory.ImageBase + 0x010491B0;
-        public static int Item2Offset = 0x78;
-        public static int Item3Offset = 0xF0;
+        [Offset("Search B9 ? ? ? ? C7 45 ? ? ? ? ? E8 ? ? ? ? 8B 7D 0C Add 1 Read32")]
+        public static IntPtr ItemBasePtr;
+
+        public static int ItemSize = 0x78;
+
     }
 
     public static class ScripsOffsets
@@ -29,7 +31,7 @@
 
     public static class GatheringMasterpieceOffsets
     {
-        [Offset("Search 89 86 ? ? ? ? E8 ? ? ? ? 8B 86 ? ? ? ? 8B 8E ? ? ? ? 6A 00 6A 00 6A 00 6A 00 50 E8 ? ? ? ? F6 47 30 0F Add 2 Read32",true)]
+        [Offset("Search 89 86 ? ? ? ? E8 ? ? ? ? 8B 86 ? ? ? ? 8B 8E ? ? ? ? 6A 00 6A 00 6A 00 6A 00 50 E8 ? ? ? ? F6 47 30 0F Add 2 Read32", true)]
         public static int CurrentRarityOffset;
     }
 
@@ -44,7 +46,7 @@
         [Offset("Search 68 ? ? ? ? 50 8B 82 Add 1 Read32")]
         public static IntPtr ItemIdPtr;
 
-        [Offset("Search 8B 4F ?? 8B 86 ?? ?? ?? ?? 89 88 Add 2 Read8",true)]
+        [Offset("Search 8B 4F ?? 8B 86 ?? ?? ?? ?? 89 88 Add 2 Read8", true)]
         public static int CollectabilityValueOffset;
     }
 

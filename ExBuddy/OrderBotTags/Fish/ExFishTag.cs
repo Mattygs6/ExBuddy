@@ -1,4 +1,5 @@
 using ExBuddy.Offsets;
+using ff14bot.RemoteWindows;
 
 namespace ExBuddy.OrderBotTags.Fish
 {
@@ -316,18 +317,20 @@ namespace ExBuddy.OrderBotTags.Fish
 				return false;
 			}
 
-			var selectYesNoItem = new SelectYesNoItem();
-			if (!selectYesNoItem.IsValid || !await selectYesNoItem.Refresh(5000))
+			
+			if (!SelectYesNoItem.IsOpen)
 			{
-				// window didn't open, continue.
-				return false;
+				//Wait a few seconds
+			    var opened = await Coroutine.Wait(5000, () => SelectYesNoItem.IsOpen);
+                if (!opened)
+                    return false;
 			}
 
 			var required = CollectabilityValue;
 			var itemName = string.Empty;
 			if (!string.IsNullOrWhiteSpace(Collectables.First().Name))
 			{
-				var item = selectYesNoItem.Item;
+				var item = SelectYesNoItem.Item;
 				if (item == null
 					|| !Collectables.Any(c => string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
 				{
@@ -336,7 +339,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							|| !Collectables.Any(c => string.Equals(c.Name, item.EnglishName, StringComparison.InvariantCultureIgnoreCase)))
 							&& ticks++ < 60 && Behaviors.ShouldContinue)
 					{
-						item = selectYesNoItem.Item;
+						item = SelectYesNoItem.Item;
 						await Coroutine.Yield();
 					}
 
@@ -362,20 +365,20 @@ namespace ExBuddy.OrderBotTags.Fish
 
 			// handle
 
-			var value = selectYesNoItem.CollectabilityValue;
+			var value = SelectYesNoItem.CollectabilityValue;
 
 			if (value >= required)
 			{
 				Logger.Info("Collecting {0} -> Value: {1}, Required: {2}", itemName, value, required);
-				selectYesNoItem.Yes();
+                SelectYesNoItem.Yes();
 			}
 			else
 			{
 				Logger.Info("Declining {0} -> Value: {1}, Required: {2}", itemName, value, required);
-				selectYesNoItem.No();
+                SelectYesNoItem.No();
 			}
 
-			await Coroutine.Wait(3000, () => !selectYesNoItem.IsValid && FishingManager.State != FishingState.Waitin);
+			await Coroutine.Wait(3000, () => !SelectYesNoItem.IsOpen && FishingManager.State != FishingState.Waitin);
 
 			return true;
 		}

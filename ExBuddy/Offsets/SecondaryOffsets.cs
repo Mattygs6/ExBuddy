@@ -41,16 +41,6 @@
         public static IntPtr AllowancesPtr;
     }
 
-    public static class SelectYesNoItemOffsets
-    {
-        [Offset("Search 68 ? ? ? ? 50 8B 82 Add 1 Read32")]
-        public static IntPtr ItemIdPtr;
-
-        [Offset("Search 8B 4F ?? 8B 86 ?? ?? ?? ?? 89 88 Add 2 Read8", true)]
-        public static int CollectabilityValueOffset;
-    }
-
-
     public static class AetherialReductionOffsets
     {
         public static int CurrentBagSlotOffset = 0x38;

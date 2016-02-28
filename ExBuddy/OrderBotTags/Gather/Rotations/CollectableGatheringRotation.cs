@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
+﻿using ff14bot.RemoteWindows;
+
+namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
 
@@ -50,12 +52,11 @@
 			tag.StatusText = "Gathering collectable items";
 
 			var rarity = CurrentRarity;
-			var selectYesNoItem = new SelectYesNoItem();
+			
 			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
 			{
 
-				while (!selectYesNoItem.IsValid && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0
-						&& Behaviors.ShouldContinue)
+				while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
 				{
 					if (!MasterpieceWindow.IsValid)
 					{
@@ -67,22 +68,22 @@
 						MasterpieceWindow.Collect();
 					}
 
-					await selectYesNoItem.Refresh(500);
+					await Coroutine.Sleep(500);
 				}
 
 				await Coroutine.Yield();
 				var swingsRemaining = GatheringManager.SwingsRemaining - 1;
 
-				while (selectYesNoItem.IsValid && rarity > 0 && Behaviors.ShouldContinue)
+				while (SelectYesNoItem.IsOpen && rarity > 0 && Behaviors.ShouldContinue)
 				{
 					tag.Logger.Info(
 						"Collected item: {0}, value: {1} at {2} ET",
 						tag.GatherItem.ItemData.EnglishName,
-						selectYesNoItem.CollectabilityValue,
+                        SelectYesNoItem.CollectabilityValue,
 						WorldManager.EorzaTime);
 
-					selectYesNoItem.Yes();
-					await selectYesNoItem.Refresh(2000, false);
+                    SelectYesNoItem.Yes();
+					await Coroutine.Wait(2000, ()=> !SelectYesNoItem.IsOpen);
 				}
 
 				var ticks = 0;

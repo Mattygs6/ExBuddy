@@ -61,6 +61,14 @@
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Chocobo.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Gardenner.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Retainer.cs" />
+    <Compile Include="OrderBotTags\Behaviors\SuitChange.cs" />
+    <Compile Include="OrderBotTags\Craft\Level60ZeroStarCraft.cs" />
+    <Compile Include="OrderBotTags\Craft\ExSynthesize.cs" />
+    <Compile Include="OrderBotTags\Craft\SimpleCraft.cs" />
+    <Compile Include="OrderBotTags\Craft\StopCraft.cs" />
     <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
@@ -224,6 +232,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\msd.xml" />
+    <Content Include="Data\Recipes\recipes_alchemist.txt" />
+    <Content Include="Data\Recipes\recipes_armorer.txt" />
+    <Content Include="Data\Recipes\recipes_blacksmith.txt" />
+    <Content Include="Data\Recipes\recipes_carpenter.txt" />
+    <Content Include="Data\Recipes\recipes_culinarian.txt" />
+    <Content Include="Data\Recipes\recipes_goldsmith.txt" />
+    <Content Include="Data\Recipes\recipes_leatherworker.txt" />
+    <Content Include="Data\Recipes\recipes_weaver.txt" />
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\UseAethernet.xml" />

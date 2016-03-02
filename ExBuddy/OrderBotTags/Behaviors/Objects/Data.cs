@@ -40,14 +40,14 @@
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-																										Location = new Vector3("-16.25085, 211.0222, -0.5036011"),
+																										Location = new Vector3("-17.29029, 206.4994, 48.57777"),
 																										NpcId = 1012300
 																									},
 																								new ShopExchangeCurrency
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-																										Location = new Vector3("-17.74628, 211.0222, -2.121033"),
+																										Location = new Vector3("-17.29029, 206.4994, 48.57777"),
 																										NpcId = 1012301
 																									}
 																							}

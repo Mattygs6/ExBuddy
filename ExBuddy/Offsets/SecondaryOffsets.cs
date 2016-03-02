@@ -8,9 +8,13 @@
     public static class RequestOffsets
     {
         [Offset("Search B9 ? ? ? ? C7 45 ? ? ? ? ? E8 ? ? ? ? 8B 7D 0C Add 1 Read32")]
+        [Offset64("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 48 0F BF CF  Add 3 TraceRelative")]
         public static IntPtr ItemBasePtr;
-
+#if RB_X64
+        public static int ItemSize = 0x90;
+#else
         public static int ItemSize = 0x78;
+#endif
 
     }
 
@@ -20,12 +24,21 @@
         [Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")]
         public static IntPtr BasePtr;
 
+#if RB_X64
         public static int BlueGathererOffset = 0x10;
         public static int RedCrafterOffset = 0x8;
         public static int RedGathererOffset = 0x18;
         public static int CenturioSealsOffset = 0x20;
         public static int WeeklyRedCrafterOffset = 0x24;
         public static int WeeklyRedGathererOffset = 0x28;
+#else
+        public static int BlueGathererOffset = 0x10;
+        public static int RedCrafterOffset = 0x8;
+        public static int RedGathererOffset = 0x18;
+        public static int CenturioSealsOffset = 0x20;
+        public static int WeeklyRedCrafterOffset = 0x24;
+        public static int WeeklyRedGathererOffset = 0x28;
+#endif
     }
 
 

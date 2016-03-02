@@ -22,6 +22,7 @@
     {
         // TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
         [Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")]
+        [Offset64("Search 46 89 BC EA ? ? ? ?  Add 4 TraceRelative")]
         public static IntPtr BasePtr;
 
 #if RB_X64
@@ -41,26 +42,31 @@
 #endif
     }
 
-
-    public static class GatheringMasterpieceOffsets
-    {
-        [Offset("Search 89 86 ? ? ? ? E8 ? ? ? ? 8B 86 ? ? ? ? 8B 8E ? ? ? ? 6A 00 6A 00 6A 00 6A 00 50 E8 ? ? ? ? F6 47 30 0F Add 2 Read32", true)]
-        public static int CurrentRarityOffset;
-    }
+    //Native functions are used now
+    //public static class GatheringMasterpieceOffsets
+    //{
+    //    [Offset("Search 89 86 ? ? ? ? E8 ? ? ? ? 8B 86 ? ? ? ? 8B 8E ? ? ? ? 6A 00 6A 00 6A 00 6A 00 50 E8 ? ? ? ? F6 47 30 0F Add 2 Read32", true)]
+    //    public static int CurrentRarityOffset;
+    //}
 
     public static class GuildLeveOffsets
     {
         [Offset("Search 88 15 ? ? ? ? 66 8B 48 06 Add 2 Read32")]
+        [Offset64("Search 88 05 ? ? ? ? 0F B7 41 06 Add 2 TraceRelative")]
         public static IntPtr AllowancesPtr;
     }
-
+    /// <summary>
+    /// unused
+    /// </summary>
     public static class AetherialReductionOffsets
     {
         public static int CurrentBagSlotOffset = 0x38;
         public static int PurityOffset = 0x3C;
         public static int MaxPurityOffset = 0x40;
     }
-
+    /// <summary>
+    /// unused
+    /// </summary>
     public static class DesynthesisOffsets
     {
         public static int CurrentBagSlotOffset = 0x2D0;

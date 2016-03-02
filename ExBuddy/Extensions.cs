@@ -658,8 +658,27 @@
 				return false;
 			}
 		}
+#if RB_X64
+        public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params ulong[] param)
+		{
+			if (window == null || !window.IsValid)
+			{
+				return SendActionResult.InvalidWindow;
+			}
 
-		public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params uint[] param)
+			try
+			{
+				window.SendAction(pairCount, param);
+				return SendActionResult.Success;
+			}
+			catch (Exception ex)
+			{
+				Logger.Instance.Error(ex.Message);
+				return SendActionResult.InjectionError;
+			}
+		}
+#else
+        		public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params uint[] param)
 		{
 			if (window == null || !window.IsValid)
 			{
@@ -677,8 +696,9 @@
 				return SendActionResult.InjectionError;
 			}
 		}
+#endif
 
-		private static float StandardDeviation(IEnumerable<Vector3> vectors, out float average)
+        private static float StandardDeviation(IEnumerable<Vector3> vectors, out float average)
 		{
 			return StandardDeviation(vectors.Select(v => v.Magnitude).ToArray(), out average);
 		}

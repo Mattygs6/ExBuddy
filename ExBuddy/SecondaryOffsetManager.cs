@@ -56,11 +56,11 @@ namespace ExBuddy
                             var offset = (Offset)Attribute.GetCustomAttributes(info, typeof(Offset)).FirstOrDefault(r => r.GetType() != typeof(OffsetCN));
 
     #if RB_CN
-							    var tmp = (Offset)Attribute.GetCustomAttribute(info, typeof(OffsetCN));
-							    if (tmp != null)
-							    {
-								    offset = tmp;
-							    }
+						     var tmp = (Offset)Attribute.GetCustomAttribute(info, typeof(OffsetCN));
+						     if (tmp != null)
+						     {
+						        offset = tmp;
+						     }
     #endif
 #endif
 
@@ -112,11 +112,13 @@ namespace ExBuddy
 										}
 									}
 								}
-								var addrz = (uint)results[0];
+
+#if RB_X64
+                                var addrz = (long)results[0];
 
 								if (offset.Modifier != 0)
 								{
-									addrz = (uint)(addrz + offset.Modifier);
+									addrz = (long)(addrz + offset.Modifier);
 								}
 
 								logr.Write("[SecondaryOffsetManager] Found 0x{0:X} for {1}", addrz, info.Name);
@@ -129,7 +131,28 @@ namespace ExBuddy
 								{
 									info.SetValue(null, (int)addrz);
 								}
-							}
+#else
+
+                                var addrz = (uint)results[0];
+
+                                if (offset.Modifier != 0)
+                                {
+                                    addrz = (uint)(addrz + offset.Modifier);
+                                }
+
+                                logr.Write("[SecondaryOffsetManager] Found 0x{0:X} for {1}", addrz, info.Name);
+
+                                if (info.FieldType == typeof(IntPtr))
+                                {
+                                    info.SetValue(null, (IntPtr)addrz);
+                                }
+                                else
+                                {
+                                    info.SetValue(null, (int)addrz);
+                                }
+
+#endif
+                            }
 							catch (Exception e)
 							{
 								//Something went wrong

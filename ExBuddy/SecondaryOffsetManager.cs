@@ -1,6 +1,9 @@
-﻿namespace ExBuddy
+﻿
+namespace ExBuddy
 {
-	using System;
+
+
+    using System;
 	using System.Linq;
 	using System.Reflection;
 	using System.Threading.Tasks;
@@ -44,17 +47,26 @@
 
 						foreach (var info in type.GetFields())
 						{
-							var offset =
-								(Offset)Attribute.GetCustomAttributes(info, typeof(Offset)).FirstOrDefault(r => r.GetType() != typeof(OffsetCN));
 
-#if RB_CN
-							var tmp = (Offset)Attribute.GetCustomAttribute(info, typeof(OffsetCN));
-							if (tmp != null)
-							{
-								offset = tmp;
-							}
+
+#if RB_X64
+                            var offset = (Offset64)Attribute.GetCustomAttributes(info, typeof(Offset64)).FirstOrDefault();
+
+#else
+                            var offset = (Offset)Attribute.GetCustomAttributes(info, typeof(Offset)).FirstOrDefault(r => r.GetType() != typeof(OffsetCN));
+
+    #if RB_CN
+							    var tmp = (Offset)Attribute.GetCustomAttribute(info, typeof(OffsetCN));
+							    if (tmp != null)
+							    {
+								    offset = tmp;
+							    }
+    #endif
 #endif
-							if (offset == null)
+
+
+
+                            if (offset == null)
 							{
 								continue;
 							}

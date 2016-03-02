@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.OrderBotTags.Behaviors
+﻿using ff14bot.RemoteWindows;
+
+namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;

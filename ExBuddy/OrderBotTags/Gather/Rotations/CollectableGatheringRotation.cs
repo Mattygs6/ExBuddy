@@ -14,7 +14,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 	public abstract class CollectableGatheringRotation : GatheringRotation
 	{
-		protected static GatheringMasterpiece MasterpieceWindow = new GatheringMasterpiece();
+		
 
 		public override bool ShouldForceGather(ExGatherTag tag)
 		{
@@ -25,7 +25,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 		{
 			get
 			{
-				return MasterpieceWindow.CurrentRarity;
+				return GatheringMasterpiece.Rarity;
 			}
 		}
 
@@ -58,14 +58,14 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 				while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
 				{
-					if (!MasterpieceWindow.IsValid)
+					if (!GatheringMasterpiece.IsOpen)
 					{
-						await MasterpieceWindow.Refresh(3000);
+					    await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen);
 					}
 
-					if (MasterpieceWindow.IsValid)
+					if (GatheringMasterpiece.IsOpen)
 					{
-						MasterpieceWindow.Collect();
+                        GatheringMasterpiece.Collect();
 					}
 
 					await Coroutine.Sleep(500);
@@ -112,7 +112,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 					return false;
 				}
 			}
-			while (ticks++ < 10 && !await MasterpieceWindow.Refresh(3000) && Behaviors.ShouldContinue);
+			while (ticks++ < 10 && !await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen) && Behaviors.ShouldContinue);
 
 			if (ticks > 10)
 			{

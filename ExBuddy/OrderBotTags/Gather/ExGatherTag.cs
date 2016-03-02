@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.OrderBotTags.Gather
+﻿using ff14bot.RemoteWindows;
+
+namespace ExBuddy.OrderBotTags.Gather
 {
 	using System;
 	using System.Collections.Generic;

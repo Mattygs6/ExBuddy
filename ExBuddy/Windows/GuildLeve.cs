@@ -45,8 +45,12 @@ namespace ExBuddy.Windows
 
 		public SendActionResult AcceptLeve(uint guildLeveId)
 		{
-			return TrySendAction(2, 3, 3, 4, guildLeveId);
-		}
+#if RB_CN
+            return TrySendAction(2, 3, 3, 4, guildLeveId);
+#else
+            return TrySendAction(2, 3, 2, 4, guildLeveId);
+#endif
+        }
 
 		public static bool HasLeve(uint leveId)
 		{

@@ -1,4 +1,5 @@
 ﻿using ExBuddy.Offsets;
+using GreyMagic;
 
 namespace ExBuddy.Helpers
 {
@@ -14,11 +15,18 @@ namespace ExBuddy.Helpers
 
 		public static class Request
 		{
+
+
+		    public static uint GetItemByIndex(int index)
+		    {
+                var ptr = RequestOffsets.ItemBasePtr + MarshalCache<IntPtr>.Size;
+                return Core.Memory.NoCacheRead<uint>(ptr + (RequestOffsets.ItemSize * index) + MarshalCache<IntPtr>.Size);
+            }
 			public static uint ItemId1
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr);
+					return GetItemByIndex(0);
 				}
 			}
 
@@ -26,7 +34,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.ItemSize );
+					return GetItemByIndex(1);
 				}
 			}
 
@@ -34,7 +42,7 @@ namespace ExBuddy.Helpers
 			{
 				get
 				{
-					return Core.Memory.NoCacheRead<uint>(RequestOffsets.ItemBasePtr + RequestOffsets.ItemSize * 2);
+					return GetItemByIndex(2);
 				}
 			}
 

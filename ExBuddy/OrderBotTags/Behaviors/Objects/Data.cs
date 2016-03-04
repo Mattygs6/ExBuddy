@@ -40,14 +40,22 @@
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-																										Location = new Vector3("-17.29029, 206.4994, 48.57777"),
-																										NpcId = 1012300
+#if RB_CN
+ Location = new Vector3("-15.64056, 211, 0.1677856"),                                                                             
+#else
+ Location = new Vector3("-17.29029, 206.4994, 48.57777"),
+#endif
+                                                                                                    NpcId = 1012300
 																									},
 																								new ShopExchangeCurrency
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-																										Location = new Vector3("-17.29029, 206.4994, 48.57777"),
+#if RB_CN
+ Location = new Vector3("-17.38013, 211, -1.66333"),                                                                                           
+#else
+ Location = new Vector3("-17.29029, 206.4994, 48.57777"),
+#endif
 																										NpcId = 1012301
 																									}
 																							}

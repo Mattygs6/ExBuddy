@@ -9,108 +9,93 @@
 	using ExBuddy.Interfaces;
 
 	[XmlElement("Items")]
-	public class NamedItemCollection : IList<INamedItem>
+	public class NamedItemCollection : IList<IConditionNamedItem>
 	{
 		public NamedItemCollection()
 		{
-			Items = new List<INamedItem>();
+			Items = new List<IConditionNamedItem>();
 		}
 
-		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<INamedItem> Items { get; [UsedImplicitly] set; }
+        public IConditionNamedItem this[int index]
+        {
+            get
+            {
+                return ((IList<IConditionNamedItem>)Items)[index];
+            }
 
-		#region ICollection<NamedItem> Members
+            set
+            {
+                ((IList<IConditionNamedItem>)Items)[index] = value;
+            }
+        }
 
-		public int Count
-		{
-			get
-			{
-				return Items.Count;
-			}
-		}
+        public int Count
+        {
+            get
+            {
+                return ((IList<IConditionNamedItem>)Items).Count;
+            }
+        }
 
-		public bool IsReadOnly
-		{
-			get
-			{
-				return false;
-			}
-		}
+        public bool IsReadOnly
+        {
+            get
+            {
+                return ((IList<IConditionNamedItem>)Items).IsReadOnly;
+            }
+        }
 
-		public void Add(INamedItem item)
-		{
-			Items.Add(item);
-		}
+        [XmlElement(XmlEngine.GENERIC_BODY)]
+		private List<IConditionNamedItem> Items { get; [UsedImplicitly] set; }
 
-		public void Clear()
-		{
-			Items.Clear();
-		}
+        public void Add(IConditionNamedItem item)
+        {
+            ((IList<IConditionNamedItem>)Items).Add(item);
+        }
 
-		public bool Contains(INamedItem item)
-		{
-			return Items.Contains(item);
-		}
+        public void Clear()
+        {
+            ((IList<IConditionNamedItem>)Items).Clear();
+        }
 
-		public void CopyTo(INamedItem[] array, int arrayIndex)
-		{
-			Items.CopyTo(array, arrayIndex);
-		}
+        public bool Contains(IConditionNamedItem item)
+        {
+            return ((IList<IConditionNamedItem>)Items).Contains(item);
+        }
 
-		public bool Remove(INamedItem item)
-		{
-			return Items.Remove(item);
-		}
+        public void CopyTo(IConditionNamedItem[] array, int arrayIndex)
+        {
+            ((IList<IConditionNamedItem>)Items).CopyTo(array, arrayIndex);
+        }
 
-		#endregion
+        public IEnumerator<IConditionNamedItem> GetEnumerator()
+        {
+            return ((IList<IConditionNamedItem>)Items).GetEnumerator();
+        }
 
-		#region IEnumerable Members
+        public int IndexOf(IConditionNamedItem item)
+        {
+            return ((IList<IConditionNamedItem>)Items).IndexOf(item);
+        }
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+        public void Insert(int index, IConditionNamedItem item)
+        {
+            ((IList<IConditionNamedItem>)Items).Insert(index, item);
+        }
 
-		#endregion
+        public bool Remove(IConditionNamedItem item)
+        {
+            return ((IList<IConditionNamedItem>)Items).Remove(item);
+        }
 
-		#region IEnumerable<NamedItem> Members
+        public void RemoveAt(int index)
+        {
+            ((IList<IConditionNamedItem>)Items).RemoveAt(index);
+        }
 
-		public IEnumerator<INamedItem> GetEnumerator()
-		{
-			return Items.GetEnumerator();
-		}
-
-		#endregion
-
-		#region IList<NamedItem> Members
-
-		public int IndexOf(INamedItem item)
-		{
-			return Items.IndexOf(item);
-		}
-
-		public void Insert(int index, INamedItem item)
-		{
-			Items.Insert(index, item);
-		}
-
-		public INamedItem this[int index]
-		{
-			get
-			{
-				return Items[index];
-			}
-			set
-			{
-				Items[index] = value;
-			}
-		}
-
-		public void RemoveAt(int index)
-		{
-			Items.RemoveAt(index);
-		}
-
-		#endregion
-	}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IList<IConditionNamedItem>)Items).GetEnumerator();
+        }
+    }
 }

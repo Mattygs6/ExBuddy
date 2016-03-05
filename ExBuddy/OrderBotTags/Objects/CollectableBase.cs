@@ -1,13 +1,17 @@
 ﻿namespace ExBuddy.OrderBotTags.Objects
 {
-	using Clio.XmlEngine;
+    using Clio.XmlEngine;
 
-	using ExBuddy.Interfaces;
-
-	public abstract class CollectableBase : INamedItem
+    using ExBuddy.Interfaces;
+    using System.ComponentModel;
+    public abstract class CollectableBase : IConditionNamedItem
 	{
 		[XmlAttribute("Name")]
 		public string Name { get; set; }
+
+        [DefaultValue("True")]
+        [XmlAttribute("Condition")]
+        public string Condition { set; get; }
 
 		[XmlAttribute("Value")]
 		public int Value { get; set; }

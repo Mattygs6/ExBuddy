@@ -95,7 +95,7 @@
 		[Obsolete("Use Items instead.")]
 		public List<Collectable> Collectables { get; set; }
 
-		[DefaultValue(CordialTime.IfNeeded)]
+        [DefaultValue(CordialTime.IfNeeded)]
 		[XmlAttribute("CordialTime")]
 		public CordialTime CordialTime { get; set; }
 
@@ -1484,6 +1484,11 @@
 		{
 			foreach (var item in Items)
 			{
+                bool flag = ScriptManager.GetCondition(item.Condition)();
+                Log("物品({0})采集条件：{1} = {2}",item.Name, item.Condition, flag);
+                if (!flag)
+                    continue;
+
 				GatherItem =
 					windowItems.FirstOrDefault(
 						i =>

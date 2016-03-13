@@ -79,7 +79,6 @@
     <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
-    <Compile Include="ExBuddySettings.cs" />
     <Compile Include="ExCoroutineAction.cs" />
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />

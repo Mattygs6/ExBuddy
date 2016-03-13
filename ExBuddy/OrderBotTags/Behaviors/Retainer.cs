@@ -6,13 +6,15 @@
 
     using ff14bot.Managers;
     using ff14bot.RemoteWindows;
-
     [XmlElement("Retainer")]
     public class Retainer : ExProfileBehavior
     {
+        [XmlAttribute("BellId")]
+        public uint BellId { get; set; }
+
         protected override async Task<bool> Main()
         {
-            GameObjectManager.GetObjectByNPCId(2000401).Interact();
+            GameObjectManager.GetObjectByObjectId(BellId).Interact();
             if (await Coroutine.Wait(5000, () => SelectString.IsOpen))
             {
                 uint count = 0;

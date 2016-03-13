@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.OrderBotTags.Craft
+﻿namespace ExBuddy.OrderBotTags.Craft.Impl
 {
     using System.Threading.Tasks;
 
@@ -22,7 +22,7 @@
         [DefaultValue(0)]
         [XmlAttribute("CollectValue")]
         public int CollectValue { get; set; }
-        
+
         protected override async Task<bool> Main()
         {
             await Coroutine.Sleep(1000);
@@ -48,14 +48,15 @@
             }
 
             // 判断是否需要制作收藏品
-            if(CollectValue > 0)
+            if (CollectValue > 0)
             {
-                if(!Core.Player.HasAura(903))
+                if (!Core.Player.HasAura(903))
                 {
                     Actionmanager.DoAction("Collectable Synthesis", Core.Me);
                     await Coroutine.Sleep(250);
                 }
-            } else
+            }
+            else
             {
                 // 判断是否有收藏品制作BUFF，如果有，则关闭
                 if (Core.Player.HasAura(903))
@@ -64,7 +65,7 @@
                     await Coroutine.Sleep(250);
                 }
             }
-            
+
             // 下面开始制作
             await doAction("Comfort Zone"); //安逸
             await doAction("Inner Quiet"); //内静
@@ -84,25 +85,28 @@
 
             await doAction("Great Strides");    // 阔步
 
-            if(CraftingManager.Condition == CraftingCondition.Excellent || CraftingManager.Condition == CraftingCondition.Good)
+            if (CraftingManager.Condition == CraftingCondition.Excellent || CraftingManager.Condition == CraftingCondition.Good)
             {
                 await doAction("Byregot's Brow");   //比尔格的技巧
                 await doAction("Steady Hand II"); //稳手II
-            } else
+            }
+            else
             {
                 await doAction("Steady Hand II"); //稳手II
 
                 if (CraftingManager.Condition == CraftingCondition.Excellent || CraftingManager.Condition == CraftingCondition.Good)
                 {
                     await doAction("Byregot's Brow");   //比尔格的技巧
-                } else
+                }
+                else
                 {
                     await doAction("Innovation");   // 改革
 
                     if (CraftingManager.Condition == CraftingCondition.Excellent || CraftingManager.Condition == CraftingCondition.Good)
                     {
                         await doAction("Byregot's Brow");   //比尔格的技巧
-                    } else
+                    }
+                    else
                     {
                         await doAction("Byregot's Blessing");   // 比尔格的祝福
                     }
@@ -111,8 +115,8 @@
 
             await doName(data); //美名
             await doBrand(data);    //祝福
-            
-            if(CraftingManager.IsCrafting && CraftingManager.ProgressRequired != CraftingManager.Progress)
+
+            if (CraftingManager.IsCrafting && CraftingManager.ProgressRequired != CraftingManager.Progress)
             {
                 await doBrand(data);    //祝福
             }
@@ -120,10 +124,10 @@
             {
                 await doFinishAction("Careful Synthesis II");// 模范制作II
             }
-            
+
             if (SelectYesNoItem.IsOpen)
             {
-                if(SelectYesNoItem.CollectabilityValue >= CollectValue )
+                if (SelectYesNoItem.CollectabilityValue >= CollectValue)
                 {
                     SelectYesNoItem.Yes();
                 }
@@ -175,10 +179,11 @@
 
         private async Task<bool> doBestTouch()
         {
-            if(CraftingManager.Condition == CraftingCondition.Good || CraftingManager.Condition == CraftingCondition.Excellent)
+            if (CraftingManager.Condition == CraftingCondition.Good || CraftingManager.Condition == CraftingCondition.Excellent)
             {
                 await doAction("Precise Touch");
-            } else
+            }
+            else
             {
                 await doAction("Basic Touch");
             }
@@ -188,27 +193,32 @@
         // 美名
         private async Task<bool> doName(SpellData data)
         {
-            if(Actionmanager.CurrentActions.TryGetValue("Name of Water",out data))
+            if (Actionmanager.CurrentActions.TryGetValue("Name of Water", out data))
             {
                 // 水之美名
                 await doAction("Name of Water");
-            } else if (Actionmanager.CurrentActions.TryGetValue("Name of the Wind", out data))
+            }
+            else if (Actionmanager.CurrentActions.TryGetValue("Name of the Wind", out data))
             {
                 // 风之美名
                 await doAction("Name of the Wind");
-            } else if (Actionmanager.CurrentActions.TryGetValue("Name of Fire", out data))
+            }
+            else if (Actionmanager.CurrentActions.TryGetValue("Name of Fire", out data))
             {
                 // 火之美名
                 await doAction("Name of Fire");
-            } else if (Actionmanager.CurrentActions.TryGetValue("Name of Ice", out data))
+            }
+            else if (Actionmanager.CurrentActions.TryGetValue("Name of Ice", out data))
             {
                 // 冰之美名
                 await doAction("Name of Ice");
-            } else if (Actionmanager.CurrentActions.TryGetValue("Name of Earth", out data))
+            }
+            else if (Actionmanager.CurrentActions.TryGetValue("Name of Earth", out data))
             {
                 // 土之美名
                 await doAction("Name of Earth");
-            } else if (Actionmanager.CurrentActions.TryGetValue("Name of Lightning", out data))
+            }
+            else if (Actionmanager.CurrentActions.TryGetValue("Name of Lightning", out data))
             {
                 // 雷之美名
                 await doAction("Name of Lightning");
@@ -266,13 +276,13 @@
                 && await checkSkill("Byregot's Blessing", "缺少技能：比尔格的祝福", data);
         }
 
-        private async Task<bool> checkSkill(string name,string errmsg,SpellData data)
+        private async Task<bool> checkSkill(string name, string errmsg, SpellData data)
         {
 
             if (!Actionmanager.CurrentActions.TryGetValue(name, out data))
             {
-                if(!string.IsNullOrEmpty(errmsg))
-                    LogError("{0}",errmsg);
+                if (!string.IsNullOrEmpty(errmsg))
+                    LogError("{0}", errmsg);
                 return false;
             }
 

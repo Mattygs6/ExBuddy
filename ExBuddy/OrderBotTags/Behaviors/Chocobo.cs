@@ -23,13 +23,16 @@ namespace ExBuddy.OrderBotTags.Behaviors
         [XmlAttribute("PlayerName")]
         public String PlayerName { get; set; }
         
+        [XmlAttribute("ChocoboId")]
+        public uint ChocoboId { get; set; }
+
         protected override async Task<bool> Main()
         {
             Log("目前仅支持克拉卡萝卜");
             FoodId = 8165;
 
             uint shack = 1073747699;
-            GameObjectManager.GetObjectByObjectId(shack).Interact();
+            GameObjectManager.GetObjectByObjectId(ChocoboId).Interact();
             await Coroutine.Sleep(2000);
             
             if (SelectString.IsOpen)

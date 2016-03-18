@@ -1,4 +1,4 @@
-﻿namespace ExBuddy.OrderBotTags.Behaviors.Objects
+namespace ExBuddy.OrderBotTags.Behaviors.Objects
 {
 	using System.Collections.Generic;
 	using System.Linq;
@@ -40,22 +40,22 @@
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-#if RB_CN
- Location = new Vector3("-15.64056, 211, 0.1677856"),                                                                             
-#else
- Location = new Vector3("-17.29029, 206.4994, 48.57777"),
-#endif
+																										#if RB_CN
+																										 Location = new Vector3("-15.64056, 211, 0.1677856"),                                                                             
+																										#else
+																										 Location = new Vector3("-18.29561, 206.5211, 45.12088"),
+																										#endif
                                                                                                     NpcId = 1012300
 																									},
 																								new ShopExchangeCurrency
 																									{
 																										AetheryteId = 75,
 																										ZoneId = 478,
-#if RB_CN
- Location = new Vector3("-17.38013, 211, -1.66333"),                                                                                           
-#else
- Location = new Vector3("-17.29029, 206.4994, 48.57777"),
-#endif
+																										#if RB_CN
+																										 Location = new Vector3("-17.38013, 211, -1.66333"),                                                                                           
+																										#else
+																										 Location = new Vector3("-20.6455, 206.5211, 47.25714"),
+																										#endif
 																										NpcId = 1012301
 																									}
 																							}
@@ -96,9 +96,9 @@
 																							ShopItem.CrpDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.CrpDelineation,
+																									Index = 10 + (int)ShopItem.CrpDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.CrpDelineation,
+																									ItemId = 12669 + (int)ShopItem.CrpDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -107,9 +107,9 @@
 																							ShopItem.BsmDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.BsmDelineation,
+																									Index = 10 + (int)ShopItem.BsmDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.BsmDelineation,
+																									ItemId = 12669 + (int)ShopItem.BsmDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -118,9 +118,9 @@
 																							ShopItem.ArmDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.ArmDelineation,
+																									Index = 10 + (int)ShopItem.ArmDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.ArmDelineation,
+																									ItemId = 12669 + (int)ShopItem.ArmDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -129,9 +129,9 @@
 																							ShopItem.GsmDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.GsmDelineation,
+																									Index = 10 + (int)ShopItem.GsmDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.GsmDelineation,
+																									ItemId = 12669 + (int)ShopItem.GsmDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -140,9 +140,9 @@
 																							ShopItem.LtwDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.LtwDelineation,
+																									Index = 10 + (int)ShopItem.LtwDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.LtwDelineation,
+																									ItemId = 12669 + (int)ShopItem.LtwDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -151,9 +151,9 @@
 																							ShopItem.WvrDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.WvrDelineation,
+																									Index = 10 + (int)ShopItem.WvrDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.WvrDelineation,
+																									ItemId = 12669 + (int)ShopItem.WvrDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -162,9 +162,9 @@
 																							ShopItem.AlcDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.AlcDelineation,
+																									Index = 10 + (int)ShopItem.AlcDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.AlcDelineation,
+																									ItemId = 12669 + (int)ShopItem.AlcDelineation,
 																									Cost = 250,
 																									Yield = 10
 																								}
@@ -173,11 +173,22 @@
 																							ShopItem.CulDelineation,
 																							new ShopItemInfo
 																								{
-																									Index = 8 + (int)ShopItem.CulDelineation,
+																									Index = 10 + (int)ShopItem.CulDelineation,
 																									ShopType = ShopType.BlueCrafter,
-																									ItemId = 12667 + (int)ShopItem.CulDelineation,
+																									ItemId = 12669 + (int)ShopItem.CulDelineation,
 																									Cost = 250,
 																									Yield = 10
+																								}
+																						},
+																						{
+																							ShopItem.CommercialEngineeringManual,
+																							new ShopItemInfo
+																								{
+																									Index = 10 + (int)ShopItem.CommercialEngineeringManual,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 12669 + (int)ShopItem.CommercialEngineeringManual,
+																									Cost = 45,
+																									Yield = 1
 																								}
 																						},
 																						{
@@ -203,6 +214,17 @@
 																								}
 																						},
 																						{
+																							ShopItem.CommercialSurvivalManual,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.CommercialSurvivalManual,
+																									ShopType = ShopType.BlueGatherer,
+																									ItemId = 12668,
+																									Cost = 75,
+																									Yield = 1
+																								}
+																						},
+																						{
 																							ShopItem.HiCordial,
 																							new ShopItemInfo
 																								{
@@ -222,6 +244,39 @@
 																									ItemId = 12841,
 																									Cost = 250,
 																									Yield = 5
+																								}
+																						},
+																						{
+																							ShopItem.RedBalloon,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.RedBalloon,
+																									ShopType = ShopType.BlueGatherer,
+																									ItemId = 12708,
+																									Cost = 50,
+																									Yield = 50
+																								}
+																						},
+																						{
+																							ShopItem.MagmaWorm,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.MagmaWorm,
+																									ShopType = ShopType.BlueGatherer,
+																									ItemId = 12709,
+																									Cost = 52,
+																									Yield = 50
+																								}
+																						},
+																						{
+																							ShopItem.FiendWorm,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.FiendWorm,
+																									ShopType = ShopType.BlueGatherer,
+																									ItemId = 12710,
+																									Cost = 55,
+																									Yield = 50
 																								}
 																						},
 																						{
@@ -254,7 +309,7 @@
 																									ShopType = ShopType.BlueCrafter,
 																									ItemId = 12886,
 																									Cost = 50,
-																									Yield = 1
+																									Yield = 3
 																								}
 																						},
 																						{
@@ -288,6 +343,61 @@
 																									ItemId = 12907,
 																									Cost = 30,
 																									Yield = 1
+																								}
+																						},
+																								{
+																							ShopItem.GoldenApple,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.GoldenApple,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 14142,
+																									Cost = 50,
+																									Yield = 5
+																								}
+																						},
+																								{
+																							ShopItem.SolsticeGarlic,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.SolsticeGarlic,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 14143,
+																									Cost = 50,
+																									Yield = 5
+																								}
+																						},
+																								{
+																							ShopItem.MatureOliveOil,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.MatureOliveOil,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 14144,
+																									Cost = 50,
+																									Yield = 5
+																								}
+																						},
+																								{
+																							ShopItem.LoaghtanFilet,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.LoaghtanFilet,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 14145,
+																									Cost = 50,
+																									Yield = 5
+																								}
+																						},
+																								{
+																							ShopItem.PowderedMermanHorn,
+																							new ShopItemInfo
+																								{
+																									Index = (int)ShopItem.PowderedMermanHorn,
+																									ShopType = ShopType.BlueCrafter,
+																									ItemId = 14937,
+																									Cost = 60,
+																									Yield = 5
 																								}
 																						}
 																					};

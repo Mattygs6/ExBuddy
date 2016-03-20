@@ -28,21 +28,23 @@
 	[XmlElement("FishSpot")]
 	public class FishSpot : IFishSpot
 	{
+		private Vector3 location;
+
 		public FishSpot()
 		{
-			Location = Vector3.Zero;
+			location = Vector3.Zero;
 			Heading = 0f;
 		}
 
 		public FishSpot(string xyz, float heading)
 		{
-			Location = new Vector3(xyz);
+			location = new Vector3(xyz);
 			Heading = heading;
 		}
 
 		public FishSpot(Vector3 xyz, float heading)
 		{
-			Location = xyz;
+			location = xyz;
 			Heading = heading;
 		}
 
@@ -50,8 +52,33 @@
 		public float Heading { get; set; }
 
 		[XmlAttribute("XYZ")]
+		// ReSharper disable once InconsistentNaming
+		public Vector3 XYZ
+		{
+			get
+			{
+				return location;
+			}
+
+			set
+			{
+				location = value;
+			}
+		}
+		
 		[XmlAttribute("Location")]
-		public Vector3 Location { get; set; }
+		public Vector3 Location
+		{
+			get
+			{
+				return location;
+			}
+
+			set
+			{
+				location = value;
+			}
+		}
 
 		[DefaultValue(true)]
 		[XmlAttribute("UseMesh")]

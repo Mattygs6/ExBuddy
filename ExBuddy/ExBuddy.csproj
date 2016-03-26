@@ -61,6 +61,14 @@
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRate.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRateIndex.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRates.cs" />
+    <Compile Include="Plugins\Skywatcher\Providers\LocationProvider.cs" />
+    <Compile Include="Plugins\Skywatcher\Providers\WeatherRateProvider.cs" />
+    <Compile Include="Plugins\Skywatcher\SaintCoinachWeatherProvider.cs" />
     <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
@@ -185,9 +193,7 @@
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />
     <None Include="Data\locationIndex.json" />
-    <None Include="Data\weatherIndex.json" />
     <None Include="Data\weatherRateIndex.json" />
-    <None Include="Data\zoneIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect345GatheringRotation.cs" />
@@ -224,6 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\msd.xml" />
+    <Content Include="Data\msd_cn.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\UseAethernet.xml" />

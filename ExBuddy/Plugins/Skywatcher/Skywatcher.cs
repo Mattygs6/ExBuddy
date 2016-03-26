@@ -20,7 +20,7 @@
 
 		public override void OnInitialize()
 		{
-			WeatherProvider = new FF14AnglerWeatherProvider();
+			WeatherProvider = new SaintCoinachWeatherProvider();
 		}
 
 		public override void OnShutdown()

@@ -1,4 +1,6 @@
-﻿namespace ExBuddy.Plugins.RetainerMaid
+﻿using ff14bot.Objects;
+
+namespace ExBuddy.Plugins.RetainerMaid
 {
 	using System;
 	using System.Collections.Generic;
@@ -154,9 +156,18 @@
 				return false;
 			}
 
-			// If target is retainer summon object and select string is open?
-			//var bell = GameObjectManager.GetObjectByObjectId(4627756);
-			var bell = GameObjectManager.GetObjectByObjectId(4469206);
+			
+		    var pLocation = Core.Player.Location;
+            //HousingEventObjects don't have npcids and as such would be unuseable
+            //var bell = GameObjectManager.GetObjectsByNPCId<EventObject>(2000401).OrderBy(r=>r.Distance2D(pLocation)).FirstOrDefault();
+            var bell = GameObjectManager.GameObjects.Where(r=>r.IsVisible && r.EnglishName == "Summoning Bell").OrderBy(r => r.Distance2D(pLocation)).FirstOrDefault();
+
+            if (bell == null)
+		    {
+                Logger.Error("Could not find nearby summoning bell");
+		        return false;
+		    }
+
 			bell.Interact();
 
 			await Coroutine.Wait(3000, () => SelectString.IsOpen);

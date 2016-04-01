@@ -61,10 +61,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
+    <Compile Include="ExBuddySettings.cs" />
+    <Compile Include="GameObjects\Npcs\PersonnelOfficer.cs" />
     <Compile Include="Interfaces\IConditionNamedItem.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
     <Compile Include="OrderBotTags\Behaviors\Chocobo.cs" />
     <Compile Include="OrderBotTags\Behaviors\Gardenner.cs" />
+    <Compile Include="OrderBotTags\Behaviors\RefTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\GrandCompanySupply.cs" />
     <Compile Include="OrderBotTags\Behaviors\Retainer.cs" />
     <Compile Include="OrderBotTags\Behaviors\SuitChange.cs" />
     <Compile Include="OrderBotTags\Craft\BaseCraft.cs" />
@@ -184,6 +188,7 @@
     <Compile Include="Windows\FreeCompanyChest.cs" />
     <Compile Include="Windows\Gathering.cs" />
     <Compile Include="Windows\GatheringMasterpiece.cs" />
+    <Compile Include="Windows\GrandCompanySupplyReward.cs" />
     <Compile Include="Windows\GuildLeve.cs" />
     <Compile Include="Windows\InputNumeric.cs" />
     <Compile Include="Windows\MasterPieceSupply.cs" />
@@ -194,6 +199,7 @@
     <Compile Include="Windows\SalvageItemSelector.cs" />
     <Compile Include="Windows\SalvageResult.cs" />
     <Compile Include="Windows\SelectYesnoCount.cs" />
+    <Compile Include="Windows\GrandCompanySupplyList.cs" />
     <Compile Include="Windows\TreasureMap.cs" />
     <Compile Include="Windows\SelectYesNoItem.cs" />
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
@@ -236,6 +242,7 @@
     <Compile Include="Plugins\Skywatcher\WeatherResponse.cs" />
     <Compile Include="Plugins\Skywatcher\WeatherResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\msd.xml" />
@@ -246,7 +253,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
-    <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
+    <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="OrderBotTags\Behaviors\Examples\UseAethernet.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_IlluminatiPerch.xml" />

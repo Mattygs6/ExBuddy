@@ -51,7 +51,7 @@
                                                     {
                                                         Talk.Next();
                                                         await Coroutine.Sleep(3000);
-                                                        GameObjectManager.GetObjectByNPCId(2000401).Interact();
+                                                        GameObjectManager.GetObjectByObjectId(BellId).Interact();
                                                         if (await Coroutine.Wait(5000, () => SelectString.IsOpen))
                                                         {
                                                             count++;

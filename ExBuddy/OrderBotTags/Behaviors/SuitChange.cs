@@ -29,17 +29,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             if (Core.Player.CurrentJob == ff14bot.Enums.ClassJobType.Botanist && !Core.Player.HasAura(221))
             {
-                await land();
-
-                if(Core.Player.ClassLevel > 46)
+                 if(Core.Player.ClassLevel > 46)
                 {
                     Actionmanager.DoAction(221, Core.Player);
                     await Coroutine.Sleep(2000);
                 }
             } else if(Core.Player.CurrentJob == ff14bot.Enums.ClassJobType.Miner && !Core.Player.HasAura(222))
             {
-                await land();
-
                 if (Core.Player.ClassLevel > 46)
                 {
                     Actionmanager.DoAction(238, Core.Player);
@@ -49,23 +45,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
             return isDone = true;
         }
-
-        private async Task<bool> land()
-        {
-            var result = true;
-            if (MovementManager.IsFlying)
-            {
-                result = await CommonTasks.Land();
-                await Coroutine.Sleep(1000);
-            }
-
-            if (result && Core.Player.IsMounted)
-            {
-                await CommonTasks.StopAndDismount();
-                await Coroutine.Sleep(1000);
-            }
-
-            return true;
-        }
+        
     }
 }

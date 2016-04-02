@@ -67,10 +67,13 @@
 		public virtual async Task<SendActionResult> CloseInstance(ushort interval = 250)
 		{
 			await Behaviors.Sleep(interval/2);
+#if RB_CN
+            Logger.Instance.Verbose("尝试关闭 [{0}] 窗口", Name);
+#else
+            Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
+#endif
 
-			Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
-
-			var result = TrySendAction(1, 3, uint.MaxValue);
+            var result = TrySendAction(1, 3, uint.MaxValue);
 
 			await Refresh(interval/2, false);
 
@@ -78,29 +81,47 @@
 			{
 				if (!IsValid)
 				{
-					Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
-					return result;
+#if RB_CN
+					Logger.Instance.Verbose(" [{0}] 窗口已关闭.", Name);
+#else
+                    Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+#endif
+                    return result;
 				}
-
-				Logger.Instance.Verbose("Waiting {0} ms for [{1}] window to close", interval*2, Name);
-				await Refresh(interval*2, false);
+#if RB_CN
+                Logger.Instance.Verbose("等待 {0} 毫秒,直到 [{1}] 窗口关闭", interval*2, Name);
+#else
+                Logger.Instance.Verbose("Waiting {0} ms for [{1}] window to close", interval*2, Name);
+#endif
+                await Refresh(interval*2, false);
 
 				if (!IsValid)
 				{
-					Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
-					return result;
+#if RB_CN
+                    Logger.Instance.Verbose("[{0}] 窗口已关闭.", Name);
+#else
+                    Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+#endif
+                    return result;
 				}
-
-				Logger.Instance.Verbose("Unexpected result while closing [{0}]", Name);
-				return SendActionResult.UnexpectedResult;
+#if RB_CN
+                Logger.Instance.Verbose("关闭 [{0}] 窗口时发生了不可预见的结果", Name);
+#else
+                Logger.Instance.Verbose("Unexpected result while closing [{0}]", Name);
+#endif
+                return SendActionResult.UnexpectedResult;
 			}
 
 			if (result == SendActionResult.InvalidWindow)
 			{
-				Logger.Instance.Verbose("The [{0}] window was not valid, it was either not open or closed on its own.", Name);
-			}
+#if RB_CN
+                Logger.Instance.Verbose(" [{0}] 窗口不可用,可能窗口未打开或是自己关闭了.", Name);
+#else
+                Logger.Instance.Verbose("The [{0}] window was not valid, it was either not open or closed on its own.", Name);
+#endif
+            }
 
-			return result;
+            return result;
 		}
 
 		public virtual async Task<bool> CloseInstanceGently(byte maxTicks = 10, ushort interval = 200)

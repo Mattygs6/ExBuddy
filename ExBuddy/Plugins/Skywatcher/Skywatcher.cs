@@ -41,9 +41,16 @@
 
 		public override string Name
 		{
-			get { return "Skywatcher"; }
+			get
+            {
+#if RB_CN
+				return "钓鱼天气检测 - Skywatcher";
+#else
+                return "Skywatcher";
+#endif
+            }
 		}
 
-		#endregion
+#endregion
 	}
 }

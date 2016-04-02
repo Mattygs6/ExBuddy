@@ -1328,11 +1328,20 @@ namespace ExBuddy.OrderBotTags.Fish
 #endif
 
             if (e.ChatLogEntry.MessageType == (MessageType) 2115
-			    && e.ChatLogEntry.Contents.Equals("You do not sense any fish here.", StringComparison.InvariantCultureIgnoreCase))
-			{
-				Logger.Info("You do not sense any fish here, trying next location.");
 
-				if (CanDoAbility(Abilities.Quit))
+#if RB_CN
+                && e.ChatLogEntry.Contents.Equals("这里好像没有鱼在活动……", StringComparison.InvariantCultureIgnoreCase))    
+#else
+                && e.ChatLogEntry.Contents.Equals("You do not sense any fish here.", StringComparison.InvariantCultureIgnoreCase))
+#endif
+            {
+#if RB_CN
+                Logger.Info("这里好像没有鱼在活动……, 尝试下一个地点");
+#else
+                Logger.Info("You do not sense any fish here, trying next location.");
+#endif
+
+                if (CanDoAbility(Abilities.Quit))
 				{
 					DoAbility(Abilities.Quit);
 				}

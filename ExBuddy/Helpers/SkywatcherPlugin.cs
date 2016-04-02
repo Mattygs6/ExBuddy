@@ -3,6 +3,7 @@
 	using System;
 	using System.Linq;
 	using ExBuddy.Logging;
+	using ExBuddy.Plugins;
 	using ExBuddy.Plugins.Skywatcher;
 	using ff14bot;
 	using ff14bot.Managers;

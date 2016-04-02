@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.GameObjects.Npcs
 {
 	using Clio.Utilities;
-
 	using ExBuddy.Interfaces;
 
 	public class CustomNpc : INpc
@@ -24,15 +23,7 @@
 
 		#endregion
 
-		#region IInteractWithNpc Members
-
-		public Vector3 Location { get; set; }
-
-		public uint NpcId { get; set; }
-
-		#endregion
-
-		#region INpc Members
+		#region INamedItem Members
 
 		public string Name { get; set; }
 
@@ -41,6 +32,14 @@
 		#region IZoneId Members
 
 		public ushort ZoneId { get; set; }
+
+		#endregion
+
+		#region IInteractWithNpc Members
+
+		public Vector3 Location { get; set; }
+
+		public uint NpcId { get; set; }
 
 		#endregion
 	}

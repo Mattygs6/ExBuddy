@@ -47,11 +47,11 @@
 				<!--<GatherRotation>Collect450</GatherRotation>-->
 				<GatherSpots>
 					<StealthApproachGatherSpot stealthLocation="221.1639, 218.9276, -654.8363"
-												nodeLocation="222.5773, 218.4649, -658.0814" />
+					                           nodeLocation="222.5773, 218.4649, -658.0814" />
 					<StealthApproachGatherSpot stealthLocation="106.7898, 213.772, -801.8348"
-												nodeLocation="106.7898, 213.772, -801.8348" />
+					                           nodeLocation="106.7898, 213.772, -801.8348" />
 					<StealthApproachGatherSpot stealthLocation="169.6753, 219.6535, -592.4287"
-												nodeLocation="175.5408, 220.2071, -600.0065" />
+					                           nodeLocation="175.5408, 220.2071, -600.0065" />
 				</GatherSpots>
 				<HotSpots>
 					<HotSpot Radius="150" XYZ="173.6, 296.5012, -704.6605" />

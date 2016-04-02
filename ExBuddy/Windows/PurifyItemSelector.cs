@@ -5,6 +5,6 @@
 	public sealed class PurifyItemSelector : Window<PurifyItemSelector, AetherialReduction>
 	{
 		public PurifyItemSelector()
-			: base("PurifyItemSelector") { }
+			: base("PurifyItemSelector") {}
 	}
 }

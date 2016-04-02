@@ -2,12 +2,9 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System;
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot;
-	using ff14bot.Managers;
 
 	[GatheringRotation("NewbCollect", 30, 600)]
 	public sealed class NewbCollectGatheringRotation : CollectableGatheringRotation, IGetOverridePriority
@@ -114,7 +111,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			{
 				if (level >= 57)
 				{
-					tag.Logger.Info("Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One+ for now... :'(");
+					tag.Logger.Info(
+						"Hey! Listen! You can update this item to use Get One++!!! Using Rotation: Get One+ for now... :'(");
 					await CallRotation(tag, "Get One+", GetOnePlus);
 				}
 				else if (level >= 51)
@@ -153,12 +151,13 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			{
 				if (level >= 57)
 				{
-					tag.Logger.Info("Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two+ for now... :'(");
+					tag.Logger.Info(
+						"Hey! Listen! You can update this item to use Get Two++!!! Using Rotation: Get Two+ for now... :'(");
 					await CallRotation(tag, "Get Two+", GetTwoPlus);
 				}
 				else
 				{
-					await CallRotation(tag, "Get Two", GetTwo);	
+					await CallRotation(tag, "Get Two", GetTwo);
 				}
 
 				return true;

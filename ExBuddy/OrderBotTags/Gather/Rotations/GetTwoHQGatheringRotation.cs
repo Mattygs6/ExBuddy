@@ -1,12 +1,9 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
-
 	using ff14bot;
 	using ff14bot.Managers;
 
@@ -15,10 +12,7 @@
 	{
 		public override bool CanBeOverriden
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)

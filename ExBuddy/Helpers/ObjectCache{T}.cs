@@ -17,10 +17,7 @@
 		/// <remarks>The key will be set with the type default if trying to get the value before it was set</remarks>
 		public T this[string key]
 		{
-			get
-			{
-				return cache.Value.ContainsKey(key) ? cache.Value[key] : default(T);
-			}
+			get { return cache.Value.ContainsKey(key) ? cache.Value[key] : default(T); }
 			set
 			{
 				if (!cache.Value.ContainsKey(key))
@@ -51,10 +48,7 @@
 		/// </summary>
 		public static ObjectCache<T> Instance
 		{
-			get
-			{
-				return _Instance.Value;
-			}
+			get { return _Instance.Value; }
 		}
 
 		#endregion

@@ -7,17 +7,13 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Helpers;
@@ -47,6 +43,9 @@
 		[XmlAttribute("HqOnly")]
 		public bool HqOnly { get; set; }
 
+		[XmlAttribute("MultipleQuests")]
+		public bool MultipleQuests { get; set; }
+
 		[XmlAttribute("NqOnly")]
 		public bool NqOnly { get; set; }
 
@@ -58,26 +57,10 @@
 		[XmlAttribute("YesText")]
 		public string YesText { get; set; }
 
-		[XmlAttribute("MultipleQuests")]
-		public bool MultipleQuests { get; set; }
-
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.Plum;
-			}
+			get { return Colors.Plum; }
 		}
-
-		#region IInteractWithNpc Members
-
-		[XmlAttribute("NpcLocation")]
-		public Vector3 Location { get; set; }
-
-		[XmlAttribute("NpcId")]
-		public uint NpcId { get; set; }
-
-		#endregion
 
 		protected override void DoReset()
 		{
@@ -123,7 +106,7 @@
 			}
 
 			// Movement
-			if (Me.Distance(Location) > 3.5)
+			if (ExProfileBehavior.Me.Distance(Location) > 3.5)
 			{
 				StatusText = "Moving to Npc -> " + NpcId;
 
@@ -137,7 +120,7 @@
 			}
 
 			// Interact
-			if (Core.Target == null && Me.Distance(Location) <= 3.5)
+			if (Core.Target == null && ExProfileBehavior.Me.Distance(Location) <= 3.5)
 			{
 				return await InteractWithNpc();
 			}
@@ -151,7 +134,7 @@
 			{
 				if (iconStringIndex == 9001)
 				{
-					iconStringIndex = (uint)SelectIconString.Lines().Count - 1;
+					iconStringIndex = (uint) SelectIconString.Lines().Count - 1;
 				}
 
 				// We will just click the last quest and decrement until we have either no quests left or none to turn in.
@@ -174,7 +157,7 @@
 				var lines = SelectString.Lines();
 
 				// If Collect Reward exists, we click that; otherwise we will click Close. (-1 as uint = uint.MaxValue)
-				var index = (uint)lines.IndexOf(CollectRewardText, StringComparer.InvariantCultureIgnoreCase);
+				var index = (uint) lines.IndexOf(CollectRewardText, StringComparer.InvariantCultureIgnoreCase);
 
 				if (index != uint.MaxValue)
 				{
@@ -185,7 +168,7 @@
 				}
 
 				// If yes is an option, click it to turn in more items.(crafting)
-				index = (uint)lines.IndexOf(YesText, StringComparer.InvariantCultureIgnoreCase);
+				index = (uint) lines.IndexOf(YesText, StringComparer.InvariantCultureIgnoreCase);
 
 				if (index != uint.MaxValue)
 				{
@@ -210,7 +193,7 @@
 
 				IEnumerable<BagSlot> itemSlots =
 					InventoryManager.FilledInventoryAndArmory.Where(
-						bs => bs.RawItemId == itemId && !Blacklist.Contains((uint)bs.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
+						bs => bs.RawItemId == itemId && !Blacklist.Contains((uint) bs.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
 
 				if (HqOnly)
 				{
@@ -298,7 +281,7 @@
 				{
 					Logger.Info("Looks like no windows are open, lets clear our target and try again.");
 					CloseWindows();
-					Me.ClearTarget();
+					ExProfileBehavior.Me.ClearTarget();
 				}
 				else
 				{
@@ -367,7 +350,7 @@
 		{
 			var ticks = 0;
 			while (ticks++ < 3 && !SelectIconString.IsOpen && !SelectString.IsOpen && !Request.IsOpen && !JournalResult.IsOpen
-					&& Behaviors.ShouldContinue)
+			       && Behaviors.ShouldContinue)
 			{
 				await this.Interact();
 
@@ -393,7 +376,17 @@
 		{
 			return
 				await
-				Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
+					Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
+
+		#region IInteractWithNpc Members
+
+		[XmlAttribute("NpcLocation")]
+		public Vector3 Location { get; set; }
+
+		[XmlAttribute("NpcId")]
+		public uint NpcId { get; set; }
+
+		#endregion
 	}
 }

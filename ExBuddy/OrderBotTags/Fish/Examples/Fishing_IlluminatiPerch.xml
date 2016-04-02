@@ -1,56 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Profile>
 	<Name>Fishing: Illuminati Perch</Name>
 	<KillRadius>50</KillRadius>
 	<CodeChunks>
-	  <!-- Change gearset to your characters gear set number -->
-	  <CodeChunk name="Gear">
-		<![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
-	  </CodeChunk>
+		<!-- Change gearset to your characters gear set number -->
+		<CodeChunk name="Gear">
+			<![CDATA[ff14bot.Managers.ChatManager.SendChat("/gs change 19");]]>
+		</CodeChunk>
 	</CodeChunks>
 	<Order>
-	  <RunCode name="Gear"/>
-	  <WaitTimer waitTime="3"/>
-	  <If condition="not IsOnMap(399)">
-		  <If condition="not IsOnMap(478)">
-			<TeleportTo name="Idyllshire" aetheryteId="75"/>
-		  </If>
-		  <UseTransport name="Goodly Adventurer" interactDistance="3.0" npcId="1015570" xyz="63.45142, 207.29, -2.773367" />
-	  </If>
-	  <!-- Suggested Bait to use: Goblin Jig or Stonefly Nymph -->
-	  <!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
-	  <Fish mooch="1" moochCondition="Core.Player.HasAura(850)" minFish="25" maxFish="35" patience="Patience" shuffleFishSpots="true"
-			confirmKey="Return" moveCursorRightKey="Right"
-			sitRate=".35">
-		<Baits>
-		  <Bait name="Stonefly Nymph" condition="Core.Player.HasAura(850)"/>
-		  <Bait name="Goblin Jig"/>
-		</Baits>
-		<Collectables>
-			<Collectable name="Illuminati Perch" value="826" />
-		</Collectables>
-		<PatienceTugs>
-			<PatienceTug moochLevel="0" TugType="Light" />
-			<PatienceTug moochLevel="0" TugType="Medium" />
-			<PatienceTug moochLevel="1" TugType="Medium" />
-		</PatienceTugs>
-		<Keepers>
-		  <Keeper name="Illuminati Perch"/>
-		  <Keeper name="Sweetfish" action="MoochKeepNq"/>
-		  <Keeper name="Hinterlands Perch"/>
-		</Keepers>
-		<FishSpots>
-			<FishSpot xyz="-185.5212, 100.3405, -197.545" heading="5.632733" />
-			<FishSpot xyz="-172.9355, 100.4537, -181.7347" heading="5.81726" />
-			<FishSpot xyz="-150.4037, 100.5628, -165.1706" heading="5.077335" />
-			<FishSpot xyz="-141.433, 100.5589, -141.2495" heading="4.676731"/>
-			<FishSpot xyz="-131.7577, 100.3345, -122.3618" heading="5.53486" />
-			<FishSpot xyz="-74.69653, 100.519, -108.4487" heading="0.9674973" />
-			<FishSpot xyz="-66.846, 100.4848, -122.7405" heading="1.441207" />
-			<FishSpot xyz="-45.43608, 100.5335, -140.3373" heading="0.9610033" />
-			<FishSpot xyz="6.77405, 100.901, -146.2005" heading="0.7509502" />
-			<FishSpot xyz="14.19854, 100.7758, -169.178" heading="1.602485" />
-		</FishSpots>
-	  </Fish>
+		<RunCode name="Gear" />
+		<WaitTimer waitTime="3" />
+		<If condition="not IsOnMap(399)">
+			<If condition="not IsOnMap(478)">
+				<TeleportTo name="Idyllshire" aetheryteId="75" />
+			</If>
+			<UseTransport name="Goodly Adventurer" interactDistance="3.0" npcId="1015570" xyz="63.45142, 207.29, -2.773367" />
+		</If>
+		<!-- Suggested Bait to use: Goblin Jig or Stonefly Nymph -->
+		<!-- If you use default numberpad keys for moving the UI Cursor, delete the ConfirmKey and MoveCursorRightKey attributes -->
+		<Fish mooch="1" moochCondition="Core.Player.HasAura(850)" minFish="25" maxFish="35" patience="Patience"
+		      shuffleFishSpots="true"
+		      confirmKey="Return" moveCursorRightKey="Right"
+		      sitRate=".35">
+			<Baits>
+				<Bait name="Stonefly Nymph" condition="Core.Player.HasAura(850)" />
+				<Bait name="Goblin Jig" />
+			</Baits>
+			<Collectables>
+				<Collectable name="Illuminati Perch" value="826" />
+			</Collectables>
+			<PatienceTugs>
+				<PatienceTug moochLevel="0" TugType="Light" />
+				<PatienceTug moochLevel="0" TugType="Medium" />
+				<PatienceTug moochLevel="1" TugType="Medium" />
+			</PatienceTugs>
+			<Keepers>
+				<Keeper name="Illuminati Perch" />
+				<Keeper name="Sweetfish" action="MoochKeepNq" />
+				<Keeper name="Hinterlands Perch" />
+			</Keepers>
+			<FishSpots>
+				<FishSpot xyz="-185.5212, 100.3405, -197.545" heading="5.632733" />
+				<FishSpot xyz="-172.9355, 100.4537, -181.7347" heading="5.81726" />
+				<FishSpot xyz="-150.4037, 100.5628, -165.1706" heading="5.077335" />
+				<FishSpot xyz="-141.433, 100.5589, -141.2495" heading="4.676731" />
+				<FishSpot xyz="-131.7577, 100.3345, -122.3618" heading="5.53486" />
+				<FishSpot xyz="-74.69653, 100.519, -108.4487" heading="0.9674973" />
+				<FishSpot xyz="-66.846, 100.4848, -122.7405" heading="1.441207" />
+				<FishSpot xyz="-45.43608, 100.5335, -140.3373" heading="0.9610033" />
+				<FishSpot xyz="6.77405, 100.901, -146.2005" heading="0.7509502" />
+				<FishSpot xyz="14.19854, 100.7758, -169.178" heading="1.602485" />
+			</FishSpots>
+		</Fish>
 	</Order>
 </Profile>

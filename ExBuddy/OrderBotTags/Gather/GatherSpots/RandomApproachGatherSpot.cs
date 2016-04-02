@@ -3,14 +3,10 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Helpers;
-
 	using ff14bot;
 	using ff14bot.Navigation;
 
@@ -38,12 +34,10 @@
 			var result = true;
 			if (ReturnToApproachLocation)
 			{
-				result &=
-					await
-					approachLocation.MoveToNoMount(UseMesh, tag.MovementStopCallback);
+				result &= await approachLocation.MoveToNoMount(UseMesh, tag.MovementStopCallback);
 			}
 
-			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
+			if (UnstealthAfter && Core.Player.HasAura((int) AbilityAura.Stealth))
 			{
 				result &= await tag.CastAura(Ability.Stealth);
 			}
@@ -65,9 +59,7 @@
 				approachLocation = HotSpots.Shuffle().First();
 			}
 
-			var result =
-				await
-				approachLocation.MoveToPointWithin(dismountAtDestination: Stealth);
+			var result = await approachLocation.MoveToPointWithin(dismountAtDestination: Stealth);
 
 			if (result)
 			{
@@ -76,17 +68,17 @@
 				if (Stealth)
 				{
 					await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
-					result =
-						await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+					result = await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 				}
 				else
 				{
 					result =
 						await
-						NodeLocation.MoveTo(UseMesh,
-							radius: tag.Distance,
-							name: tag.Node.EnglishName,
-							stopCallback: tag.MovementStopCallback);
+							NodeLocation.MoveTo(
+								UseMesh,
+								radius: tag.Distance,
+								name: tag.Node.EnglishName,
+								stopCallback: tag.MovementStopCallback);
 				}
 			}
 

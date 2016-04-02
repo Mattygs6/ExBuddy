@@ -1,59 +1,108 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
-<!--User Configuration-->
 <!DOCTYPE Profile [
-<!ENTITY Location "Idyllshire">
-<!--
+<!-- 
+
 		Idyllshire
-		MorDhona - limited options for purchases, some purchase might not work or you might end up with the wrong item (untested)
-	-->
-	
-<!--
-	    CrpDelineation
-        BsmDelineation
-        ArmDelineation
-        GsmDelineation
-        LtwDelineation
-        WvrDelineation
-        AlcDelineation
-        CulDelineation
-        RedCrafterToken
-        RedGatherToken
-        HiCordial
-        BlueToken
-        BruteLeech
-        CraneFly
-        KukuruPowder
-        BouillonCube
-        BeanSauce
-        BeanPaste
-	-->
-<!ENTITY ShopPurchase1 "BlueToken">
-<!ENTITY ShopPurchase1_Count "900">
-<!ENTITY ShopPurchase2 "HiCordial">
-<!ENTITY ShopPurchase2_Count "10">
-<!ENTITY ShopPurchase3 "BruteLeech">
-<!ENTITY ShopPurchase3_Count "0">
+
+BlueToken
+RedCrafterToken
+RedGatherToken
+HiCordial
+CommercialSurvivalManual
+CommercialEngineeringManual
+RedBalloon
+MagmaWorm
+FiendWorm
+BruteLeech
+CraneFly
+KukuruPowder
+BouillonCube
+BeanSauce
+BeanPaste
+GoldenApple
+SolsticeGarlic
+MatureOliveOil
+LoaghtanFilet
+PowderedMermanHorn
+CrpDelineation
+BsmDelineation
+ArmDelineation
+GsmDelineation
+LtwDelineation
+WvrDelineation
+AlcDelineation
+CulDelineation
+
+ -->
+
+<!ENTITY BlueToken_Count "0">
+<!ENTITY RedCrafterToken_Count "999">
+<!ENTITY RedGatherToken_Count "0">
+<!ENTITY HiCordial_Count "0">
+<!ENTITY CommercialSurvivalManual_Count "0">
+<!ENTITY CommercialEngineeringManual_Count "0">
+<!ENTITY RedBalloon_Count "0">
+<!ENTITY MagmaWorm_Count "0">
+<!ENTITY FiendWorm_Count "0">
+<!ENTITY BruteLeech_Count "0">
+<!ENTITY CraneFly_Count "0">
+<!ENTITY KukuruPowder_Count "0">
+<!ENTITY BouillonCube_Count "0">
+<!ENTITY BeanSauce_Count "0">
+<!ENTITY BeanPaste_Count "0">
+<!ENTITY GoldenApple_Count "0">
+<!ENTITY SolsticeGarlic_Count "0">
+<!ENTITY MatureOliveOil_Count "0">
+<!ENTITY LoaghtanFilet_Count "0">
+<!ENTITY PowderedMermanHorn_Count "0">
+<!ENTITY CrpDelineation_Count "0">
+<!ENTITY BsmDelineation_Count "0">
+<!ENTITY ArmDelineation_Count "0">
+<!ENTITY GsmDelineation_Count "0">
+<!ENTITY LtwDelineation_Count "0">
+<!ENTITY WvrDelineation_Count "0">
+<!ENTITY AlcDelineation_Count "0">
+<!ENTITY CulDelineation_Count "0">
+
 ]>
 <Profile>
 	<Name>ExBuddy: Turn in Collectables</Name>
 	<KillRadius>50</KillRadius>
 	<Order>
+		<ExLog Color="#FFC0CB" Name="ExBuddy" Message="Turning in collectables " />
 		<!-- if forcePurchase="true" it will go purchase items even if no turn ins available -->
-		<TurnInCollectables location="&Location;" forcePurchase="false">
-			<Collectables>
-				<CollectableTurnIn name="Abalathian Mistletoe" value="450" />
-				<CollectableTurnIn name="Adamantite Ore" value="470" maxValueForTurnIn="529" />
-				<CollectableTurnIn name="Chysahl Greens" value="470" maxValueForTurnIn="529" />
-				<CollectableTurnIn name="Cuprite" value="450" />
-				<CollectableTurnIn name="Morel" value="450" />
-				<CollectableTurnIn name="Illuminati Perch" value="826" />
-			</Collectables>
+		<ExTurnInCollectables location="Idyllshire" forcePurchase="False">
 			<ShopPurchases>
-				<ShopPurchase shopItem="&ShopPurchase1;" maxCount="&ShopPurchase1_Count;" />
-				<ShopPurchase shopItem="&ShopPurchase2;" maxCount="&ShopPurchase2_Count;" />
-				<ShopPurchase shopItem="&ShopPurchase3;" maxCount="&ShopPurchase3_Count;" />
+				<ShopPurchase shopItem="BlueToken" maxCount="&BlueToken_Count;" />
+				<ShopPurchase shopItem="RedCrafterToken" maxCount="&RedCrafterToken_Count;" />
+				<ShopPurchase shopItem="RedGatherToken" maxCount="&RedGatherToken_Count;" />
+				<ShopPurchase shopItem="HiCordial" maxCount="&HiCordial_Count;" />
+				<ShopPurchase shopItem="CommercialSurvivalManual" maxCount="&CommercialSurvivalManual_Count;" />
+				<ShopPurchase shopItem="CommercialEngineeringManual" maxCount="&CommercialEngineeringManual_Count;" />
+				<ShopPurchase shopItem="RedBalloon" maxCount="&RedBalloon_Count;" />
+				<ShopPurchase shopItem="MagmaWorm" maxCount="&MagmaWorm_Count;" />
+				<ShopPurchase shopItem="FiendWorm" maxCount="&FiendWorm_Count;" />
+				<ShopPurchase shopItem="BruteLeech" maxCount="&BruteLeech_Count;" />
+				<ShopPurchase shopItem="CraneFly" maxCount="&CraneFly_Count;" />
+				<ShopPurchase shopItem="KukuruPowder" maxCount="&KukuruPowder_Count;" />
+				<ShopPurchase shopItem="BouillonCube" maxCount="&BouillonCube_Count;" />
+				<ShopPurchase shopItem="BeanSauce" maxCount="&BeanSauce_Count;" />
+				<ShopPurchase shopItem="BeanPaste" maxCount="&BeanPaste_Count;" />
+				<ShopPurchase shopItem="GoldenApple" maxCount="&GoldenApple_Count;" />
+				<ShopPurchase shopItem="SolsticeGarlic" maxCount="&SolsticeGarlic_Count;" />
+				<ShopPurchase shopItem="MatureOliveOil" maxCount="&MatureOliveOil_Count;" />
+				<ShopPurchase shopItem="LoaghtanFilet" maxCount="&LoaghtanFilet_Count;" />
+				<ShopPurchase shopItem="PowderedMermanHorn" maxCount="&PowderedMermanHorn_Count;" />
+				<ShopPurchase shopItem="CrpDelineation" maxCount="&CrpDelineation_Count;" />
+				<ShopPurchase shopItem="BsmDelineation" maxCount="&BsmDelineation_Count;" />
+				<ShopPurchase shopItem="ArmDelineation" maxCount="&ArmDelineation_Count;" />
+				<ShopPurchase shopItem="GsmDelineation" maxCount="&GsmDelineation_Count;" />
+				<ShopPurchase shopItem="LtwDelineation" maxCount="&LtwDelineation_Count;" />
+				<ShopPurchase shopItem="WvrDelineation" maxCount="&WvrDelineation_Count;" />
+				<ShopPurchase shopItem="AlcDelineation" maxCount="&AlcDelineation_Count;" />
+				<ShopPurchase shopItem="CulDelineation" maxCount="&CulDelineation_Count;" />
 			</ShopPurchases>
-		</TurnInCollectables>
+		</ExTurnInCollectables>
 	</Order>
 </Profile>

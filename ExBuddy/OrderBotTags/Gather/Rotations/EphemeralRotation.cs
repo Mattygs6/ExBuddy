@@ -1,12 +1,10 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
-
 	using ff14bot;
 
 	//Name, RequiredTime, RequiredGpBreakpoints
@@ -34,7 +32,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			// Yield And Quality
 			if (tag.GatherIncrease == GatherIncrease.YieldAndQuality
-				|| (tag.GatherIncrease == GatherIncrease.Auto && level >= 40 && gp >= 650))
+			    || (tag.GatherIncrease == GatherIncrease.Auto && level >= 40 && gp >= 650))
 			{
 				if (gp >= 500 && level >= 40)
 				{
@@ -52,8 +50,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			// Yield
-			if (tag.GatherIncrease == GatherIncrease.Yield
-				|| (tag.GatherIncrease == GatherIncrease.Auto && level >= 40))
+			if (tag.GatherIncrease == GatherIncrease.Yield || (tag.GatherIncrease == GatherIncrease.Auto && level >= 40))
 			{
 				if (gp >= 500 && level >= 40)
 				{
@@ -85,12 +82,13 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			// Quality
 			if (tag.GatherIncrease == GatherIncrease.Quality
-				|| (tag.GatherIncrease == GatherIncrease.Auto && level >= 15 && level < 40))
+			    || (tag.GatherIncrease == GatherIncrease.Auto && level >= 15 && level < 40))
 			{
 				if (Core.Player.CurrentGP >= 300)
 				{
 					await tag.Cast(Ability.IncreaseGatherQuality30);
-					return await base.ExecuteRotation(tag);;
+					return await base.ExecuteRotation(tag);
+					;
 				}
 
 				return true;

@@ -3,11 +3,8 @@
 	using System;
 	using System.IO;
 	using System.Linq;
-
 	using ExBuddy.Plugins.Skywatcher.Objects;
-
 	using ff14bot.Managers;
-
 	using Newtonsoft.Json;
 
 	public class LocationProvider
@@ -49,16 +46,13 @@
 			{
 				var serializer = new JsonSerializer();
 
-				data = (LocationIndex)serializer.Deserialize(file, typeof(LocationIndex));
+				data = (LocationIndex) serializer.Deserialize(file, typeof (LocationIndex));
 			}
 		}
 
 		public bool IsValid
 		{
-			get
-			{
-				return data != null;
-			}
+			get { return data != null; }
 		}
 
 		public Location GetLocation(int subZoneId)

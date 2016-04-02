@@ -1,9 +1,7 @@
 ﻿namespace ExBuddy.Interfaces
 {
 	using System.Threading.Tasks;
-
 	using Clio.Utilities;
-
 	using ExBuddy.OrderBotTags.Gather;
 
 	public interface IGatherSpot

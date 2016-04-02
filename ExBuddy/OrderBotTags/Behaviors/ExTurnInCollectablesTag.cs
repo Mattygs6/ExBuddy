@@ -9,11 +9,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
@@ -21,7 +18,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Providers;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -61,10 +57,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.MediumSpringGreen;
-			}
+			get { return Colors.MediumSpringGreen; }
 		}
 
 		protected override void DoReset()
@@ -79,8 +72,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			await CommonTasks.HandleLoading();
 
 			return await ResolveItem() || HandleDeath() || await masterPieceSupplyNpc.TeleportTo() || await MoveToNpc()
-					|| await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
-					|| await MoveToShopNpc() || await PurchaseItems();
+			       || await InteractWithNpc() || await ResolveIndex() || await HandOver() || await HandleSkipPurchase()
+			       || await MoveToShopNpc() || await PurchaseItems();
 		}
 
 		protected override void OnDone()
@@ -95,12 +88,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				Request.Cancel();
 			}
 
-			if (MasterPieceSupply.IsOpen)
+			if (Window<MasterPieceSupply>.IsOpen)
 			{
 				MasterPieceSupply.Close();
 			}
 
-			if (ShopExchangeCurrency.IsOpen)
+			if (Window<ShopExchangeCurrency>.IsOpen)
 			{
 				ShopExchangeCurrency.Close();
 			}
@@ -118,14 +111,14 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			masterPieceSupplyNpc = npcs.OfType<GameObjects.Npcs.MasterPieceSupply>().FirstOrDefault();
 			shopExchangeCurrencyNpc = npcs.OfType<GameObjects.Npcs.ShopExchangeCurrency>().FirstOrDefault();
 
-		    ShopPurchases = ShopPurchases ?? new List<ShopPurchase>();
+			ShopPurchases = ShopPurchases ?? new List<ShopPurchase>();
 		}
 
 		private bool HandleDeath()
 		{
-			if (Me.IsDead && Poi.Current.Type != PoiType.Death)
+			if (ExProfileBehavior.Me.IsDead && Poi.Current.Type != PoiType.Death)
 			{
-				Poi.Current = new Poi(Me, PoiType.Death);
+				Poi.Current = new Poi(ExProfileBehavior.Me, PoiType.Death);
 				return true;
 			}
 
@@ -143,30 +136,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 
 			return false;
-		}
-
-		private void LogInventoryForPurchaseInfos()
-		{
-			foreach (var purchaseItem in ShopPurchases)
-			{
-				var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
-				var purchaseItemData = purchaseItemInfo.ItemData;
-
-				Logger.Info("Inventory for {0} -> Count: {1}", purchaseItemData.CurrentLocaleName, purchaseItemData.ItemCount());
-			}
-		}
-
-		private void LogScripsRemainingForPurchaseInfos()
-		{
-			var result = ShopPurchases.Select(sp => Data.ShopItemMap[sp.ShopItem].ShopType).Distinct().ToArray();
-
-			foreach (var shopType in result)
-			{
-				Logger.Info(
-					"Scrips remaining for shop {0} -> Count: {1}",
-					shopType,
-					Memory.Scrips.GetRemainingScripsByShopType(shopType));
-			}
 		}
 
 		private async Task<bool> HandOver()
@@ -193,7 +162,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				Logger.Error("An error has occured while turning in the item");
 				Blacklist.Add(
-					(uint)item.Pointer.ToInt32(),
+					(uint) item.Pointer.ToInt32(),
 					BlacklistFlags.Loot,
 					TimeSpan.FromMinutes(3),
 					"Don't turn in this item for 3 minutes");
@@ -235,13 +204,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			if (Me.Location.Distance(masterPieceSupplyNpc.Location) > 4)
+			if (ExProfileBehavior.Me.Location.Distance(masterPieceSupplyNpc.Location) > 4)
 			{
 				// too far away, should go back to MoveToNpc
 				return true;
 			}
 
-			if (GameObjectManager.Target != null && MasterPieceSupply.IsOpen)
+			if (GameObjectManager.Target != null && Window<MasterPieceSupply>.IsOpen)
 			{
 				// already met conditions
 				return false;
@@ -255,6 +224,30 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			return false;
 		}
 
+		private void LogInventoryForPurchaseInfos()
+		{
+			foreach (var purchaseItem in ShopPurchases)
+			{
+				var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
+				var purchaseItemData = purchaseItemInfo.ItemData;
+
+				Logger.Info("Inventory for {0} -> Count: {1}", purchaseItemData.CurrentLocaleName, purchaseItemData.ItemCount());
+			}
+		}
+
+		private void LogScripsRemainingForPurchaseInfos()
+		{
+			var result = ShopPurchases.Select(sp => Data.ShopItemMap[sp.ShopItem].ShopType).Distinct().ToArray();
+
+			foreach (var shopType in result)
+			{
+				Logger.Info(
+					"Scrips remaining for shop {0} -> Count: {1}",
+					shopType,
+					Memory.Scrips.GetRemainingScripsByShopType(shopType));
+			}
+		}
+
 		private async Task<bool> MoveToNpc()
 		{
 			if (item == null || item.Item == null)
@@ -262,7 +255,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			if (Me.Location.Distance(masterPieceSupplyNpc.Location) <= 4)
+			if (ExProfileBehavior.Me.Location.Distance(masterPieceSupplyNpc.Location) <= 4)
 			{
 				// we are already there, continue
 				return false;
@@ -270,9 +263,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
 
-			await
-				masterPieceSupplyNpc.Location.MoveTo(radius: 3.9f,
-					name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
+			await masterPieceSupplyNpc.Location.MoveTo(radius: 3.9f, name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
 
 			return false;
 		}
@@ -285,14 +276,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				await masterPieceSupply.CloseInstanceGently();
 			}
 
-			if (Me.Location.Distance(shopExchangeCurrencyNpc.Location) <= 4)
+			if (ExProfileBehavior.Me.Location.Distance(shopExchangeCurrencyNpc.Location) <= 4)
 			{
 				// we are already there, continue
 				return false;
 			}
 
 			await
-				shopExchangeCurrencyNpc.Location.MoveTo(radius: 3.9f,
+				shopExchangeCurrencyNpc.Location.MoveTo(
+					radius: 3.9f,
 					name: Location + " ShopNpcId: " + shopExchangeCurrencyNpc.NpcId);
 
 			Navigator.Stop();
@@ -302,7 +294,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		private async Task<bool> PurchaseItems()
 		{
-			if (Me.Location.Distance(shopExchangeCurrencyNpc.Location) > 4)
+			if (ExProfileBehavior.Me.Location.Distance(shopExchangeCurrencyNpc.Location) > 4)
 			{
 				// too far away, should go back to MoveToNpc
 				return true;
@@ -359,7 +351,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				}
 
 				if (Location == Locations.MorDhona
-					&& (purchaseItemInfo.ShopType == ShopType.RedCrafter || purchaseItemInfo.ShopType == ShopType.RedGatherer))
+				    && (purchaseItemInfo.ShopType == ShopType.RedCrafter || purchaseItemInfo.ShopType == ShopType.RedGatherer))
 				{
 					Logger.Warn("Unable to purchase item {0} in MorDhona, set location to Idyllshire.", purchaseItemData.EnglishName);
 					continue;
@@ -371,11 +363,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 					if (Location == Locations.MorDhona)
 					{
 						// Blue crafter = 0, Blue gather = 1
-						SelectIconString.ClickSlot((uint)purchaseItemInfo.ShopType / 2);
+						SelectIconString.ClickSlot((uint) purchaseItemInfo.ShopType/2);
 					}
 					else
 					{
-						SelectIconString.ClickSlot((uint)purchaseItemInfo.ShopType);
+						SelectIconString.ClickSlot((uint) purchaseItemInfo.ShopType);
 					}
 
 					await shopExchangeCurrency.Refresh(5000);
@@ -396,8 +388,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				await Coroutine.Sleep(600);
 				int scripsLeft;
 				while (purchaseItemData.ItemCount() < purchaseItem.MaxCount
-						&& (scripsLeft = Memory.Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) >= purchaseItemInfo.Cost
-						&& Behaviors.ShouldContinue)
+				       &&
+				       (scripsLeft = Memory.Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) >= purchaseItemInfo.Cost
+				       && Behaviors.ShouldContinue)
 				{
 					if (!await shopExchangeCurrency.PurchaseItem(purchaseItemInfo.Index, 20))
 					{
@@ -481,7 +474,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			var classIndex = uint.MaxValue;
 			if (item.Item.RepairClass > 0 && item.Item.EquipmentCatagory != ItemUiCategory.Seafood)
 			{
-				classIndex = MasterPieceSupply.GetClassIndex((ClassJobType)item.Item.RepairClass);
+				classIndex = MasterPieceSupply.GetClassIndex((ClassJobType) item.Item.RepairClass);
 			}
 			else
 			{
@@ -533,7 +526,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 					itemLevel = 12;
 					break;
 				default:
-					itemLevel = itemLevel < 120 ? (byte)0 : (byte)((itemLevel - 121) / 3);
+					itemLevel = itemLevel < 120 ? (byte) 0 : (byte) ((itemLevel - 121)/3);
 					break;
 			}
 
@@ -543,28 +536,28 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				if (itemLevel >= 10)
 				{
-					indexOffset = (8 + Math.Abs((int)classIndex - 10) * 2);
+					indexOffset = (8 + Math.Abs((int) classIndex - 10)*2);
 				}
 				else
 				{
-					indexOffset = 62 + Math.Abs((int)classIndex - 10) * 6;
-					indexOffset += Math.Abs(itemLevel - 10) / 2;
+					indexOffset = 62 + Math.Abs((int) classIndex - 10)*6;
+					indexOffset += Math.Abs(itemLevel - 10)/2;
 				}
 			}
 			else
 			{
 				if (itemLevel >= 10)
 				{
-					indexOffset = Math.Abs((int)classIndex - 7);
+					indexOffset = Math.Abs((int) classIndex - 7);
 				}
 				else
 				{
-					indexOffset = 14 + Math.Abs((int)classIndex - 7) * 6;
-					indexOffset += Math.Abs(itemLevel - 10) / 2;
+					indexOffset = 14 + Math.Abs((int) classIndex - 7)*6;
+					indexOffset += Math.Abs(itemLevel - 10)/2;
 				}
 			}
 
-			index = (uint)indexOffset;
+			index = (uint) indexOffset;
 
 			return false;
 		}
@@ -578,7 +571,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			var slots =
 				InventoryManager.FilledInventoryAndArmory.Where(
-					i => !Blacklist.Contains((uint)i.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
+					i => !Blacklist.Contains((uint) i.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
 
 			if (Collectables == null)
 			{
@@ -591,8 +584,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 					item =
 						slots.FirstOrDefault(
 							i =>
-							i.Collectability >= collectable.Value && i.Collectability <= collectable.MaxValueForTurnIn
-							&& string.Equals(collectable.Name, i.EnglishName, StringComparison.InvariantCultureIgnoreCase));
+								i.Collectability >= collectable.Value && i.Collectability <= collectable.MaxValueForTurnIn
+								&& string.Equals(collectable.Name, i.EnglishName, StringComparison.InvariantCultureIgnoreCase));
 
 					if (item != null)
 					{
@@ -627,7 +620,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				await masterpieceSupply.CloseInstanceGently();
 			}
-			
+
 			var shopExchangeCurrency = new ShopExchangeCurrency();
 			if (shopExchangeCurrency.IsValid)
 			{

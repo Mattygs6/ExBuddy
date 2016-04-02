@@ -2,16 +2,12 @@
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Windows;
-
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
@@ -25,8 +21,15 @@
 		[XmlAttribute("Condition")]
 		public string Condition { get; set; }
 
+		[XmlAttribute("IncludeArmory")]
+		public bool IncludeArmory { get; set; }
+
 		[XmlAttribute("ItemIds")]
 		public int[] ItemIds { get; set; }
+
+		[DefaultValue(5000)]
+		[XmlAttribute("MaxWait")]
+		public int MaxWait { get; set; }
 
 		[XmlAttribute("NqOnly")]
 		public bool NqOnly { get; set; }
@@ -34,19 +37,7 @@
 		[XmlAttribute("RepairClass")]
 		public ClassJobType RepairClass { get; set; }
 
-		[XmlAttribute("IncludeArmory")]
-		public bool IncludeArmory { get; set; }
-
-		[DefaultValue(5000)]
-		[XmlAttribute("MaxWait")]
-		public int MaxWait { get; set; }
-
-		protected override void OnStart()
-		{
-			MaxWait = MaxWait.Clamp(1000, 10000);
-		}
-
-		protected async override Task<bool> Main()
+		protected override async Task<bool> Main()
 		{
 			if (!ScriptManager.GetCondition(Condition)())
 			{
@@ -55,7 +46,7 @@
 			}
 
 			var ticks = 0;
-			while(MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
+			while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
 			{
 				MovementManager.StartDescending();
 				await Coroutine.Wait(500, () => !MovementManager.IsFlying);
@@ -71,18 +62,23 @@
 
 			if (RepairClass > ClassJobType.Thaumaturge && RepairClass < ClassJobType.Miner)
 			{
-				await SalvageDialog.DesynthesizeByRepairClass(RepairClass, (ushort)MaxWait, IncludeArmory, NqOnly);
+				await SalvageDialog.DesynthesizeByRepairClass(RepairClass, (ushort) MaxWait, IncludeArmory, NqOnly);
 			}
 
 			if (ItemIds != null && ItemIds.Length > 0)
 			{
 				foreach (var id in ItemIds)
 				{
-					await SalvageDialog.DesynthesizeByItemId((uint)id, (ushort)MaxWait, IncludeArmory, NqOnly);
+					await SalvageDialog.DesynthesizeByItemId((uint) id, (ushort) MaxWait, IncludeArmory, NqOnly);
 				}
 			}
 
 			return isDone = true;
+		}
+
+		protected override void OnStart()
+		{
+			MaxWait = MaxWait.Clamp(1000, 10000);
 		}
 	}
 }

@@ -4,17 +4,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using System.Diagnostics;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Navigation;
-
 	using ff14bot.Behavior;
 	using ff14bot.Interfaces;
 	using ff14bot.Managers;
@@ -34,42 +30,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.DeepSkyBlue;
-			}
+			get { return Colors.DeepSkyBlue; }
 		}
-
-		#region IFlightMovementArgs Members
-
-		[XmlAttribute("ForceLanding")]
-		public bool ForceLanding { get; set; }
-
-		[DefaultValue(0)]
-		[XmlAttribute("MountId")]
-		public int MountId { get; set; }
-
-		#endregion
-
-		#region IFlightNavigationArgs Members
-
-		[DefaultValue(6.0f)]
-		[XmlAttribute("ForcedAltitude")]
-		public float ForcedAltitude { get; set; }
-
-		[DefaultValue(6)]
-		[XmlAttribute("InverseParabolicMagnitude")]
-		public int InverseParabolicMagnitude { get; set; }
-
-		[DefaultValue(3.0f)]
-		[XmlAttribute("Radius")]
-		public float Radius { get; set; }
-
-		[DefaultValue(0.05f)]
-		[XmlAttribute("Smoothing")]
-		public float Smoothing { get; set; }
-
-		#endregion
 
 		public async Task<bool> EnsureFlying()
 		{
@@ -83,9 +45,9 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		public async Task<bool> EnsureMounted()
 		{
-			while (!Me.IsMounted && Behaviors.ShouldContinue)
+			while (!ExProfileBehavior.Me.IsMounted && Behaviors.ShouldContinue)
 			{
-				if (MountId == 0 || !await CommonTasks.MountUp((uint)MountId))
+				if (MountId == 0 || !await CommonTasks.MountUp((uint) MountId))
 				{
 					await CommonTasks.MountUp();
 				}
@@ -105,7 +67,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 				if (landingStopwatch.ElapsedMilliseconds > 2000 && MovementManager.IsFlying)
 				{
-					var move = Me.Location.AddRandomDirection2D(10).GetFloor(15);
+					var move = ExProfileBehavior.Me.Location.AddRandomDirection2D(10).GetFloor(15);
 					await move.MoveToNoMount(false, 0.5f);
 					landingStopwatch.Restart();
 				}
@@ -122,7 +84,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
 		{
-			while (Me.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
+			while (ExProfileBehavior.Me.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
 			{
 				await EnsureFlying();
 
@@ -135,7 +97,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override async Task<bool> Main()
 		{
-			FlightPath flightPath = new StraightOrParabolicFlightPath(Me.Location, Target, this);
+			FlightPath flightPath = new StraightOrParabolicFlightPath(ExProfileBehavior.Me.Location, Target, this);
 
 			var distance = flightPath.Distance;
 
@@ -176,15 +138,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
 					else
 					{
 						Logger.Verbose("Moving to waypoint: {0}", flightPath.Current);
-						if (!ExBuddySettings.Instance.VerboseLogging && (flightPath.Index % 5 == 0 || flightPath.Index == flightPath.Count - 1))
+						if (!ExBuddySettings.Instance.VerboseLogging
+						    && (flightPath.Index%5 == 0 || flightPath.Index == flightPath.Count - 1))
 						{
 							Logger.Info("Moving to waypoint [{0}]: {1}", flightPath.Index + 1, flightPath.Current);
 						}
 					}
 
 					await MoveToWithinRadius(flightPath.Current, Radius);
-				}
-				while (flightPath.Next());
+				} while (flightPath.Next());
 
 				flightPath.Reset();
 			}
@@ -201,5 +163,36 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			isDone = true;
 			return true;
 		}
+
+		#region IFlightMovementArgs Members
+
+		[XmlAttribute("ForceLanding")]
+		public bool ForceLanding { get; set; }
+
+		[DefaultValue(0)]
+		[XmlAttribute("MountId")]
+		public int MountId { get; set; }
+
+		#endregion
+
+		#region IFlightNavigationArgs Members
+
+		[DefaultValue(6.0f)]
+		[XmlAttribute("ForcedAltitude")]
+		public float ForcedAltitude { get; set; }
+
+		[DefaultValue(6)]
+		[XmlAttribute("InverseParabolicMagnitude")]
+		public int InverseParabolicMagnitude { get; set; }
+
+		[DefaultValue(3.0f)]
+		[XmlAttribute("Radius")]
+		public float Radius { get; set; }
+
+		[DefaultValue(0.05f)]
+		[XmlAttribute("Smoothing")]
+		public float Smoothing { get; set; }
+
+		#endregion
 	}
 }

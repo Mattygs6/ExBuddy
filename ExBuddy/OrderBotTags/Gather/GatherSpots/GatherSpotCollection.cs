@@ -2,10 +2,7 @@
 {
 	using System.Collections;
 	using System.Collections.Generic;
-
-	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Interfaces;
 
 	[XmlElement("GatherSpots")]
@@ -17,24 +14,36 @@
 		}
 
 		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<IGatherSpot> Locations { get; [UsedImplicitly] set; }
+		private List<IGatherSpot> Locations { get; set; }
 
-		#region ICollection<GatherSpot> Members
+		#region IEnumerable Members
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable<IGatherSpot> Members
+
+		public IEnumerator<IGatherSpot> GetEnumerator()
+		{
+			return Locations.GetEnumerator();
+		}
+
+		#endregion
+
+		#region ICollection<IGatherSpot> Members
 
 		public int Count
 		{
-			get
-			{
-				return Locations.Count;
-			}
+			get { return Locations.Count; }
 		}
 
 		public bool IsReadOnly
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public void Add(IGatherSpot item)
@@ -64,25 +73,7 @@
 
 		#endregion
 
-		#region IEnumerable Members
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
-
-		#region IEnumerable<GatherSpot> Members
-
-		public IEnumerator<IGatherSpot> GetEnumerator()
-		{
-			return Locations.GetEnumerator();
-		}
-
-		#endregion
-
-		#region IList<GatherSpot> Members
+		#region IList<IGatherSpot> Members
 
 		public int IndexOf(IGatherSpot item)
 		{
@@ -96,14 +87,8 @@
 
 		public IGatherSpot this[int index]
 		{
-			get
-			{
-				return Locations[index];
-			}
-			set
-			{
-				Locations[index] = value;
-			}
+			get { return Locations[index]; }
+			set { Locations[index] = value; }
 		}
 
 		public void RemoveAt(int index)

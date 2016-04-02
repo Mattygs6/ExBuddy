@@ -7,15 +7,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Behavior;
 	using ff14bot.RemoteWindows;
 
@@ -36,22 +32,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.DodgerBlue;
-			}
+			get { return Colors.DodgerBlue; }
 		}
-
-		#region IInteractWithNpc Members
-
-		[XmlAttribute("XYZ")]
-		[XmlAttribute("Location")]
-		public Vector3 Location { get; set; }
-
-		[XmlAttribute("Id")]
-		public uint NpcId { get; set; }
-
-		#endregion
 
 		protected override async Task<bool> Main()
 		{
@@ -90,5 +72,16 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			return isDone = true;
 		}
+
+		#region IInteractWithNpc Members
+
+		[XmlAttribute("XYZ")]
+		[XmlAttribute("Location")]
+		public Vector3 Location { get; set; }
+
+		[XmlAttribute("Id")]
+		public uint NpcId { get; set; }
+
+		#endregion
 	}
 }

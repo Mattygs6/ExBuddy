@@ -2,12 +2,9 @@
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Helpers;
 
 	[XmlElement("IndirectApproachGatherSpot")]
@@ -27,9 +24,7 @@
 			var result = true;
 			if (ReturnToApproachLocation)
 			{
-				result &=
-					await
-					ApproachLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+				result &= await ApproachLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;
@@ -46,16 +41,16 @@
 
 			var result =
 				await
-				ApproachLocation.MoveTo(UseMesh,
-					radius: tag.Radius,
-					name: "Approach Location",
-					stopCallback: tag.MovementStopCallback);
+					ApproachLocation.MoveTo(
+						UseMesh,
+						radius: tag.Radius,
+						name: "Approach Location",
+						stopCallback: tag.MovementStopCallback);
 
 			if (result)
 			{
 				await Coroutine.Yield();
-				result =
-					await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+				result = await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;

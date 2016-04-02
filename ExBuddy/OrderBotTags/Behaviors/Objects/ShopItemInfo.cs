@@ -10,10 +10,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 
 		public Item ItemData
 		{
-			get
-			{
-				return DataManager.ItemCache[this.ItemId];
-			}
+			get { return DataManager.ItemCache[ItemId]; }
 		}
 
 		public uint ItemId { get; set; }

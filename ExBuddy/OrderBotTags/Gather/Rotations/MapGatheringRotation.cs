@@ -1,10 +1,8 @@
 namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Managers;
 
 	[GatheringRotation("Map", 8)]

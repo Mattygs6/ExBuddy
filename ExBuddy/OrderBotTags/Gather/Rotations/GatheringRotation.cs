@@ -2,19 +2,16 @@
 {
 	using System;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
-
 	using ff14bot;
 	using ff14bot.Managers;
 
 	public abstract class GatheringRotation : IGatheringRotation
 	{
-		protected internal static readonly uint[] WardSkills = { 236U, 293U, 234U, 292U, 217U, 219U };
+		protected internal static readonly uint[] WardSkills = {236U, 293U, 234U, 292U, 217U, 219U};
 
 		protected internal readonly IGetOverridePriority GetOverridePriorityCached;
 
@@ -23,27 +20,64 @@
 			GetOverridePriorityCached = this as IGetOverridePriority;
 		}
 
+		protected internal static async Task Wait()
+		{
+			if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint) Ability.Preparation]))
+			{
+				var ticks = 0;
+				while (ticks++ < 60 && Behaviors.ShouldContinue)
+				{
+					if (!GatheringManager.ShouldPause(DataManager.SpellCache[(uint) Ability.Preparation]))
+					{
+						break;
+					}
+
+					await Coroutine.Yield();
+				}
+			}
+		}
+
+		protected virtual async Task<bool> IncreaseChance(ExGatherTag tag)
+		{
+			var level = Core.Player.ClassLevel;
+			if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)
+			{
+				return await tag.Cast(Ability.IncreaseGatherChance50);
+			}
+
+			if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86 && level > 4)
+			{
+				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+				{
+					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+				}
+
+				return await tag.Cast(Ability.IncreaseGatherChance15);
+			}
+
+			if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96 && level > 3)
+			{
+				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
+				{
+					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
+				}
+
+				return await tag.Cast(Ability.IncreaseGatherChance5);
+			}
+
+			return true;
+		}
+
 		#region IGatheringRotation Members
 
 		public virtual GatheringRotationAttribute Attributes
 		{
-			get
-			{
-				return ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.NotInherited[GetType().GUID][0];
-			}
+			get { return ReflectionHelper.CustomAttributes<GatheringRotationAttribute>.NotInherited[GetType().GUID][0]; }
 		}
 
 		public virtual bool CanBeOverriden
 		{
-			get
-			{
-				return true;
-			}
-		}
-
-		public virtual bool ShouldForceGather(ExGatherTag tag)
-		{
-			return false;
+			get { return true; }
 		}
 
 		public virtual async Task<bool> ExecuteRotation(ExGatherTag tag)
@@ -100,7 +134,7 @@
 
 		public virtual async Task<bool> Prepare(ExGatherTag tag)
 		{
-			if (Core.Player.HasAura((int)AbilityAura.CollectorsGlove))
+			if (Core.Player.HasAura((int) AbilityAura.CollectorsGlove))
 			{
 				return await tag.Cast(Ability.CollectorsGlove);
 			}
@@ -126,54 +160,11 @@
 			return -1;
 		}
 
+		public virtual bool ShouldForceGather(ExGatherTag tag)
+		{
+			return false;
+		}
+
 		#endregion
-
-		protected internal static async Task Wait()
-		{
-			if (GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-			{
-				var ticks = 0;
-				while (ticks++ < 60 && Behaviors.ShouldContinue)
-				{
-					if (!GatheringManager.ShouldPause(DataManager.SpellCache[(uint)Ability.Preparation]))
-					{
-						break;
-					}
-
-					await Coroutine.Yield();
-				}
-			}
-		}
-
-		protected virtual async Task<bool> IncreaseChance(ExGatherTag tag)
-		{
-			var level = Core.Player.ClassLevel;
-			if (Core.Player.CurrentGP >= 250 && tag.GatherItem.Chance < 51 && level > 10)
-			{
-				return await tag.Cast(Ability.IncreaseGatherChance50);
-			}
-
-			if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 86 && level > 4)
-			{
-				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
-				{
-					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
-				}
-
-				return await tag.Cast(Ability.IncreaseGatherChance15);
-			}
-
-			if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 96 && level > 3)
-			{
-				if (level >= 23 && GatheringManager.SwingsRemaining == 1)
-				{
-					return await tag.Cast(Ability.IncreaseGatherChanceOnce15);
-				}
-
-				return await tag.Cast(Ability.IncreaseGatherChance5);
-			}
-
-			return true;
-		}
 	}
 }

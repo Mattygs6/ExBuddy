@@ -69,7 +69,7 @@
 			get { return Colors.LightSkyBlue; }
 		}
 
-		public IPlayerMover InnerMover { get; }
+		public IPlayerMover InnerMover { get; set; }
 
 		protected internal bool ShouldFly { get; private set; }
 
@@ -282,7 +282,7 @@
 			get { return WorldManager.CanFly; }
 		}
 
-		public IFlightMovementArgs FlightMovementArgs { get; }
+		public IFlightMovementArgs FlightMovementArgs { get; set; }
 
 		public bool IsLanding { get; protected set; }
 

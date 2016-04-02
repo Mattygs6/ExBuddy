@@ -12,9 +12,9 @@
 			AgentInterface = AgentModule.GetAgentInterfaceById(id);
 		}
 
-		public AgentInterface AgentInterface { get; }
+		public AgentInterface AgentInterface { get; set; }
 
-		public int Id { get; }
+		public int Id { get; set; }
 
 		public static T Instance
 		{

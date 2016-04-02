@@ -112,7 +112,7 @@ namespace ExBuddy.Navigation
 			get { return Start.Distance2D(End); }
 		}
 
-		public Vector3 End { get; }
+		public Vector3 End { get; set; }
 
 		public float ForcedAltitude
 		{
@@ -144,7 +144,7 @@ namespace ExBuddy.Navigation
 			get { return flightNavigationArgs.Smoothing; }
 		}
 
-		public Vector3 Start { get; }
+		public Vector3 Start { get; set; }
 
 		#region IEquatable<FlightPath> Members
 

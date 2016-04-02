@@ -52,7 +52,7 @@
 			get { return Control != null && Control.IsValid; }
 		}
 
-		public string Name { get; }
+		public string Name { get; set; }
 
 		public static void Close()
 		{

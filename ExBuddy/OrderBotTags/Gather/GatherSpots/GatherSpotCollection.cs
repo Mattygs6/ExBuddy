@@ -14,7 +14,7 @@
 		}
 
 		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<IGatherSpot> Locations { get; }
+		private List<IGatherSpot> Locations { get; set; }
 
 		#region IEnumerable Members
 

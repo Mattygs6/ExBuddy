@@ -14,7 +14,7 @@
 		}
 
 		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<INamedItem> Items { get; }
+		private List<INamedItem> Items { get; set; }
 
 		#region IEnumerable Members
 

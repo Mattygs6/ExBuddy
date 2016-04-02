@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
+    <Compile Include="Helpers\ConditionTimer.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />

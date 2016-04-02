@@ -47,7 +47,7 @@
 					InventoryManager.GetBagsByInventoryBagId(BagIds).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
 		}
 
-		public int Index { get; }
+		public int Index { get; set; }
 	}
 
 	[LoggerName("RetainerMaid")]

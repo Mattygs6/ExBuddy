@@ -76,7 +76,7 @@
 				</If>
 				<RunCode Name="BTN" />
 				<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" GatherStrategy="TouchAndGo"
-									CordialType="Cordial" CordialTime="AfterGather">
+				                   CordialType="Cordial" CordialTime="AfterGather">
 					<Collectables>
 						<Collectable Name="Clary Sage" Value="550" />
 						<Collectable Name="Furymint" Value="550" />

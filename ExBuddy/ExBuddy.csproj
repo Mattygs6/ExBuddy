@@ -73,7 +73,9 @@
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
     <Compile Include="ExBuddySettings.cs" />
-    <Compile Include="ExCoroutineAction.cs" />
+    <Compile Include="ExCoroutineAction.cs">
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
     <Compile Include="GameObjects\Npcs\SummoningBell.cs" />

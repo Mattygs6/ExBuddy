@@ -1,3 +1,4 @@
+
 #pragma warning disable 1998
 
 namespace ExBuddy.Helpers
@@ -5,15 +6,11 @@ namespace ExBuddy.Helpers
 	using System;
 	using System.Linq;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
 	using ExBuddy.Navigation;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -29,28 +26,22 @@ namespace ExBuddy.Helpers
 
 		static Behaviors()
 		{
-			ShouldContinue = true;
-			TreeRoot.OnStart += bot => ShouldContinue = true;
-			TreeRoot.OnStop += bot => ShouldContinue = false;
+			Behaviors.ShouldContinue = true;
+			TreeRoot.OnStart += bot => Behaviors.ShouldContinue = true;
+			TreeRoot.OnStop += bot => Behaviors.ShouldContinue = false;
 		}
 
 		public static bool ShouldContinue
 		{
-			get
-			{
-				return Core.Player.IsAlive && shouldContinue;
-			}
+			get { return Core.Player.IsAlive && shouldContinue; }
 
-			internal set
-			{
-				shouldContinue = value;
-			}
+			internal set { shouldContinue = value; }
 		}
 
 		public static async Task<bool> Dismount(byte maxTicks = 100, ushort interval = 100)
 		{
 			var dismountTicks = 0;
-			while (dismountTicks++ < maxTicks && Core.Player.IsMounted && ShouldContinue)
+			while (dismountTicks++ < maxTicks && Core.Player.IsMounted && Behaviors.ShouldContinue)
 			{
 				if (MovementManager.IsFlying)
 				{
@@ -91,11 +82,11 @@ namespace ExBuddy.Helpers
 			}
 
 			return new DefaultReturnStrategy
-						{
-							ZoneId = currentZoneId,
-							AetheryteId = teleportLocation.AetheryteId,
-							InitialLocation = Core.Player.Location
-						};
+			{
+				ZoneId = currentZoneId,
+				AetheryteId = teleportLocation.AetheryteId,
+				InitialLocation = Core.Player.Location
+			};
 		}
 
 		public static IReturnStrategy GetReturnStrategyForZoneWithoutAetheryte(ushort zoneId)
@@ -114,16 +105,16 @@ namespace ExBuddy.Helpers
 					////					NpcLocation = new Vector3(63.45142f, 207.29f, -2.773367f)
 					////				};
 					//// 3.1 change
-					
+
 					strategy = new NoAetheryteUseAethernetReturnStrategy
-									{
-										ZoneId = 478,
-										AetheryteId = 75,
-										NpcId = 75,
-										InitialLocation = GameObjectManager.LocalPlayer.Location,
-										Location = new Vector3(71.94617f, 211.2611f, -18.90594f),
-										Slot = 2
-									};
+					{
+						ZoneId = 478,
+						AetheryteId = 75,
+						NpcId = 75,
+						InitialLocation = GameObjectManager.LocalPlayer.Location,
+						Location = new Vector3(71.94617f, 211.2611f, -18.90594f),
+						Slot = 2
+					};
 					break;
 				default:
 					strategy = new NoOpReturnStrategy();
@@ -143,12 +134,12 @@ namespace ExBuddy.Helpers
 					var playerMover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
 					if (playerMover != null)
 					{
-						flightSpecificMountId = (uint)playerMover.FlightMovementArgs.MountId;
+						flightSpecificMountId = (uint) playerMover.FlightMovementArgs.MountId;
 					}
 				}
 
 				var ticks = 0;
-				while (!Core.Player.IsMounted && ticks++ < 10 && ShouldContinue)
+				while (!Core.Player.IsMounted && ticks++ < 10 && Behaviors.ShouldContinue)
 				{
 					if (WorldManager.CanFly && flightSpecificMountId > 0)
 					{
@@ -185,7 +176,7 @@ namespace ExBuddy.Helpers
 		{
 			return await MoveTo(hotspot.XYZ, useMesh, mountId, hotspot.Radius, hotspot.Name, stopCallback, dismountAtDestination);
 		}
-		
+
 		public static async Task<bool> MoveTo(
 			this Vector3 destination,
 			bool useMesh = true,
@@ -222,9 +213,9 @@ namespace ExBuddy.Helpers
 			if (useMesh)
 			{
 				var moveResult = MoveResult.GeneratingPath;
-				while (ShouldContinue
-						&& (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius)
-							|| stopCallback == DontStopInRange) && !(moveResult.IsDoneMoving()))
+				while (Behaviors.ShouldContinue
+				       && (!stopCallback(distance = Core.Player.Location.Distance3D(destination), radius)
+				           || stopCallback == DontStopInRange) && !(moveResult.IsDoneMoving()))
 				{
 					moveResult = Navigator.MoveTo(destination, name);
 					await Coroutine.Yield();
@@ -239,7 +230,7 @@ namespace ExBuddy.Helpers
 			}
 			else
 			{
-				while (ShouldContinue && !stopCallback(distance = Core.Player.Location.Distance3D(destination), radius))
+				while (Behaviors.ShouldContinue && !stopCallback(distance = Core.Player.Location.Distance3D(destination), radius))
 				{
 					Navigator.PlayerMover.MoveTowards(destination);
 					await Coroutine.Yield();
@@ -281,7 +272,7 @@ namespace ExBuddy.Helpers
 			var sprintDistance = Math.Min(20.0f, CharacterSettings.Instance.MountDistance);
 
 			var moveResult = MoveResult.GeneratingPath;
-			while (ShouldContinue && !(moveResult.IsDoneMoving()))
+			while (Behaviors.ShouldContinue && !(moveResult.IsDoneMoving()))
 			{
 				moveResult = Navigator.MoveToPointWithin(destination, radius, name);
 				await Coroutine.Yield();
@@ -339,7 +330,7 @@ namespace ExBuddy.Helpers
 		public static async Task<bool> Sprint(int timeout = 500)
 		{
 			if (Actionmanager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000
-				&& MovementManager.IsMoving)
+			    && MovementManager.IsMoving)
 			{
 				Actionmanager.Sprint();
 
@@ -359,14 +350,14 @@ namespace ExBuddy.Helpers
 			}
 
 			var ticks = 0;
-			while (MovementManager.IsMoving && ticks++ < 5 && ShouldContinue)
+			while (MovementManager.IsMoving && ticks++ < 5 && Behaviors.ShouldContinue)
 			{
 				Navigator.Stop();
 				await Coroutine.Sleep(240);
 			}
 
 			var casted = false;
-			while (WorldManager.ZoneId != zoneId && ShouldContinue)
+			while (WorldManager.ZoneId != zoneId && Behaviors.ShouldContinue)
 			{
 				if (!Core.Player.IsCasting && casted)
 				{
@@ -410,7 +401,7 @@ namespace ExBuddy.Helpers
 				return false;
 			}
 
-			return await TeleportTo((ushort)zoneId, aetheryteId);
+			return await TeleportTo((ushort) zoneId, aetheryteId);
 		}
 
 		public static async Task<bool> TeleportTo(this ITeleportLocation teleportLocation)

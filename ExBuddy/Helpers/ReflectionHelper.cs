@@ -77,7 +77,7 @@
 			/// </typeparam>
 			public static void RegisterType<T>() where T : class
 			{
-				RegisterType(typeof(T));
+				RegisterType(typeof (T));
 			}
 
 			/// <summary>
@@ -136,7 +136,7 @@
 		/// </returns>
 		public static Func<T, object> MakeDelegate<TResult>(MethodInfo @get)
 		{
-			var f = (Func<T, TResult>)Delegate.CreateDelegate(typeof(Func<T, TResult>), @get);
+			var f = (Func<T, TResult>) Delegate.CreateDelegate(typeof (Func<T, TResult>), @get);
 			return t => f(t);
 		}
 
@@ -155,12 +155,12 @@
 			/// <summary>
 			///     The inherited.
 			/// </summary>
-			public static readonly IList<TAttribute> Inherited = typeof(T).GetCustomAttributes<TAttribute>(true).ToArray();
+			public static readonly IList<TAttribute> Inherited = typeof (T).GetCustomAttributes<TAttribute>(true).ToArray();
 
 			/// <summary>
 			///     The not inherited.
 			/// </summary>
-			public static readonly IList<TAttribute> NotInherited = typeof(T).GetCustomAttributes<TAttribute>(false).ToArray();
+			public static readonly IList<TAttribute> NotInherited = typeof (T).GetCustomAttributes<TAttribute>(false).ToArray();
 
 			#endregion
 		}

@@ -5,10 +5,8 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 
@@ -18,6 +16,11 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 		[DefaultValue(true)]
 		[XmlAttribute("UseMesh")]
 		public bool UseMesh { get; set; }
+
+		public override string ToString()
+		{
+			return this.DynamicToString();
+		}
 
 		#region IGatherSpot Members
 
@@ -37,19 +40,15 @@ namespace ExBuddy.OrderBotTags.Gather.GatherSpots
 
 			var result =
 				await
-				NodeLocation.MoveTo(UseMesh,
-					radius: tag.Distance,
-					name: tag.Node.EnglishName,
-					stopCallback: tag.MovementStopCallback);
+					NodeLocation.MoveTo(
+						UseMesh,
+						radius: tag.Distance,
+						name: tag.Node.EnglishName,
+						stopCallback: tag.MovementStopCallback);
 
 			return result;
 		}
 
 		#endregion
-
-		public override string ToString()
-		{
-			return this.DynamicToString();
-		}
 	}
 }

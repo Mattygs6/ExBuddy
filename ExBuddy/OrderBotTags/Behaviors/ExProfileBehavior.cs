@@ -2,18 +2,14 @@
 {
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
 	using ff14bot.Objects;
-
 	using TreeSharp;
 
 	public abstract class ExProfileBehavior : ProfileBehavior, ILogColors
@@ -40,10 +36,7 @@
 
 		public override sealed bool IsDone
 		{
-			get
-			{
-				return isDone;
-			}
+			get { return isDone; }
 		}
 
 		[XmlAttribute("Name")]
@@ -51,76 +44,30 @@
 
 		public override sealed string StatusText
 		{
-			get
-			{
-				return string.Concat(this.GetType().Name, ": ", statusText);
-			}
+			get { return string.Concat(GetType().Name, ": ", statusText); }
 
-			set
-			{
-				statusText = value;
-			}
+			set { statusText = value; }
 		}
 
 		protected internal static LocalPlayer Me
 		{
-			get
-			{
-				return GameObjectManager.LocalPlayer;
-			}
+			get { return GameObjectManager.LocalPlayer; }
 		}
 
 		protected virtual Color Error
 		{
-			get
-			{
-				return Logger.Colors.Error;
-			}
+			get { return Logger.Colors.Error; }
 		}
 
 		protected virtual Color Info
 		{
-			get
-			{
-				return Logger.Colors.Info;
-			}
+			get { return Logger.Colors.Info; }
 		}
 
 		protected virtual Color Warn
 		{
-			get
-			{
-				return Logger.Colors.Warn;
-			}
+			get { return Logger.Colors.Warn; }
 		}
-
-		#region ILogColors Members
-
-		Color ILogColors.Error
-		{
-			get
-			{
-				return this.Error;
-			}
-		}
-
-		Color ILogColors.Info
-		{
-			get
-			{
-				return this.Info;
-			}
-		}
-
-		Color ILogColors.Warn
-		{
-			get
-			{
-				return this.Warn;
-			}
-		}
-
-		#endregion
 
 		public override string ToString()
 		{
@@ -141,5 +88,24 @@
 			DoReset();
 			isDone = false;
 		}
+
+		#region ILogColors Members
+
+		Color ILogColors.Error
+		{
+			get { return Error; }
+		}
+
+		Color ILogColors.Info
+		{
+			get { return Info; }
+		}
+
+		Color ILogColors.Warn
+		{
+			get { return Warn; }
+		}
+
+		#endregion
 	}
 }

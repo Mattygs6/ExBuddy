@@ -4,7 +4,6 @@
 	using System.IO;
 	using System.Linq;
 	using System.Xml.Linq;
-
 	using ff14bot.Managers;
 
 	public class MasterPieceSupplyDataProvider
@@ -14,6 +13,7 @@
 #else
 		private const string MsdFileName = "msd.xml";
 #endif
+
 		public static readonly string DataFilePath;
 
 		public static readonly MasterPieceSupplyDataProvider Instance;
@@ -49,10 +49,7 @@
 
 		public bool IsValid
 		{
-			get
-			{
-				return data != null;
-			}
+			get { return data != null; }
 		}
 
 		public uint? GetIndexByItemName(string itemName)

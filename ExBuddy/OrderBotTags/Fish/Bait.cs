@@ -4,10 +4,8 @@ namespace ExBuddy.OrderBotTags.Fish
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.Linq;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ff14bot;
 	using ff14bot.Managers;
 
@@ -19,13 +17,13 @@ namespace ExBuddy.OrderBotTags.Fish
 		private Func<bool> conditionFunc;
 
 		[DefaultValue("True")]
-		[Clio.XmlEngine.XmlAttribute("Condition")]
+		[XmlAttribute("Condition")]
 		public string Condition { get; set; }
 
-		[Clio.XmlEngine.XmlAttribute("Id")]
+		[XmlAttribute("Id")]
 		public uint Id { get; set; }
 
-		[Clio.XmlEngine.XmlAttribute("Name")]
+		[XmlAttribute("Name")]
 		public string Name { get; set; }
 
 		public static Bait FindMatch([NotNull] IList<Bait> baits)
@@ -53,8 +51,8 @@ namespace ExBuddy.OrderBotTags.Fish
 					BaitItem =
 						DataManager.ItemCache.Values.Find(
 							i =>
-							string.Equals(i.EnglishName, Name, StringComparison.InvariantCultureIgnoreCase)
-							|| string.Equals(i.CurrentLocaleName, Name, StringComparison.InvariantCultureIgnoreCase));
+								string.Equals(i.EnglishName, Name, StringComparison.InvariantCultureIgnoreCase)
+								|| string.Equals(i.CurrentLocaleName, Name, StringComparison.InvariantCultureIgnoreCase));
 				}
 			}
 

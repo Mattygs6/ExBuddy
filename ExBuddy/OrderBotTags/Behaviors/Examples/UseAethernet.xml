@@ -1,21 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <!--User Configuration-->
 <!DOCTYPE Profile [
-	<!-- Enter exactly as the line appears -->
-	<!ENTITY AethernetText "Aethernet.">
+<!-- Enter exactly as the line appears -->
+<!ENTITY AethernetText "Aethernet.">
 ]>
 <Profile>
 	<Name>ExUseAethernet Test</Name>
 	<KillRadius>50</KillRadius>
 	<Order>
 		<If Condition="not IsOnMap(418)">
-			<TeleportTo AetheryteId="70" Name="Foundation"/>
+			<TeleportTo AetheryteId="70" Name="Foundation" />
 		</If>
 		<While condition="Condition.TrueFor(1, TimeSpan.FromSeconds(30))">
 			<ExUseAethernet XYZ="45.79224, 24.55164, 0.9917603" Id="80" Slot="0" AethernetText="&AethernetText;" />
 			<ExUseAethernet XYZ="-63.98114, 11.1543, 43.9917" Id="70" Slot="0" AethernetText="&AethernetText;" />
-			<ExLog message="Loop Complete"/>
+			<ExLog message="Loop Complete" />
 		</While>
-		<ExLog message="Profile Complete"/>
+		<ExLog message="Profile Complete" />
 	</Order>
 </Profile>

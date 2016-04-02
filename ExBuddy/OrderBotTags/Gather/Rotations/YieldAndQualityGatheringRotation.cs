@@ -1,12 +1,10 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
-
 	using ff14bot;
 	using ff14bot.Managers;
 
@@ -29,7 +27,7 @@
 			}
 
 			if (tag.GatherIncrease == GatherIncrease.YieldAndQuality
-				|| (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel >= 40 && Core.Player.CurrentGP >= 650))
+			    || (tag.GatherIncrease == GatherIncrease.Auto && Core.Player.ClassLevel >= 40 && Core.Player.CurrentGP >= 650))
 			{
 				return 9001;
 			}

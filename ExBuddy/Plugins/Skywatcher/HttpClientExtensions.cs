@@ -3,9 +3,7 @@
 	using System;
 	using System.Net.Http;
 	using System.Threading.Tasks;
-
 	using ExBuddy.Logging;
-
 	using Newtonsoft.Json;
 
 	public static class HttpClientExtensions
@@ -28,53 +26,53 @@
 			var tcs = new TaskCompletionSource<T>();
 			client.GetAsync(requestUrl).ContinueWith(
 				requestTask =>
+				{
+					// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+					if (client != null)
 					{
-						// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-						if (client != null)
-						{
-							client.Dispose();
-						}
+						client.Dispose();
+					}
 
-						if (!HandleRequestFaultsAndCancelation(requestTask, tcs))
+					if (!HandleRequestFaultsAndCancelation(requestTask, tcs))
+					{
+						var result = requestTask.Result;
+						if (result.Content == null)
 						{
-							var result = requestTask.Result;
-							if (result.Content == null)
+							tcs.TrySetResult(default(T));
+						}
+						else
+						{
+							try
 							{
-								tcs.TrySetResult(default(T));
-							}
-							else
-							{
-								try
+								Action<Task<string>> continuation = contentTask =>
 								{
-									Action<Task<string>> continuation = contentTask =>
+									if (!HandleFaultsAndCancelation(contentTask, tcs))
+									{
+										if (deserializer == null)
 										{
-											if (!HandleFaultsAndCancelation(contentTask, tcs))
-											{
-												if (deserializer == null)
-												{
-													deserializer = JsonConvert.DeserializeObject<T>;
-												}
+											deserializer = JsonConvert.DeserializeObject<T>;
+										}
 
-												var deserializedResult = deserializer(contentTask.Result);
+										var deserializedResult = deserializer(contentTask.Result);
 
-												tcs.TrySetResult(deserializedResult);
-											}
-										};
+										tcs.TrySetResult(deserializedResult);
+									}
+								};
 
-									result.Content.ReadAsStringAsync().ContinueWith(continuation);
-								}
-								catch (HttpRequestException reqex)
-								{
-									tcs.TrySetException(reqex);
-								}
-								catch (Exception exception)
-								{
-									Logger.Instance.Error(exception.Message);
-									tcs.TrySetException(exception);
-								}
+								result.Content.ReadAsStringAsync().ContinueWith(continuation);
+							}
+							catch (HttpRequestException reqex)
+							{
+								tcs.TrySetException(reqex);
+							}
+							catch (Exception exception)
+							{
+								Logger.Instance.Error(exception.Message);
+								tcs.TrySetException(exception);
 							}
 						}
-					});
+					}
+				});
 
 			return tcs.Task;
 		}

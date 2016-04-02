@@ -11,7 +11,9 @@ namespace ExBuddy.Attributes
 		public GatheringRotationAttribute(string name, byte requiredTimeInSeconds, params ushort[] requiredGpBreakpoints)
 		{
 			Name = name;
-			RequiredGpBreakpoints = requiredGpBreakpoints != null && requiredGpBreakpoints.Length > 0 ? requiredGpBreakpoints : new ushort[] { 0 };
+			RequiredGpBreakpoints = requiredGpBreakpoints != null && requiredGpBreakpoints.Length > 0
+				? requiredGpBreakpoints
+				: new ushort[] {0};
 			RequiredTimeInSeconds = requiredTimeInSeconds;
 		}
 

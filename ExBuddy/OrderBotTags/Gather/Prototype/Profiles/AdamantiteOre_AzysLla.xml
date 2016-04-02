@@ -29,11 +29,11 @@
 			<MoveTo XYZ="-716.7953, -186.9606, -599.0761" />
 		</If>
 		<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1"
-					DismountAtDestination="false" />
+		              DismountAtDestination="false" />
 		<While condition="True">
 			<SafeCollectAdamantite />
 			<FlightPathTo XYZ="57.50256, 21.00859, -835.1724" Radius="3.0" Smoothing="0.2" MountId="1" NavHeight="0.5"
-						DismountAtDestination="false" />
+			              DismountAtDestination="false" />
 		</While>
 	</Order>
 </Profile>

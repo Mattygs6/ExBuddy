@@ -2,13 +2,10 @@
 {
 	using System;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Logging;
-
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
@@ -20,7 +17,7 @@
 
 		public static uint GetClassIndex(ClassJobType classJobType)
 		{
-			return (uint)classJobType - 8;
+			return (uint) classJobType - 8;
 		}
 
 		public SendActionResult SelectClass(ClassJobType classJobType)
@@ -43,7 +40,7 @@
 			var result = SendActionResult.None;
 			var requestAttempts = 0;
 			while (result != SendActionResult.Success && !Request.IsOpen && requestAttempts++ < attempts
-					&& Behaviors.ShouldContinue)
+			       && Behaviors.ShouldContinue)
 			{
 				result = TurnIn(index);
 				if (result == SendActionResult.InjectionError)
@@ -64,7 +61,7 @@
 			// Try waiting half of the overall set time, up to 3 seconds
 			if (!Request.IsOpen)
 			{
-				if (!await Coroutine.Wait(Math.Min(3000, (interval * attempts) / 2), () => Request.IsOpen))
+				if (!await Coroutine.Wait(Math.Min(3000, (interval*attempts)/2), () => Request.IsOpen))
 				{
 					Logger.Instance.Warn(
 						"[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.",

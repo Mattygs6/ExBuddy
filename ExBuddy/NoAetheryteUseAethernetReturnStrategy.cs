@@ -5,15 +5,11 @@ namespace ExBuddy
 {
 	using System.Linq;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
@@ -38,6 +34,12 @@ namespace ExBuddy
 
 		#endregion
 
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
+
 		#region IInteractWithNpc Members
 
 		public Vector3 Location { get; set; }
@@ -54,7 +56,7 @@ namespace ExBuddy
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await this.InitialLocation.MoveTo();
+				return await InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -100,12 +102,6 @@ namespace ExBuddy
 
 			return true;
 		}
-
-		#endregion
-
-		#region IZoneId Members
-
-		public ushort ZoneId { get; set; }
 
 		#endregion
 	}

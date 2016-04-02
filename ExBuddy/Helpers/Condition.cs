@@ -6,11 +6,8 @@
 	using System.Linq;
 	using System.Reflection;
 	using System.Threading;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Logging;
-
 	using ff14bot.Forms.ugh;
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
@@ -26,7 +23,6 @@
 
 		static Condition()
 		{
-
 			SecondaryOffsetManager.IntalizeOffsets();
 
 			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
@@ -120,8 +116,8 @@
 		internal static void AddNamespacesToScriptManager(params string[] param)
 		{
 			var field =
-				typeof(ScriptManager).GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-					.FirstOrDefault(f => f.FieldType == typeof(List<string>));
+				typeof (ScriptManager).GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+					.FirstOrDefault(f => f.FieldType == typeof (List<string>));
 
 			if (field == null)
 			{
@@ -176,7 +172,7 @@
 			Timer = new Timer(ToggleValid, this, timeSpan, TimeSpan.FromMilliseconds(-1));
 		}
 
-		public int Id { get; private set; }
+		public int Id { get; }
 
 		public bool IsValid
 		{
@@ -193,9 +189,9 @@
 			}
 		}
 
-		public Timer Timer { get; private set; }
+		public Timer Timer { get; }
 
-		public TimeSpan TimeSpan { get; private set; }
+		public TimeSpan TimeSpan { get; }
 
 		#region IDisposable Members
 

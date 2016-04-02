@@ -1,6 +1,4 @@
-﻿using ff14bot.RemoteWindows;
-
-namespace ExBuddy.OrderBotTags.Gather
+﻿namespace ExBuddy.OrderBotTags.Gather
 {
 	using System;
 	using System.Collections.Generic;
@@ -9,12 +7,9 @@ namespace ExBuddy.OrderBotTags.Gather
 	using System.Reflection;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
@@ -24,7 +19,6 @@ namespace ExBuddy.OrderBotTags.Gather
 	using ExBuddy.OrderBotTags.Gather.Rotations;
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -33,7 +27,7 @@ namespace ExBuddy.OrderBotTags.Gather
 	using ff14bot.Navigation;
 	using ff14bot.NeoProfiles;
 	using ff14bot.Objects;
-
+	using ff14bot.RemoteWindows;
 	using TreeSharp;
 
 	[LoggerName("ExGather")]
@@ -49,21 +43,15 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		internal SpellData CordialSpellData;
 
+		private Func<bool> freeRangeConditionFunc;
+
 		internal GatheringItem GatherItem;
 
 		internal bool GatherItemIsFallback;
 
-		internal IGatherSpot GatherSpot;
-
-		internal GatheringPointObject Node;
-
-		internal int NodesGatheredAtMaxGp;
-
-		internal Func<bool> WhileFunc;
-
-		private Func<bool> freeRangeConditionFunc;
-
 		private IGatheringRotation gatherRotation;
+
+		internal IGatherSpot GatherSpot;
 
 		private IGatheringRotation initialGatherRotation;
 
@@ -71,9 +59,15 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private int loopCount;
 
+		internal GatheringPointObject Node;
+
+		internal int NodesGatheredAtMaxGp;
+
 		private Composite poiCoroutine;
 
 		private DateTime startTime;
+
+		internal Func<bool> WhileFunc;
 
 		public ExGatherTag()
 		{
@@ -199,16 +193,13 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.Chartreuse;
-			}
+			get { return Colors.Chartreuse; }
 		}
 
 		public int? GetAdjustedWaitForGp(int gpBeforeGather, int secondsToStartGathering, CordialType cordialType)
 		{
 			if (CordialTime.HasFlag(CordialTime.BeforeGather) && cordialType > CordialType.None
-				&& CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
+			    && CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
 			{
 				switch (cordialType)
 				{
@@ -219,7 +210,7 @@ namespace ExBuddy.OrderBotTags.Gather
 						gpBeforeGather += 400;
 						break;
 					case CordialType.Auto:
-						if (DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0)
+						if (DataManager.GetItem((uint) CordialType.HiCordial).ItemCount() > 0)
 						{
 							gpBeforeGather += 400;
 						}
@@ -235,7 +226,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			{
 				if (gp <= gpBeforeGather)
 				{
-					return Math.Min(Me.MaxGP - (Me.MaxGP % 50), gp);
+					return Math.Min(ExProfileBehavior.Me.MaxGP - (ExProfileBehavior.Me.MaxGP%50), gp);
 				}
 			}
 
@@ -260,7 +251,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			await CommonTasks.HandleLoading();
 
 			return HandleDeath() || HandleCondition() || await CastTruth() || HandleReset() || await MoveToHotSpot()
-					|| await FindNode() || await ResetOrDone();
+			       || await FindNode() || await ResetOrDone();
 		}
 
 		protected override void OnDone()
@@ -287,12 +278,12 @@ namespace ExBuddy.OrderBotTags.Gather
 			// backwards compatibility
 			if (GatherObjects == null && !string.IsNullOrWhiteSpace(GatherObject))
 			{
-				GatherObjects = new List<string> { GatherObject };
+				GatherObjects = new List<string> {GatherObject};
 			}
 
 			startTime = DateTime.Now;
 
-			CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+			CordialSpellData = DataManager.GetItem((uint) CordialType.Cordial).BackingAction;
 
 			if (Items == null)
 			{
@@ -303,7 +294,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				{
 					foreach (var item in ItemNames)
 					{
-						Items.Add(new GatherItem { Name = item });
+						Items.Add(new GatherItem {Name = item});
 					}
 				}
 
@@ -325,7 +316,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				}
 				else
 				{
-					Name = string.Format("ZoneId [{0}], Calling Location {1}", WorldManager.ZoneId, Me.Location);
+					Name = string.Format("ZoneId [{0}], Calling Location {1}", WorldManager.ZoneId, ExProfileBehavior.Me.Location);
 				}
 			}
 
@@ -340,8 +331,8 @@ namespace ExBuddy.OrderBotTags.Gather
 		internal bool CanUseCordial(ushort withinSeconds = 5)
 		{
 			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && CordialTime > CordialTime.None
-					&& ((CordialType == CordialType.Cordial && Cordial.HasCordials())
-						|| CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
+			       && ((CordialType == CordialType.Cordial && Cordial.HasCordials())
+			           || CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
 		}
 
 		internal async Task<bool> Cast(uint id)
@@ -368,9 +359,9 @@ namespace ExBuddy.OrderBotTags.Gather
 		{
 			return
 				await
-				Gathering.CloseGently(
-					(byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)),
-					(ushort)SkipWindowDelay);
+					Gathering.CloseGently(
+						(byte) (SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000/SkipWindowDelay)),
+						(ushort) SkipWindowDelay);
 		}
 
 		internal bool IsConcealed()
@@ -387,12 +378,12 @@ namespace ExBuddy.OrderBotTags.Gather
 		{
 			// Temporary until we decide if legendary have any diff properties or if we should treat them the same.
 			return Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0
-					|| Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
+			       || Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
 		}
 
 		internal bool MovementStopCallback(float distance, float radius)
 		{
-			return distance <= radius || !WhileFunc() || Me.IsDead;
+			return distance <= radius || !WhileFunc() || ExProfileBehavior.Me.IsDead;
 		}
 
 		internal void ResetInternal()
@@ -447,7 +438,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			if (DiscoverUnknowns)
 			{
-				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
+				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -467,7 +458,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			if (Slot > -1 && Slot < 8)
 			{
-				GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
+				GatherItem = GatheringManager.GetGatheringItemByIndex((uint) Slot);
 			}
 
 			if (GatherItem == null && (!AlwaysGather || GatherStrategy == GatherStrategy.TouchAndGo))
@@ -492,15 +483,15 @@ namespace ExBuddy.OrderBotTags.Gather
 					.FirstOrDefault(i => i.ItemId < 20) // Try to gather cluster/crystal/shard
 				?? windowItems.FirstOrDefault(
 					i => i.IsFilled && !i.IsUnknown && !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0)
-				// Try to collect items you have that stack
+					// Try to collect items you have that stack
 				?? windowItems.Where(i => i.Amount > 0 && !i.ItemData.Unique && !i.ItemData.Untradeable)
-						.OrderByDescending(i => i.SlotIndex)
-						.FirstOrDefault(); // Take last item that is not unique or untradeable
+					.OrderByDescending(i => i.SlotIndex)
+					.FirstOrDefault(); // Take last item that is not unique or untradeable
 
 			// Seems we only have unknowns.
 			if (GatherItem == null)
 			{
-				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
+				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -527,7 +518,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			Logger.Verbose(
 				"Finished gathering from {0} with {1} GP at {2} ET",
 				Node.EnglishName,
-				Me.CurrentGP,
+				ExProfileBehavior.Me.CurrentGP,
 				WorldManager.EorzaTime.ToShortTimeString());
 
 			// in case we failed our rotation or window stuck open because items are somehow left
@@ -537,7 +528,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				await CloseGatheringWindow();
 			}
 
-			if (Me.CurrentGP >= Me.MaxGP - 30)
+			if (ExProfileBehavior.Me.CurrentGP >= ExProfileBehavior.Me.MaxGP - 30)
 			{
 				NodesGatheredAtMaxGp++;
 			}
@@ -556,7 +547,7 @@ namespace ExBuddy.OrderBotTags.Gather
 			{
 				if (CordialType == CordialType.Auto)
 				{
-					if (Me.MaxGP - Me.CurrentGP > 550)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 550)
 					{
 						if (await UseCordial(CordialType.HiCordial))
 						{
@@ -564,7 +555,7 @@ namespace ExBuddy.OrderBotTags.Gather
 						}
 					}
 
-					if (Me.MaxGP - Me.CurrentGP > 390)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 390)
 					{
 						if (await UseCordial(CordialType.Cordial))
 						{
@@ -575,7 +566,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 				if (CordialType == CordialType.HiCordial)
 				{
-					if (Me.MaxGP - Me.CurrentGP > 430)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 430)
 					{
 						if (await UseCordial(CordialType.HiCordial))
 						{
@@ -589,7 +580,7 @@ namespace ExBuddy.OrderBotTags.Gather
 					}
 				}
 
-				if (CordialType == CordialType.Cordial && Me.MaxGP - Me.CurrentGP > 330)
+				if (CordialType == CordialType.Cordial && ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 330)
 				{
 					if (await UseCordial(CordialType.Cordial))
 					{
@@ -613,7 +604,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				//return true;
 			}
 
-			var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+			var gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 			CordialSpellData = CordialSpellData ?? Cordial.GetSpellData();
 
@@ -636,7 +627,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				return false;
 			}
 
-			if (Me.CurrentGP >= waitForGp.Value)
+			if (ExProfileBehavior.Me.CurrentGP >= waitForGp.Value)
 			{
 				return true;
 			}
@@ -676,9 +667,9 @@ namespace ExBuddy.OrderBotTags.Gather
 					return await WaitForGpRegain(waitForGp.Value);
 				}
 
-				var gpNeeded = waitForGp.Value - (Me.CurrentGP - (Me.CurrentGP % 5));
-				var gpNeededTicks = gpNeeded / 5;
-				var gpNeededSeconds = gpNeededTicks * 3;
+				var gpNeeded = waitForGp.Value - (ExProfileBehavior.Me.CurrentGP - (ExProfileBehavior.Me.CurrentGP%5));
+				var gpNeededTicks = gpNeeded/5;
+				var gpNeededSeconds = gpNeededTicks*3;
 
 				if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 2)
 				{
@@ -701,7 +692,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				{
 					ttg = GetTimeToGather();
 
-					gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+					gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 					waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
 
@@ -730,7 +721,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 				ttg = GetTimeToGather();
 
-				gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+				gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 				waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
 
@@ -764,8 +755,8 @@ namespace ExBuddy.OrderBotTags.Gather
 			if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
 			{
 				var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-										? TimeSpan.FromSeconds(12)
-										: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+					? TimeSpan.FromSeconds(12)
+					: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
 				Blacklist.Add(
 					Poi.Current.Unit,
 					BlacklistFlags.Interact,
@@ -776,22 +767,26 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private async Task<bool> CastTruth()
 		{
-			if (Me.CurrentJob != ClassJobType.Miner && Me.CurrentJob != ClassJobType.Botanist)
+			if (ExProfileBehavior.Me.CurrentJob != ClassJobType.Miner && ExProfileBehavior.Me.CurrentJob != ClassJobType.Botanist)
 			{
 				return false;
 			}
 
-			if (Me.ClassLevel < 46 ||
-				Me.HasAura((int)(Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)))
+			if (ExProfileBehavior.Me.ClassLevel < 46
+			    || ExProfileBehavior.Me.HasAura(
+				    (int)
+					    (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
+						    ? AbilityAura.TruthOfMountains
+						    : AbilityAura.TruthOfForests)))
 			{
 				return false;
 			}
 
 			return
 				await
-				CastAura(
-					Ability.Truth,
-					Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+					CastAura(
+						Ability.Truth,
+						ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 		}
 
 		private async Task<bool> ChangeHotSpot()
@@ -825,7 +820,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				}
 			}
 
-			await Coroutine.Wait(2000, () => !Gathering.IsOpen && !GatheringMasterpiece.IsOpen);
+			await Coroutine.Wait(2000, () => !Window<Gathering>.IsOpen && !GatheringMasterpiece.IsOpen);
 
 			return true;
 		}
@@ -914,7 +909,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				return false;
 			}
 
-			if (GatherSpots != null && Node.Location.Distance3D(Me.Location) > Distance)
+			if (GatherSpots != null && Node.Location.Distance3D(ExProfileBehavior.Me.Location) > Distance)
 			{
 				GatherSpot =
 					GatherSpots.OrderBy(gs => gs.NodeLocation.Distance3D(Node.Location))
@@ -961,7 +956,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 					foreach (var node in
 						nodes.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location))
-							.OrderBy(gpo => gpo.Location.Distance2D(Me.Location))
+							.OrderBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
 							.Skip(1))
 					{
 						if (!Blacklist.Contains(node.ObjectId, BlacklistFlags.Interact))
@@ -979,7 +974,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 				if (FreeRange)
 				{
-					nodes = nodes.Where(gpo => gpo.Distance2D(Me.Location) < Radius);
+					nodes = nodes.Where(gpo => gpo.Distance2D(ExProfileBehavior.Me.Location) < Radius);
 				}
 				else
 				{
@@ -995,20 +990,20 @@ namespace ExBuddy.OrderBotTags.Gather
 					Node =
 						nodes.OrderBy(
 							gpo =>
-							GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
-							.ThenBy(gpo => gpo.Location.Distance2D(Me.Location))
+								GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
+							.ThenBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
 							.FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
 				}
 				else
 				{
-					Node = nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location)).FirstOrDefault();
+					Node = nodes.OrderBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location)).FirstOrDefault();
 				}
 
 				if (Node == null)
 				{
 					if (HotSpots != null)
 					{
-						var myLocation = Me.Location;
+						var myLocation = ExProfileBehavior.Me.Location;
 
 						var distanceToFurthestVisibleGameObject =
 							GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
@@ -1016,10 +1011,10 @@ namespace ExBuddy.OrderBotTags.Gather
 								.FirstOrDefault();
 
 						var distanceToFurthestVectorInHotspot = myLocation.Distance2D(HotSpots.CurrentOrDefault)
-																+ HotSpots.CurrentOrDefault.Radius;
+						                                        + HotSpots.CurrentOrDefault.Radius;
 
 						if (myLocation.Distance2D(HotSpots.CurrentOrDefault) > Radius && GatherStrategy == GatherStrategy.GatherOrCollect
-							&& retryCenterHotspot && distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
+						    && retryCenterHotspot && distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
 						{
 							Logger.Verbose("Distance to furthest visible game object -> " + distanceToFurthestVisibleGameObject);
 							Logger.Verbose("Distance to furthest vector in hotspot -> " + distanceToFurthestVectorInHotspot);
@@ -1056,7 +1051,10 @@ namespace ExBuddy.OrderBotTags.Gather
 				{
 					Logger.Warn("Node on blacklist, waiting until we move out of range or it clears.");
 
-					if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius) || Core.Player.IsDead)
+					if (await
+						Coroutine.Wait(entry.Length,
+							() => entry.IsFinished || Node.Location.Distance2D(ExProfileBehavior.Me.Location) > Radius)
+					    || Core.Player.IsDead)
 					{
 						if (!entry.IsFinished)
 						{
@@ -1100,34 +1098,35 @@ namespace ExBuddy.OrderBotTags.Gather
 		private async Task<bool> Gather()
 		{
 			return await InteractWithNode() && await gatherRotation.Prepare(this) && await gatherRotation.ExecuteRotation(this)
-					&& await gatherRotation.Gather(this) && await HandleSwingsRemaining()
-					&& await Coroutine.Wait(4000, () => !Node.CanGather) && await WaitForGatherWindowToClose();
+			       && await gatherRotation.Gather(this) && await HandleSwingsRemaining()
+			       && await Coroutine.Wait(4000, () => !Node.CanGather) && await WaitForGatherWindowToClose();
 		}
 
 		private async Task<bool> GatherSequence()
 		{
 			return await MoveToGatherSpot() && await BeforeGather() && await Gather() && await AfterGather()
-					&& await MoveFromGatherSpot();
+			       && await MoveFromGatherSpot();
 		}
 
 		private static Type[] GetKnownRotationTypes()
 		{
 			return new[]
-						{
-							typeof(RegularNodeGatheringRotation), typeof(UnspoiledGatheringRotation),
-							typeof(DefaultCollectGatheringRotation), typeof(Collect115GatheringRotation), typeof(Collect345GatheringRotation),
-							typeof(Collect450GatheringRotation), typeof(Collect470GatheringRotation), typeof(Collect550GatheringRotation),
-							typeof(Collect570GatheringRotation), typeof(DiscoverUnknownsGatheringRotation), typeof(ElementalGatheringRotation),
-							typeof(TopsoilGatheringRotation), typeof(MapGatheringRotation), typeof(SmartQualityGatheringRotation),
-							typeof(SmartYieldGatheringRotation), typeof(YieldAndQualityGatheringRotation),
-							typeof(NewbCollectGatheringRotation)
-						};
+			{
+				typeof (RegularNodeGatheringRotation), typeof (UnspoiledGatheringRotation),
+				typeof (DefaultCollectGatheringRotation), typeof (Collect115GatheringRotation), typeof (Collect345GatheringRotation),
+				typeof (Collect450GatheringRotation), typeof (Collect470GatheringRotation), typeof (Collect550GatheringRotation),
+				typeof (Collect570GatheringRotation), typeof (DiscoverUnknownsGatheringRotation),
+				typeof (ElementalGatheringRotation),
+				typeof (TopsoilGatheringRotation), typeof (MapGatheringRotation), typeof (SmartQualityGatheringRotation),
+				typeof (SmartYieldGatheringRotation), typeof (YieldAndQualityGatheringRotation),
+				typeof (NewbCollectGatheringRotation)
+			};
 		}
 
 		private IGatheringRotation GetOverrideRotation()
 		{
 			var rotationAndTypes =
-				Rotations.Select(r => new { Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this) })
+				Rotations.Select(r => new {Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this)})
 					.Where(r => r.OverrideValue > -1)
 					.OrderByDescending(r => r.OverrideValue)
 					.ToArray();
@@ -1144,7 +1143,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private TimeToGather GetTimeToGather()
 		{
-			var eorzeaMinutesTillDespawn = (int)byte.MaxValue;
+			var eorzeaMinutesTillDespawn = (int) byte.MaxValue;
 			if (IsUnspoiled())
 			{
 				if (WorldManager.ZoneId > 350)
@@ -1165,21 +1164,21 @@ namespace ExBuddy.OrderBotTags.Gather
 					hoursFromNow.Year,
 					hoursFromNow.Month,
 					hoursFromNow.Day,
-					hoursFromNow.Hour - (hoursFromNow.Hour % 4),
+					hoursFromNow.Hour - (hoursFromNow.Hour%4),
 					0,
 					0);
 
-				eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
+				eorzeaMinutesTillDespawn = (int) (rounded - WorldManager.EorzaTime).TotalMinutes;
 			}
 
-			var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+			var realSecondsTillDespawn = eorzeaMinutesTillDespawn*35/12;
 			var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
 			return new TimeToGather
-						{
-							EorzeaMinutesTillDespawn = eorzeaMinutesTillDespawn,
-							RealSecondsTillStartGathering = realSecondsTillStartGathering
-						};
+			{
+				EorzeaMinutesTillDespawn = eorzeaMinutesTillDespawn,
+				RealSecondsTillStartGathering = realSecondsTillStartGathering
+			};
 		}
 
 		private bool HandleCondition()
@@ -1201,9 +1200,9 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private bool HandleDeath()
 		{
-			if (Me.IsDead && Poi.Current.Type != PoiType.Death)
+			if (ExProfileBehavior.Me.IsDead && Poi.Current.Type != PoiType.Death)
 			{
-				Poi.Current = new Poi(Me, PoiType.Death);
+				Poi.Current = new Poi(ExProfileBehavior.Me, PoiType.Death);
 				return true;
 			}
 
@@ -1212,7 +1211,8 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private bool HandleReset()
 		{
-			if (Node == null || (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(Me.Location) > Radius))))
+			if (Node == null ||
+			    (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(ExProfileBehavior.Me.Location) > Radius))))
 			{
 				return false;
 			}
@@ -1223,7 +1223,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private async Task<bool> HandleSwingsRemaining()
 		{
-			if (SwingsRemaining > 0 && Gathering.IsOpen)
+			if (SwingsRemaining > 0 && Window<Gathering>.IsOpen)
 			{
 				await CloseGatheringWindow();
 			}
@@ -1237,14 +1237,14 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			var attempts = 0;
 			while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible
-					&& Poi.Current.Unit.IsValid)
+			       && Poi.Current.Unit.IsValid)
 			{
 				var ticks = 0;
 				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible
-						&& Poi.Current.Unit.IsValid)
+				       && Poi.Current.Unit.IsValid)
 				{
-					var ground = Me.Location.GetFloor(10);
-					if (Math.Abs(ground.Y - Me.Location.Y) > float.Epsilon)
+					var ground = ExProfileBehavior.Me.Location.GetFloor(10);
+					if (Math.Abs(ground.Y - ExProfileBehavior.Me.Location.Y) > float.Epsilon)
 					{
 						var mover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
 						if (mover != null && !mover.IsLanding && !mover.IsTakingOff)
@@ -1297,8 +1297,8 @@ namespace ExBuddy.OrderBotTags.Gather
 			Logger.Verbose(
 				"Started gathering from {0} with {1}/{2} GP at {3} ET",
 				Node.EnglishName,
-				Me.CurrentGP,
-				Me.MaxGP,
+				ExProfileBehavior.Me.CurrentGP,
+				ExProfileBehavior.Me.MaxGP,
 				WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
@@ -1311,7 +1311,7 @@ namespace ExBuddy.OrderBotTags.Gather
 				await CloseGatheringWindow();
 				ResetInternal();
 
-				await Coroutine.Wait(2000, () => Me.InCombat || Actionmanager.CanMount == 0);
+				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || Actionmanager.CanMount == 0);
 				return false;
 			}
 
@@ -1335,8 +1335,8 @@ namespace ExBuddy.OrderBotTags.Gather
 						.GetTypes()
 						.Where(
 							t =>
-							!t.IsAbstract && typeof(IGatheringRotation).IsAssignableFrom(t)
-							&& t.GetCustomAttribute<GatheringRotationAttribute>() != null)
+								!t.IsAbstract && typeof (IGatheringRotation).IsAssignableFrom(t)
+								&& t.GetCustomAttribute<GatheringRotationAttribute>() != null)
 						.ToArray();
 			}
 			catch
@@ -1374,13 +1374,13 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private async Task<bool> MoveToGatherSpot()
 		{
-			var distance = Poi.Current.Location.Distance3D(Me.Location);
+			var distance = Poi.Current.Location.Distance3D(ExProfileBehavior.Me.Location);
 			if (FreeRange)
 			{
 				while (distance > Distance && distance <= Radius && Behaviors.ShouldContinue)
 				{
 					await Coroutine.Yield();
-					distance = Poi.Current.Location.Distance3D(Me.Location);
+					distance = Poi.Current.Location.Distance3D(ExProfileBehavior.Me.Location);
 				}
 			}
 
@@ -1389,17 +1389,17 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private async Task<bool> MoveToHotSpot()
 		{
-			if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Me.Location))
+			if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(ExProfileBehavior.Me.Location))
 			{
 				var name = !string.IsNullOrWhiteSpace(HotSpots.CurrentOrDefault.Name)
-								? "[" + HotSpots.CurrentOrDefault.Name + "] "
-								: string.Empty;
+					? "[" + HotSpots.CurrentOrDefault.Name + "] "
+					: string.Empty;
 
 				StatusText = string.Format("Moving to hotspot {0}{1}", name, HotSpots.CurrentOrDefault);
 
 				await
 					HotSpots.CurrentOrDefault.XYZ.MoveTo(
-						radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
+						radius: HotSpots.CurrentOrDefault.Radius*0.75f,
 						name: HotSpots.CurrentOrDefault.Name,
 						stopCallback: MovementStopCallback);
 
@@ -1412,7 +1412,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 		private async Task<bool> ResetOrDone()
 		{
-			while (Me.InCombat && Behaviors.ShouldContinue)
+			while (ExProfileBehavior.Me.InCombat && Behaviors.ShouldContinue)
 			{
 				await Coroutine.Yield();
 			}
@@ -1472,12 +1472,12 @@ namespace ExBuddy.OrderBotTags.Gather
 				// TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
 				// If flying, land in area closest to node not in sight of an enemy and stealth.
 				case GatherSpotType.StealthGatherSpot:
-					GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };
+					GatherSpot = new StealthGatherSpot {NodeLocation = location, UseMesh = useMesh};
 					break;
 				// ReSharper disable once RedundantCaseLabel
 				case GatherSpotType.GatherSpot:
 				default:
-					GatherSpot = new GatherSpot { NodeLocation = location, UseMesh = useMesh };
+					GatherSpot = new GatherSpot {NodeLocation = location, UseMesh = useMesh};
 					break;
 			}
 		}
@@ -1489,9 +1489,9 @@ namespace ExBuddy.OrderBotTags.Gather
 				GatherItem =
 					windowItems.FirstOrDefault(
 						i =>
-						i.IsFilled && !i.IsUnknown
-						&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
-						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+							i.IsFilled && !i.IsUnknown
+							&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
+							&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
 
 				if (GatherItem != null)
 				{
@@ -1520,7 +1520,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
 			{
-				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
+				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint) cordialType);
 
 				if (cordial != null)
 				{
@@ -1528,25 +1528,25 @@ namespace ExBuddy.OrderBotTags.Gather
 
 					Logger.Info(
 						"Using Cordial -> Waiting (sec): {0}, CurrentGP: {1}",
-						(int)CordialSpellData.Cooldown.TotalSeconds,
-						Me.CurrentGP);
+						(int) CordialSpellData.Cooldown.TotalSeconds,
+						ExProfileBehavior.Me.CurrentGP);
 
 					if (await Coroutine.Wait(
 						TimeSpan.FromSeconds(maxTimeoutSeconds),
 						() =>
+						{
+							if (ExProfileBehavior.Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 							{
-								if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
-								{
-									Actionmanager.Dismount();
-									return false;
-								}
+								Actionmanager.Dismount();
+								return false;
+							}
 
-								return cordial.CanUse(Me) || Core.Player.IsDead;
-							}))
+							return cordial.CanUse(ExProfileBehavior.Me) || Core.Player.IsDead;
+						}))
 					{
 						await Coroutine.Sleep(500);
 						Logger.Info("Using " + cordialType);
-						cordial.UseItem(Me);
+						cordial.UseItem(ExProfileBehavior.Me);
 						await Coroutine.Sleep(1500);
 						return true;
 					}
@@ -1580,11 +1580,11 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			var ttg = GetTimeToGather();
 
-			if (Me.CurrentGP < waitForGp)
+			if (ExProfileBehavior.Me.CurrentGP < waitForGp)
 			{
-				var gpNeeded = waitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
-				var gpNeededTicks = gpNeeded / 5;
-				var gpNeededSeconds = gpNeededTicks * 3;
+				var gpNeeded = waitForGp - (ExProfileBehavior.Me.CurrentGP - (ExProfileBehavior.Me.CurrentGP%5));
+				var gpNeededTicks = gpNeeded/5;
+				var gpNeededSeconds = gpNeededTicks*3;
 
 				if (GatherStrategy == GatherStrategy.TouchAndGo)
 				{
@@ -1606,13 +1606,15 @@ namespace ExBuddy.OrderBotTags.Gather
 				Logger.Info(
 					"Waiting for GP -> Seconds: {0}, Current GP: {1}, WaitForGP: {2}",
 					gpNeededSeconds,
-					Me.CurrentGP,
+					ExProfileBehavior.Me.CurrentGP,
 					waitForGp);
 
 				await
 					Coroutine.Wait(
 						TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
-						() => Me.CurrentGP >= waitForGp || Me.CurrentGP == Me.MaxGP || Core.Player.IsDead);
+						() =>
+							ExProfileBehavior.Me.CurrentGP >= waitForGp || ExProfileBehavior.Me.CurrentGP == ExProfileBehavior.Me.MaxGP ||
+							Core.Player.IsDead);
 			}
 
 			return true;
@@ -1627,10 +1629,7 @@ namespace ExBuddy.OrderBotTags.Gather
 
 			public int TicksTillStartGathering
 			{
-				get
-				{
-					return RealSecondsTillStartGathering / 3;
-				}
+				get { return RealSecondsTillStartGathering/3; }
 			}
 		}
 	}

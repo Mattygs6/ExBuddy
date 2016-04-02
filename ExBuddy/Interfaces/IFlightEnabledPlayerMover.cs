@@ -2,9 +2,7 @@ namespace ExBuddy.Interfaces
 {
 	using System;
 	using System.Threading.Tasks;
-
 	using Clio.Utilities;
-
 	using ff14bot.Interfaces;
 
 	public interface IFlightEnabledPlayerMover : IPlayerMover, IDisposable

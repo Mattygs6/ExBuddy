@@ -2,10 +2,9 @@
 {
 	using System;
 	using System.Linq;
-
 	using ExBuddy.Logging;
 	using ExBuddy.Plugins.Skywatcher;
-
+	using ff14bot;
 	using ff14bot.Managers;
 
 	public static class SkywatcherPlugin
@@ -18,7 +17,7 @@
 
 			var secondsLeft = 60 - timeOfDay.Seconds;
 			var minutesLeft = 60 - timeOfDay.Minutes + (secondsLeft == 0 ? 0 : -1);
-			var hoursLeft = 8 - (timeOfDay.Hours % 8) + (minutesLeft == 0 && secondsLeft == 0 ? 0 : -1);
+			var hoursLeft = 8 - (timeOfDay.Hours%8) + (minutesLeft == 0 && secondsLeft == 0 ? 0 : -1);
 
 			var timeleft = new TimeSpan(hoursLeft, minutesLeft, secondsLeft);
 
@@ -27,7 +26,7 @@
 
 		public static int GetIntervalNumber()
 		{
-			var interval = ((DateTime.UtcNow.ToUniversalTime().AddHours(8) - EorzeaStartTime).TotalSeconds / 1400);
+			var interval = ((DateTime.UtcNow.ToUniversalTime().AddHours(8) - EorzeaStartTime).TotalSeconds/1400);
 
 			return Convert.ToInt32(interval);
 		}
@@ -38,9 +37,9 @@
 
 			var secondsLeft = 60 - timeOfDay.Seconds;
 			var minutesLeft = 60 - timeOfDay.Minutes + (secondsLeft == 0 ? 0 : -1);
-			var hoursLeft = 8 - (timeOfDay.Hours % 8) + (minutesLeft == 0 && secondsLeft == 0 ? 0 : -1);
+			var hoursLeft = 8 - (timeOfDay.Hours%8) + (minutesLeft == 0 && secondsLeft == 0 ? 0 : -1);
 
-			var timeLeft = (secondsLeft * 1000 + minutesLeft * 60 * 1000 + hoursLeft * 3600 * 1000) * (7.0 / 144.0);
+			var timeLeft = (secondsLeft*1000 + minutesLeft*60*1000 + hoursLeft*3600*1000)*(7.0/144.0);
 			return timeLeft;
 		}
 
@@ -59,19 +58,6 @@
 		public static bool IsWeather(string weatherName)
 		{
 			return string.Equals(weatherName, WorldManager.CurrentWeather, StringComparison.InvariantCultureIgnoreCase);
-		}
-
-		private static bool CheckEnabled()
-		{
-			if (!Skywatcher.IsEnabled)
-			{
-				Logger.Instance.Error("Skywatcher is not enabled in plugins.  Enable it and restart the bot.");
-				ff14bot.TreeRoot.Stop();
-
-				return false;
-			}
-
-			return true;
 		}
 
 		public static bool IsWeatherInZone(int zoneId, params byte[] weatherIds)
@@ -101,7 +87,7 @@
 			}
 
 			string weatherName;
-			if (!WorldManager.WeatherDictionary.TryGetValue((byte)weatherId, out weatherName))
+			if (!WorldManager.WeatherDictionary.TryGetValue((byte) weatherId, out weatherName))
 			{
 				return false;
 			}
@@ -136,12 +122,25 @@
 			}
 
 			string weatherName;
-			if (!WorldManager.WeatherDictionary.TryGetValue((byte)weatherId, out weatherName))
+			if (!WorldManager.WeatherDictionary.TryGetValue((byte) weatherId, out weatherName))
 			{
 				return false;
 			}
 
 			return weatherNames.Any(wn => string.Equals(wn, weatherName, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		private static bool CheckEnabled()
+		{
+			if (!ExBotPlugin<Skywatcher>.IsEnabled)
+			{
+				Logger.Instance.Error("Skywatcher is not enabled in plugins.  Enable it and restart the bot.");
+				TreeRoot.Stop();
+
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

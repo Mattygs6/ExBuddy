@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.Interfaces
 {
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.OrderBotTags.Gather;
 
@@ -11,8 +10,6 @@
 
 		bool CanBeOverriden { get; }
 
-		bool ShouldForceGather(ExGatherTag tag);
-
 		Task<bool> ExecuteRotation(ExGatherTag tag);
 
 		Task<bool> Gather(ExGatherTag tag);
@@ -20,5 +17,7 @@
 		Task<bool> Prepare(ExGatherTag tag);
 
 		int ResolveOverridePriority(ExGatherTag tag);
+
+		bool ShouldForceGather(ExGatherTag tag);
 	}
 }

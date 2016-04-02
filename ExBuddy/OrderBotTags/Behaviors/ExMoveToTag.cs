@@ -5,14 +5,11 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
-
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
 
@@ -20,35 +17,32 @@
 	[XmlElement("ExMoveTo")]
 	public sealed class ExMoveToTag : ExProfileBehavior
 	{
-		private ushort startZoneId;
-
 		private HotSpot destination;
+
+		private ushort startZoneId;
 
 		[DefaultValue(3.0f)]
 		[XmlAttribute("Distance")]
 		public float Distance { get; set; }
 
-		[DefaultValue(true)]
-		[XmlAttribute("UseMesh")]
-		public bool UseMesh { get; set; }
+		[XmlElement("HotSpots")]
+		public List<HotSpot> HotSpots { get; set; }
 
 		[XmlAttribute("XYZ")]
 		[XmlAttribute("Location")]
 		public Vector3 Location { get; set; }
 
-		[XmlElement("HotSpots")]
-		public List<HotSpot> HotSpots { get; set; }
-
 		[DefaultValue(MoveToType.Auto)]
 		[XmlAttribute("Type")]
 		public MoveToType Type { get; set; }
 
+		[DefaultValue(true)]
+		[XmlAttribute("UseMesh")]
+		public bool UseMesh { get; set; }
+
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.Aqua;
-			}
+			get { return Colors.Aqua; }
 		}
 
 		protected override void DoReset()
@@ -63,7 +57,7 @@
 				return isDone = true;
 			}
 
-			if (Me.Distance(Location) <= Distance)
+			if (ExProfileBehavior.Me.Distance(Location) <= Distance)
 			{
 				return isDone = true;
 			}
@@ -78,7 +72,7 @@
 				var locations = new List<HotSpot>(HotSpots);
 				if (Location != Vector3.Zero)
 				{
-					locations.Add(new HotSpot(Location, Distance) { Name = Name });
+					locations.Add(new HotSpot(Location, Distance) {Name = Name});
 				}
 
 				destination = locations.Shuffle().First();
@@ -92,7 +86,7 @@
 					Type = MoveToType.StopWithinRange;
 				}
 
-				destination = new HotSpot(Location, Distance) { Name = Name };
+				destination = new HotSpot(Location, Distance) {Name = Name};
 			}
 
 			var name = !string.IsNullOrWhiteSpace(destination.Name) ? "[" + destination.Name + "] " : string.Empty;
@@ -112,14 +106,14 @@
 			return isDone = true;
 		}
 
-		protected override void OnStart()
-		{
-			startZoneId = WorldManager.ZoneId;
-		}
-
 		protected override void OnDone()
 		{
 			Navigator.PlayerMover.MoveStop();
+		}
+
+		protected override void OnStart()
+		{
+			startZoneId = WorldManager.ZoneId;
 		}
 	}
 }

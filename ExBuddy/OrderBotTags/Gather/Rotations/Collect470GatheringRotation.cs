@@ -1,10 +1,8 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Managers;
 
 	// Get Two ++
@@ -40,7 +38,10 @@
 			}
 			else
 			{
-				tag.Logger.Warn("Using alternate rotation to collect one or two due to CurrentGP: {0} being less than RequiredGP: {1}", gp, 600);
+				tag.Logger.Warn(
+					"Using alternate rotation to collect one or two due to CurrentGP: {0} being less than RequiredGP: {1}",
+					gp,
+					600);
 				// Less than 600 GP collect 1-2 rotation
 				await UtmostImpulsive(tag);
 

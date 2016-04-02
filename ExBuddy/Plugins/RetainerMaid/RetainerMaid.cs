@@ -1,6 +1,4 @@
-﻿using ff14bot.Objects;
-
-namespace ExBuddy.Plugins.RetainerMaid
+﻿namespace ExBuddy.Plugins.RetainerMaid
 {
 	using System;
 	using System.Collections.Generic;
@@ -11,12 +9,9 @@ namespace ExBuddy.Plugins.RetainerMaid
 	using System.Linq;
 	using System.Threading;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -24,7 +19,6 @@ namespace ExBuddy.Plugins.RetainerMaid
 	using ff14bot.Interfaces;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
-
 	using TreeSharp;
 
 	public class BagSlotSnapshot
@@ -37,11 +31,11 @@ namespace ExBuddy.Plugins.RetainerMaid
 	public class Retainer
 	{
 		public static readonly InventoryBagId[] BagIds =
-			{
-				InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2,
-				InventoryBagId.Retainer_Page3, InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5,
-				InventoryBagId.Retainer_Page6, InventoryBagId.Retainer_Page7
-			};
+		{
+			InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2,
+			InventoryBagId.Retainer_Page3, InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5,
+			InventoryBagId.Retainer_Page6, InventoryBagId.Retainer_Page7
+		};
 
 		public readonly IList<BagSlot> BagSlots;
 
@@ -53,7 +47,7 @@ namespace ExBuddy.Plugins.RetainerMaid
 					InventoryManager.GetBagsByInventoryBagId(BagIds).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
 		}
 
-		public int Index { get; private set; }
+		public int Index { get; }
 	}
 
 	[LoggerName("RetainerMaid")]
@@ -67,26 +61,17 @@ namespace ExBuddy.Plugins.RetainerMaid
 
 		public override string ButtonText
 		{
-			get
-			{
-				return "Housekeeping?!?";
-			}
+			get { return "Housekeeping?!?"; }
 		}
 
 		public override string Name
 		{
-			get
-			{
-				return "RetainerMaid";
-			}
+			get { return "RetainerMaid"; }
 		}
 
 		public override bool WantButton
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		public override void OnButtonPress()
@@ -156,17 +141,19 @@ namespace ExBuddy.Plugins.RetainerMaid
 				return false;
 			}
 
-			
-		    var pLocation = Core.Player.Location;
-            //HousingEventObjects don't have npcids and as such would be unuseable
-            //var bell = GameObjectManager.GetObjectsByNPCId<EventObject>(2000401).OrderBy(r=>r.Distance2D(pLocation)).FirstOrDefault();
-            var bell = GameObjectManager.GameObjects.Where(r=>r.IsVisible && r.EnglishName == "Summoning Bell").OrderBy(r => r.Distance2D(pLocation)).FirstOrDefault();
+			var pLocation = Core.Player.Location;
+			//HousingEventObjects don't have npcids and as such would be unuseable
+			//var bell = GameObjectManager.GetObjectsByNPCId<EventObject>(2000401).OrderBy(r=>r.Distance2D(pLocation)).FirstOrDefault();
+			var bell =
+				GameObjectManager.GameObjects.Where(r => r.IsVisible && r.EnglishName == "Summoning Bell")
+					.OrderBy(r => r.Distance2D(pLocation))
+					.FirstOrDefault();
 
-            if (bell == null)
-		    {
-                Logger.Error("Could not find nearby summoning bell");
-		        return false;
-		    }
+			if (bell == null)
+			{
+				Logger.Error("Could not find nearby summoning bell");
+				return false;
+			}
 
 			bell.Interact();
 
@@ -176,7 +163,7 @@ namespace ExBuddy.Plugins.RetainerMaid
 
 			while (retainerCount-- > 0)
 			{
-				SelectString.ClickSlot((uint)retainerCount);
+				SelectString.ClickSlot((uint) retainerCount);
 
 				await Coroutine.Wait(3000, () => Talk.DialogOpen);
 				await Coroutine.Sleep(500);
@@ -220,7 +207,7 @@ namespace ExBuddy.Plugins.RetainerMaid
 
 			var openSlots = new Stack<BagSlot>(retainer.BagSlots.Where(bs => !bs.IsFilled));
 
-			SelectString.ClickSlot((uint)retainer.Index);
+			SelectString.ClickSlot((uint) retainer.Index);
 			await Coroutine.Wait(2000, () => !SelectString.IsOpen);
 			await Coroutine.Wait(2000, () => SelectString.IsOpen);
 
@@ -252,7 +239,7 @@ namespace ExBuddy.Plugins.RetainerMaid
 
 			// ReSharper disable once UnusedParameter.Local
 			public RetainerMaidSettings(string path)
-				: base(Path.Combine(CharacterSettingsDirectory, "RetainerMaid.json")) {}
+				: base(Path.Combine(JsonSettings.CharacterSettingsDirectory, "RetainerMaid.json")) {}
 
 			[Setting]
 			[Category]
@@ -263,10 +250,7 @@ namespace ExBuddy.Plugins.RetainerMaid
 
 			public static RetainerMaidSettings Instance
 			{
-				get
-				{
-					return instance ?? (instance = new RetainerMaidSettings("RetainerMaidSettings"));
-				}
+				get { return instance ?? (instance = new RetainerMaidSettings("RetainerMaidSettings")); }
 			}
 
 			[Setting]

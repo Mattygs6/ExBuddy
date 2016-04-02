@@ -3,7 +3,9 @@
 	public enum MoveToType
 	{
 		StopWithinRange,
+
 		RandomPointWithin,
+
 		Auto
 	}
 }

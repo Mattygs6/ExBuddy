@@ -1,4 +1,4 @@
-namespace ExBuddy.OrderBotTags.Fish
+ï»¿namespace ExBuddy.OrderBotTags.Fish
 {
 	using System;
 	using System.Collections.Generic;
@@ -195,7 +195,7 @@ namespace ExBuddy.OrderBotTags.Fish
 				{
 					isDone = true;
 #if RB_CN
-                    Logger.Error("Ñ°ÕÒÓã¶ü '{0}' ³ö´í, ²»Æ¥ÅäÊı¾İ¿âÖĞµÄÈÎºÎÊı¾İ " + Bait);
+                    Logger.Error("å¯»æ‰¾é±¼é¥µ '{0}' å‡ºé”™,ä¸åŒ¹é…æ•°æ®åº“ä¸­çš„ä»»ä½•æ•°æ® " + Bait);
 #else
                     Logger.Error("Error finding '{0}', doesn't match any item in the database. " + Bait);
 #endif
@@ -220,7 +220,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			{
 				isDone = true;
 #if RB_CN
-                Logger.Error("´íÎó: '{0}' ²»ÊÇÓã¶ü.", baitItem.ChnName);
+                Logger.Error("é”™è¯¯: '{0}' ä¸æ˜¯é±¼é¥µ.", baitItem.ChnName);
 #else
                 Logger.Error("Error: '{0}' is not considered bait.", baitItem.EnglishName);
 #endif
@@ -286,7 +286,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			if (!HasSpecifiedBait)
 			{
 #if RB_CN
-                Logger.Error("ÄãÈ±ÉÙÖ¸¶¨µÄÓã¶ü: " + Bait);
+                Logger.Error("ä½ ç¼ºå°‘æŒ‡å®šçš„é±¼é¥µ: " + Bait);
 #else
                 Logger.Error("You do not have the specified bait: " + Bait);
 #endif
@@ -298,14 +298,14 @@ namespace ExBuddy.OrderBotTags.Fish
 			if (!await baitWindow.SelectBait(baitItem.Id, (ushort) BaitDelay))
             {
 #if RB_CN
-                Logger.Error("Ñ¡ÔñÓã¶üÊ±·¢Éú´íÎó");
+                Logger.Error("é€‰æ‹©é±¼é¥µæ—¶å‘ç”Ÿé”™è¯¯");
 #else
                 Logger.Error("An error has occurred during bait selection.");
 #endif
                 return isDone = true;
 			}
 #if RB_CN
-            Logger.Info("Ê¹ÓÃÓã¶ü -> " + baitItem.CurrentLocaleName);
+            Logger.Info("ä½¿ç”¨é±¼é¥µ -> " + baitItem.CurrentLocaleName);
 #else
             Logger.Info("Using bait -> " + baitItem.EnglishName);
 #endif
@@ -382,7 +382,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			if (value >= required)
 			{
 #if RB_CN
-                Logger.Info("È·ÈÏÊÕ²ØÆ·£º {0} -> µ±Ç°¼ÛÖµ: {1}, ÊÕ²Ø×îµÍ¼ÛÖµ: {2}", itemName, value, required);
+                Logger.Info("ç¡®è®¤æ”¶è—å“ï¼š {0} -> å½“å‰ä»·å€¼: {1}, æ”¶è—æœ€ä½ä»·å€¼: {2}", itemName, value, required);
 #else
                 Logger.Info("Collecting {0} -> Value: {1}, Required: {2}", itemName, value, required);
 #endif
@@ -391,7 +391,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			else
             {
 #if RB_CN
-                Logger.Info("È¡ÏûÊÕ²ØÆ· {0} -> µ±Ç°¼ÛÖµ: {1}, ÊÕ²Ø×îµÍ¼ÛÖµ: {2}", itemName, value, required);
+                Logger.Info("å–æ¶ˆæ”¶è—å“ {0} -> å½“å‰ä»·å€¼: {1}, æ”¶è—æœ€ä½ä»·å€¼: {2}", itemName, value, required);
 #else
                 Logger.Info("Declining {0} -> Value: {1}, Required: {2}", itemName, value, required);
 #endif
@@ -473,7 +473,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
 #if RB_CN
                     Logger.Info(
-						"Ê¹ÓÃÇ¿ĞÄ¼Á -> µÈ´ıÊ±¼ä (Ãë): {0}, µ±Ç°²É¼¯Á¦: {1}",
+						"ä½¿ç”¨å¼ºå¿ƒå‰‚ -> ç­‰å¾…æ—¶é—´ (ç§’): {0}, å½“å‰é‡‡é›†åŠ›: {1}",
 						(int) CordialSpellData.Cooldown.TotalSeconds,
 						ExProfileBehavior.Me.CurrentGP);
 #else
@@ -498,7 +498,7 @@ namespace ExBuddy.OrderBotTags.Fish
 					{
 						await Coroutine.Sleep(500);
 #if RB_CN
-                        Logger.Info("Ê¹ÓÃ " + cordialType);
+                        Logger.Info("ä½¿ç”¨ " + cordialType);
 #else
                         Logger.Info("Using " + cordialType);
 #endif
@@ -510,7 +510,7 @@ namespace ExBuddy.OrderBotTags.Fish
 				else
 				{
 #if RB_CN
-                    Logger.Warn("Ã»ÓĞÇ¿ĞÄ¼Á,ÄãĞèÒª¹ºÂò¸ü¶àµÄ " + cordialType);
+                    Logger.Warn("æ²¡æœ‰å¼ºå¿ƒå‰‚,ä½ éœ€è¦è´­ä¹°æ›´å¤šçš„ " + cordialType);
 #else
                     Logger.Warn("No Cordial avilable, buy more " + cordialType);
 #endif
@@ -577,8 +577,8 @@ namespace ExBuddy.OrderBotTags.Fish
 
 #if RB_CN
        protected static Regex FishRegex = new Regex(
-            @"[\u4e00-\u9fa5A-Za-z0-9]+³É¹¦µöÉÏÁË|[\u4e00-\u9fa5A-Za-z0-9]+",
-            //@"[\u0800-\u4e00A-Za-z0-9]+¤Ï|[\u0800-\u4e00]+",    for Japanese
+            @"[\u4e00-\u9fa5A-Za-z0-9]+æˆåŠŸé’“ä¸Šäº†|[\u4e00-\u9fa5A-Za-z0-9]+",
+            //@"[\u0800-\u4e00A-Za-z0-9]+ã¯|[\u0800-\u4e00]+",    for Japanese
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         protected static Regex FishSizeRegex = new Regex(
@@ -783,7 +783,7 @@ namespace ExBuddy.OrderBotTags.Fish
 								{
 									isSitting = true;
 #if RB_CN
-                                    Logger.Info("×øÏÂ " + FishSpots.CurrentOrDefault);
+                                    Logger.Info("åä¸‹ " + FishSpots.CurrentOrDefault);
 #else
                                     Logger.Info("Sitting " + FishSpots.CurrentOrDefault);
 #endif
@@ -809,7 +809,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							FaceFishSpot();
 							isFishing = true;
 #if RB_CN
-                            Logger.Info("ÔÚÒÆ¶¯»»ÓæµãÇ°»áÔÙµö " + fishlimit + " ´Î¡£");
+                            Logger.Info("åœ¨ç§»åŠ¨æ¢æ¸”ç‚¹å‰ä¼šå†é’“ " + fishlimit + " æ¬¡ã€‚");
 #else
                             Logger.Info("Will fish for " + fishlimit + " fish before moving again.");
 #endif
@@ -826,7 +826,7 @@ namespace ExBuddy.OrderBotTags.Fish
 					ret => Weather != null && Weather != WorldManager.CurrentWeather,
 					new Sequence(
 #if RB_CN
-                        new Action(r => { Logger.Info("µÈ´ıÕıÈ·ÌìÆø..."); }),
+                        new Action(r => { Logger.Info("ç­‰å¾…æ­£ç¡®å¤©æ°”..."); }),
 #else
                         new Action(r => { Logger.Info("Waiting for the proper weather..."); }),
 #endif
@@ -845,7 +845,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							r =>
 							{
 #if RB_CN
-                                    Logger.Info("Ê¹ÓÃ[ÊÕ²ØÆ·²É¼¯]");
+                                    Logger.Info("ä½¿ç”¨[æ”¶è—å“é‡‡é›†]");
 #else
                                 Logger.Info("Casting Collector's Glove");
 #endif
@@ -866,7 +866,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							r =>
 							{
 #if RB_CN
-                                Logger.Info("¿ªÆôµö×é");
+                                Logger.Info("å¼€å¯é’“ç»„");
 #else
                                 Logger.Info("Toggle Snagging");
 #endif
@@ -900,7 +900,7 @@ namespace ExBuddy.OrderBotTags.Fish
 									if (MoochLevel > 1)
 									{
 #if RB_CN
-                                        Logger.Info("ÒÔĞ¡µö´óÖĞ, ÕâÊÇ " + mooch + " ´Î£¬Ò»¹² " + MoochLevel + " ´Î.");
+                                        Logger.Info("ä»¥å°é’“å¤§ä¸­, è¿™æ˜¯ " + mooch + " æ¬¡ï¼Œä¸€å…± " + MoochLevel + " æ¬¡.");
 #else
                                         Logger.Info("Mooching, this is mooch " + mooch + " of " + MoochLevel + " mooches.");
 #endif
@@ -908,7 +908,7 @@ namespace ExBuddy.OrderBotTags.Fish
                                     else
                                     {
 #if RB_CN
-                                        Logger.Info("ÒÔĞ¡µö´óÖĞ, Ö»ÓĞÕâÒ»´Î.");
+                                        Logger.Info("ä»¥å°é’“å¤§ä¸­, åªæœ‰è¿™ä¸€æ¬¡.");
 #else
                                         Logger.Info("Mooching, this will be the only mooch.");
 #endif
@@ -945,7 +945,7 @@ namespace ExBuddy.OrderBotTags.Fish
 								{
 									DoAbility(Patience);
 #if RB_CN
-                                    Logger.Info("ÆôÓÃ¡°ÄÍĞÄ¡±");
+                                    Logger.Info("å¯ç”¨â€œè€å¿ƒâ€");
 #else
                                     Logger.Info("Patience activated");
 #endif
@@ -982,11 +982,11 @@ namespace ExBuddy.OrderBotTags.Fish
 									{
                                         // If its not a keeper AND we aren't mooching or we can't mooch, then release
 #if RB_CN
-                                        Logger.Info("µöÉÏÀ´ÁË£º{0},³ß´ç£º{1}ĞÇ´ç", FishResult.Name, FishResult.Size);
+                                        Logger.Info("é’“ä¸Šæ¥äº†ï¼š{0},å°ºå¯¸ï¼š{1}æ˜Ÿå¯¸", FishResult.Name, FishResult.Size);
                                         if (!Keepers.Any(FishResult.IsKeeper) && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
                                         {
                                             DoAbility(Abilities.Release);
-                                            Logger.Info("·ÅÉú£º{0},³ß´ç£º{1}ĞÇ´ç", FishResult.Name, FishResult.Size);
+                                            Logger.Info("æ”¾ç”Ÿï¼š{0},å°ºå¯¸ï¼š{1}æ˜Ÿå¯¸", FishResult.Name, FishResult.Size);
                                         }
 #else
                                         if (!Keepers.Any(FishResult.IsKeeper) && (MoochLevel == 0 || !CanDoAbility(Abilities.Mooch)))
@@ -1039,7 +1039,7 @@ namespace ExBuddy.OrderBotTags.Fish
 							{
 								DoAbility(hookset);
 #if RB_CN
-                                Logger.Info("¼ì²âµ½{0}¸Ë. Ê¹ÓÃ {1}", tugType, hookset);
+                                Logger.Info("æ£€æµ‹åˆ°{0}æ†. ä½¿ç”¨ {1}", tugType, hookset);
 #else
                                 Logger.Info("{0} TugType detected. Using {1}", tugType, hookset);
 #endif
@@ -1055,7 +1055,7 @@ namespace ExBuddy.OrderBotTags.Fish
 								fishcount++;
 							}
 #if RB_CN
-                            Logger.Info("ÔÚµ±Ç°ÓæµãµöÁË " + fishcount + " ´Î£¬Ò»¹² " + fishlimit + " ´Î¡£");
+                            Logger.Info("åœ¨å½“å‰æ¸”ç‚¹é’“äº† " + fishcount + " æ¬¡ï¼Œä¸€å…± " + fishlimit + " æ¬¡ã€‚");
 #else
                             Logger.Info("Fished " + fishcount + " of " + fishlimit + " fish at this FishSpot.");
 #endif
@@ -1100,8 +1100,8 @@ namespace ExBuddy.OrderBotTags.Fish
 							r =>
 							{
 #if RB_CN                                
-                                Logger.Warn("Õâ¿éµØÍ¼µÄÓã¶¼¾¯ÌèÁË¡£");
-                                Logger.Warn("Õâ¿éµØÍ¼µÄÓã¶¼¾¯ÌèÁË£¬ÇëÔÚÆäËûµØÍ¼µöÒ»ÏÂÓãÔÙÖØĞÂÔËĞĞ½Å±¾¡£");
+                                Logger.Warn("è¿™å—åœ°å›¾çš„é±¼éƒ½è­¦æƒ•äº†ã€‚");
+                                Logger.Warn("è¿™å—åœ°å›¾çš„é±¼éƒ½è­¦æƒ•äº†ï¼Œè¯·åœ¨å…¶ä»–åœ°å›¾é’“ä¸€ä¸‹é±¼å†é‡æ–°è¿è¡Œè„šæœ¬ã€‚");
 #else
                                 Logger.Warn("The fish are amiss at all of the FishSpots.");
 								Logger.Warn("This zone has been blacklisted, please fish somewhere else and then restart the profile.");
@@ -1222,13 +1222,13 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			FishSpots.Next();
 #if RB_CN
-            Logger.Info("¸ü»»Óæµã...");
+            Logger.Info("æ›´æ¢æ¸”ç‚¹...");
 #else
             Logger.Info("Changing FishSpots...");
 #endif
             fishcount = 0;
 #if RB_CN
-            Logger.Info("ÖØÖÃµöÓã¼ÆÊı...");
+            Logger.Info("é‡ç½®é’“é±¼è®¡æ•°...");
 #else
             Logger.Info("Resetting fish count...");
 #endif
@@ -1250,7 +1250,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			{
 				FishSpots.Shuffle();
 #if RB_CN
-                Logger.Info("´òÂÒÓæµãË³Ğò");
+                Logger.Info("æ‰“ä¹±æ¸”ç‚¹é¡ºåº");
 #else
                 Logger.Info("Shuffled fish spots");
 #endif
@@ -1263,7 +1263,7 @@ namespace ExBuddy.OrderBotTags.Fish
 			{
 				mooch = 0;
 #if RB_CN
-                Logger.Info("ÖØÖÃÒÔĞ¡µö´ó¼¶±ğ");
+                Logger.Info("é‡ç½®ä»¥å°é’“å¤§çº§åˆ«");
 #else
                 Logger.Info("Resetting mooch level.");
 #endif
@@ -1316,7 +1316,7 @@ namespace ExBuddy.OrderBotTags.Fish
 		protected void ReceiveMessage(object sender, ChatEventArgs e)
 		{
 #if RB_CN
-            if (e.ChatLogEntry.MessageType == (MessageType)2115 && e.ChatLogEntry.Contents.Contains("³É¹¦µöÉÏÁË"))
+            if (e.ChatLogEntry.MessageType == (MessageType)2115 && e.ChatLogEntry.Contents.Contains("æˆåŠŸé’“ä¸Šäº†"))
             {
                 SetFishResult(e.ChatLogEntry.Contents);
             }
@@ -1330,13 +1330,13 @@ namespace ExBuddy.OrderBotTags.Fish
             if (e.ChatLogEntry.MessageType == (MessageType) 2115
 
 #if RB_CN
-                && e.ChatLogEntry.Contents.Equals("ÕâÀïºÃÏñÃ»ÓĞÓãÔÚ»î¶¯¡­¡­", StringComparison.InvariantCultureIgnoreCase))    
+                && e.ChatLogEntry.Contents.Equals("è¿™é‡Œå¥½åƒæ²¡æœ‰é±¼åœ¨æ´»åŠ¨â€¦â€¦", StringComparison.InvariantCultureIgnoreCase))    
 #else
                 && e.ChatLogEntry.Contents.Equals("You do not sense any fish here.", StringComparison.InvariantCultureIgnoreCase))
 #endif
             {
 #if RB_CN
-                Logger.Info("ÕâÀïºÃÏñÃ»ÓĞÓãÔÚ»î¶¯¡­¡­, ³¢ÊÔÏÂÒ»¸öµØµã");
+                Logger.Info("è¿™é‡Œå¥½åƒæ²¡æœ‰é±¼åœ¨æ´»åŠ¨â€¦â€¦, å°è¯•ä¸‹ä¸€ä¸ªåœ°ç‚¹");
 #else
                 Logger.Info("You do not sense any fish here, trying next location.");
 #endif
@@ -1351,13 +1351,13 @@ namespace ExBuddy.OrderBotTags.Fish
 
 			if (e.ChatLogEntry.MessageType == (MessageType)2115
 #if RB_CN
-                && e.ChatLogEntry.Contents == "ÕâÀïµÄÓãÏÖÔÚ¾¯ÌèĞÔºÜ¸ß£¬¿´À´»¹ÊÇ»»¸öµØµã±È½ÏºÃ¡£")
+                && e.ChatLogEntry.Contents == "è¿™é‡Œçš„é±¼ç°åœ¨è­¦æƒ•æ€§å¾ˆé«˜ï¼Œçœ‹æ¥è¿˜æ˜¯æ¢ä¸ªåœ°ç‚¹æ¯”è¾ƒå¥½ã€‚")
 #else
                 && e.ChatLogEntry.Contents == "The fish sense something amiss. Perhaps it is time to try another location.")
 #endif
             {
 #if RB_CN
-                Logger.Info("Óã¾¯ÌèÁË£¬»»µãÎ»!");
+                Logger.Info("é±¼è­¦æƒ•äº†ï¼Œæ¢ç‚¹ä½!");
 #else
                 Logger.Info("The fish sense something amiss!");
 #endif

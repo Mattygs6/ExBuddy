@@ -1,4 +1,4 @@
-
+ï»¿
 #pragma warning disable 1998
 
 namespace ExBuddy
@@ -20,7 +20,7 @@ namespace ExBuddy
 		{
 			InteractDistance = 8.0f;
 #if RB_CN
-            AethernetText = "¶¼ÊĞ´«ËÍÍø";
+            AethernetText = "éƒ½å¸‚ä¼ é€ç½‘";
 #else
             AethernetText = "Aethernet.";
 #endif

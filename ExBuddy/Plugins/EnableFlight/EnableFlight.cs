@@ -33,9 +33,16 @@ namespace ExBuddy.Plugins.EnableFlight
 		private Composite startCoroutine;
 
 		public override string Name
-		{
-			get { return "EnableFlight"; }
-		}
+        {
+            get
+            {
+#if RB_CN
+                return "开启飞行模式 - EnableFlight";
+#else
+                return "EnableFlight";
+#endif
+            }
+        }
 
 		protected override Color Info
 		{

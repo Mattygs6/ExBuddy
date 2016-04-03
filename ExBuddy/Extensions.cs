@@ -64,14 +64,21 @@
 
 			if (ticks > 200)
 			{
-				Logger.Instance.Error("Attempted to add Random Direction from {0} but failed", vector);
+#if RB_CN
+				Logger.Instance.Error("尝试从 {0} 处添加随机路径失败", vector);
+#else
+                Logger.Instance.Error("Attempted to add Random Direction from {0} but failed", vector);
+#endif 
 
-				return vector;
+                return vector;
 			}
+#if RB_CN
+            Logger.Instance.Info("添加从 {0} 至 {1} 的随机路径.", vector, random);
+#else
+            Logger.Instance.Info("Adding Random Direction.  from {0} to {1}", vector, random);
+#endif
 
-			Logger.Instance.Info("Adding Random Direction.  from {0} to {1}", vector, random);
-
-			return random;
+            return random;
 		}
 
 		public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f)

@@ -22,8 +22,12 @@
 				var result = await CommonTasks.AetherialReduction(bagSlot);
 				if (result.HasFlag(AetherialReductionResult.Failure))
 				{
-					Logger.Instance.Error("An error has occured during aetherial reduction. Result was {0}", result);
-				}
+#if RB_CN                    
+                    Logger.Instance.Error("精选时发生错误,精选结果为 {0}", result);
+#else
+                    Logger.Instance.Error("An error has occured during aetherial reduction. Result was {0}", result);
+#endif
+                }
 				await Behaviors.Sleep(500);
 			}
 

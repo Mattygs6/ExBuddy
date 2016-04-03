@@ -55,21 +55,33 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 
 			StatusText = "Disabling Plugins: " + Names;
-			Logger.Info("Disabling Plugins: " + Names);
+#if RB_CN
+			Logger.Info("禁用插件: " + Names);
+#else
+            Logger.Info("Disabling Plugins: " + Names);
+#endif
 
-			foreach (var plugin in
+            foreach (var plugin in
 				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
 			{
 				try
 				{
 					if (!plugin.Enabled)
 					{
-						Logger.Info("Plugin {0} already disabled.", plugin.Plugin.Name);
-					}
-					else
+#if RB_CN
+                        Logger.Info("插件 {0} 已被禁用.", plugin.Plugin.Name);
+#else
+                        Logger.Info("Plugin {0} already disabled.", plugin.Plugin.Name);
+#endif
+                    }
+                    else
 					{
-						Logger.Info("Disabling Plugin {0}", plugin.Plugin.Name);
-						plugin.Enabled = false;
+#if RB_CN
+                        Logger.Info("禁用插件 {0}", plugin.Plugin.Name);
+#else
+                        Logger.Info("Disabling Plugin {0}", plugin.Plugin.Name);
+#endif
+                        plugin.Enabled = false;
 					}
 				}
 				catch (Exception ex)

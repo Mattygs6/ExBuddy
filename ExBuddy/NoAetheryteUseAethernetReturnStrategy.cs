@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 1998
 
 namespace ExBuddy
@@ -19,10 +19,14 @@ namespace ExBuddy
 		public NoAetheryteUseAethernetReturnStrategy()
 		{
 			InteractDistance = 8.0f;
-			AethernetText = "Aethernet.";
-		}
+#if RB_CN
+            AethernetText = "都市传送网";
+#else
+            AethernetText = "Aethernet.";
+#endif
+        }
 
-		public string AethernetText { get; set; }
+        public string AethernetText { get; set; }
 
 		public float InteractDistance { get; set; }
 

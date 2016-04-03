@@ -63,23 +63,37 @@
 			{
 				if (!await Coroutine.Wait(Math.Min(3000, (interval*attempts)/2), () => Request.IsOpen))
 				{
-					Logger.Instance.Warn(
+#if RB_CN
+                    Logger.Instance.Warn(
+						"[MasterPieceSupply] '{0}' 收藏价值过低或者今天无法递交 {1} .",
+						bagSlot.Collectability,
+						bagSlot.Name);
+#else
+                    Logger.Instance.Warn(
 						"[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.",
 						bagSlot.Collectability,
 						bagSlot.EnglishName);
-					return false;
-				}
+#endif
+                    return false;
+                }
 			}
 
 			if (Memory.Request.ItemId1 != bagSlot.RawItemId)
 			{
 				Request.Cancel();
 				var item = DataManager.GetItem(Memory.Request.ItemId1);
-				Logger.Instance.Warn(
+#if RB_CN
+                Logger.Instance.Warn(
+					"[MasterPieceSupply] 今天无法递交{0},当前递交的道具是{1}.",
+					bagSlot.EnglishName,
+					item.EnglishName);
+#else
+                Logger.Instance.Warn(
 					"[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'",
 					bagSlot.EnglishName,
 					item.EnglishName);
-				return false;
+#endif
+                return false;
 			}
 
 			requestAttempts = 0;
@@ -96,8 +110,12 @@
 
 			if (SelectYesno.IsOpen)
 			{
-				Logger.Instance.Warn("[MasterPieceSupply] Not turning in '{0}', full on scrips.", bagSlot.EnglishName);
-				return false;
+#if RB_CN
+                Logger.Instance.Warn("[MasterPieceSupply] 无法递交 '{0}',票据已满.", bagSlot.EnglishName);
+#else
+                Logger.Instance.Warn("[MasterPieceSupply] Not turning in '{0}', full on scrips.", bagSlot.EnglishName);
+#endif
+                return false;
 			}
 
 			return !Request.IsOpen;

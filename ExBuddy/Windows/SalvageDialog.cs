@@ -36,8 +36,12 @@
 						var result = await CommonTasks.Desynthesize(bagSlot, maxWait);
 						if (result.HasFlag(DesynthesisResult.Failure))
 						{
-							Logger.Instance.Error("An error has occured during desynthesis. Result was {0}", result);
-							break;
+#if RB_CN
+                            Logger.Instance.Error("分解时发生错误,分解结果为 {0}", result);
+#else
+                            Logger.Instance.Error("An error has occured during desynthesis. Result was {0}", result);
+#endif
+                            break;
 						}
 					}
 				}

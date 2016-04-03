@@ -23,10 +23,14 @@
 
 		public override string ToString()
 		{
-			return string.Format("Default: Death Location: {0}, AetheryteId: {1}", InitialLocation, AetheryteId);
-		}
+#if RB_CN
+			return string.Format("默认: 死亡地点: {0}, 以太之光ID: {1}", InitialLocation, AetheryteId);
+#else
+            return string.Format("Default: Death Location: {0}, AetheryteId: {1}", InitialLocation, AetheryteId);
+#endif
+        }
 
-		#region IReturnStrategy Members
+#region IReturnStrategy Members
 
 		public Vector3 InitialLocation { get; set; }
 
@@ -48,6 +52,6 @@
 			return true;
 		}
 
-		#endregion
+#endregion
 	}
 }

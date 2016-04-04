@@ -529,12 +529,22 @@ namespace ExBuddy.OrderBotTags.Fish
 		private static bool isFishing;
 
 		protected static readonly Random SitRng = new Random();
+        
+#if RB_CN
+        protected static Regex FishRegex = new Regex(
+            @"[\u4e00-\u9fa5A-Za-z0-9]+成功钓上了|[\u4e00-\u9fa5A-Za-z0-9]+",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-		protected static Regex FishRegex = new Regex(
-			@"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
-			RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        protected static Regex FishSizeRegex = new Regex(
+            @"(\d{1,4}\.\d)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+#else
+        protected static Regex FishRegex = new Regex(
+            @"You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+#endif
 
-		protected static FishResult FishResult = new FishResult();
+        protected static FishResult FishResult = new FishResult();
 
 		private Func<bool> conditionFunc;
 
@@ -1147,39 +1157,67 @@ namespace ExBuddy.OrderBotTags.Fish
 		}
 
 		protected void SetFishResult(string message)
+        {
+#if RB_CN
+            var fishResult = new FishResult();
+
+            var match = FishRegex.Matches(message);
+            var sizematch = FishSizeRegex.Match(message);
+
+            if (sizematch.Success)
+            {
+                fishResult.Name = match[1].ToString();
+                float size;
+                float.TryParse(sizematch.Groups[1].Value, out size);
+                fishResult.Size = size;
+
+                if (fishResult.Name[fishResult.Name.Length - 2] == ' ')
+                {
+                    fishResult.IsHighQuality = true;
+                }
+            }
+
+#else
+            var fishResult = new FishResult();
+
+            var match = FishRegex.Match(message);
+
+            if (match.Success)
+            {
+                fishResult.Name = match.Groups[1].Value;
+                float size;
+                float.TryParse(match.Groups[2].Value, out size);
+                fishResult.Size = size;
+
+                if (fishResult.Name[fishResult.Name.Length - 2] == ' ')
+                {
+                    fishResult.IsHighQuality = true;
+                }
+            }
+#endif
+            FishResult = fishResult;
+            isFishIdentified = true;
+        }
+
+        protected void ReceiveMessage(object sender, ChatEventArgs e)
 		{
-			var fishResult = new FishResult();
-
-			var match = FishRegex.Match(message);
-
-			if (match.Success)
-			{
-				fishResult.Name = match.Groups[1].Value;
-				float size;
-				float.TryParse(match.Groups[2].Value, out size);
-				fishResult.Size = size;
-
-				if (fishResult.Name[fishResult.Name.Length - 2] == ' ')
-				{
-					fishResult.IsHighQuality = true;
-				}
-			}
-
-			FishResult = fishResult;
-			isFishIdentified = true;
-		}
-
-		protected void ReceiveMessage(object sender, ChatEventArgs e)
-		{
-			if (e.ChatLogEntry.MessageType == (MessageType) 2115 && e.ChatLogEntry.Contents.StartsWith("You land"))
-			{
+#if RB_CN
+            if (e.ChatLogEntry.MessageType == (MessageType) 2115 && e.ChatLogEntry.Contents.StartsWith("You land"))
+#else
+            if (e.ChatLogEntry.MessageType == (MessageType)2115 && e.ChatLogEntry.Contents.Contains("成功钓上了"))
+#endif
+            {
 				SetFishResult(e.ChatLogEntry.Contents);
 			}
 
-			if (e.ChatLogEntry.MessageType == (MessageType) 2115
-			    && e.ChatLogEntry.Contents.Equals("You do not sense any fish here.", StringComparison.InvariantCultureIgnoreCase))
-			{
-				Logger.Info("You do not sense any fish here, trying next location.");
+			if (e.ChatLogEntry.MessageType == (MessageType)2115
+#if RB_CN
+                && e.ChatLogEntry.Contents.Equals("这里好像没有鱼在活动……", StringComparison.InvariantCultureIgnoreCase))
+#else
+                && e.ChatLogEntry.Contents.Equals("You do not sense any fish here.", StringComparison.InvariantCultureIgnoreCase))
+#endif
+            {
+                Logger.Info("You do not sense any fish here, trying next location.");
 
 				if (CanDoAbility(Abilities.Quit))
 				{
@@ -1189,10 +1227,14 @@ namespace ExBuddy.OrderBotTags.Fish
 				ChangeFishSpot();
 			}
 
-			if (e.ChatLogEntry.MessageType == (MessageType) 2115
-			    && e.ChatLogEntry.Contents == "The fish sense something amiss. Perhaps it is time to try another location.")
-			{
-				Logger.Info("The fish sense something amiss!");
+			if (e.ChatLogEntry.MessageType == (MessageType) 2115                
+#if RB_CN
+                && e.ChatLogEntry.Contents == "这里的鱼现在警惕性很高，看来还是换个地点比较好。")                
+#else
+                && e.ChatLogEntry.Contents == "The fish sense something amiss. Perhaps it is time to try another location.")
+#endif
+            {
+                Logger.Info("The fish sense something amiss!");
 				amissfish++;
 
 				if (CanDoAbility(Abilities.Quit))
@@ -1204,6 +1246,6 @@ namespace ExBuddy.OrderBotTags.Fish
 			}
 		}
 
-		#endregion
+#endregion
 	}
 }

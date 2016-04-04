@@ -10,8 +10,9 @@
 	using ff14bot.Forms.ugh;
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
+	using Localization;
 
-	public static class Condition
+    public static class Condition
 	{
 		public static readonly TimeSpan OneDay = new TimeSpan(1, 0, 0, 0);
 
@@ -22,6 +23,8 @@
 
 		static Condition()
 		{
+            LocalizationInitializer.Initalize();
+
 			SecondaryOffsetManager.IntalizeOffsets();
 
 			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");

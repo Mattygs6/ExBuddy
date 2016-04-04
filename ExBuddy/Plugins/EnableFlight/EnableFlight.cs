@@ -34,8 +34,9 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		public override string Name
 		{
-			get { return "EnableFlight"; }
+			get { return Localization.Localization.EnableFlight_PluginName; }
 		}
+        
 
 		protected override Color Info
 		{

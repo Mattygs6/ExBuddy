@@ -54,8 +54,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return;
 			}
 
-			StatusText = "Disabling Plugins: " + Names;
-			Logger.Info("Disabling Plugins: " + Names);
+			StatusText = Localization.Localization.ExDisablePlugins_Disabling + Names;
+			Logger.Info(Localization.Localization.ExDisablePlugins_Disabling + Names);
 
 			foreach (var plugin in
 				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
@@ -64,11 +64,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (!plugin.Enabled)
 					{
-						Logger.Info("Plugin {0} already disabled.", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExDisablePlugins_Disabled, plugin.Plugin.Name);
 					}
 					else
 					{
-						Logger.Info("Disabling Plugin {0}", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExDisablePlugins_Disabling2, plugin.Plugin.Name);
 						plugin.Enabled = false;
 					}
 				}

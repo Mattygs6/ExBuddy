@@ -77,7 +77,7 @@
 
 				destination = locations.Shuffle().First();
 
-				Logger.Verbose("Using random location -> {0}", Location);
+				Logger.Verbose(Localization.Localization.ExMoveTo_Random, Location);
 			}
 			else
 			{
@@ -91,7 +91,7 @@
 
 			var name = !string.IsNullOrWhiteSpace(destination.Name) ? "[" + destination.Name + "] " : string.Empty;
 
-			StatusText = string.Format("Moving to {0}{1}, {2}", name, destination, Type);
+			StatusText = string.Format(Localization.Localization.ExMoveTo_Move, name, destination, Type);
 
 			switch (Type)
 			{

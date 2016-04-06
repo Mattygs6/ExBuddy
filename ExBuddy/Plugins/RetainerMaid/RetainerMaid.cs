@@ -66,7 +66,7 @@
 
 		public override string Name
 		{
-			get { return "RetainerMaid"; }
+			get { return Localization.Localization.RetainerMaid_PluginName; }
 		}
 
 		public override bool WantButton
@@ -151,7 +151,7 @@
 
 			if (bell == null)
 			{
-				Logger.Error("Could not find nearby summoning bell");
+				Logger.Error(Localization.Localization.RetainerMaid_NoNearestSummoningBell);
 				return false;
 			}
 

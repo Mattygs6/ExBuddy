@@ -75,7 +75,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				await Coroutine.Yield();
 			}
 
-			Logger.Verbose("Landing took {0} ms", landingStopwatch.Elapsed);
+			Logger.Verbose(Localization.Localization.ExFlyTo_Landing, landingStopwatch.Elapsed);
 
 			landingStopwatch.Reset();
 
@@ -103,22 +103,22 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			if (distance < Radius)
 			{
-				Logger.Info("Already in range -> Start: {0}, End: {1}", flightPath.Start, flightPath.End);
+				Logger.Info(Localization.Localization.ExFlyTo_Distance, flightPath.Start, flightPath.End);
 				isDone = true;
 				return true;
 			}
 
-			StatusText = "Generating Path";
+			StatusText = Localization.Localization.ExFlyTo_GenPath;
 
 			FlightPath path;
 			if (FlightPath.Paths.TryGetValue(flightPath.Key, out path))
 			{
 				flightPath = path;
-				Logger.Info("Using existing FlightPath {0} from {1} to {2}", flightPath.Key, flightPath.Start, flightPath.End);
+				Logger.Info(Localization.Localization.ExFlyTo_ExsistingPath, flightPath.Key, flightPath.Start, flightPath.End);
 			}
 			else
 			{
-				Logger.Info("Building new FlightPath {0} from {1} to {2}", flightPath.Key, flightPath.Start, flightPath.End);
+				Logger.Info(Localization.Localization.ExFlyTo_NewPath, flightPath.Key, flightPath.Start, flightPath.End);
 
 				if (await flightPath.BuildPath())
 				{
@@ -133,15 +133,15 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (flightPath.Current.IsDeviation)
 					{
-						Logger.Info("Deviating from course to waypoint: {0}", flightPath.Current);
+						Logger.Info(Localization.Localization.ExFlyTo_Deviating, flightPath.Current);
 					}
 					else
 					{
-						Logger.Verbose("Moving to waypoint: {0}", flightPath.Current);
+						Logger.Verbose(Localization.Localization.ExFlyTo_MoveToWaypoint, flightPath.Current);
 						if (!ExBuddySettings.Instance.VerboseLogging
 						    && (flightPath.Index%5 == 0 || flightPath.Index == flightPath.Count - 1))
 						{
-							Logger.Info("Moving to waypoint [{0}]: {1}", flightPath.Index + 1, flightPath.Current);
+							Logger.Info(Localization.Localization.ExFlyTo_MoveToWaypoint2, flightPath.Index + 1, flightPath.Current);
 						}
 					}
 
@@ -152,7 +152,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 			else
 			{
-				Logger.Error("No viable path computed for {0}.", Target);
+				Logger.Error(Localization.Localization.ExFlyTo_NoViablePath, Target);
 			}
 
 			if (ForceLanding)

@@ -12,6 +12,19 @@
 	{
 		public static readonly DateTime EorzeaStartTime = new DateTime(2010, 7, 13);
 
+		private static readonly DateTime EpochStart = new DateTime(1970, 1, 1, 0, 0, 0);
+
+		public static DateTime EorzeaToLocal(DateTime eDateTime)
+		{
+			var localDate = ConvertFromUnixTimestamp((ulong)((eDateTime - EpochStart).TotalSeconds * (7.0 / 144.0)));
+
+			return localDate;
+		}
+
+		private static DateTime ConvertFromUnixTimestamp(ulong timestamp)
+		{
+			return new DateTime(1970, 1, 1, 0, 0, 0, 0).AddDays(timestamp / 86400.0);
+		}
 		public static TimeSpan GetEorzeaTimeTillNextInterval()
 		{
 			var timeOfDay = WorldManager.EorzaTime.TimeOfDay;

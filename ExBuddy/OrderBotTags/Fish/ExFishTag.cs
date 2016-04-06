@@ -530,15 +530,8 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		protected static readonly Random SitRng = new Random();
 
-		protected static Regex FishRegex = new Regex(
-			Localization.Localization.ExFish_FishRegex,
-			RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-#if RB_CN
-        protected static Regex FishSizeRegex = new Regex(
-            @"(\d{1,4}\.\d)",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-#endif
+		protected static Regex FishRegex = new Regex(Localization.Localization.ExFish_FishRegex,RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        protected static Regex FishSizeRegex = new Regex(@"(\d{1,4}\.\d)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         protected static FishResult FishResult = new FishResult();
 

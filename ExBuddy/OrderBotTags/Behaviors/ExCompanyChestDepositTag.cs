@@ -64,7 +64,7 @@
 		{
 			if (interactTimeout.Elapsed.TotalSeconds > Timeout)
 			{
-				Logger.Error("Timeout while depositing items into free company chest.");
+				Logger.Error(Localization.Localization.ExCompanyChestDeposit_Timeout);
 				isDone = true;
 				return true;
 			}

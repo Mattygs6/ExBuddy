@@ -31,7 +31,7 @@
 		{
 			if (!ScriptManager.GetCondition(Condition)())
 			{
-				Logger.Info("Did not meet the condition to Purify, [{0}]", Condition);
+				Logger.Info(Localization.Localization.ExPurify_GetCondition, Condition);
 				return isDone = true;
 			}
 
@@ -49,7 +49,7 @@
 
 			if (ticks > 5)
 			{
-				Logger.Error("Unable to land, can't reduce unless we land!");
+				Logger.Error(Localization.Localization.ExPurify_Land);
 				return isDone = true;
 			}
 
@@ -72,7 +72,7 @@
 			}
 			else
 			{
-				Logger.Error("Could not dismount.");
+				Logger.Error(Localization.Localization.ExPurify_Dismount);
 			}
 
 			return isDone = true;

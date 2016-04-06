@@ -135,7 +135,7 @@
 		{
 			if (!ExBotPlugin<Skywatcher>.IsEnabled)
 			{
-				Logger.Instance.Error("Skywatcher is not enabled in plugins.  Enable it and restart the bot.");
+				Logger.Instance.Error(Localization.Localization.SkyWatcher_CheckEnabled);
 				TreeRoot.Stop();
 
 				return false;

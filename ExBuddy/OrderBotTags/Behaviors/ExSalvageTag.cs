@@ -41,7 +41,7 @@
 		{
 			if (!ScriptManager.GetCondition(Condition)())
 			{
-				Logger.Info("Did not meet the condition to salvage, [{0}]", Condition);
+				Logger.Info(Localization.Localization.ExSalvage_GetCondition, Condition);
 				return isDone = true;
 			}
 
@@ -54,7 +54,7 @@
 
 			if (ticks > 5)
 			{
-				Logger.Error("Unable to land, can't salvage unless we land!");
+				Logger.Error(Localization.Localization.ExSalvage_Land);
 				return isDone = true;
 			}
 

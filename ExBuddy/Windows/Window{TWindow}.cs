@@ -68,7 +68,7 @@
 		{
 			await Behaviors.Sleep(interval/2);
 
-			Logger.Instance.Verbose("Attempting to close the [{0}] window", Name);
+			Logger.Instance.Verbose(Localization.Localization.Window_Attempting, Name);
 
 			var result = TrySendAction(1, 3, uint.MaxValue);
 
@@ -78,26 +78,26 @@
 			{
 				if (!IsValid)
 				{
-					Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+					Logger.Instance.Verbose(Localization.Localization.Window_Closed, Name);
 					return result;
 				}
 
-				Logger.Instance.Verbose("Waiting {0} ms for [{1}] window to close", interval*2, Name);
+				Logger.Instance.Verbose(Localization.Localization.Window_WaitToClose, interval*2, Name);
 				await Refresh(interval*2, false);
 
 				if (!IsValid)
 				{
-					Logger.Instance.Verbose("The [{0}] window has been closed.", Name);
+					Logger.Instance.Verbose(Localization.Localization.Window_Closed, Name);
 					return result;
 				}
 
-				Logger.Instance.Verbose("Unexpected result while closing [{0}]", Name);
+				Logger.Instance.Verbose(Localization.Localization.Window_UnexpectedResult, Name);
 				return SendActionResult.UnexpectedResult;
 			}
 
 			if (result == SendActionResult.InvalidWindow)
 			{
-				Logger.Instance.Verbose("The [{0}] window was not valid, it was either not open or closed on its own.", Name);
+				Logger.Instance.Verbose(Localization.Localization.Window_invalid, Name);
 			}
 
 			return result;

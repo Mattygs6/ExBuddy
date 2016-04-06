@@ -74,7 +74,7 @@
 		{
 			if (interactTimeout.Elapsed.TotalSeconds > Timeout)
 			{
-				Logger.Error("Timeout while turning in leve.");
+				Logger.Error(Localization.Localization.ExTurnInGuildLeve_TurninTimeout);
 				isDone = true;
 				return true;
 			}
@@ -83,12 +83,12 @@
 			{
 				checkedTransport = true;
 
-				StatusText = "Checking for transport window.";
+				StatusText = Localization.Localization.ExTurnInGuildLeve_CheckTransport;
 
 				var selectYesnoCountWindow = new SelectYesnoCount();
 				if (await selectYesnoCountWindow.Refresh(2000))
 				{
-					StatusText = "Selecting transport option.";
+					StatusText = Localization.Localization.ExTurnInGuildLeve_SelectTransport;
 
 					if (AcceptTransport)
 					{
@@ -108,7 +108,7 @@
 			// Movement
 			if (ExProfileBehavior.Me.Distance(Location) > 3.5)
 			{
-				StatusText = "Moving to Npc -> " + NpcId;
+				StatusText = Localization.Localization.ExTurnInGuildLeve_Move + NpcId;
 
 				await Location.MoveTo(radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
@@ -143,7 +143,7 @@
 
 				if (iconStringIndex == uint.MaxValue)
 				{
-					Logger.Warn("We don't have any completed quests left to turn in.");
+					Logger.Warn(Localization.Localization.ExTurnInGuildLeve_NothingToTurnin);
 
 					isDone = true;
 					return true;
@@ -161,7 +161,7 @@
 
 				if (index != uint.MaxValue)
 				{
-					Logger.Info("Collecting reward on {0} ET", WorldManager.EorzaTime);
+					Logger.Info(Localization.Localization.ExTurnInGuildLeve_CollectReward, WorldManager.EorzaTime);
 					SelectString.ClickSlot(index);
 					await Coroutine.Yield();
 					return true;
@@ -172,13 +172,13 @@
 
 				if (index != uint.MaxValue)
 				{
-					Logger.Info("Turning in more items on {0} ET", WorldManager.EorzaTime);
+					Logger.Info(Localization.Localization.ExTurnInGuildLeve_TurninMore, WorldManager.EorzaTime);
 					SelectString.ClickSlot(index);
 					await Coroutine.Yield();
 					return true;
 				}
 
-				Logger.Warn("No rewards left, turn-ins complete.");
+				Logger.Warn(Localization.Localization.ExTurnInGuildLeve_NoRewardsLeft);
 				isDone = true;
 				SelectString.ClickSlot(index);
 				await Coroutine.Yield();
@@ -209,12 +209,12 @@
 
 				if (items.Length == 0)
 				{
-					Logger.Warn("No items to turn in. Settings -> HqOnly: {0}, NqOnly: {1}, ItemId: {2}", HqOnly, NqOnly, itemId);
+					Logger.Warn(Localization.Localization.ExTurnInGuildLeve_NoItemToTurnin, HqOnly, NqOnly, itemId);
 					isDone = true;
 					return true;
 				}
 
-				StatusText = "Turning in items";
+				StatusText = Localization.Localization.ExTurnInGuildLeve_TurnIn;
 
 				var isHq = items.Any(i => i.IsHighQuality);
 				var itemName = items[0].EnglishName;
@@ -250,11 +250,11 @@
 				{
 					SelectYesno.ClickYes();
 					await Coroutine.Yield();
-					Logger.Info("Turned in HQ {0} on {1} ET", itemName, WorldManager.EorzaTime);
+					Logger.Info(Localization.Localization.ExTurnInGuildLeve_TurnInHq, itemName, WorldManager.EorzaTime);
 				}
 				else
 				{
-					Logger.Info("Turned in {0} on {1} ET", itemName, WorldManager.EorzaTime);
+					Logger.Info(Localization.Localization.ExTurnInGuildLeve_TurnInNq, itemName, WorldManager.EorzaTime);
 				}
 
 				await HandleTalk();
@@ -267,7 +267,7 @@
 			{
 				await Coroutine.Wait(2000, () => JournalResult.ButtonClickable);
 				JournalResult.Complete();
-				Logger.Info("Completed on {0} ET", WorldManager.EorzaTime);
+				Logger.Info(Localization.Localization.ExTurnInGuildLeve_Complete, WorldManager.EorzaTime);
 
 				await Coroutine.Wait(2000, () => !JournalResult.IsOpen);
 				await HandleTalk();
@@ -279,7 +279,7 @@
 			{
 				if (MultipleQuests)
 				{
-					Logger.Info("Looks like no windows are open, lets clear our target and try again.");
+					Logger.Info(Localization.Localization.ExTurnInGuildLeve_OpenWindow);
 					CloseWindows();
 					ExProfileBehavior.Me.ClearTarget();
 				}
@@ -356,7 +356,7 @@
 
 				if (!await HandleTalk() && turnedItemsIn)
 				{
-					Logger.Warn("No more quests to turn in.");
+					Logger.Warn(Localization.Localization.ExTurnInGuildLeve_NoMoreQuests);
 					isDone = true;
 					return true;
 				}
@@ -364,7 +364,7 @@
 
 			if (ticks > 3)
 			{
-				Logger.Warn("Looks like we don't have any quests to turn in.");
+				Logger.Warn(Localization.Localization.ExTurnInGuildLeve_NoMoveQuests2);
 				isDone = true;
 				return true;
 			}

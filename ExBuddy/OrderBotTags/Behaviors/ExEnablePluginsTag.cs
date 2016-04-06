@@ -54,7 +54,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return;
 			}
 
-			StatusText = "Enabling Plugins: " + Names;
+			StatusText = Localization.Localization.ExEnablePlugins_Enabling + Names;
 			Logger.Info("Enabling Plugins: " + Names);
 			foreach (var plugin in
 				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
@@ -63,11 +63,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (plugin.Enabled)
 					{
-						Logger.Info("Plugin {0} already enabled.", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExEnablePlugins_Enabled, plugin.Plugin.Name);
 					}
 					else
 					{
-						Logger.Info("Enabling Plugin {0}", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExEnablePlugins_Enabling2, plugin.Plugin.Name);
 						plugin.Enabled = true;
 					}
 				}

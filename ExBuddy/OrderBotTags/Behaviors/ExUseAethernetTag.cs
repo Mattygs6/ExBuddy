@@ -42,13 +42,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			await Coroutine.Wait(5000, () => SelectString.IsOpen);
 			if (!SelectString.IsOpen)
 			{
-				Logger.Error("Timeout, SelectString window did not open.");
+				Logger.Error(Localization.Localization.ExUseAethernet_SelectLineTimeout);
 				return isDone = true;
 			}
 
 			if (SelectString.Lines().Any(line => line.Contains(AethernetText)))
 			{
-				Logger.Info("Selecting line " + AethernetText);
+				Logger.Info(Localization.Localization.ExUseAethernet_SelectLine + AethernetText);
 				SelectString.ClickLineContains(AethernetText);
 				// SelectString.ClickSlot(0);  going to try to make it more compatible with possible changes to game.
 
@@ -57,12 +57,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 				if (!SelectString.IsOpen)
 				{
-					Logger.Error("Timeout, SelectString window did not open.");
+					Logger.Error(Localization.Localization.ExUseAethernet_SelectLineTimeout);
 					return isDone = true;
 				}
 			}
 
-			Logger.Info("Selecting line " + Slot);
+			Logger.Info(Localization.Localization.ExUseAethernet_SelectLine + Slot);
 			SelectString.ClickSlot(Slot);
 
 			await Coroutine.Wait(5000, () => CommonBehaviors.IsLoading);

@@ -129,7 +129,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		{
 			if (ShopPurchases == null || ShopPurchases.Count == 0 || ShopPurchases.All(s => !ShouldPurchaseItem(s)))
 			{
-				Logger.Info("No items to purchase");
+				Logger.Info(Localization.Localization.ExTurnInCollectable_NoItemToPurchase);
 				LogInventoryForPurchaseInfos();
 				LogScripsRemainingForPurchaseInfos();
 				return isDone = true;
@@ -154,18 +154,18 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			StatusText = "Turning in items";
+			StatusText = Localization.Localization.ExTurnInCollectable_TurnIn;
 
 			var itemName = item.Item.EnglishName;
 
 			if (!await masterpieceSupply.TurnInAndHandOver(index, item))
 			{
-				Logger.Error("An error has occured while turning in the item");
+				Logger.Error(Localization.Localization.ExTurnInCollectable_TurnInError);
 				Blacklist.Add(
 					(uint) item.Pointer.ToInt32(),
 					BlacklistFlags.Loot,
 					TimeSpan.FromMinutes(3),
-					"Don't turn in this item for 3 minutes");
+                    Localization.Localization.ExTurnInCollectable_TurnInBlackList);
 				item = null;
 				index = 0;
 
@@ -184,7 +184,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return true;
 			}
 
-			Logger.Info("Turned in {0} at {1} ET", itemName, WorldManager.EorzaTime);
+			Logger.Info(Localization.Localization.ExTurnInCollectable_TurnInSuccessful, itemName, WorldManager.EorzaTime);
 
 			turnedItemsIn = true;
 
@@ -218,7 +218,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			await masterPieceSupplyNpc.Interact(4);
 
-			StatusText = "Interacting with Npc -> " + masterPieceSupplyNpc.NpcId;
+			StatusText = Localization.Localization.ExTurnInCollectable_NpcInteract + masterPieceSupplyNpc.NpcId;
 			await Coroutine.Yield();
 
 			return false;
@@ -231,7 +231,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				var purchaseItemInfo = Data.ShopItemMap[purchaseItem.ShopItem];
 				var purchaseItemData = purchaseItemInfo.ItemData;
 
-				Logger.Info("Inventory for {0} -> Count: {1}", purchaseItemData.CurrentLocaleName, purchaseItemData.ItemCount());
+				Logger.Info(Localization.Localization.ExTurnInCollectable_ShopPurchase, purchaseItemData.EnglishName, purchaseItemData.ItemCount());
 			}
 		}
 
@@ -242,7 +242,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			foreach (var shopType in result)
 			{
 				Logger.Info(
-					"Scrips remaining for shop {0} -> Count: {1}",
+                    Localization.Localization.ExTurnInCollectable_ScripsRemaining,
 					shopType,
 					Memory.Scrips.GetRemainingScripsByShopType(shopType));
 			}
@@ -261,7 +261,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			StatusText = "Moving to Npc -> " + masterPieceSupplyNpc.NpcId;
+			StatusText = Localization.Localization.ExTurnInCollectable_Move + masterPieceSupplyNpc.NpcId;
 
 			await masterPieceSupplyNpc.Location.MoveTo(radius: 3.9f, name: Location + " NpcId: " + masterPieceSupplyNpc.NpcId);
 
@@ -300,7 +300,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return true;
 			}
 
-			StatusText = "Purchasing items";
+			StatusText = Localization.Localization.ExTurnInCollectable_Purchase;
 
 			var itemsToPurchase = ShopPurchases.Where(ShouldPurchaseItem).ToArray();
 			var npc = GameObjectManager.GetObjectByNPCId(shopExchangeCurrencyNpc.NpcId);
@@ -329,7 +329,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				// check for timeout
 				if (ticks > 10)
 				{
-					Logger.Error("Timeout targeting npc.");
+					Logger.Error(Localization.Localization.ExTurnInCollectable_TargetingTimeout);
 					isDone = true;
 					return true;
 				}
@@ -345,7 +345,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				// check for timeout
 				if (ticks > 10)
 				{
-					Logger.Error("Timeout interacting with npc.");
+					Logger.Error(Localization.Localization.ExTurnInCollectable_InteractingTimeout);
 					isDone = true;
 					return true;
 				}
@@ -353,7 +353,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				if (Location == Locations.MorDhona
 				    && (purchaseItemInfo.ShopType == ShopType.RedCrafter || purchaseItemInfo.ShopType == ShopType.RedGatherer))
 				{
-					Logger.Warn("Unable to purchase item {0} in MorDhona, set location to Idyllshire.", purchaseItemData.EnglishName);
+					Logger.Warn(Localization.Localization.ExTurnInCollectable_FailedPurchaseMorDhona, purchaseItemData.EnglishName);
 					continue;
 				}
 
@@ -375,7 +375,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 				if (ticks > 5 || !shopExchangeCurrency.IsValid)
 				{
-					Logger.Error("Timeout interacting with npc.");
+					Logger.Error(Localization.Localization.ExTurnInCollectable_InteractingTimeout);
 					if (SelectIconString.IsOpen)
 					{
 						SelectIconString.ClickSlot(uint.MaxValue);
@@ -394,7 +394,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (!await shopExchangeCurrency.PurchaseItem(purchaseItemInfo.Index, 20))
 					{
-						Logger.Error("Timeout during purchase of {0}", purchaseItemData.EnglishName);
+						Logger.Error(Localization.Localization.ExTurnInCollectable_PurchaseTimeout, purchaseItemData.EnglishName);
 						await shopExchangeCurrency.CloseInstance();
 						isDone = true;
 						return true;
@@ -408,7 +408,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 							() => (scripsLeft = Memory.Scrips.GetRemainingScripsByShopType(purchaseItemInfo.ShopType)) != left);
 
 					Logger.Info(
-						"Purchased item {0} for {1} {2} scrips at {3} ET; Remaining Scrips: {4}",
+                        Localization.Localization.ExTurnInCollectable_Purchased,
 						purchaseItemData.EnglishName,
 						purchaseItemInfo.Cost,
 						purchaseItemInfo.ShopType,
@@ -421,7 +421,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				await Coroutine.Sleep(1000);
 			}
 
-			Logger.Info("Purchases complete.");
+			Logger.Info(Localization.Localization.ExTurnInCollectable_PurchaseComplete);
 			SelectYesno.ClickNo();
 			if (SelectIconString.IsOpen)
 			{
@@ -497,7 +497,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 				if (classIndex == uint.MaxValue)
 				{
-					Logger.Error("Error, could not resolve class type for item: " + item.Item.EnglishName);
+					Logger.Error(Localization.Localization.ExTurnInCollectable_ErrorClassType + item.Item.EnglishName);
 					isDone = true;
 					return true;
 				}
@@ -596,7 +596,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			if (item != null && item.Item != null)
 			{
-				Logger.Verbose("Attempting to turn in item {0} -> 0x{1}", item.EnglishName, item.Pointer.ToString("X8"));
+				Logger.Verbose(Localization.Localization.ExTurnInCollectable_AttemptingTurnin, item.EnglishName, item.Pointer.ToString("X8"));
 				return false;
 			}
 

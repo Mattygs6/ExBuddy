@@ -26,7 +26,7 @@
 
 			if (cordialSpellData == null)
 			{
-				Logger.Instance.Error("Unable to resolve cordial data, if this continues, please report logs to ExMatt.");
+				Logger.Instance.Error(Localization.Localization.Cordinal_NullSpellData);
 			}
 
 			return cordialSpellData;

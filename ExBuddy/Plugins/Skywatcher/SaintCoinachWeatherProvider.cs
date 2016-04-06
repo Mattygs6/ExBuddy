@@ -4,14 +4,13 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using Clio.Utilities;
+	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Plugins.Skywatcher.Providers;
 	using ff14bot.Managers;
 
 	public class SaintCoinachWeatherProvider : IWeatherProvider
 	{
-		private static readonly DateTime EpochStart = new DateTime(1970, 1, 1, 0, 0, 0);
-
 		private static readonly object Locker = new object();
 
 		private static readonly IDictionary<int, int> ZoneMap = new Dictionary<int, int>
@@ -79,18 +78,6 @@
 			return (byte) (step2%100);
 		}
 
-		public DateTime EorzeaToLocal(DateTime eDateTime)
-		{
-			var localDate = ConvertFromUnixTimestamp((ulong) ((eDateTime - EpochStart).TotalSeconds*(7.0/144.0)));
-
-			return localDate;
-		}
-
-		private DateTime ConvertFromUnixTimestamp(ulong timestamp)
-		{
-			return new DateTime(1970, 1, 1, 0, 0, 0, 0).AddDays(timestamp/86400.0);
-		}
-
 		#region IWeatherProvider Members
 
 		public void Disable()
@@ -125,7 +112,7 @@
 			}
 
 			var date = WorldManager.EorzaTime;
-			var localDate = EorzeaToLocal(date);
+			var localDate = SkywatcherPlugin.EorzeaToLocal(date);
 
 			var rate = CalculateRate(localDate);
 
@@ -156,7 +143,7 @@
 			}
 
 			var date = WorldManager.EorzaTime + timeSpan;
-			var localDate = EorzeaToLocal(date);
+			var localDate = SkywatcherPlugin.EorzeaToLocal(date);
 
 			var rate = CalculateRate(localDate);
 

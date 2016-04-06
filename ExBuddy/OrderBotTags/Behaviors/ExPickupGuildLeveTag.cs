@@ -76,7 +76,7 @@
 			// Movement
 			if (ExProfileBehavior.Me.Distance(Location) > 3.5)
 			{
-				StatusText = "Moving to Npc -> " + NpcId;
+				StatusText = Localization.Localization.ExPickupGuildLeve_Move + NpcId;
 
 				await Location.MoveTo(radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
@@ -121,8 +121,8 @@
 				{
 					if (GuildLeve.Allowances > 0)
 					{
-						StatusText = "Picking up Leve -> " + leveId;
-						Logger.Info("Picking up Leve: " + leveId);
+						StatusText = Localization.Localization.ExPickupGuildLeve_Pickup + leveId;
+						Logger.Info(Localization.Localization.ExPickupGuildLeve_Pickup2 + leveId);
 
 						await Coroutine.Sleep(1000);
 						guildLeveWindow.AcceptLeve(leveId);

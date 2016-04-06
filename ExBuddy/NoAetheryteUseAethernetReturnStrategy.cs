@@ -19,7 +19,7 @@ namespace ExBuddy
 		public NoAetheryteUseAethernetReturnStrategy()
 		{
 			InteractDistance = 8.0f;
-			AethernetText = "Aethernet.";
+			AethernetText = Localization.Localization.NoAetheryteUseAethernetReturn_AethernetText;
 		}
 
 		public string AethernetText { get; set; }

@@ -23,7 +23,7 @@
 
 		public override string ToString()
 		{
-			return string.Format("Default: Death Location: {0}, AetheryteId: {1}", InitialLocation, AetheryteId);
+			return string.Format(Localization.Localization.DefaultReturnStrategy_Default, InitialLocation, AetheryteId);
 		}
 
 		#region IReturnStrategy Members

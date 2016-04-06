@@ -41,7 +41,7 @@
 
 		public override string Name
 		{
-			get { return "Skywatcher"; }
+			get { return Localization.Localization.Skywatcher_PluginName; }
 		}
 
 		#endregion

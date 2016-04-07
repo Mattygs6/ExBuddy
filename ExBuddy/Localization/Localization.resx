@@ -603,4 +603,91 @@
   <data name="Window_WaitToClose" xml:space="preserve">
     <value>Waiting {0} ms for [{1}] window to close</value>
   </data>
+  <data name="MasterPieceSupply_CannotTurnIn" xml:space="preserve">
+    <value>[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'</value>
+  </data>
+  <data name="MasterPieceSupply_CollectabilityValueNotEnough" xml:space="preserve">
+    <value>[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.</value>
+  </data>
+  <data name="MasterPieceSupply_FullScrips" xml:space="preserve">
+    <value>[MasterPieceSupply] Not turning in '{0}', full on scrips.</value>
+  </data>
+  <data name="PurifyDialog" xml:space="preserve">
+    <value>An error has occured during aetherial reduction. Result was {0}</value>
+  </data>
+  <data name="SalvageDialog" xml:space="preserve">
+    <value>"An error has occured during desynthesis. Result was {0}"</value>
+  </data>
+  <data name="FlightEnabledNavigator_CollisionDetected" xml:space="preserve">
+    <value>Collision detected! Generating new path!</value>
+  </data>
+  <data name="FlightEnabledNavigator_DestinationReached" xml:space="preserve">
+    <value>Navigation reached current destination. Within</value>
+  </data>
+  <data name="FlightEnabledNavigator_Dispose" xml:space="preserve">
+    <value>Putting original Navigator back!</value>
+  </data>
+  <data name="FlightEnabledNavigator_Enabled" xml:space="preserve">
+    <value>Replacing Navigator with Flight Navigator.</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving" xml:space="preserve">
+    <value>Moving to next hop: {0}{1} D: {2}</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving2" xml:space="preserve">
+    <value>Moving to next hop [{0}]: {1}{2} D: {3}</value>
+  </data>
+  <data name="FlightEnabledNavigator_NoPath" xml:space="preserve">
+    <value>Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathFound" xml:space="preserve">
+    <value>Found existing path to {0} using {1} hops in {2} ms</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathGenerated" xml:space="preserve">
+    <value>Generated path to {0} using {1} hops in {2} ms</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathNotViable" xml:space="preserve">
+    <value>No viable path found to {0} from {1}</value>
+  </data>
+  <data name="FlightEnabledNavigator_ResetNavigatonProvider" xml:space="preserve">
+    <value>Resetting NavigationProvider to Flight Navigator.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Default" xml:space="preserve">
+    <value>Set default value for flying to false until we can determine if we can fly in this zone.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Land" xml:space="preserve">
+    <value>Landing took {0} ms or less</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandCancelled" xml:space="preserve">
+    <value>Landing cancelled after {0} ms. New destination requested.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandFailed" xml:space="preserve">
+    <value>Landing failed. Passing back control.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandNew" xml:space="preserve">
+    <value>Created new Landing Unstuck Coroutine, moving to {0}</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandResumed" xml:space="preserve">
+    <value>Resumed Landing Unstuck Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandStart" xml:space="preserve">
+    <value>Started Landing Task</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Takeoff" xml:space="preserve">
+    <value>Takeoff took {0} ms or less</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffCancelled" xml:space="preserve">
+    <value>Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffFailed" xml:space="preserve">
+    <value>Takeoff failed. Passing back control.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffNew" xml:space="preserve">
+    <value>Created new Takeoff Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffResumed" xml:space="preserve">
+    <value>Resumed Takeoff Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffStart" xml:space="preserve">
+    <value>Started Takeoff Task</value>
+  </data>
 </root>

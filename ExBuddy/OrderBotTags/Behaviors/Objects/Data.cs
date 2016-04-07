@@ -83,10 +83,32 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 						Location = new Vector3("-149.3096, 4.53186, -91.38635"),
 						NpcId = 2000470,
 						Name = "Company Chest"
-					}
-				}
-			}
-		};
+					},
+                    new PersonnelOfficer
+                    {
+                        AetheryteId = 9,
+                        ZoneId = 130,
+                        Location = new Vector3("-144.3962, 4.1, -107.2252"),
+                        NpcId = 1002391,
+                        Name = "Flame Personnel Officer"
+                    }
+                }
+			},
+            {
+                Locations.Gridania,
+                new INpc[]
+                {
+                    new PersonnelOfficer
+                    {
+                        AetheryteId = 2,
+                        ZoneId = 132,
+                        Location = new Vector3("-69.5354, -0.5009502, -9.99469"),
+                        NpcId = 1002394,
+                        Name = "Serpent Personnel Officer"
+                    }
+                }
+            }
+        };
 
 		public static readonly Dictionary<ShopItem, ShopItemInfo> ShopItemMap = new Dictionary<ShopItem, ShopItemInfo>
 		{

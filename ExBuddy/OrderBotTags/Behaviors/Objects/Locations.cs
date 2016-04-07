@@ -10,6 +10,8 @@
 
 		UldahStepsOfNald,
 
-		LimsaLominsaLowerDecks
-	}
+		LimsaLominsaLowerDecks,
+
+        Gridania
+    }
 }

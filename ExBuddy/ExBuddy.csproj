@@ -42,7 +42,8 @@
     <Reference Include="Quest Behaviors_1537820551">
       <HintPath>..\Assembly\Quest Behaviors_1537820551.dll</HintPath>
     </Reference>
-    <Reference Include="RebornBuddy">
+    <Reference Include="RebornBuddy, Version=1.0.364.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -60,29 +61,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
-    <Compile Include="Helpers\ConditionTimer.cs" />
-    <Compile Include="Localization\Localization.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Localization.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Localization\LocalizationInitializer.cs" />
+    <Compile Include="ExBuddySettings.cs" />
+    <Compile Include="GameObjects\Npcs\PersonnelOfficer.cs" />
+    <Compile Include="Interfaces\IConditionNamedItem.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
-    <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
-    <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />
-    <Compile Include="Plugins\Skywatcher\Objects\WeatherRate.cs" />
-    <Compile Include="Plugins\Skywatcher\Objects\WeatherRateIndex.cs" />
-    <Compile Include="Plugins\Skywatcher\Objects\WeatherRates.cs" />
-    <Compile Include="Plugins\Skywatcher\Providers\LocationProvider.cs" />
-    <Compile Include="Plugins\Skywatcher\Providers\WeatherRateProvider.cs" />
-    <Compile Include="Plugins\Skywatcher\SaintCoinachWeatherProvider.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Chocobo.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Gardenner.cs" />
+    <Compile Include="OrderBotTags\Behaviors\RefTag.cs" />
+    <Compile Include="OrderBotTags\Behaviors\GrandCompanySupply.cs" />
+    <Compile Include="OrderBotTags\Behaviors\Retainer.cs" />
+    <Compile Include="OrderBotTags\Behaviors\SuitChange.cs" />
+    <Compile Include="OrderBotTags\Craft\BaseCraft.cs" />
+    <Compile Include="OrderBotTags\Craft\ExCraftAction.cs" />
+    <Compile Include="OrderBotTags\Craft\Impl\Level50TwoStarCraft.cs" />
+    <None Include="OrderBotTags\Craft\Impl\Level60ZeroStarCraft.cs.bak" />
+    <Compile Include="OrderBotTags\Craft\Impl\Level60ZeroStarCraft.cs" />
+    <Compile Include="OrderBotTags\Craft\ExSynthesize.cs" />
+    <Compile Include="OrderBotTags\Craft\SimpleCraft.cs" />
+    <Compile Include="OrderBotTags\Craft\StopCraft.cs" />
+    <Compile Include="Providers\RecipeProvider.cs" />
     <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
-    <Compile Include="ExBuddySettings.cs" />
-    <Compile Include="ExCoroutineAction.cs">
-      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
-    </Compile>
+    <Compile Include="ExCoroutineAction.cs" />
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
     <Compile Include="GameObjects\Npcs\SummoningBell.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="Windows\FreeCompanyChest.cs" />
     <Compile Include="Windows\Gathering.cs" />
     <Compile Include="Windows\GatheringMasterpiece.cs" />
+    <Compile Include="Windows\GrandCompanySupplyReward.cs" />
     <Compile Include="Windows\GuildLeve.cs" />
     <Compile Include="Windows\InputNumeric.cs" />
     <Compile Include="Windows\MasterPieceSupply.cs" />
@@ -197,6 +199,8 @@
     <Compile Include="Windows\SalvageItemSelector.cs" />
     <Compile Include="Windows\SalvageResult.cs" />
     <Compile Include="Windows\SelectYesnoCount.cs" />
+    <Compile Include="Windows\GrandCompanySupplyList.cs" />
+    <Compile Include="Windows\TreasureMap.cs" />
     <Compile Include="Windows\SelectYesNoItem.cs" />
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
@@ -236,12 +240,20 @@
     <Compile Include="Plugins\Skywatcher\WeatherResponse.cs" />
     <Compile Include="Plugins\Skywatcher\WeatherResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\msd.xml" />
-    <Content Include="Data\msd_cn.xml" />
+    <Content Include="Data\action.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Data\recipes.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
-    <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
+    <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="OrderBotTags\Behaviors\Examples\UseAethernet.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_Forager_Supra_Lucis.xml" />
     <Content Include="OrderBotTags\Fish\Examples\Fishing_IlluminatiPerch.xml" />
@@ -275,13 +287,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Localization\Localization.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Localization.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Localization\Localization.zh-CN.resx" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

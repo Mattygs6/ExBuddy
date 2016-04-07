@@ -91,7 +91,7 @@
 		[Obsolete("Use Items instead.")]
 		public List<Collectable> Collectables { get; set; }
 
-		[DefaultValue(CordialTime.IfNeeded)]
+        [DefaultValue(CordialTime.IfNeeded)]
 		[XmlAttribute("CordialTime")]
 		public CordialTime CordialTime { get; set; }
 
@@ -288,27 +288,27 @@
 			if (Items == null)
 			{
 				Items = new NamedItemCollection();
-
-#pragma warning disable 618
-				if (ItemNames != null)
-				{
-					foreach (var item in ItemNames)
-					{
-						Items.Add(new GatherItem {Name = item});
-					}
-				}
-
-				if (Collectables != null)
-				{
-					foreach (var collectable in Collectables)
-					{
-						Items.Add(collectable);
-					}
-				}
-#pragma warning restore 618
 			}
+            
+#pragma warning disable 618
+            if (ItemNames != null)
+            {
+                foreach (var item in ItemNames)
+                {
+                    Items.Add(new GatherItem { Name = item, Condition = "True" });
+                }
+            }
 
-			if (string.IsNullOrWhiteSpace(Name))
+            if (Collectables != null)
+            {
+                foreach (var collectable in Collectables)
+                {
+                    Items.Add(collectable);
+                }
+            }
+#pragma warning restore 618
+
+            if (string.IsNullOrWhiteSpace(Name))
 			{
 				if (Items.Count > 0)
 				{
@@ -415,7 +415,7 @@
 				if (Items.Count > 0)
 				{
 					if (
-						SetGatherItemByItemName(
+						SetGatherItemByItemEnName(
 							windowItems.OrderByDescending(i => i.SlotIndex).Where(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20).ToArray()))
 					{
 						return true;
@@ -450,7 +450,7 @@
 
 			if (Items.Count > 0)
 			{
-				if (SetGatherItemByItemName(windowItems))
+				if (SetGatherItemByItemEnName(windowItems))
 				{
 					return true;
 				}
@@ -832,7 +832,7 @@
 				return;
 			}
 
-			CollectableItem = Items.OfType<Collectable>().FirstOrDefault();
+			CollectableItem = Items.OfType<Collectable>().Where(i => ScriptManager.GetCondition(i.Condition)()).FirstOrDefault();
 
 			if (CollectableItem != null)
 			{
@@ -1482,10 +1482,15 @@
 			}
 		}
 
-		private bool SetGatherItemByItemName(ICollection<GatheringItem> windowItems)
+		private bool SetGatherItemByItemEnName(ICollection<GatheringItem> windowItems)
 		{
 			foreach (var item in Items)
 			{
+                bool flag = ScriptManager.GetCondition(item.Condition)();
+                Log("物品({0})采集条件：{1} = {2}",item.Name, item.Condition, flag);
+                if (!flag)
+                    continue;
+
 				GatherItem =
 					windowItems.FirstOrDefault(
 						i =>

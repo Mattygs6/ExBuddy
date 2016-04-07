@@ -1,14 +1,10 @@
 ﻿namespace ExBuddy
 {
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Managers;
 
 	public class DefaultReturnStrategy : IReturnStrategy
@@ -19,6 +15,17 @@
 
 		#endregion
 
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
+
+		public override string ToString()
+		{
+			return string.Format(Localization.Localization.DefaultReturnStrategy_Default, InitialLocation, AetheryteId);
+		}
+
 		#region IReturnStrategy Members
 
 		public Vector3 InitialLocation { get; set; }
@@ -27,7 +34,7 @@
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await this.InitialLocation.MoveTo();
+				return await InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -42,16 +49,5 @@
 		}
 
 		#endregion
-
-		#region IZoneId Members
-
-		public ushort ZoneId { get; set; }
-
-		#endregion
-
-		public override string ToString()
-		{
-			return string.Format("Default: Death Location: {0}, AetheryteId: {1}", this.InitialLocation, this.AetheryteId);
-		}
 	}
 }

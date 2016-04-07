@@ -1,7 +1,6 @@
 namespace ExBuddy.Interfaces
 {
 	using System.Threading.Tasks;
-
 	using Clio.Utilities;
 
 	public interface IReturnStrategy : ITeleportLocation

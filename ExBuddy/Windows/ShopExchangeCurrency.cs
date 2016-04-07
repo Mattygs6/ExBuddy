@@ -1,12 +1,9 @@
 ﻿namespace ExBuddy.Windows
 {
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
-
 	using ff14bot.RemoteWindows;
 
 	public sealed class ShopExchangeCurrency : Window<ShopExchangeCurrency>
@@ -24,7 +21,7 @@
 			var result = SendActionResult.None;
 			var purchaseAttempts = 0;
 			while (result != SendActionResult.Success && !SelectYesno.IsOpen && purchaseAttempts++ < attempts
-					&& Behaviors.ShouldContinue)
+			       && Behaviors.ShouldContinue)
 			{
 				result = PurchaseItem(index);
 

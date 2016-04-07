@@ -7,12 +7,9 @@
 	using System.Reflection;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
@@ -22,7 +19,6 @@
 	using ExBuddy.OrderBotTags.Gather.Rotations;
 	using ExBuddy.OrderBotTags.Objects;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -31,7 +27,7 @@
 	using ff14bot.Navigation;
 	using ff14bot.NeoProfiles;
 	using ff14bot.Objects;
-
+	using ff14bot.RemoteWindows;
 	using TreeSharp;
 
 	[LoggerName("ExGather")]
@@ -47,21 +43,15 @@
 
 		internal SpellData CordialSpellData;
 
+		private Func<bool> freeRangeConditionFunc;
+
 		internal GatheringItem GatherItem;
 
 		internal bool GatherItemIsFallback;
 
-		internal IGatherSpot GatherSpot;
-
-		internal GatheringPointObject Node;
-
-		internal int NodesGatheredAtMaxGp;
-
-		internal Func<bool> WhileFunc;
-
-		private Func<bool> freeRangeConditionFunc;
-
 		private IGatheringRotation gatherRotation;
+
+		internal IGatherSpot GatherSpot;
 
 		private IGatheringRotation initialGatherRotation;
 
@@ -69,9 +59,15 @@
 
 		private int loopCount;
 
+		internal GatheringPointObject Node;
+
+		internal int NodesGatheredAtMaxGp;
+
 		private Composite poiCoroutine;
 
 		private DateTime startTime;
+
+		internal Func<bool> WhileFunc;
 
 		public ExGatherTag()
 		{
@@ -197,16 +193,13 @@
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.Chartreuse;
-			}
+			get { return Colors.Chartreuse; }
 		}
 
 		public int? GetAdjustedWaitForGp(int gpBeforeGather, int secondsToStartGathering, CordialType cordialType)
 		{
 			if (CordialTime.HasFlag(CordialTime.BeforeGather) && cordialType > CordialType.None
-				&& CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
+			    && CordialSpellData.Cooldown.TotalSeconds + 2 <= secondsToStartGathering)
 			{
 				switch (cordialType)
 				{
@@ -217,7 +210,7 @@
 						gpBeforeGather += 400;
 						break;
 					case CordialType.Auto:
-						if (DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0)
+						if (DataManager.GetItem((uint) CordialType.HiCordial).ItemCount() > 0)
 						{
 							gpBeforeGather += 400;
 						}
@@ -233,7 +226,7 @@
 			{
 				if (gp <= gpBeforeGather)
 				{
-					return Math.Min(Me.MaxGP - (Me.MaxGP % 50), gp);
+					return Math.Min(ExProfileBehavior.Me.MaxGP - (ExProfileBehavior.Me.MaxGP%50), gp);
 				}
 			}
 
@@ -258,7 +251,7 @@
 			await CommonTasks.HandleLoading();
 
 			return HandleDeath() || HandleCondition() || await CastTruth() || HandleReset() || await MoveToHotSpot()
-					|| await FindNode() || await ResetOrDone();
+			       || await FindNode() || await ResetOrDone();
 		}
 
 		protected override void OnDone()
@@ -274,7 +267,7 @@
 
 			if (Distance > 3.5f)
 			{
-				TreeRoot.Stop("Using a distance of greater than 3.5 is not supported, change the value and restart the profile.");
+				TreeRoot.Stop(Localization.Localization.ExGather_Distance);
 			}
 
 			if (HotSpots != null)
@@ -285,12 +278,12 @@
 			// backwards compatibility
 			if (GatherObjects == null && !string.IsNullOrWhiteSpace(GatherObject))
 			{
-				GatherObjects = new List<string> { GatherObject };
+				GatherObjects = new List<string> {GatherObject};
 			}
 
 			startTime = DateTime.Now;
 
-			CordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+			CordialSpellData = DataManager.GetItem((uint) CordialType.Cordial).BackingAction;
 
 			if (Items == null)
 			{
@@ -323,7 +316,7 @@
 				}
 				else
 				{
-					Name = string.Format("ZoneId [{0}], Calling Location {1}", WorldManager.ZoneId, Me.Location);
+					Name = string.Format(Localization.Localization.ExGather_Zone, WorldManager.ZoneId, ExProfileBehavior.Me.Location);
 				}
 			}
 
@@ -338,8 +331,8 @@
 		internal bool CanUseCordial(ushort withinSeconds = 5)
 		{
 			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && CordialTime > CordialTime.None
-					&& ((CordialType == CordialType.Cordial && Cordial.HasCordials())
-						|| CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
+			       && ((CordialType == CordialType.Cordial && Cordial.HasCordials())
+			           || CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
 		}
 
 		internal async Task<bool> Cast(uint id)
@@ -366,9 +359,9 @@
 		{
 			return
 				await
-				Gathering.CloseGently(
-					(byte)(SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000 / SkipWindowDelay)),
-					(ushort)SkipWindowDelay);
+					Gathering.CloseGently(
+						(byte) (SkipWindowDelay < 33 ? 100 : Math.Max(1, 3000/SkipWindowDelay)),
+						(ushort) SkipWindowDelay);
 		}
 
 		internal bool IsConcealed()
@@ -385,12 +378,12 @@
 		{
 			// Temporary until we decide if legendary have any diff properties or if we should treat them the same.
 			return Node.EnglishName.IndexOf("unspoiled", StringComparison.InvariantCultureIgnoreCase) >= 0
-					|| Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
+			       || Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
 		}
 
 		internal bool MovementStopCallback(float distance, float radius)
 		{
-			return distance <= radius || !WhileFunc() || Me.IsDead;
+			return distance <= radius || !WhileFunc() || ExProfileBehavior.Me.IsDead;
 		}
 
 		internal void ResetInternal()
@@ -439,13 +432,13 @@
 					return true;
 				}
 
-				Logger.Warn("Inventory is full and no shards/crystals/clusters to gather. Gathering complete.");
+				Logger.Warn(Localization.Localization.ExGather_FullInventory);
 				return false;
 			}
 
 			if (DiscoverUnknowns)
 			{
-				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
+				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -465,12 +458,12 @@
 
 			if (Slot > -1 && Slot < 8)
 			{
-				GatherItem = GatheringManager.GetGatheringItemByIndex((uint)Slot);
+				GatherItem = GatheringManager.GetGatheringItemByIndex((uint) Slot);
 			}
 
 			if (GatherItem == null && (!AlwaysGather || GatherStrategy == GatherStrategy.TouchAndGo))
 			{
-				Poi.Clear("Skipping this node, no items we want to gather.");
+				Poi.Clear(Localization.Localization.ExGather_SkipNode);
 
 				await CloseGatheringWindow();
 
@@ -490,15 +483,15 @@
 					.FirstOrDefault(i => i.ItemId < 20) // Try to gather cluster/crystal/shard
 				?? windowItems.FirstOrDefault(
 					i => i.IsFilled && !i.IsUnknown && !i.ItemData.Unique && !i.ItemData.Untradeable && i.ItemData.ItemCount() > 0)
-				// Try to collect items you have that stack
+					// Try to collect items you have that stack
 				?? windowItems.Where(i => i.Amount > 0 && !i.ItemData.Unique && !i.ItemData.Untradeable)
-						.OrderByDescending(i => i.SlotIndex)
-						.FirstOrDefault(); // Take last item that is not unique or untradeable
+					.OrderByDescending(i => i.SlotIndex)
+					.FirstOrDefault(); // Take last item that is not unique or untradeable
 
 			// Seems we only have unknowns.
 			if (GatherItem == null)
 			{
-				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
+				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -507,14 +500,14 @@
 					return true;
 				}
 
-				Logger.Warn("Unable to find an item to gather, moving on.");
+				Logger.Warn(Localization.Localization.ExGather_NothingToGather);
 
 				return false;
 			}
 
 			if (previousGatherItem == null || previousGatherItem.ItemId != GatherItem.ItemId)
 			{
-				Logger.Info("could not find item by slot or name, gathering " + GatherItem.ItemData + " instead.");
+				Logger.Info(Localization.Localization.ExGather_NothingToGather2 + GatherItem.ItemData + Localization.Localization.ExGather_NothingToGather3);
 			}
 
 			return true;
@@ -523,9 +516,9 @@
 		private async Task<bool> AfterGather()
 		{
 			Logger.Verbose(
-				"Finished gathering from {0} with {1} GP at {2} ET",
+                Localization.Localization.ExGather_Finished,
 				Node.EnglishName,
-				Me.CurrentGP,
+				ExProfileBehavior.Me.CurrentGP,
 				WorldManager.EorzaTime.ToShortTimeString());
 
 			// in case we failed our rotation or window stuck open because items are somehow left
@@ -535,7 +528,7 @@
 				await CloseGatheringWindow();
 			}
 
-			if (Me.CurrentGP >= Me.MaxGP - 30)
+			if (ExProfileBehavior.Me.CurrentGP >= ExProfileBehavior.Me.MaxGP - 30)
 			{
 				NodesGatheredAtMaxGp++;
 			}
@@ -547,14 +540,14 @@
 			if (!ReferenceEquals(gatherRotation, initialGatherRotation))
 			{
 				gatherRotation = initialGatherRotation;
-				Logger.Info("Rotation reset -> " + initialGatherRotation.Attributes.Name);
+				Logger.Info(Localization.Localization.ExGather_RotationReset + initialGatherRotation.Attributes.Name);
 			}
 
 			if (CordialTime.HasFlag(CordialTime.AfterGather))
 			{
 				if (CordialType == CordialType.Auto)
 				{
-					if (Me.MaxGP - Me.CurrentGP > 550)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 550)
 					{
 						if (await UseCordial(CordialType.HiCordial))
 						{
@@ -562,7 +555,7 @@
 						}
 					}
 
-					if (Me.MaxGP - Me.CurrentGP > 390)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 390)
 					{
 						if (await UseCordial(CordialType.Cordial))
 						{
@@ -573,7 +566,7 @@
 
 				if (CordialType == CordialType.HiCordial)
 				{
-					if (Me.MaxGP - Me.CurrentGP > 430)
+					if (ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 430)
 					{
 						if (await UseCordial(CordialType.HiCordial))
 						{
@@ -587,7 +580,7 @@
 					}
 				}
 
-				if (CordialType == CordialType.Cordial && Me.MaxGP - Me.CurrentGP > 330)
+				if (CordialType == CordialType.Cordial && ExProfileBehavior.Me.MaxGP - ExProfileBehavior.Me.CurrentGP > 330)
 				{
 					if (await UseCordial(CordialType.Cordial))
 					{
@@ -607,11 +600,11 @@
 
 			if (ttg.RealSecondsTillStartGathering < 3)
 			{
-				Logger.Warn("Not enough time to gather, will still make an attempt.");
+				Logger.Warn(Localization.Localization.ExGather_NotEnoughTime);
 				//return true;
 			}
 
-			var gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+			var gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 			CordialSpellData = CordialSpellData ?? Cordial.GetSpellData();
 
@@ -629,12 +622,12 @@
 					return true;
 				}
 
-				Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+				Logger.Warn(Localization.Localization.ExGather_NotEnoughGP);
 				isDone = true;
 				return false;
 			}
 
-			if (Me.CurrentGP >= waitForGp.Value)
+			if (ExProfileBehavior.Me.CurrentGP >= waitForGp.Value)
 			{
 				return true;
 			}
@@ -646,9 +639,9 @@
 					return await WaitForGpRegain(waitForGp.Value);
 				}
 
-				Logger.Warn("Gathering without the minimum recommended GP for the rotation");
+				Logger.Warn(Localization.Localization.ExGather_WithoutMiniumGP);
 				Logger.Warn(
-					"Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'");
+                    Localization.Localization.ExGather_DisabledCordial);
 
 				return true;
 			}
@@ -660,9 +653,9 @@
 					return await WaitForGpRegain(waitForGp.Value);
 				}
 
-				Logger.Warn("Gathering without the minimum recommended GP for the rotation");
+				Logger.Warn(Localization.Localization.ExGather_WithoutMiniumGP);
 				Logger.Warn(
-					"Before gather cordial not enabled.  To enable, add the 'cordialTime' attribute with value 'BeforeGather', 'IfNeeded', 'IfNeededOrAfter', or 'Auto'");
+                    Localization.Localization.ExGather_DisabledCordialBeforeGather);
 
 				return true;
 			}
@@ -674,13 +667,13 @@
 					return await WaitForGpRegain(waitForGp.Value);
 				}
 
-				var gpNeeded = waitForGp.Value - (Me.CurrentGP - (Me.CurrentGP % 5));
-				var gpNeededTicks = gpNeeded / 5;
-				var gpNeededSeconds = gpNeededTicks * 3;
+				var gpNeeded = waitForGp.Value - (ExProfileBehavior.Me.CurrentGP - (ExProfileBehavior.Me.CurrentGP%5));
+				var gpNeededTicks = gpNeeded/5;
+				var gpNeededSeconds = gpNeededTicks*3;
 
 				if (gpNeededSeconds <= CordialSpellData.Cooldown.TotalSeconds + 2)
 				{
-					Logger.Info("GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}", gpNeededSeconds);
+					Logger.Info(Localization.Localization.ExGather_GPRecover, gpNeededSeconds);
 
 					// no need to wait for cordial, we will have GP faster
 					return await WaitForGpRegain(waitForGp.Value);
@@ -699,7 +692,7 @@
 				{
 					ttg = GetTimeToGather();
 
-					gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+					gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 					waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
 
@@ -710,7 +703,7 @@
 							return true;
 						}
 
-						Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+						Logger.Warn(Localization.Localization.ExGather_NotEnoughGP);
 						BlacklistCurrentNode();
 						return false;
 					}
@@ -728,7 +721,7 @@
 
 				ttg = GetTimeToGather();
 
-				gp = Math.Min(Me.CurrentGP + ttg.TicksTillStartGathering * 5, Me.MaxGP);
+				gp = Math.Min(ExProfileBehavior.Me.CurrentGP + ttg.TicksTillStartGathering*5, ExProfileBehavior.Me.MaxGP);
 
 				waitForGp = GetAdjustedWaitForGp(gp, ttg.RealSecondsTillStartGathering, CordialType.None);
 
@@ -739,7 +732,7 @@
 						return true;
 					}
 
-					Logger.Warn("Not enough gp to use rotation, cancelling gather.");
+					Logger.Warn(Localization.Localization.ExGather_NotEnoughGP);
 					BlacklistCurrentNode();
 					return false;
 				}
@@ -747,7 +740,7 @@
 				return await WaitForGpRegain(waitForGp.Value);
 			}
 
-			Logger.Error("we should never be here, report error with info GP: {0}, WaitForGp: {1}", gp, waitForGp.Value);
+			Logger.Error(Localization.Localization.ExGather_WaitForGp, gp, waitForGp.Value);
 			return true;
 			//return await WaitForGpRegain(waitForGp.Value);
 		}
@@ -762,34 +755,38 @@
 			if (!Blacklist.Contains(Poi.Current.Unit, BlacklistFlags.Interact))
 			{
 				var timeToBlacklist = GatherStrategy == GatherStrategy.TouchAndGo
-										? TimeSpan.FromSeconds(12)
-										: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
+					? TimeSpan.FromSeconds(12)
+					: TimeSpan.FromSeconds(Math.Max(gatherRotation.Attributes.RequiredTimeInSeconds + 6, 30));
 				Blacklist.Add(
 					Poi.Current.Unit,
 					BlacklistFlags.Interact,
 					timeToBlacklist,
-					"Blacklisting node so that we don't retarget -> " + Poi.Current.Unit);
+                    Localization.Localization.ExGather_BlackListNode + Poi.Current.Unit);
 			}
 		}
 
 		private async Task<bool> CastTruth()
 		{
-			if (Me.CurrentJob != ClassJobType.Miner && Me.CurrentJob != ClassJobType.Botanist)
+			if (ExProfileBehavior.Me.CurrentJob != ClassJobType.Miner && ExProfileBehavior.Me.CurrentJob != ClassJobType.Botanist)
 			{
 				return false;
 			}
 
-			if (Me.ClassLevel < 46 ||
-				Me.HasAura((int)(Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests)))
+			if (ExProfileBehavior.Me.ClassLevel < 46
+			    || ExProfileBehavior.Me.HasAura(
+				    (int)
+					    (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
+						    ? AbilityAura.TruthOfMountains
+						    : AbilityAura.TruthOfForests)))
 			{
 				return false;
 			}
 
 			return
 				await
-				CastAura(
-					Ability.Truth,
-					Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
+					CastAura(
+						Ability.Truth,
+						ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner ? AbilityAura.TruthOfMountains : AbilityAura.TruthOfForests);
 		}
 
 		private async Task<bool> ChangeHotSpot()
@@ -806,7 +803,7 @@
 				// If finished current loop and set to not cyclic (we know this because if it was cyclic Next is always true)
 				if (!HotSpots.Next())
 				{
-					Logger.Info("Finished {0} of {1} loops.", ++loopCount, Loops);
+					Logger.Info(Localization.Localization.ExGather_FinishedLoop, ++loopCount, Loops);
 
 					// If finished all loops, otherwise just incrementing loop count
 					if (loopCount == Loops)
@@ -823,7 +820,7 @@
 				}
 			}
 
-			await Coroutine.Wait(2000, () => !Gathering.IsOpen && !GatheringMasterpiece.IsOpen);
+			await Coroutine.Wait(2000, () => !Window<Gathering>.IsOpen && !GatheringMasterpiece.IsOpen);
 
 			return true;
 		}
@@ -839,22 +836,22 @@
 
 			if (CollectableItem != null)
 			{
-				Logger.Info("Estimating rotation based off {0}", CollectableItem);
+				Logger.Info(Localization.Localization.ExGather_Rotationbaseoff, CollectableItem);
 			}
 			else
 			{
-				Logger.Info("Estimating rotation based off GatherIncrease: '{0}'", GatherIncrease);
+				Logger.Info(Localization.Localization.ExGather_RotationbaseoffGatherIncrease, GatherIncrease);
 			}
 
 			var rotation = GetOverrideRotation();
 
 			if (rotation == null)
 			{
-				Logger.Info("Rotation did not change");
+				Logger.Info(Localization.Localization.ExGather_RotationNotChange);
 				return;
 			}
 
-			Logger.Info("Rotation Estimate -> Old: {0} , New: {1}", gatherRotation.Attributes.Name, rotation.Attributes.Name);
+			Logger.Info(Localization.Localization.ExGather_RotationEstimate, gatherRotation.Attributes.Name, rotation.Attributes.Name);
 
 			gatherRotation = rotation;
 		}
@@ -868,7 +865,7 @@
 					return;
 				}
 
-				Logger.Info("Item to gather is unknown, we are overriding the rotation to ensure we can collect it.");
+				Logger.Info(Localization.Localization.ExGather_RotationOverriding);
 			}
 
 			var rotation = GetOverrideRotation();
@@ -878,7 +875,7 @@
 				return;
 			}
 
-			Logger.Info("Rotation Override -> Old: {0} , New: {1}", gatherRotation.Attributes.Name, rotation.Attributes.Name);
+			Logger.Info(Localization.Localization.ExGather_RotationOverride, gatherRotation.Attributes.Name, rotation.Attributes.Name);
 
 			gatherRotation = rotation;
 		}
@@ -894,12 +891,12 @@
 
 			if (!result)
 			{
-				Poi.Clear("Something happened during gathering and we did not complete the sequence");
+				Poi.Clear(Localization.Localization.ExGather_ExecutePoiLogic);
 			}
 
 			if (Poi.Current.Type == PoiType.Gather && (!Poi.Current.Unit.IsValid || !Poi.Current.Unit.IsVisible))
 			{
-				Poi.Clear("Node is gone");
+				Poi.Clear(Localization.Localization.ExGather_NodeIsGone);
 			}
 
 			return result;
@@ -912,7 +909,7 @@
 				return false;
 			}
 
-			if (GatherSpots != null && Node.Location.Distance3D(Me.Location) > Distance)
+			if (GatherSpots != null && Node.Location.Distance3D(ExProfileBehavior.Me.Location) > Distance)
 			{
 				GatherSpot =
 					GatherSpots.OrderBy(gs => gs.NodeLocation.Distance3D(Node.Location))
@@ -931,7 +928,7 @@
 				SetFallbackGatherSpot(Node.Location, true);
 			}
 
-			Logger.Info("GatherSpot set -> " + GatherSpot);
+			Logger.Info(Localization.Localization.ExGather_GatherSpotSet + GatherSpot);
 
 			return true;
 		}
@@ -943,7 +940,7 @@
 				return false;
 			}
 
-			StatusText = "Searching for nodes";
+			StatusText = Localization.Localization.ExGather_SearchForNodes;
 
 			while (Behaviors.ShouldContinue)
 			{
@@ -959,7 +956,7 @@
 
 					foreach (var node in
 						nodes.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location))
-							.OrderBy(gpo => gpo.Location.Distance2D(Me.Location))
+							.OrderBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
 							.Skip(1))
 					{
 						if (!Blacklist.Contains(node.ObjectId, BlacklistFlags.Interact))
@@ -968,7 +965,7 @@
 								node,
 								BlacklistFlags.Interact,
 								TimeSpan.FromSeconds(18),
-								"Skip furthest nodes in hotspot. We only want 1.");
+								Localization.Localization.ExGather_SkipFurthestNodes);
 						}
 					}
 				}
@@ -977,7 +974,7 @@
 
 				if (FreeRange)
 				{
-					nodes = nodes.Where(gpo => gpo.Distance2D(Me.Location) < Radius);
+					nodes = nodes.Where(gpo => gpo.Distance2D(ExProfileBehavior.Me.Location) < Radius);
 				}
 				else
 				{
@@ -993,20 +990,20 @@
 					Node =
 						nodes.OrderBy(
 							gpo =>
-							GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
-							.ThenBy(gpo => gpo.Location.Distance2D(Me.Location))
+								GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
+							.ThenBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
 							.FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
 				}
 				else
 				{
-					Node = nodes.OrderBy(gpo => gpo.Location.Distance2D(Me.Location)).FirstOrDefault();
+					Node = nodes.OrderBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location)).FirstOrDefault();
 				}
 
 				if (Node == null)
 				{
 					if (HotSpots != null)
 					{
-						var myLocation = Me.Location;
+						var myLocation = ExProfileBehavior.Me.Location;
 
 						var distanceToFurthestVisibleGameObject =
 							GameObjectManager.GameObjects.Select(o => o.Location.Distance2D(myLocation))
@@ -1014,16 +1011,16 @@
 								.FirstOrDefault();
 
 						var distanceToFurthestVectorInHotspot = myLocation.Distance2D(HotSpots.CurrentOrDefault)
-																+ HotSpots.CurrentOrDefault.Radius;
+						                                        + HotSpots.CurrentOrDefault.Radius;
 
 						if (myLocation.Distance2D(HotSpots.CurrentOrDefault) > Radius && GatherStrategy == GatherStrategy.GatherOrCollect
-							&& retryCenterHotspot && distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
+						    && retryCenterHotspot && distanceToFurthestVisibleGameObject <= distanceToFurthestVectorInHotspot)
 						{
-							Logger.Verbose("Distance to furthest visible game object -> " + distanceToFurthestVisibleGameObject);
-							Logger.Verbose("Distance to furthest vector in hotspot -> " + distanceToFurthestVectorInHotspot);
+							Logger.Verbose(Localization.Localization.ExGather_DistanceObject + distanceToFurthestVisibleGameObject);
+							Logger.Verbose(Localization.Localization.ExGather_DistanceHotSpot + distanceToFurthestVectorInHotspot);
 
 							Logger.Warn(
-								"Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.");
+                                Localization.Localization.ExGather_NoAvailableNode);
 							await HotSpots.CurrentOrDefault.XYZ.MoveTo(radius: Radius, name: HotSpots.CurrentOrDefault.Name);
 
 							retryCenterHotspot = false;
@@ -1052,22 +1049,25 @@
 				var entry = Blacklist.GetEntry(Node.ObjectId);
 				if (entry != null && entry.Flags.HasFlag(BlacklistFlags.Interact))
 				{
-					Logger.Warn("Node on blacklist, waiting until we move out of range or it clears.");
+					Logger.Warn(Localization.Localization.ExGather_NodeBlacklist);
 
-					if (await Coroutine.Wait(entry.Length, () => entry.IsFinished || Node.Location.Distance2D(Me.Location) > Radius) || Core.Player.IsDead)
+					if (await
+						Coroutine.Wait(entry.Length,
+							() => entry.IsFinished || Node.Location.Distance2D(ExProfileBehavior.Me.Location) > Radius)
+					    || Core.Player.IsDead)
 					{
 						if (!entry.IsFinished)
 						{
 							Node = null;
-							Logger.Info("Node Reset, Reason: Ran out of range");
+							Logger.Info(Localization.Localization.ExGather_NodeReset);
 							return false;
 						}
 					}
 
-					Logger.Info("Node removed from blacklist.");
+					Logger.Info(Localization.Localization.ExGather_NodeBlacklistRemoved);
 				}
 
-				Logger.Info("Node set -> " + Node);
+				Logger.Info(Localization.Localization.ExGather_NodeSet + Node);
 
 				if (HotSpots == null)
 				{
@@ -1098,34 +1098,35 @@
 		private async Task<bool> Gather()
 		{
 			return await InteractWithNode() && await gatherRotation.Prepare(this) && await gatherRotation.ExecuteRotation(this)
-					&& await gatherRotation.Gather(this) && await HandleSwingsRemaining()
-					&& await Coroutine.Wait(4000, () => !Node.CanGather) && await WaitForGatherWindowToClose();
+			       && await gatherRotation.Gather(this) && await HandleSwingsRemaining()
+			       && await Coroutine.Wait(4000, () => !Node.CanGather) && await WaitForGatherWindowToClose();
 		}
 
 		private async Task<bool> GatherSequence()
 		{
 			return await MoveToGatherSpot() && await BeforeGather() && await Gather() && await AfterGather()
-					&& await MoveFromGatherSpot();
+			       && await MoveFromGatherSpot();
 		}
 
 		private static Type[] GetKnownRotationTypes()
 		{
 			return new[]
-						{
-							typeof(RegularNodeGatheringRotation), typeof(UnspoiledGatheringRotation),
-							typeof(DefaultCollectGatheringRotation), typeof(Collect115GatheringRotation), typeof(Collect345GatheringRotation),
-							typeof(Collect450GatheringRotation), typeof(Collect470GatheringRotation), typeof(Collect550GatheringRotation),
-							typeof(Collect570GatheringRotation), typeof(DiscoverUnknownsGatheringRotation), typeof(ElementalGatheringRotation),
-							typeof(TopsoilGatheringRotation), typeof(MapGatheringRotation), typeof(SmartQualityGatheringRotation),
-							typeof(SmartYieldGatheringRotation), typeof(YieldAndQualityGatheringRotation),
-							typeof(NewbCollectGatheringRotation)
-						};
+			{
+				typeof (RegularNodeGatheringRotation), typeof (UnspoiledGatheringRotation),
+				typeof (DefaultCollectGatheringRotation), typeof (Collect115GatheringRotation), typeof (Collect345GatheringRotation),
+				typeof (Collect450GatheringRotation), typeof (Collect470GatheringRotation), typeof (Collect550GatheringRotation),
+				typeof (Collect570GatheringRotation), typeof (DiscoverUnknownsGatheringRotation),
+				typeof (ElementalGatheringRotation),
+				typeof (TopsoilGatheringRotation), typeof (MapGatheringRotation), typeof (SmartQualityGatheringRotation),
+				typeof (SmartYieldGatheringRotation), typeof (YieldAndQualityGatheringRotation),
+				typeof (NewbCollectGatheringRotation)
+			};
 		}
 
 		private IGatheringRotation GetOverrideRotation()
 		{
 			var rotationAndTypes =
-				Rotations.Select(r => new { Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this) })
+				Rotations.Select(r => new {Rotation = r.Value, OverrideValue = r.Value.ResolveOverridePriority(this)})
 					.Where(r => r.OverrideValue > -1)
 					.OrderByDescending(r => r.OverrideValue)
 					.ToArray();
@@ -1142,7 +1143,7 @@
 
 		private TimeToGather GetTimeToGather()
 		{
-			var eorzeaMinutesTillDespawn = (int)byte.MaxValue;
+			var eorzeaMinutesTillDespawn = (int) byte.MaxValue;
 			if (IsUnspoiled())
 			{
 				if (WorldManager.ZoneId > 350)
@@ -1163,21 +1164,21 @@
 					hoursFromNow.Year,
 					hoursFromNow.Month,
 					hoursFromNow.Day,
-					hoursFromNow.Hour - (hoursFromNow.Hour % 4),
+					hoursFromNow.Hour - (hoursFromNow.Hour%4),
 					0,
 					0);
 
-				eorzeaMinutesTillDespawn = (int)(rounded - WorldManager.EorzaTime).TotalMinutes;
+				eorzeaMinutesTillDespawn = (int) (rounded - WorldManager.EorzaTime).TotalMinutes;
 			}
 
-			var realSecondsTillDespawn = eorzeaMinutesTillDespawn * 35 / 12;
+			var realSecondsTillDespawn = eorzeaMinutesTillDespawn*35/12;
 			var realSecondsTillStartGathering = realSecondsTillDespawn - gatherRotation.Attributes.RequiredTimeInSeconds;
 
 			return new TimeToGather
-						{
-							EorzeaMinutesTillDespawn = eorzeaMinutesTillDespawn,
-							RealSecondsTillStartGathering = realSecondsTillStartGathering
-						};
+			{
+				EorzeaMinutesTillDespawn = eorzeaMinutesTillDespawn,
+				RealSecondsTillStartGathering = realSecondsTillStartGathering
+			};
 		}
 
 		private bool HandleCondition()
@@ -1199,9 +1200,9 @@
 
 		private bool HandleDeath()
 		{
-			if (Me.IsDead && Poi.Current.Type != PoiType.Death)
+			if (ExProfileBehavior.Me.IsDead && Poi.Current.Type != PoiType.Death)
 			{
-				Poi.Current = new Poi(Me, PoiType.Death);
+				Poi.Current = new Poi(ExProfileBehavior.Me, PoiType.Death);
 				return true;
 			}
 
@@ -1210,7 +1211,8 @@
 
 		private bool HandleReset()
 		{
-			if (Node == null || (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(Me.Location) > Radius))))
+			if (Node == null ||
+			    (Node.IsValid && (!FreeRange || !(Node.Location.Distance3D(ExProfileBehavior.Me.Location) > Radius))))
 			{
 				return false;
 			}
@@ -1221,7 +1223,7 @@
 
 		private async Task<bool> HandleSwingsRemaining()
 		{
-			if (SwingsRemaining > 0 && Gathering.IsOpen)
+			if (SwingsRemaining > 0 && Window<Gathering>.IsOpen)
 			{
 				await CloseGatheringWindow();
 			}
@@ -1235,14 +1237,14 @@
 
 			var attempts = 0;
 			while (attempts++ < 5 && !GatheringManager.WindowOpen && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible
-					&& Poi.Current.Unit.IsValid)
+			       && Poi.Current.Unit.IsValid)
 			{
 				var ticks = 0;
 				while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue && Poi.Current.Unit.IsVisible
-						&& Poi.Current.Unit.IsValid)
+				       && Poi.Current.Unit.IsValid)
 				{
-					var ground = Me.Location.GetFloor(10);
-					if (Math.Abs(ground.Y - Me.Location.Y) > float.Epsilon)
+					var ground = ExProfileBehavior.Me.Location.GetFloor(10);
+					if (Math.Abs(ground.Y - ExProfileBehavior.Me.Location.Y) > float.Epsilon)
 					{
 						var mover = Navigator.PlayerMover as IFlightEnabledPlayerMover;
 						if (mover != null && !mover.IsLanding && !mover.IsTakingOff)
@@ -1269,11 +1271,11 @@
 
 				if (FreeRange)
 				{
-					Logger.Warn("Gathering Window didn't open: Retrying. {0}/5", attempts);
+					Logger.Warn(Localization.Localization.ExGather_GatherWindow, attempts);
 					continue;
 				}
 
-				Logger.Warn("Gathering Window didn't open: Re-attempting to move into place. {0}/5", attempts);
+				Logger.Warn(Localization.Localization.ExGather_GatherWindow2, attempts);
 				//SetFallbackGatherSpot(Node.Location, true);
 
 				await MoveToGatherSpot();
@@ -1293,10 +1295,10 @@
 			interactedWithNode = true;
 
 			Logger.Verbose(
-				"Started gathering from {0} with {1}/{2} GP at {3} ET",
+                Localization.Localization.ExGather_GatherStart,
 				Node.EnglishName,
-				Me.CurrentGP,
-				Me.MaxGP,
+				ExProfileBehavior.Me.CurrentGP,
+				ExProfileBehavior.Me.MaxGP,
 				WorldManager.EorzaTime.ToShortTimeString());
 
 			if (!IsUnspoiled() && !IsConcealed())
@@ -1309,7 +1311,7 @@
 				await CloseGatheringWindow();
 				ResetInternal();
 
-				await Coroutine.Wait(2000, () => Me.InCombat || Actionmanager.CanMount == 0);
+				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || Actionmanager.CanMount == 0);
 				return false;
 			}
 
@@ -1333,13 +1335,13 @@
 						.GetTypes()
 						.Where(
 							t =>
-							!t.IsAbstract && typeof(IGatheringRotation).IsAssignableFrom(t)
-							&& t.GetCustomAttribute<GatheringRotationAttribute>() != null)
+								!t.IsAbstract && typeof (IGatheringRotation).IsAssignableFrom(t)
+								&& t.GetCustomAttribute<GatheringRotationAttribute>() != null)
 						.ToArray();
 			}
 			catch
 			{
-				Logger.Warn("Unable to get types, Loading Known Rotations.");
+				Logger.Warn(Localization.Localization.ExGather_NoTypeSpecified);
 			}
 
 			if (types == null)
@@ -1354,7 +1356,7 @@
 			foreach (var instance in instances)
 			{
 				Logger.Info(
-					"Loaded Rotation -> {0}, GP: {1}, Time: {2}",
+                    Localization.Localization.ExGather_RotationLoad,
 					instance.Attributes.Name,
 					instance.Attributes.RequiredGpBreakpoints[0],
 					instance.Attributes.RequiredTimeInSeconds);
@@ -1372,13 +1374,13 @@
 
 		private async Task<bool> MoveToGatherSpot()
 		{
-			var distance = Poi.Current.Location.Distance3D(Me.Location);
+			var distance = Poi.Current.Location.Distance3D(ExProfileBehavior.Me.Location);
 			if (FreeRange)
 			{
 				while (distance > Distance && distance <= Radius && Behaviors.ShouldContinue)
 				{
 					await Coroutine.Yield();
-					distance = Poi.Current.Location.Distance3D(Me.Location);
+					distance = Poi.Current.Location.Distance3D(ExProfileBehavior.Me.Location);
 				}
 			}
 
@@ -1387,17 +1389,17 @@
 
 		private async Task<bool> MoveToHotSpot()
 		{
-			if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(Me.Location))
+			if (HotSpots != null && !HotSpots.CurrentOrDefault.WithinHotSpot2D(ExProfileBehavior.Me.Location))
 			{
 				var name = !string.IsNullOrWhiteSpace(HotSpots.CurrentOrDefault.Name)
-								? "[" + HotSpots.CurrentOrDefault.Name + "] "
-								: string.Empty;
+					? "[" + HotSpots.CurrentOrDefault.Name + "] "
+					: string.Empty;
 
-				StatusText = string.Format("Moving to hotspot {0}{1}", name, HotSpots.CurrentOrDefault);
+				StatusText = string.Format(Localization.Localization.ExGather_MoveToHotSpot, name, HotSpots.CurrentOrDefault);
 
 				await
 					HotSpots.CurrentOrDefault.XYZ.MoveTo(
-						radius: HotSpots.CurrentOrDefault.Radius * 0.75f,
+						radius: HotSpots.CurrentOrDefault.Radius*0.75f,
 						name: HotSpots.CurrentOrDefault.Name,
 						stopCallback: MovementStopCallback);
 
@@ -1410,7 +1412,7 @@
 
 		private async Task<bool> ResetOrDone()
 		{
-			while (Me.InCombat && Behaviors.ShouldContinue)
+			while (ExProfileBehavior.Me.InCombat && Behaviors.ShouldContinue)
 			{
 				await Coroutine.Yield();
 			}
@@ -1438,7 +1440,7 @@
 			{
 				initialGatherRotation = gatherRotation = new GatheringSkillOrderGatheringRotation();
 
-				Logger.Info("Using rotation -> " + gatherRotation.Attributes.Name);
+				Logger.Info(Localization.Localization.ExGather_RotationUse + gatherRotation.Attributes.Name);
 				return;
 			}
 
@@ -1455,7 +1457,7 @@
 					rotation = Rotations["RegularNode"];
 				}
 
-				Logger.Warn("Could not find rotation, using RegularNode instead.");
+				Logger.Warn(Localization.Localization.ExGather_RotationNotFound);
 			}
 
 			initialGatherRotation = gatherRotation = rotation;
@@ -1470,12 +1472,12 @@
 				// TODO: Smart stealth implementation (where any enemy within x distance and i'm not behind them, use stealth approach and set stealth location as current)
 				// If flying, land in area closest to node not in sight of an enemy and stealth.
 				case GatherSpotType.StealthGatherSpot:
-					GatherSpot = new StealthGatherSpot { NodeLocation = location, UseMesh = useMesh };
+					GatherSpot = new StealthGatherSpot {NodeLocation = location, UseMesh = useMesh};
 					break;
 				// ReSharper disable once RedundantCaseLabel
 				case GatherSpotType.GatherSpot:
 				default:
-					GatherSpot = new GatherSpot { NodeLocation = location, UseMesh = useMesh };
+					GatherSpot = new GatherSpot {NodeLocation = location, UseMesh = useMesh};
 					break;
 			}
 		}
@@ -1492,9 +1494,9 @@
 				GatherItem =
 					windowItems.FirstOrDefault(
 						i =>
-						i.IsFilled && !i.IsUnknown
-						&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
-						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+							i.IsFilled && !i.IsUnknown
+							&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
+							&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
 
 				if (GatherItem != null)
 				{
@@ -1513,7 +1515,7 @@
 
 			if (GatherStrategy == GatherStrategy.TouchAndGo)
 			{
-				Logger.Verbose("TouchAndGo override, maxTimeout being set between 2 and 16 seconds");
+				Logger.Verbose(Localization.Localization.ExGather_TnGOverride);
 				maxTimeoutSeconds = maxTimeoutSeconds.Clamp(2, 16);
 			}
 			else
@@ -1523,40 +1525,40 @@
 
 			if (CordialSpellData.Cooldown.TotalSeconds < maxTimeoutSeconds)
 			{
-				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint)cordialType);
+				var cordial = InventoryManager.FilledSlots.FirstOrDefault(slot => slot.RawItemId == (uint) cordialType);
 
 				if (cordial != null)
 				{
-					StatusText = "Using cordial when it becomes available";
+					StatusText = Localization.Localization.ExGather_Cordial;
 
 					Logger.Info(
-						"Using Cordial -> Waiting (sec): {0}, CurrentGP: {1}",
-						(int)CordialSpellData.Cooldown.TotalSeconds,
-						Me.CurrentGP);
+                        Localization.Localization.ExGather_CordialUse,
+						(int) CordialSpellData.Cooldown.TotalSeconds,
+						ExProfileBehavior.Me.CurrentGP);
 
 					if (await Coroutine.Wait(
 						TimeSpan.FromSeconds(maxTimeoutSeconds),
 						() =>
+						{
+							if (ExProfileBehavior.Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 							{
-								if (Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
-								{
-									Actionmanager.Dismount();
-									return false;
-								}
+								Actionmanager.Dismount();
+								return false;
+							}
 
-								return cordial.CanUse(Me) || Core.Player.IsDead;
-							}))
+							return cordial.CanUse(ExProfileBehavior.Me) || Core.Player.IsDead;
+						}))
 					{
 						await Coroutine.Sleep(500);
-						Logger.Info("Using " + cordialType);
-						cordial.UseItem(Me);
+						Logger.Info(Localization.Localization.ExGather_CordialUsing + cordialType);
+						cordial.UseItem(ExProfileBehavior.Me);
 						await Coroutine.Sleep(1500);
 						return true;
 					}
 				}
 				else
 				{
-					Logger.Warn("No Cordial avilable, buy more " + cordialType);
+					Logger.Warn(Localization.Localization.ExGather_CordialNotAvailable + cordialType);
 				}
 			}
 
@@ -1583,39 +1585,41 @@
 
 			var ttg = GetTimeToGather();
 
-			if (Me.CurrentGP < waitForGp)
+			if (ExProfileBehavior.Me.CurrentGP < waitForGp)
 			{
-				var gpNeeded = waitForGp - (Me.CurrentGP - (Me.CurrentGP % 5));
-				var gpNeededTicks = gpNeeded / 5;
-				var gpNeededSeconds = gpNeededTicks * 3;
+				var gpNeeded = waitForGp - (ExProfileBehavior.Me.CurrentGP - (ExProfileBehavior.Me.CurrentGP%5));
+				var gpNeededTicks = gpNeeded/5;
+				var gpNeededSeconds = gpNeededTicks*3;
 
 				if (GatherStrategy == GatherStrategy.TouchAndGo)
 				{
 					if (!IsEphemeral())
 					{
-						Logger.Verbose("TouchAndGo strategy override, not waiting for GP unless we are on an ephemeral node");
+						Logger.Verbose(Localization.Localization.ExGather_TnGEphemeral);
 						return true;
 					}
 
 					if (gpNeededSeconds > 15)
 					{
-						Logger.Verbose("TouchAndGo strategy override, not waiting for GP unless it is less than 16 seconds");
+						Logger.Verbose(Localization.Localization.ExGather_TnGSeconds);
 						return true;
 					}
 				}
 
-				StatusText = "Waiting for GP";
+				StatusText = Localization.Localization.ExGather_GPWait;
 
 				Logger.Info(
-					"Waiting for GP -> Seconds: {0}, Current GP: {1}, WaitForGP: {2}",
+                    Localization.Localization.ExGather_GPWaitDetailed,
 					gpNeededSeconds,
-					Me.CurrentGP,
+					ExProfileBehavior.Me.CurrentGP,
 					waitForGp);
 
 				await
 					Coroutine.Wait(
 						TimeSpan.FromSeconds(ttg.RealSecondsTillStartGathering),
-						() => Me.CurrentGP >= waitForGp || Me.CurrentGP == Me.MaxGP || Core.Player.IsDead);
+						() =>
+							ExProfileBehavior.Me.CurrentGP >= waitForGp || ExProfileBehavior.Me.CurrentGP == ExProfileBehavior.Me.MaxGP ||
+							Core.Player.IsDead);
 			}
 
 			return true;
@@ -1630,10 +1634,7 @@
 
 			public int TicksTillStartGathering
 			{
-				get
-				{
-					return RealSecondsTillStartGathering / 3;
-				}
+				get { return RealSecondsTillStartGathering/3; }
 			}
 		}
 	}

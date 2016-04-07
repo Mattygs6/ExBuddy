@@ -1,23 +1,18 @@
-﻿using ExBuddy.Offsets;
-
-namespace ExBuddy.Helpers
+﻿namespace ExBuddy.Helpers
 {
 	using System;
 	using System.Collections.Concurrent;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Reflection;
-	using System.Threading;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Logging;
-
 	using ff14bot.Forms.ugh;
 	using ff14bot.Managers;
 	using ff14bot.NeoProfiles;
+	using Localization;
 
-	public static class Condition
+    public static class Condition
 	{
 		public static readonly TimeSpan OneDay = new TimeSpan(1, 0, 0, 0);
 
@@ -28,10 +23,11 @@ namespace ExBuddy.Helpers
 
 		static Condition()
 		{
+            LocalizationInitializer.Initalize();
 
-            SecondaryOffsetManager.IntalizeOffsets();
+			SecondaryOffsetManager.IntalizeOffsets();
 
-            AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
+			AddNamespacesToScriptManager("ExBuddy", "ExBuddy.Helpers");
 
 			RebornBuddyTitle = MainWpf.current.Title;
 
@@ -122,8 +118,8 @@ namespace ExBuddy.Helpers
 		internal static void AddNamespacesToScriptManager(params string[] param)
 		{
 			var field =
-				typeof(ScriptManager).GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-					.FirstOrDefault(f => f.FieldType == typeof(List<string>));
+				typeof (ScriptManager).GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+					.FirstOrDefault(f => f.FieldType == typeof (List<string>));
 
 			if (field == null)
 			{
@@ -161,67 +157,6 @@ namespace ExBuddy.Helpers
 			{
 				MainWpf.current.Dispatcher.Invoke(
 					() => MainWpf.current.Title = string.Concat(RebornBuddyTitle, " - ", GameObjectManager.LocalPlayer.Name));
-			}
-		}
-	}
-
-	public class ConditionTimer : IDisposable
-	{
-		private bool disposed;
-
-		private bool isValid = true;
-
-		public ConditionTimer(int id, TimeSpan timeSpan)
-		{
-			Id = id;
-			TimeSpan = timeSpan;
-			Timer = new Timer(ToggleValid, this, timeSpan, TimeSpan.FromMilliseconds(-1));
-		}
-
-		public int Id { get; private set; }
-
-		public bool IsValid
-		{
-			get
-			{
-				if (!isValid)
-				{
-					ConditionTimer timer;
-					Condition.Timers.TryRemove(Id, out timer);
-					Dispose();
-				}
-
-				return isValid;
-			}
-		}
-
-		public Timer Timer { get; private set; }
-
-		public TimeSpan TimeSpan { get; private set; }
-
-		#region IDisposable Members
-
-		public void Dispose()
-		{
-			if (!disposed)
-			{
-				disposed = true;
-				if (Timer != null)
-				{
-					Timer.Dispose();
-				}
-			}
-		}
-
-		#endregion
-
-		private static void ToggleValid(object context)
-		{
-			var _this = context as ConditionTimer;
-			if (_this != null)
-			{
-				_this.isValid = !_this.isValid;
-				_this.Timer.Change(_this.TimeSpan, TimeSpan.FromMilliseconds(-1));
 			}
 		}
 	}

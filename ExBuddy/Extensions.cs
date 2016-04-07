@@ -9,23 +9,19 @@
 	using System.Security.Cryptography;
 	using System.Text;
 	using System.Threading.Tasks;
-
 	using Clio.Common;
 	using Clio.Utilities;
-
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.Objects;
-
 	using GreyMagic;
 
-	public static partial class Extensions
+	public static class Extensions
 	{
 		////private static readonly List<uint> ReducibleItemIds = new List<uint> { 
 		////		12968, 	// Granular Clay
@@ -50,20 +46,20 @@
 
 		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
 		{
-			var side = range / Math.Sqrt(3);
+			var side = range/Math.Sqrt(3);
 			var random = new Vector3(
-				vector.X + (float)MathEx.Random(-side, side),
-				vector.Y + (float)MathEx.Random(-side, side),
-				vector.Z + (float)MathEx.Random(-side, side));
+				vector.X + (float) MathEx.Random(-side, side),
+				vector.Y + (float) MathEx.Random(-side, side),
+				vector.Z + (float) MathEx.Random(-side, side));
 
 			Vector3 hit;
 			var ticks = 0;
 			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
 			{
 				random = new Vector3(
-					vector.X + (float)MathEx.Random(-side, side),
-					vector.Y + (float)MathEx.Random(-side, side),
-					vector.Z + (float)MathEx.Random(-side, side));
+					vector.X + (float) MathEx.Random(-side, side),
+					vector.Y + (float) MathEx.Random(-side, side),
+					vector.Z + (float) MathEx.Random(-side, side));
 			}
 
 			if (ticks > 200)
@@ -80,20 +76,20 @@
 
 		public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f)
 		{
-			var side = range / Math.Sqrt(2);
+			var side = range/Math.Sqrt(2);
 			var random = new Vector3(
-				vector.X + (float)MathEx.Random(-side, side),
+				vector.X + (float) MathEx.Random(-side, side),
 				vector.Y,
-				vector.Z + (float)MathEx.Random(-side, side));
+				vector.Z + (float) MathEx.Random(-side, side));
 
 			Vector3 hit;
 			var ticks = 0;
 			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
 			{
 				random = new Vector3(
-					vector.X + (float)MathEx.Random(-side, side),
+					vector.X + (float) MathEx.Random(-side, side),
 					vector.Y,
-					vector.Z + (float)MathEx.Random(-side, side));
+					vector.Z + (float) MathEx.Random(-side, side));
 			}
 
 			if (ticks > 200)
@@ -182,7 +178,7 @@
 			{
 				// TODO: maybe check for number that != 0
 				return string.Equals(input, bool.TrueString, StringComparison.OrdinalIgnoreCase)
-						|| string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
+				       || string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return null;
@@ -192,7 +188,7 @@
 		{
 			Vector3 hit;
 			Vector3 distances;
-			var side = radius / (float)Math.Sqrt(2);
+			var side = radius/(float) Math.Sqrt(2);
 
 			var vectorSouthEast = new Vector3(vector.X + side, vector.Y, vector.Z + side);
 			var vectorNorthEast = new Vector3(vector.X + side, vector.Y, vector.Z - side);
@@ -207,7 +203,7 @@
 
 			float average;
 			var sd = StandardDeviation(
-				new[] { myGround, southEastGround, northEastGround, southWestGround, northWestGround },
+				new[] {myGround, southEastGround, northEastGround, southWestGround, northWestGround},
 				out average);
 
 			return vector;
@@ -290,7 +286,7 @@
 					continue;
 				}
 
-				if (typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType) && propertyInfo.PropertyType != typeof(string))
+				if (typeof (IEnumerable).IsAssignableFrom(propertyInfo.PropertyType) && propertyInfo.PropertyType != typeof (string))
 				{
 					var enumerableValue = value as IEnumerable;
 					if (enumerableValue == null)
@@ -382,7 +378,7 @@
 
 		public static object GetDefaultValue(this Type type)
 		{
-			if (type == null || !type.IsValueType || type == typeof(void) || type.ContainsGenericParameters)
+			if (type == null || !type.IsValueType || type == typeof (void) || type.ContainsGenericParameters)
 			{
 				return null;
 			}
@@ -466,10 +462,10 @@
 
 		public static async Task<GameObject> Interact(this IInteractWithNpc npc, float interactDistance = 3.0f)
 		{
-		    if (GameObjectManager.LocalPlayer.Location.Distance3D(npc.Location) > interactDistance)
-		    {
-		        await npc.Location.MoveTo(radius: interactDistance);
-		    }
+			if (GameObjectManager.LocalPlayer.Location.Distance3D(npc.Location) > interactDistance)
+			{
+				await npc.Location.MoveTo(radius: interactDistance);
+			}
 
 			var obj = GameObjectManager.GetObjectByNPCId(npc.NpcId);
 			obj.Interact();
@@ -480,14 +476,14 @@
 		public static bool IsDoneMoving(this MoveResult moveResult)
 		{
 			return moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination
-					|| moveResult == MoveResult.Failed || moveResult == MoveResult.Failure
-					|| moveResult == MoveResult.PathGenerationFailed;
+			       || moveResult == MoveResult.Failed || moveResult == MoveResult.Failure
+			       || moveResult == MoveResult.PathGenerationFailed;
 		}
 
 		public static bool IsFullStack(this BagSlot bagSlot, bool includeNonStackable = false)
 		{
 			return bagSlot != null && bagSlot.Item != null && bagSlot.IsFilled
-					&& (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1));
+			       && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1));
 		}
 
 		public static bool IsGround(this Vector3 vector, float range = 3.0f)
@@ -532,7 +528,7 @@
 				return false;
 			}
 
-			var side = range / (float)Math.Sqrt(2);
+			var side = range/(float) Math.Sqrt(2);
 
 			var vector1 = new Vector3(vector.X + side, vector.Y, vector.Z + side);
 			var vector2 = new Vector3(vector.X + side, vector.Y, vector.Z - side);
@@ -588,13 +584,13 @@
 			}
 
 			if (gatheringItem.Chance == 40
-				&& lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance15])
+			    && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance15])
 			{
 				return true;
 			}
 
 			if (gatheringItem.Chance == 75
-				&& lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance50])
+			    && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance50])
 			{
 				return true;
 			}
@@ -617,9 +613,9 @@
 							provider.GetBytes(box);
 						}
 							// ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-						while (!(box[0] < n * (byte.MaxValue / n)));
+						while (!(box[0] < n*(byte.MaxValue/n)));
 
-						var k = box[0] % n;
+						var k = box[0]%n;
 						n--;
 						var value = list[k];
 						list[k] = list[n];
@@ -659,6 +655,26 @@
 			}
 		}
 
+#if RB_X64
+        public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params ulong[] param)
+		{
+			if (window == null || !window.IsValid)
+			{
+				return SendActionResult.InvalidWindow;
+			}
+
+			try
+			{
+				window.SendAction(pairCount, param);
+				return SendActionResult.Success;
+			}
+			catch (Exception ex)
+			{
+				Logger.Instance.Error(ex.Message);
+				return SendActionResult.InjectionError;
+			}
+		}
+#else
 		public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params uint[] param)
 		{
 			if (window == null || !window.IsValid)
@@ -677,6 +693,7 @@
 				return SendActionResult.InjectionError;
 			}
 		}
+#endif
 
 		private static float StandardDeviation(IEnumerable<Vector3> vectors, out float average)
 		{
@@ -687,10 +704,10 @@
 		{
 			average = values.Average();
 			var a = average;
-			var sumOfSquaresOfDiffs = values.Select(v => (v - a) * (v - a)).Sum();
-			var sd = Math.Sqrt(sumOfSquaresOfDiffs / values.Count);
+			var sumOfSquaresOfDiffs = values.Select(v => (v - a)*(v - a)).Sum();
+			var sd = Math.Sqrt(sumOfSquaresOfDiffs/values.Count);
 
-			return (float)sd;
+			return (float) sd;
 		}
 	}
 }

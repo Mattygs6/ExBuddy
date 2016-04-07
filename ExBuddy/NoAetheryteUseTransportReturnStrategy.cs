@@ -1,15 +1,10 @@
 ﻿namespace ExBuddy
 {
-	using System.Threading;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
@@ -19,8 +14,8 @@
 	{
 		public NoAetheryteUseTransportReturnStrategy()
 		{
-			this.DialogOption = -1;
-			this.InteractDistance = 4.0f;
+			DialogOption = -1;
+			InteractDistance = 4.0f;
 		}
 
 		public int DialogOption { get; set; }
@@ -37,6 +32,21 @@
 
 		#endregion
 
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
+
+		#endregion
+
+		public override string ToString()
+		{
+			return string.Format(
+				"NoAetheryteUseTransport: Death Location: {0}, AetheryteId: {1}, NpcLocation: {2}",
+				InitialLocation,
+				AetheryteId,
+				NpcLocation);
+		}
+
 		#region IReturnStrategy Members
 
 		public Vector3 InitialLocation { get; set; }
@@ -45,7 +55,7 @@
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await this.InitialLocation.MoveTo();
+				return await InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -56,8 +66,8 @@
 		{
 			await this.TeleportTo();
 
-			await this.NpcLocation.MoveTo(true, radius: this.InteractDistance);
-			GameObjectManager.GetObjectByNPCId(this.NpcId).Target();
+			await NpcLocation.MoveTo(true, radius: InteractDistance);
+			GameObjectManager.GetObjectByNPCId(NpcId).Target();
 			Core.Player.CurrentTarget.Interact();
 
 			// Temporarily assume selectyesno until we see if we need it for anything but hinterlands
@@ -73,20 +83,5 @@
 		}
 
 		#endregion
-
-		#region IZoneId Members
-
-		public ushort ZoneId { get; set; }
-
-		#endregion
-
-		public override string ToString()
-		{
-			return string.Format(
-				"NoAetheryteUseTransport: Death Location: {0}, AetheryteId: {1}, NpcLocation: {2}",
-				this.InitialLocation,
-				this.AetheryteId,
-				this.NpcLocation);
-		}
 	}
 }

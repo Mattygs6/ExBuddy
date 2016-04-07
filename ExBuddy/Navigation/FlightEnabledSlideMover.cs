@@ -5,16 +5,12 @@
 	using System.Threading;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Interfaces;
@@ -28,15 +24,9 @@
 	{
 		private static Func<Vector3, bool> shouldFlyToFunc = ShouldFlyInternal;
 
-		protected readonly Logger Logger;
-
-		internal bool IsMovingTowardsLocation;
-
-		private readonly IFlightMovementArgs flightMovementArgs;
-
-		private readonly IPlayerMover innerMover;
-
 		private readonly Stopwatch landingStopwatch = new Stopwatch();
+
+		protected readonly Logger Logger;
 
 		private readonly Stopwatch takeoffStopwatch = new Stopwatch();
 
@@ -46,16 +36,18 @@
 
 		private bool disposed;
 
+		internal bool IsMovingTowardsLocation;
+
 		private Coroutine landingCoroutine;
 
 		private Task landingTask;
 
-		private Task takeoffTask;
-
 		private Vector3 lastDestination;
 
+		private Task takeoffTask;
+
 		public FlightEnabledSlideMover(IPlayerMover innerMover, bool forceLanding = false)
-			: this(innerMover, new FlightMovementArgs { ForceLanding = forceLanding }) {}
+			: this(innerMover, new FlightMovementArgs {ForceLanding = forceLanding}) {}
 
 		public FlightEnabledSlideMover(IPlayerMover innerMover, IFlightMovementArgs flightMovementArgs)
 		{
@@ -65,28 +57,19 @@
 			}
 
 			Logger = new Logger(this);
-			this.innerMover = innerMover;
+			InnerMover = innerMover;
 			Navigator.PlayerMover = this;
-			this.flightMovementArgs = flightMovementArgs;
+			FlightMovementArgs = flightMovementArgs;
 
 			GameEvents.OnMapChanged += GameEventsOnMapChanged;
 		}
 
 		public override Color Info
 		{
-			get
-			{
-				return Colors.LightSkyBlue;
-			}
+			get { return Colors.LightSkyBlue; }
 		}
 
-		public IPlayerMover InnerMover
-		{
-			get
-			{
-				return innerMover;
-			}
-		}
+		public IPlayerMover InnerMover { get; set; }
 
 		protected internal bool ShouldFly { get; private set; }
 
@@ -97,30 +80,209 @@
 			if (!disposed)
 			{
 				disposed = true;
-				Navigator.PlayerMover = innerMover;
+				Navigator.PlayerMover = InnerMover;
 				GameEvents.OnMapChanged -= GameEventsOnMapChanged;
 			}
 		}
 
 		#endregion
 
+		public void EnsureFlying()
+		{
+			if (!MovementManager.IsFlying && Actionmanager.CanMount == 0)
+			{
+				if (!takeoffStopwatch.IsRunning)
+				{
+					takeoffStopwatch.Restart();
+				}
+
+				if (takeoffTask == null)
+				{
+					Logger.Info(Localization.Localization.FlightEnabledSlideMover_TakeoffStart);
+					takeoffTask = Task.Factory.StartNew(
+						() =>
+						{
+							try
+							{
+								while (!MovementManager.IsFlying && Behaviors.ShouldContinue && IsMovingTowardsLocation)
+								{
+									if (takeoffStopwatch.ElapsedMilliseconds > 10000)
+									{
+										Logger.Error(Localization.Localization.FlightEnabledSlideMover_TakeoffFailed);
+										InnerMover.MoveStop();
+										IsTakingOff = false;
+										return;
+									}
+
+									if (coroutine == null || coroutine.IsFinished)
+									{
+										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffNew);
+										coroutine = new Coroutine(() => CommonTasks.TakeOff());
+									}
+
+									if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
+									{
+										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffResumed);
+										coroutine.Resume();
+									}
+
+									Thread.Sleep(33);
+								}
+							}
+							finally
+							{
+								if (!IsMovingTowardsLocation)
+								{
+									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_TakeoffCancelled, takeoffStopwatch.Elapsed);
+								}
+								else
+								{
+									Logger.Info(Localization.Localization.FlightEnabledSlideMover_Takeoff, takeoffStopwatch.Elapsed);
+								}
+
+								takeoffStopwatch.Reset();
+								IsTakingOff = false;
+								takeoffTask = null;
+							}
+						});
+				}
+			}
+			else
+			{
+				IsTakingOff = false;
+			}
+		}
+
+		public void ForceLanding()
+		{
+			if (MovementManager.IsFlying)
+			{
+				if (!landingStopwatch.IsRunning)
+				{
+					landingStopwatch.Restart();
+				}
+
+				if (!totalLandingStopwatch.IsRunning)
+				{
+					totalLandingStopwatch.Restart();
+				}
+
+				if (landingTask == null)
+				{
+					Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandStart);
+					landingTask = Task.Factory.StartNew(
+						() =>
+						{
+							try
+							{
+								while (MovementManager.IsFlying && Behaviors.ShouldContinue && !IsMovingTowardsLocation)
+								{
+									if (landingStopwatch.ElapsedMilliseconds < 2000)
+									{
+										// TODO: possible check to see if floor is more than 80 or 100 below us to not bother? or check for last destination and compare the Y value of the floor.
+										MovementManager.StartDescending();
+									}
+									else
+									{
+										if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
+										{
+											Logger.Error(Localization.Localization.FlightEnabledSlideMover_LandFailed);
+											InnerMover.MoveStop();
+											return;
+										}
+
+										if (landingCoroutine == null || landingCoroutine.IsFinished)
+										{
+											var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
+											MovementManager.StopDescending();
+											MovementManager.Jump();
+											landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
+											Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandNew, move);
+										}
+
+										if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
+										{
+											Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_LandResumed);
+											while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
+											       && !IsMovingTowardsLocation)
+											{
+												landingCoroutine.Resume();
+												Thread.Sleep(66);
+											}
+										}
+
+										if (MovementManager.IsFlying)
+										{
+											landingStopwatch.Restart();
+										}
+									}
+
+									Thread.Sleep(33);
+								}
+							}
+							finally
+							{
+								if (IsMovingTowardsLocation)
+								{
+									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_LandCancelled, totalLandingStopwatch.Elapsed);
+									InnerMover.MoveStop();
+								}
+								else
+								{
+									Logger.Info(Localization.Localization.ExFlyTo_Landing, totalLandingStopwatch.Elapsed);
+								}
+
+								totalLandingStopwatch.Reset();
+								landingStopwatch.Reset();
+
+								if (Coroutine.Current != landingCoroutine && landingCoroutine != null)
+								{
+									landingCoroutine.Dispose();
+								}
+
+								landingCoroutine = null;
+
+								IsLanding = false;
+								landingTask = null;
+							}
+						});
+				}
+			}
+			else
+			{
+				IsLanding = false;
+			}
+		}
+
+		public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
+		{
+			return playerMover.InnerMover as SlideMover;
+		}
+
+		internal static bool ShouldFlyInternal(Vector3 destination)
+		{
+			return MovementManager.IsFlying
+			       || (Actionmanager.CanMount == 0
+			           &&
+			           ((destination.Distance3D(GameObjectManager.LocalPlayer.Location) >=
+			             CharacterSettings.Instance.MountDistance)
+			            || !destination.IsGround()));
+		}
+
+		private void GameEventsOnMapChanged(object sender, EventArgs e)
+		{
+			ShouldFly = false;
+			Logger.Info(Localization.Localization.FlightEnabledSlideMover_Default);
+		}
+
 		#region IFlightEnabledPlayerMover Members
 
 		public bool CanFly
 		{
-			get
-			{
-				return WorldManager.CanFly;
-			}
+			get { return WorldManager.CanFly; }
 		}
 
-		public IFlightMovementArgs FlightMovementArgs
-		{
-			get
-			{
-				return flightMovementArgs;
-			}
-		}
+		public IFlightMovementArgs FlightMovementArgs { get; set; }
 
 		public bool IsLanding { get; protected set; }
 
@@ -149,12 +311,12 @@
 		{
 			if (!IsLanding)
 			{
-				innerMover.MoveStop();
+				InnerMover.MoveStop();
 				IsMovingTowardsLocation = false;
 			}
 
 			// TODO: Check can land!!
-			if (!IsLanding && (flightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(4.5f)))
+			if (!IsLanding && (FlightMovementArgs.ForceLanding || GameObjectManager.LocalPlayer.Location.IsGround(4.5f)))
 			{
 				IsLanding = true;
 				ForceLanding();
@@ -163,7 +325,6 @@
 
 		public void MoveTowards(Vector3 location)
 		{
-
 			if (ShouldFly && !MovementManager.IsFlying && !IsTakingOff)
 			{
 				IsTakingOff = true;
@@ -175,196 +336,10 @@
 			{
 				lastDestination = location;
 				IsMovingTowardsLocation = true;
-				innerMover.MoveTowards(location);
+				InnerMover.MoveTowards(location);
 			}
 		}
 
 		#endregion
-
-		public void EnsureFlying()
-		{
-			if (!MovementManager.IsFlying && Actionmanager.CanMount == 0)
-			{
-				if (!takeoffStopwatch.IsRunning)
-				{
-					takeoffStopwatch.Restart();
-				}
-
-				if (takeoffTask == null)
-				{
-					Logger.Info("Started Takeoff Task");
-					takeoffTask = Task.Factory.StartNew(
-						() =>
-							{
-								try
-								{
-									while (!MovementManager.IsFlying && Behaviors.ShouldContinue && IsMovingTowardsLocation)
-									{
-										if (takeoffStopwatch.ElapsedMilliseconds > 10000)
-										{
-											Logger.Error("Takeoff failed. Passing back control.");
-											innerMover.MoveStop();
-											IsTakingOff = false;
-											return;
-										}
-
-										if (coroutine == null || coroutine.IsFinished)
-										{
-											Logger.Verbose("Created new Takeoff Coroutine");
-											coroutine = new Coroutine(() => CommonTasks.TakeOff());
-										}
-
-										if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
-										{
-											Logger.Verbose("Resumed Takeoff Coroutine");
-											coroutine.Resume();
-										}
-
-										Thread.Sleep(33);
-									}
-								}
-								finally
-								{
-									if (!IsMovingTowardsLocation)
-									{
-										Logger.Warn("Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called.", takeoffStopwatch.Elapsed);
-									}
-									else
-									{
-										Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
-									}
-
-									takeoffStopwatch.Reset();
-									IsTakingOff = false;
-									takeoffTask = null;
-								}
-							});
-				}
-			}
-			else
-			{
-				IsTakingOff = false;
-			}
-		}
-
-		public void ForceLanding()
-		{
-			if (MovementManager.IsFlying)
-			{
-				if (!landingStopwatch.IsRunning)
-				{
-					landingStopwatch.Restart();
-				}
-
-				if (!totalLandingStopwatch.IsRunning)
-				{
-					totalLandingStopwatch.Restart();
-				}
-
-				if (landingTask == null)
-				{
-					Logger.Info("Started Landing Task");
-					landingTask = Task.Factory.StartNew(
-						() =>
-							{
-								try
-								{
-									while (MovementManager.IsFlying && Behaviors.ShouldContinue && !IsMovingTowardsLocation)
-									{
-										if (landingStopwatch.ElapsedMilliseconds < 2000)
-										{
-											// TODO: possible check to see if floor is more than 80 or 100 below us to not bother? or check for last destination and compare the Y value of the floor.
-											MovementManager.StartDescending();
-										}
-										else
-										{
-											if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
-											{
-												Logger.Error("Landing failed. Passing back control.");
-												innerMover.MoveStop();
-												return;
-											}
-
-											if (landingCoroutine == null || landingCoroutine.IsFinished)
-											{
-												var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
-												MovementManager.StopDescending();
-												MovementManager.Jump();
-												landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
-												Logger.Info("Created new Landing Unstuck Coroutine, moving to {0}", move);
-											}
-
-											if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
-											{
-												Logger.Verbose("Resumed Landing Unstuck Coroutine");
-												while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
-														&& !IsMovingTowardsLocation)
-												{
-													landingCoroutine.Resume();
-													Thread.Sleep(66);
-												}
-											}
-
-											if (MovementManager.IsFlying)
-											{
-												landingStopwatch.Restart();
-											}
-										}
-
-										Thread.Sleep(33);
-									}
-								}
-								finally
-								{
-									if (IsMovingTowardsLocation)
-									{
-										Logger.Warn("Landing cancelled after {0} ms. New destination requested.", totalLandingStopwatch.Elapsed);
-										innerMover.MoveStop();
-									}
-									else
-									{
-										Logger.Info("Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
-									}
-
-									totalLandingStopwatch.Reset();
-									landingStopwatch.Reset();
-
-									if (Coroutine.Current != landingCoroutine && landingCoroutine != null)
-									{
-										landingCoroutine.Dispose();
-									}
-
-									landingCoroutine = null;
-
-									IsLanding = false;
-									landingTask = null;
-								}
-							});
-				}
-			}
-			else
-			{
-				IsLanding = false;
-			}
-		}
-
-		public static explicit operator SlideMover(FlightEnabledSlideMover playerMover)
-		{
-			return playerMover.innerMover as SlideMover;
-		}
-
-		internal static bool ShouldFlyInternal(Vector3 destination)
-		{
-			return MovementManager.IsFlying
-					|| (Actionmanager.CanMount == 0
-						&& ((destination.Distance3D(GameObjectManager.LocalPlayer.Location) >= CharacterSettings.Instance.MountDistance)
-							|| !destination.IsGround()));
-		}
-
-		private void GameEventsOnMapChanged(object sender, EventArgs e)
-		{
-			ShouldFly = false;
-			Logger.Info("Set default value for flying to false until we can determine if we can fly in this zone.");
-		}
 	}
 }

@@ -2,19 +2,17 @@
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Windows;
-
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
+	using ff14bot.RemoteWindows;
+	using PurifyDialog = ExBuddy.Windows.PurifyDialog;
 
 	[LoggerName("ExPurify")]
 	[XmlElement("ExPurify")]
@@ -29,26 +27,21 @@
 		[XmlAttribute("MaxWait")]
 		public int MaxWait { get; set; }
 
-		protected override void OnStart()
-		{
-			MaxWait = MaxWait.Clamp(1000, 10000);
-		}
-
-		protected async override Task<bool> Main()
+		protected override async Task<bool> Main()
 		{
 			if (!ScriptManager.GetCondition(Condition)())
 			{
-				Logger.Info("Did not meet the condition to Purify, [{0}]", Condition);
+				Logger.Info(Localization.Localization.ExPurify_GetCondition, Condition);
 				return isDone = true;
 			}
 
-			await Behaviors.Wait(2000, () => !Gathering.IsOpen);
+			await Behaviors.Wait(2000, () => !Window<Gathering>.IsOpen);
 			await Behaviors.Wait(2000, () => !GatheringMasterpiece.IsOpen);
 
 			Navigator.Stop();
 
 			var ticks = 0;
-			while(MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
+			while (MovementManager.IsFlying && ticks++ < 5 && Behaviors.ShouldContinue)
 			{
 				MovementManager.StartDescending();
 				await Coroutine.Wait(500, () => !MovementManager.IsFlying);
@@ -56,7 +49,7 @@
 
 			if (ticks > 5)
 			{
-				Logger.Error("Unable to land, can't reduce unless we land!");
+				Logger.Error(Localization.Localization.ExPurify_Land);
 				return isDone = true;
 			}
 
@@ -65,24 +58,29 @@
 			if (await Coroutine.Wait(
 				MaxWait,
 				() =>
+				{
+					if (!ExProfileBehavior.Me.IsMounted)
 					{
-						if (!Me.IsMounted)
-						{
-							return true;
-						}
+						return true;
+					}
 
-						Actionmanager.Dismount();
-						return false;
-					}))
+					Actionmanager.Dismount();
+					return false;
+				}))
 			{
-				await PurifyDialog.ReduceAllItems(InventoryManager.FilledSlots, (ushort)MaxWait);
+				await PurifyDialog.ReduceAllItems(InventoryManager.FilledSlots, (ushort) MaxWait);
 			}
 			else
 			{
-				Logger.Error("Could not dismount.");
+				Logger.Error(Localization.Localization.ExPurify_Dismount);
 			}
 
 			return isDone = true;
+		}
+
+		protected override void OnStart()
+		{
+			MaxWait = MaxWait.Clamp(1000, 10000);
 		}
 	}
 }

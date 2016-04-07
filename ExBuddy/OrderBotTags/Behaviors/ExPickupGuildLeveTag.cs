@@ -6,17 +6,13 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.RemoteWindows;
 
@@ -41,29 +37,13 @@
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.MediumPurple;
-			}
+			get { return Colors.MediumPurple; }
 		}
 
 		private uint[] Ids
 		{
-			get
-			{
-				return ids ?? (ids = LeveIds.Select(Convert.ToUInt32).ToArray());
-			}
+			get { return ids ?? (ids = LeveIds.Select(Convert.ToUInt32).ToArray()); }
 		}
-
-		#region IInteractWithNpc Members
-
-		[XmlAttribute("NpcLocation")]
-		public Vector3 Location { get; set; }
-
-		[XmlAttribute("NpcId")]
-		public uint NpcId { get; set; }
-
-		#endregion
 
 		protected override void DoReset()
 		{
@@ -94,9 +74,9 @@
 			}
 
 			// Movement
-			if (Me.Distance(Location) > 3.5)
+			if (ExProfileBehavior.Me.Distance(Location) > 3.5)
 			{
-				StatusText = "Moving to Npc -> " + NpcId;
+				StatusText = Localization.Localization.ExPickupGuildLeve_Move + NpcId;
 
 				await Location.MoveTo(radius: 3.4f, name: " NpcId: " + NpcId);
 				return true;
@@ -108,7 +88,7 @@
 			}
 
 			// Interact
-			if (Core.Target == null && Me.Distance(Location) <= 3.5)
+			if (Core.Target == null && ExProfileBehavior.Me.Distance(Location) <= 3.5)
 			{
 				await this.Interact();
 				await Coroutine.Yield();
@@ -141,8 +121,8 @@
 				{
 					if (GuildLeve.Allowances > 0)
 					{
-						StatusText = "Picking up Leve -> " + leveId;
-						Logger.Info("Picking up Leve: " + leveId);
+						StatusText = Localization.Localization.ExPickupGuildLeve_Pickup + leveId;
+						Logger.Info(Localization.Localization.ExPickupGuildLeve_Pickup2 + leveId);
 
 						await Coroutine.Sleep(1000);
 						guildLeveWindow.AcceptLeve(leveId);
@@ -156,7 +136,7 @@
 			}
 
 			// Interact if targetting but not null (if combat behaviors prevented the first one)
-			if (Me.Distance(Location) <= 3.5)
+			if (ExProfileBehavior.Me.Distance(Location) <= 3.5)
 			{
 				await this.Interact();
 				return true;
@@ -188,7 +168,17 @@
 		{
 			return
 				await
-				Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
+					Coroutine.Wait(3000, () => SelectIconString.IsOpen || SelectString.IsOpen || Request.IsOpen || JournalResult.IsOpen);
 		}
+
+		#region IInteractWithNpc Members
+
+		[XmlAttribute("NpcLocation")]
+		public Vector3 Location { get; set; }
+
+		[XmlAttribute("NpcId")]
+		public uint NpcId { get; set; }
+
+		#endregion
 	}
 }

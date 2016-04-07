@@ -3,6 +3,6 @@
 	public sealed class SalvageResult : Window<SalvageResult>
 	{
 		public SalvageResult()
-			: base("SalvageResult") { }
+			: base("SalvageResult") {}
 	}
 }

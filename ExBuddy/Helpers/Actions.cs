@@ -1,11 +1,8 @@
 namespace ExBuddy.Helpers
 {
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Logging;
-
 	using ff14bot;
 	using ff14bot.Managers;
 	using ff14bot.Objects;
@@ -107,7 +104,7 @@ namespace ExBuddy.Helpers
 
 		internal static async Task<bool> CastAura(Ability ability, int delay, AbilityAura aura = AbilityAura.None)
 		{
-			return await CastAura(Abilities.Map[Core.Player.CurrentJob][ability], delay, (int)aura);
+			return await CastAura(Abilities.Map[Core.Player.CurrentJob][ability], delay, (int) aura);
 		}
 	}
 }

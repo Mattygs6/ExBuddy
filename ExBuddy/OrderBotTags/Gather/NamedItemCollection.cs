@@ -2,100 +2,96 @@
 {
 	using System.Collections;
 	using System.Collections.Generic;
-
-	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Interfaces;
 
 	[XmlElement("Items")]
 	public class NamedItemCollection : IList<IConditionNamedItem>
 	{
-		public NamedItemCollection()
+		        
+		[XmlElement(XmlEngine.GENERIC_BODY)]
+		private List<IConditionNamedItem> Items { get; set; }
+
+		#region IEnumerable Members
+
+		IEnumerator IEnumerable.GetEnumerator()
 		{
-			Items = new List<IConditionNamedItem>();
+			return GetEnumerator();
 		}
 
-        public IConditionNamedItem this[int index]
-        {
-            get
-            {
-                return ((IList<IConditionNamedItem>)Items)[index];
-            }
+		#endregion
 
-            set
-            {
-                ((IList<IConditionNamedItem>)Items)[index] = value;
-            }
-        }
+		#region IEnumerable<IConditionNamedItem> Members
 
-        public int Count
-        {
-            get
-            {
-                return ((IList<IConditionNamedItem>)Items).Count;
-            }
-        }
+		public IEnumerator<IConditionNamedItem> GetEnumerator()
+		{
+			return Items.GetEnumerator();
+		}
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return ((IList<IConditionNamedItem>)Items).IsReadOnly;
-            }
-        }
+		#endregion
 
-        [XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<IConditionNamedItem> Items { get; [UsedImplicitly] set; }
+		#region ICollection<IConditionNamedItem> Members
 
-        public void Add(IConditionNamedItem item)
-        {
-            ((IList<IConditionNamedItem>)Items).Add(item);
-        }
+		public int Count
+		{
+			get { return Items.Count; }
+		}
 
-        public void Clear()
-        {
-            ((IList<IConditionNamedItem>)Items).Clear();
-        }
+		public bool IsReadOnly
+		{
+			get { return false; }
+		}
 
-        public bool Contains(IConditionNamedItem item)
-        {
-            return ((IList<IConditionNamedItem>)Items).Contains(item);
-        }
+		public void Add(IConditionNamedItem item)
+		{
+			Items.Add(item);
+		}
 
-        public void CopyTo(IConditionNamedItem[] array, int arrayIndex)
-        {
-            ((IList<IConditionNamedItem>)Items).CopyTo(array, arrayIndex);
-        }
+		public void Clear()
+		{
+			Items.Clear();
+		}
 
-        public IEnumerator<IConditionNamedItem> GetEnumerator()
-        {
-            return ((IList<IConditionNamedItem>)Items).GetEnumerator();
-        }
+		public bool Contains(IConditionNamedItem item)
+		{
+			return Items.Contains(item);
+		}
 
-        public int IndexOf(IConditionNamedItem item)
-        {
-            return ((IList<IConditionNamedItem>)Items).IndexOf(item);
-        }
+		public void CopyTo(IConditionNamedItem[] array, int arrayIndex)
+		{
+			Items.CopyTo(array, arrayIndex);
+		}
 
-        public void Insert(int index, IConditionNamedItem item)
-        {
-            ((IList<IConditionNamedItem>)Items).Insert(index, item);
-        }
+		public bool Remove(IConditionNamedItem item)
+		{
+			return Items.Remove(item);
+		}
 
-        public bool Remove(IConditionNamedItem item)
-        {
-            return ((IList<IConditionNamedItem>)Items).Remove(item);
-        }
+		#endregion
 
-        public void RemoveAt(int index)
-        {
-            ((IList<IConditionNamedItem>)Items).RemoveAt(index);
-        }
+		#region IList<IConditionNamedItem> Members
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IList<IConditionNamedItem>)Items).GetEnumerator();
-        }
-    }
+		public int IndexOf(IConditionNamedItem item)
+		{
+			return Items.IndexOf(item);
+		}
+
+		public void Insert(int index, IConditionNamedItem item)
+		{
+			Items.Insert(index, item);
+		}
+
+		public IConditionNamedItem this[int index]
+		{
+			get { return Items[index]; }
+			set { Items[index] = value; }
+		}
+
+		public void RemoveAt(int index)
+		{
+			Items.RemoveAt(index);
+		}
+
+		#endregion
+	}
 }

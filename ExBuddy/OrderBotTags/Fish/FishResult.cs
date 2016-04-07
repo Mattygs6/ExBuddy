@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Fish
 {
 	using System;
-
 	using ExBuddy.Enumerations;
 
 	public class FishResult
@@ -47,7 +46,7 @@
 
 		public bool ShouldMooch(Keeper keeper)
 		{
-			if (!keeper.Action.HasFlag((KeeperAction)0x04))
+			if (!keeper.Action.HasFlag((KeeperAction) 0x04))
 			{
 				return false;
 			}

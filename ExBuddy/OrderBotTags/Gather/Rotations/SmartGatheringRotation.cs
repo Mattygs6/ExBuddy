@@ -1,19 +1,18 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using ExBuddy.Interfaces;
 
 	public abstract class SmartGatheringRotation : GatheringRotation
 	{
-		public override bool ShouldForceGather(ExGatherTag tag)
-		{
-			return !tag.IsUnspoiled();
-		}
-
 		public override Task<bool> Prepare(ExGatherTag tag)
 		{
 			return ResolveInternalGatheringRotation(tag).Prepare(tag);
+		}
+
+		public override bool ShouldForceGather(ExGatherTag tag)
+		{
+			return !tag.IsUnspoiled();
 		}
 
 		protected virtual IGatheringRotation ResolveInternalGatheringRotation(ExGatherTag tag)

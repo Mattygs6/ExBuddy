@@ -3,12 +3,9 @@
 	using System;
 	using System.Globalization;
 	using System.Reflection;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Helpers;
 
 	public sealed class Logger
@@ -24,7 +21,7 @@
 		static Logger()
 		{
 			var assembly = Assembly.GetExecutingAssembly();
-			if (assembly.IsDefined(typeof(AssemblyFileVersionAttribute)))
+			if (assembly.IsDefined(typeof (AssemblyFileVersionAttribute)))
 			{
 				try
 				{
@@ -103,7 +100,7 @@
 		{
 			if (ExBuddySettings.Instance.VerboseLogging)
 			{
-				Logging.WriteVerbose(logColors.Info, Prefix + message);	
+				Logging.WriteVerbose(logColors.Info, Prefix + message);
 			}
 		}
 

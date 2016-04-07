@@ -15,8 +15,8 @@
 		<!-- Suggested Bait to use: Purse Web Spider -->
 		<!-- MinFish/MaxFish optional -->
 		<Fish Mooch="1" MoochCondition="IsTimeBetween(21,24) or IsTimeBetween(0,3)" MinFish="25" MaxFish="35"
-			Patience="Patience"
-			ConfirmKey="Return" MoveCursorRightKey="Right" BaitDelay="150">
+		      Patience="Patience"
+		      ConfirmKey="Return" MoveCursorRightKey="Right" BaitDelay="150">
 			<Baits>
 				<Bait name="Stonefly Nymph" condition="Core.Player.HasAura(850) and (IsTimeBetween(21,24) or IsTimeBetween(0,3))" />
 				<Bait name="Brute Leech" condition="Core.Player.ClassLevel == 60 and (IsTimeBetween(21,24) or IsTimeBetween(0,3))" />

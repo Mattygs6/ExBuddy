@@ -6,11 +6,9 @@
 	using System.Net.Http;
 	using System.Text.RegularExpressions;
 	using System.Threading;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot.Managers;
 
 	public class FF14AnglerWeatherProvider : IWeatherProvider
@@ -25,115 +23,45 @@
 
 		private static readonly Timer RequestTimer = new Timer(GetEntries);
 
-		private static readonly IDictionary<uint, uint> zoneMap = new Dictionary<uint, uint>
-																	{
-																		{ 1, 129 },
-																		{ 2, 134 },
-																		{ 3, 135 },
-																		{ 4, 137 },
-																		{ 5, 138 },
-																		{ 6, 139 },
-																		{ 7, 180 },
-																		{ 8, 250 },
-																		{ 9, 339 }, // Mist
-																		{ 10, 132 },
-																		{ 11, 148 },
-																		{ 12, 152 },
-																		{ 13, 153 },
-																		{ 14, 154 },
-																		{ 15, 340 },
-																		// Lavender Beds
-																		{ 16, 130 },
-																		{ 17, 140 },
-																		{ 18, 141 },
-																		{ 19, 145 },
-																		{ 20, 146 },
-																		{ 21, 147 },
-																		{ 22, 341 }, // Goblet
-																		{ 25, 418 }, // Ishgard
-																		{ 23, 155 }, // CCH
-																		{ 26, 397 }, // CWH
-																		{ 27, 401 },
-																		{ 28, 402 },
-																		{ 29, 478 },
-																		{ 30, 398 },
-																		{ 31, 399 },
-																		// Hinterlands
-																		{ 32, 400 },
-																		{ 24, 156 } // Mor Dhona
-																	};
+		private static readonly IDictionary<int, int> ZoneMap = new Dictionary<int, int>
+		{
+			{129, 1},
+			{134, 2},
+			{135, 3},
+			{137, 4},
+			{138, 5},
+			{139, 6},
+			{180, 7},
+			{250, 8},
+			{339, 9}, // Mist
+			{132, 10},
+			{148, 11},
+			{152, 12},
+			{153, 13},
+			{154, 14},
+			{340, 15}, // Lavender Beds
+			{130, 16},
+			{140, 17},
+			{141, 18},
+			{145, 19},
+			{146, 20},
+			{147, 21},
+			{341, 22}, // Goblet
+			{418, 25}, // Ishgard
+			{155, 23}, // CCH
+			{397, 26}, // CWH
+			{401, 27},
+			{402, 28},
+			{478, 29}, // Idyllshire
+			{398, 30}, // Forelands
+			{399, 31}, // Hinterlands
+			{400, 32}, // Churning
+			{156, 24} // Mor Dhona
+		};
 
 		private static IList<WeatherResult> weatherResults;
 
 		public bool IsEnabled { get; private set; }
-
-		#region IWeatherProvider Members
-
-		public IEnumerable<WeatherData> CurrentWeatherData
-		{
-			get
-			{
-				return
-					weatherResults.Where(w => w.Time == 0)
-						.Select(
-							s =>
-							new WeatherData
-								{
-									Time = s.Time,
-									ZoneId = zoneMap[s.Area],
-									Html = s.Html,
-									Weather = GetTitleFromHtmlImg(s.Html),
-									WeatherId = s.Weather
-								});
-			}
-		}
-
-		public IList<WeatherData> WeatherData
-		{
-			get
-			{
-				return
-					weatherResults.Select(
-						s =>
-						new WeatherData
-							{
-								Time = s.Time,
-								ZoneId = zoneMap[s.Area],
-								Html = s.Html,
-								Weather = GetTitleFromHtmlImg(s.Html),
-								WeatherId = s.Weather
-							}).ToArray();
-			}
-		}
-
-		public void Disable()
-		{
-			lock (Locker)
-			{
-				if (IsEnabled)
-				{
-					IsEnabled = false;
-					RequestTimer.Change(-1, -1);
-					weatherResults.Clear();
-					weatherResults = null;
-					lastInterval = 0;
-				}
-			}
-		}
-
-		public void Enable()
-		{
-			lock (Locker)
-			{
-				if (!IsEnabled)
-				{
-					IsEnabled = true;
-					RequestTimer.Change(0, (int)SkywatcherPlugin.GetTimeTillNextInterval());
-				}
-			}
-		}
-
-		#endregion
 
 		/// <summary>
 		///     Gets the entries.
@@ -141,8 +69,8 @@
 		/// <param name="stateInfo">The state info.</param>
 		private static void GetEntries(object stateInfo)
 		{
-			if (WorldManager.EorzaTime.TimeOfDay.Hours % 8 == 0 || weatherResults == null
-				|| lastInterval < SkywatcherPlugin.GetIntervalNumber())
+			if (WorldManager.EorzaTime.TimeOfDay.Hours%8 == 0 || weatherResults == null
+			    || lastInterval < SkywatcherPlugin.GetIntervalNumber())
 			{
 				HttpClient client = null;
 				try
@@ -171,7 +99,7 @@
 						// New interval not posted, retry every 30 seconds
 						RequestTimer.Change(
 							TimeSpan.FromSeconds(30),
-							TimeSpan.FromMilliseconds((int)SkywatcherPlugin.GetTimeTillNextInterval()));
+							TimeSpan.FromMilliseconds((int) SkywatcherPlugin.GetTimeTillNextInterval()));
 					}
 				}
 				catch (Exception ex)
@@ -198,5 +126,88 @@
 
 			return "Parse Failure";
 		}
+
+		#region IWeatherProvider Members
+
+		public void Disable()
+		{
+			lock (Locker)
+			{
+				if (IsEnabled)
+				{
+					IsEnabled = false;
+					RequestTimer.Change(-1, -1);
+					weatherResults.Clear();
+					weatherResults = null;
+					lastInterval = 0;
+				}
+			}
+		}
+
+		public void Enable()
+		{
+			lock (Locker)
+			{
+				if (!IsEnabled)
+				{
+					IsEnabled = true;
+					RequestTimer.Change(0, (int) SkywatcherPlugin.GetTimeTillNextInterval());
+				}
+			}
+		}
+
+		public int? GetCurrentWeatherByZone(int zoneId)
+		{
+			int ff14AnglerZoneId;
+			if (!ZoneMap.TryGetValue(zoneId, out ff14AnglerZoneId))
+			{
+				return null;
+			}
+
+			var weather = weatherResults.FirstOrDefault(s => s.Time == 0 && s.Area == ff14AnglerZoneId);
+
+			if (weather != null)
+			{
+				return (int) weather.Weather;
+			}
+
+			return null;
+		}
+
+		public int? GetForecastByZone(int zoneId, TimeSpan timeSpan)
+		{
+			int time;
+			var etTillNextInterval = SkywatcherPlugin.GetEorzeaTimeTillNextInterval();
+
+			if (timeSpan > etTillNextInterval.Add(TimeSpan.FromHours(8)))
+			{
+				time = 2;
+			}
+			else if (timeSpan > etTillNextInterval)
+			{
+				time = 1;
+			}
+			else
+			{
+				time = 0;
+			}
+
+			int ff14AnglerZoneId;
+			if (!ZoneMap.TryGetValue(zoneId, out ff14AnglerZoneId))
+			{
+				return null;
+			}
+
+			var weather = weatherResults.FirstOrDefault(s => s.Time == time && s.Area == ff14AnglerZoneId);
+
+			if (weather != null)
+			{
+				return (int) weather.Weather;
+			}
+
+			return null;
+		}
+
+		#endregion
 	}
 }

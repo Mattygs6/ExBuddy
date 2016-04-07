@@ -4,6 +4,6 @@
 	public class PurifyResult : Window<PurifyResult>
 	{
 		public PurifyResult()
-			: base("PurifyResult") { }
+			: base("PurifyResult") {}
 	}
 }

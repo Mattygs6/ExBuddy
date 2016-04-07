@@ -18,21 +18,21 @@ namespace ExBuddy.Helpers
 			SynchronizationContext.SetSynchronizationContext(synch);
 			synch.Post(
 				async _ =>
+				{
+					try
 					{
-						try
-						{
-							await task();
-						}
-						catch (Exception e)
-						{
-							synch.InnerException = e;
-							throw;
-						}
-						finally
-						{
-							synch.EndMessageLoop();
-						}
-					},
+						await task();
+					}
+					catch (Exception e)
+					{
+						synch.InnerException = e;
+						throw;
+					}
+					finally
+					{
+						synch.EndMessageLoop();
+					}
+				},
 				null);
 			synch.BeginMessageLoop();
 
@@ -53,21 +53,21 @@ namespace ExBuddy.Helpers
 			var ret = default(T);
 			synch.Post(
 				async _ =>
+				{
+					try
 					{
-						try
-						{
-							ret = await task();
-						}
-						catch (Exception e)
-						{
-							synch.InnerException = e;
-							throw;
-						}
-						finally
-						{
-							synch.EndMessageLoop();
-						}
-					},
+						ret = await task();
+					}
+					catch (Exception e)
+					{
+						synch.InnerException = e;
+						throw;
+					}
+					finally
+					{
+						synch.EndMessageLoop();
+					}
+				},
 				null);
 			synch.BeginMessageLoop();
 			SynchronizationContext.SetSynchronizationContext(oldContext);

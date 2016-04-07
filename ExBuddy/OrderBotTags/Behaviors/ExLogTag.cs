@@ -1,11 +1,12 @@
-﻿#pragma warning disable 1998
+﻿
+#pragma warning disable 1998
+
 namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
 	using System.Xml.Serialization;
-
 	using ExBuddy.Attributes;
 
 	[LoggerName("ExLog")]
@@ -21,10 +22,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		[Clio.XmlEngine.XmlAttribute("Color")]
 		public string ColorString
 		{
-			get
-			{
-				return Color.ToString();
-			}
+			get { return Color.ToString(); }
 
 			set
 			{
@@ -68,7 +66,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			}
 			else if (!string.IsNullOrWhiteSpace(Body))
 			{
-				var lines = Body.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+				var lines = Body.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
 				foreach (var line in lines)
 				{

@@ -2,13 +2,10 @@
 {
 	using System;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ExBuddy.Logging;
-
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
@@ -20,7 +17,7 @@
 
 		public static uint GetClassIndex(ClassJobType classJobType)
 		{
-			return (uint)classJobType - 8;
+			return (uint) classJobType - 8;
 		}
 
 		public SendActionResult SelectClass(ClassJobType classJobType)
@@ -43,7 +40,7 @@
 			var result = SendActionResult.None;
 			var requestAttempts = 0;
 			while (result != SendActionResult.Success && !Request.IsOpen && requestAttempts++ < attempts
-					&& Behaviors.ShouldContinue)
+			       && Behaviors.ShouldContinue)
 			{
 				result = TurnIn(index);
 				if (result == SendActionResult.InjectionError)
@@ -64,10 +61,10 @@
 			// Try waiting half of the overall set time, up to 3 seconds
 			if (!Request.IsOpen)
 			{
-				if (!await Coroutine.Wait(Math.Min(3000, (interval * attempts) / 2), () => Request.IsOpen))
+				if (!await Coroutine.Wait(Math.Min(3000, (interval*attempts)/2), () => Request.IsOpen))
 				{
 					Logger.Instance.Warn(
-						"[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.",
+						Localization.Localization.MasterPieceSupply_CollectabilityValueNotEnough,
 						bagSlot.Collectability,
 						bagSlot.EnglishName);
 					return false;
@@ -79,7 +76,7 @@
 				Request.Cancel();
 				var item = DataManager.GetItem(Memory.Request.ItemId1);
 				Logger.Instance.Warn(
-					"[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'",
+					Localization.Localization.MasterPieceSupply_CannotTurnIn,
 					bagSlot.EnglishName,
 					item.EnglishName);
 				return false;
@@ -99,7 +96,7 @@
 
 			if (SelectYesno.IsOpen)
 			{
-				Logger.Instance.Warn("[MasterPieceSupply] Not turning in '{0}', full on scrips.", bagSlot.EnglishName);
+				Logger.Instance.Warn(Localization.Localization.MasterPieceSupply_FullScrips, bagSlot.EnglishName);
 				return false;
 			}
 

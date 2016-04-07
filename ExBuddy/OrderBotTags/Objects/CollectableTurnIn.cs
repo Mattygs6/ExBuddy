@@ -1,7 +1,6 @@
 ﻿namespace ExBuddy.OrderBotTags.Objects
 {
 	using System.ComponentModel;
-
 	using Clio.XmlEngine;
 
 	[XmlElement("CollectableTurnIn")]

@@ -1,4 +1,6 @@
-﻿#pragma warning disable 1998
+﻿
+#pragma warning disable 1998
+
 namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
@@ -6,11 +8,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
-
 	using ff14bot.Managers;
 
 	[LoggerName("ExDisablePlugins")]
@@ -24,10 +23,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.PaleGoldenrod;
-			}
+			get { return Colors.PaleGoldenrod; }
 		}
 
 		private IList<string> NamesList
@@ -36,10 +32,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				if (Names == null)
 				{
-					return new string[] { };
+					return new string[] {};
 				}
 
-				return namesList ?? (namesList = Names.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
+				return namesList
+				       ??
+				       (namesList = Names.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
 			}
 		}
 
@@ -56,8 +54,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return;
 			}
 
-			StatusText = "Disabling Plugins: " + Names;
-			Logger.Info("Disabling Plugins: " + Names);
+			StatusText = Localization.Localization.ExDisablePlugins_Disabling + Names;
+			Logger.Info(Localization.Localization.ExDisablePlugins_Disabling + Names);
 
 			foreach (var plugin in
 				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
@@ -66,11 +64,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (!plugin.Enabled)
 					{
-						Logger.Info("Plugin {0} already disabled.", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExDisablePlugins_Disabled, plugin.Plugin.Name);
 					}
 					else
 					{
-						Logger.Info("Disabling Plugin {0}", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExDisablePlugins_Disabling2, plugin.Plugin.Name);
 						plugin.Enabled = false;
 					}
 				}

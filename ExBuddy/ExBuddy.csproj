@@ -206,9 +206,7 @@
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />
     <None Include="Data\locationIndex.json" />
-    <None Include="Data\weatherIndex.json" />
     <None Include="Data\weatherRateIndex.json" />
-    <None Include="Data\zoneIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect345GatheringRotation.cs" />

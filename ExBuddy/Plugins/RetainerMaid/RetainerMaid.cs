@@ -9,12 +9,9 @@
 	using System.Linq;
 	using System.Threading;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -22,7 +19,6 @@
 	using ff14bot.Interfaces;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
-
 	using TreeSharp;
 
 	public class BagSlotSnapshot
@@ -35,11 +31,11 @@
 	public class Retainer
 	{
 		public static readonly InventoryBagId[] BagIds =
-			{
-				InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2,
-				InventoryBagId.Retainer_Page3, InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5,
-				InventoryBagId.Retainer_Page6, InventoryBagId.Retainer_Page7
-			};
+		{
+			InventoryBagId.Retainer_Page1, InventoryBagId.Retainer_Page2,
+			InventoryBagId.Retainer_Page3, InventoryBagId.Retainer_Page4, InventoryBagId.Retainer_Page5,
+			InventoryBagId.Retainer_Page6, InventoryBagId.Retainer_Page7
+		};
 
 		public readonly IList<BagSlot> BagSlots;
 
@@ -51,7 +47,7 @@
 					InventoryManager.GetBagsByInventoryBagId(BagIds).SelectMany(bag => bag.Select(bagSlot => bagSlot)));
 		}
 
-		public int Index { get; private set; }
+		public int Index { get; set; }
 	}
 
 	[LoggerName("RetainerMaid")]
@@ -65,26 +61,17 @@
 
 		public override string ButtonText
 		{
-			get
-			{
-				return "Housekeeping?!?";
-			}
+			get { return "Housekeeping?!?"; }
 		}
 
 		public override string Name
 		{
-			get
-			{
-				return "RetainerMaid";
-			}
+			get { return Localization.Localization.RetainerMaid_PluginName; }
 		}
 
 		public override bool WantButton
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		public override void OnButtonPress()
@@ -154,9 +141,20 @@
 				return false;
 			}
 
-			// If target is retainer summon object and select string is open?
-			//var bell = GameObjectManager.GetObjectByObjectId(4627756);
-			var bell = GameObjectManager.GetObjectByObjectId(4469206);
+			var pLocation = Core.Player.Location;
+			//HousingEventObjects don't have npcids and as such would be unuseable
+			//var bell = GameObjectManager.GetObjectsByNPCId<EventObject>(2000401).OrderBy(r=>r.Distance2D(pLocation)).FirstOrDefault();
+			var bell =
+				GameObjectManager.GameObjects.Where(r => r.IsVisible && r.EnglishName == "Summoning Bell")
+					.OrderBy(r => r.Distance2D(pLocation))
+					.FirstOrDefault();
+
+			if (bell == null)
+			{
+				Logger.Error(Localization.Localization.RetainerMaid_NoNearestSummoningBell);
+				return false;
+			}
+
 			bell.Interact();
 
 			await Coroutine.Wait(3000, () => SelectString.IsOpen);
@@ -165,7 +163,7 @@
 
 			while (retainerCount-- > 0)
 			{
-				SelectString.ClickSlot((uint)retainerCount);
+				SelectString.ClickSlot((uint) retainerCount);
 
 				await Coroutine.Wait(3000, () => Talk.DialogOpen);
 				await Coroutine.Sleep(500);
@@ -209,7 +207,7 @@
 
 			var openSlots = new Stack<BagSlot>(retainer.BagSlots.Where(bs => !bs.IsFilled));
 
-			SelectString.ClickSlot((uint)retainer.Index);
+			SelectString.ClickSlot((uint) retainer.Index);
 			await Coroutine.Wait(2000, () => !SelectString.IsOpen);
 			await Coroutine.Wait(2000, () => SelectString.IsOpen);
 
@@ -241,7 +239,7 @@
 
 			// ReSharper disable once UnusedParameter.Local
 			public RetainerMaidSettings(string path)
-				: base(Path.Combine(CharacterSettingsDirectory, "RetainerMaid.json")) {}
+				: base(Path.Combine(JsonSettings.CharacterSettingsDirectory, "RetainerMaid.json")) {}
 
 			[Setting]
 			[Category]
@@ -252,10 +250,7 @@
 
 			public static RetainerMaidSettings Instance
 			{
-				get
-				{
-					return instance ?? (instance = new RetainerMaidSettings("RetainerMaidSettings"));
-				}
+				get { return instance ?? (instance = new RetainerMaidSettings("RetainerMaidSettings")); }
 			}
 
 			[Setting]

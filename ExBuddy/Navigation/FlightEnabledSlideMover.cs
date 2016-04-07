@@ -98,7 +98,7 @@
 
 				if (takeoffTask == null)
 				{
-					Logger.Info("Started Takeoff Task");
+					Logger.Info(Localization.Localization.FlightEnabledSlideMover_TakeoffStart);
 					takeoffTask = Task.Factory.StartNew(
 						() =>
 						{
@@ -108,7 +108,7 @@
 								{
 									if (takeoffStopwatch.ElapsedMilliseconds > 10000)
 									{
-										Logger.Error("Takeoff failed. Passing back control.");
+										Logger.Error(Localization.Localization.FlightEnabledSlideMover_TakeoffFailed);
 										InnerMover.MoveStop();
 										IsTakingOff = false;
 										return;
@@ -116,13 +116,13 @@
 
 									if (coroutine == null || coroutine.IsFinished)
 									{
-										Logger.Verbose("Created new Takeoff Coroutine");
+										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffNew);
 										coroutine = new Coroutine(() => CommonTasks.TakeOff());
 									}
 
 									if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
 									{
-										Logger.Verbose("Resumed Takeoff Coroutine");
+										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffResumed);
 										coroutine.Resume();
 									}
 
@@ -133,11 +133,11 @@
 							{
 								if (!IsMovingTowardsLocation)
 								{
-									Logger.Warn("Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called.", takeoffStopwatch.Elapsed);
+									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_TakeoffCancelled, takeoffStopwatch.Elapsed);
 								}
 								else
 								{
-									Logger.Info("Takeoff took {0} ms or less", takeoffStopwatch.Elapsed);
+									Logger.Info(Localization.Localization.FlightEnabledSlideMover_Takeoff, takeoffStopwatch.Elapsed);
 								}
 
 								takeoffStopwatch.Reset();
@@ -169,7 +169,7 @@
 
 				if (landingTask == null)
 				{
-					Logger.Info("Started Landing Task");
+					Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandStart);
 					landingTask = Task.Factory.StartNew(
 						() =>
 						{
@@ -186,7 +186,7 @@
 									{
 										if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
 										{
-											Logger.Error("Landing failed. Passing back control.");
+											Logger.Error(Localization.Localization.FlightEnabledSlideMover_LandFailed);
 											InnerMover.MoveStop();
 											return;
 										}
@@ -197,12 +197,12 @@
 											MovementManager.StopDescending();
 											MovementManager.Jump();
 											landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
-											Logger.Info("Created new Landing Unstuck Coroutine, moving to {0}", move);
+											Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandNew, move);
 										}
 
 										if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
 										{
-											Logger.Verbose("Resumed Landing Unstuck Coroutine");
+											Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_LandResumed);
 											while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
 											       && !IsMovingTowardsLocation)
 											{
@@ -224,12 +224,12 @@
 							{
 								if (IsMovingTowardsLocation)
 								{
-									Logger.Warn("Landing cancelled after {0} ms. New destination requested.", totalLandingStopwatch.Elapsed);
+									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_LandCancelled, totalLandingStopwatch.Elapsed);
 									InnerMover.MoveStop();
 								}
 								else
 								{
-									Logger.Info("Landing took {0} ms or less", totalLandingStopwatch.Elapsed);
+									Logger.Info(Localization.Localization.ExFlyTo_Landing, totalLandingStopwatch.Elapsed);
 								}
 
 								totalLandingStopwatch.Reset();
@@ -272,7 +272,7 @@
 		private void GameEventsOnMapChanged(object sender, EventArgs e)
 		{
 			ShouldFly = false;
-			Logger.Info("Set default value for flying to false until we can determine if we can fly in this zone.");
+			Logger.Info(Localization.Localization.FlightEnabledSlideMover_Default);
 		}
 
 		#region IFlightEnabledPlayerMover Members

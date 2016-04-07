@@ -64,7 +64,7 @@
 				if (!await Coroutine.Wait(Math.Min(3000, (interval*attempts)/2), () => Request.IsOpen))
 				{
 					Logger.Instance.Warn(
-						"[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.",
+						Localization.Localization.MasterPieceSupply_CollectabilityValueNotEnough,
 						bagSlot.Collectability,
 						bagSlot.EnglishName);
 					return false;
@@ -76,7 +76,7 @@
 				Request.Cancel();
 				var item = DataManager.GetItem(Memory.Request.ItemId1);
 				Logger.Instance.Warn(
-					"[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'",
+					Localization.Localization.MasterPieceSupply_CannotTurnIn,
 					bagSlot.EnglishName,
 					item.EnglishName);
 				return false;
@@ -96,7 +96,7 @@
 
 			if (SelectYesno.IsOpen)
 			{
-				Logger.Instance.Warn("[MasterPieceSupply] Not turning in '{0}', full on scrips.", bagSlot.EnglishName);
+				Logger.Instance.Warn(Localization.Localization.MasterPieceSupply_FullScrips, bagSlot.EnglishName);
 				return false;
 			}
 

@@ -1429,11 +1429,263 @@ namespace ExBuddy.Localization {
         }
         
         /// <summary>
+        ///   查找类似 Collision detected! Generating new path! 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_CollisionDetected {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_CollisionDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Navigation reached current destination. Within 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_DestinationReached {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_DestinationReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Putting original Navigator back! 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_Dispose {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_Dispose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Replacing Navigator with Flight Navigator. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_Enabled {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_Enabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Moving to next hop: {0}{1} D: {2} 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_HopMoving {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_HopMoving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Moving to next hop [{0}]: {1}{2} D: {3} 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_HopMoving2 {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_HopMoving2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_NoPath {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_NoPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Found existing path to {0} using {1} hops in {2} ms 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_PathFound {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_PathFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Generated path to {0} using {1} hops in {2} ms 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_PathGenerated {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_PathGenerated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 No viable path found to {0} from {1} 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_PathNotViable {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_PathNotViable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Resetting NavigationProvider to Flight Navigator. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledNavigator_ResetNavigatonProvider {
+            get {
+                return ResourceManager.GetString("FlightEnabledNavigator_ResetNavigatonProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Set default value for flying to false until we can determine if we can fly in this zone. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_Default {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Landing took {0} ms or less 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_Land {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_Land", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Landing cancelled after {0} ms. New destination requested. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_LandCancelled {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_LandCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Landing failed. Passing back control. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_LandFailed {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_LandFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Created new Landing Unstuck Coroutine, moving to {0} 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_LandNew {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_LandNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Resumed Landing Unstuck Coroutine 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_LandResumed {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_LandResumed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Started Landing Task 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_LandStart {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_LandStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Takeoff took {0} ms or less 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_Takeoff {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_Takeoff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_TakeoffCancelled {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_TakeoffCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Takeoff failed. Passing back control. 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_TakeoffFailed {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_TakeoffFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Created new Takeoff Coroutine 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_TakeoffNew {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_TakeoffNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Resumed Takeoff Coroutine 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_TakeoffResumed {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_TakeoffResumed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Started Takeoff Task 的本地化字符串。
+        /// </summary>
+        internal static string FlightEnabledSlideMover_TakeoffStart {
+            get {
+                return ResourceManager.GetString("FlightEnabledSlideMover_TakeoffStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 [MasterPieceSupply] Can&apos;t turn in &apos;{0}&apos; today, the current turn in is &apos;{1}&apos; 的本地化字符串。
+        /// </summary>
+        internal static string MasterPieceSupply_CannotTurnIn {
+            get {
+                return ResourceManager.GetString("MasterPieceSupply_CannotTurnIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 [MasterPieceSupply] Collectability value &apos;{0}&apos; is too low or we can&apos;t turn in {1} today. 的本地化字符串。
+        /// </summary>
+        internal static string MasterPieceSupply_CollectabilityValueNotEnough {
+            get {
+                return ResourceManager.GetString("MasterPieceSupply_CollectabilityValueNotEnough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 [MasterPieceSupply] Not turning in &apos;{0}&apos;, full on scrips. 的本地化字符串。
+        /// </summary>
+        internal static string MasterPieceSupply_FullScrips {
+            get {
+                return ResourceManager.GetString("MasterPieceSupply_FullScrips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Aethernet. 的本地化字符串。
         /// </summary>
         internal static string NoAetheryteUseAethernetReturn_AethernetText {
             get {
                 return ResourceManager.GetString("NoAetheryteUseAethernetReturn_AethernetText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 An error has occured during aetherial reduction. Result was {0} 的本地化字符串。
+        /// </summary>
+        internal static string PurifyDialog {
+            get {
+                return ResourceManager.GetString("PurifyDialog", resourceCulture);
             }
         }
         
@@ -1452,6 +1704,15 @@ namespace ExBuddy.Localization {
         internal static string RetainerMaid_PluginName {
             get {
                 return ResourceManager.GetString("RetainerMaid_PluginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &quot;An error has occured during desynthesis. Result was {0}&quot; 的本地化字符串。
+        /// </summary>
+        internal static string SalvageDialog {
+            get {
+                return ResourceManager.GetString("SalvageDialog", resourceCulture);
             }
         }
         

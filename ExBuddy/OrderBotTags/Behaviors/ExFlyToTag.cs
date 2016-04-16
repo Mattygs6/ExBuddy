@@ -28,6 +28,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 		[XmlAttribute("XYZ")]
 		public Vector3 Target { get; set; }
 
+		[XmlAttribute("RandomFinalSpot")]
+		public bool RandomFinalSpot { get; set; }
+
+		[DefaultValue(15.0f)]
+		[XmlAttribute("FinalSpotRadius")]
+		public float FinalSpotRadius { get; set; }
+
 		protected override Color Info
 		{
 			get { return Colors.DeepSkyBlue; }
@@ -82,7 +89,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			return true;
 		}
 
-		public async Task<bool> MoveToWithinRadius(Vector3 to, float radius)
+		public async Task<bool> MoveToWithinRadius(Vector3 to)
 		{
 			while (ExProfileBehavior.Me.Location.Distance3D(to) > Radius && Behaviors.ShouldContinue)
 			{
@@ -145,7 +152,19 @@ namespace ExBuddy.OrderBotTags.Behaviors
 						}
 					}
 
-					await MoveToWithinRadius(flightPath.Current, Radius);
+					// Last
+					if (RandomFinalSpot && flightPath.Index == flightPath.Count - 1)
+					{
+						Vector3 current = flightPath.Current;
+						current = current.AddRandomDirection(FinalSpotRadius, SphereType.TopHalf);
+
+						await MoveToWithinRadius(current);
+					}
+					else
+					{
+						await MoveToWithinRadius(flightPath.Current);
+					}
+					
 				} while (flightPath.Next());
 
 				flightPath.Reset();

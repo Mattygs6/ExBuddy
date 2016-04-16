@@ -21,6 +21,15 @@
 	using ff14bot.Objects;
 	using GreyMagic;
 
+	[Flags]
+	public enum SphereType
+	{
+		None = 0,
+		TopHalf = 1,
+		BottomHalf = 2,
+		Full = TopHalf | BottomHalf
+	}
+
 	public static class Extensions
 	{
 		////private static readonly List<uint> ReducibleItemIds = new List<uint> { 
@@ -44,12 +53,15 @@
 		////		12784	//Manasail
 		////	};
 
-		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f)
+		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f, SphereType sphereType = SphereType.Full)
 		{
-			var side = range/Math.Sqrt(3);
+			var side = range / Math.Sqrt(3);
+			var minY = sphereType.HasFlag(SphereType.BottomHalf) ? -side : 0;
+			var maxY = sphereType.HasFlag(SphereType.TopHalf) ? side : 0;
+
 			var random = new Vector3(
 				vector.X + (float) MathEx.Random(-side, side),
-				vector.Y + (float) MathEx.Random(-side, side),
+				vector.Y + (float) MathEx.Random(minY, maxY),
 				vector.Z + (float) MathEx.Random(-side, side));
 
 			Vector3 hit;
@@ -58,7 +70,7 @@
 			{
 				random = new Vector3(
 					vector.X + (float) MathEx.Random(-side, side),
-					vector.Y + (float) MathEx.Random(-side, side),
+					vector.Y + (float)MathEx.Random(minY, maxY),
 					vector.Z + (float) MathEx.Random(-side, side));
 			}
 

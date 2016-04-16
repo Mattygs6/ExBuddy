@@ -22,7 +22,7 @@
 				var result = await CommonTasks.AetherialReduction(bagSlot);
 				if (result.HasFlag(AetherialReductionResult.Failure))
 				{
-					Logger.Instance.Error("An error has occured during aetherial reduction. Result was {0}", result);
+					Logger.Instance.Error(Localization.Localization.PurifyDialog, result);
 				}
 				await Behaviors.Sleep(500);
 			}

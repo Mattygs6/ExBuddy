@@ -181,7 +181,7 @@
     <value>在这个渔点钓了 {0} 次,一共 {1} 次.</value>
   </data>
   <data name="ExFish_FishRegex" xml:space="preserve">
-    <value>[\u4e00-\u9fa5]+成功钓上了|[\u4e00-\u9fa5]+</value>
+    <value>[\u4e00-\u9fa5A-Za-z0-9]+成功钓上了|[\u4e00-\u9fa5]+</value>
   </data>
   <data name="ExFish_InitFishSpot" xml:space="preserve">
     <value>在移动换渔点前会再钓</value>
@@ -602,5 +602,92 @@
   </data>
   <data name="Window_WaitToClose" xml:space="preserve">
     <value>等待 {0} 毫秒以便 [{1}] 窗口关闭</value>
+  </data>
+  <data name="MasterPieceSupply_CannotTurnIn" xml:space="preserve">
+    <value>[收藏品提交] 今天无法提交 '{0}' , 当前提交的是 '{1}'</value>
+  </data>
+  <data name="MasterPieceSupply_CollectabilityValueNotEnough" xml:space="preserve">
+    <value>[收藏品提交] 收藏价值 '{0}' 太低或者今天无法提交 {1} .</value>
+  </data>
+  <data name="MasterPieceSupply_FullScrips" xml:space="preserve">
+    <value>[收藏品提交] 不提交 '{0}', 票据已满.</value>
+  </data>
+  <data name="PurifyDialog" xml:space="preserve">
+    <value>精选时发生错误,精选结果为 {0}</value>
+  </data>
+  <data name="SalvageDialog" xml:space="preserve">
+    <value>分解时发生错误,分解结果为 {0}</value>
+  </data>
+  <data name="FlightEnabledNavigator_CollisionDetected" xml:space="preserve">
+    <value>发现障碍物! 建立新的路径</value>
+  </data>
+  <data name="FlightEnabledNavigator_DestinationReached" xml:space="preserve">
+    <value>导航到达当前地点. Within</value>
+  </data>
+  <data name="FlightEnabledNavigator_Dispose" xml:space="preserve">
+    <value>返回地面导航</value>
+  </data>
+  <data name="FlightEnabledNavigator_Enabled" xml:space="preserve">
+    <value>使用飞行导航</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving" xml:space="preserve">
+    <value>移动至下一个中继点: {0}{1} D: {2}</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving2" xml:space="preserve">
+    <value>移动至下一个中继点 [{0}]: {1}{2} D: {3}</value>
+  </data>
+  <data name="FlightEnabledNavigator_NoPath" xml:space="preserve">
+    <value>寻找路线时发生错误,在重新启用飞行导航之前尝试内部导航10秒.</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathFound" xml:space="preserve">
+    <value>在 {2} ms 内发现了前往 {0} 的路径,共个 {1} 中继点</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathGenerated" xml:space="preserve">
+    <value>在 {2} ms 内建立了前往 {0} 的路径,共个 {1} 中继点</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathNotViable" xml:space="preserve">
+    <value>没有从 {0} 至 {1} 的可用路径</value>
+  </data>
+  <data name="FlightEnabledNavigator_ResetNavigatonProvider" xml:space="preserve">
+    <value>重新使用飞行导航</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Default" xml:space="preserve">
+    <value>在确定这片区域可以飞行之前设置不启用飞行.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Land" xml:space="preserve">
+    <value>着陆耗时小于 {0} ms</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandCancelled" xml:space="preserve">
+    <value>在  {0} ms 后取消着陆, 请求了新的目的地.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandFailed" xml:space="preserve">
+    <value>着陆失败, 恢复控制.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandNew" xml:space="preserve">
+    <value>建立新的着陆协同程序移动至 {0}</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandResumed" xml:space="preserve">
+    <value>恢复着陆协同程序</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandStart" xml:space="preserve">
+    <value>开始着陆</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Takeoff" xml:space="preserve">
+    <value>起飞耗时小于 {0} ms </value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffCancelled" xml:space="preserve">
+    <value>在 {0} ms 后取消起飞, 使角色停止移动.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffFailed" xml:space="preserve">
+    <value>起飞失败, 恢复控制.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffNew" xml:space="preserve">
+    <value>建立新的起飞协同程序.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffResumed" xml:space="preserve">
+    <value>恢复起飞协同程序.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffStart" xml:space="preserve">
+    <value>开始起飞</value>
   </data>
 </root>

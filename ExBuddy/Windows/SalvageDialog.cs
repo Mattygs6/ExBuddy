@@ -36,7 +36,7 @@
 						var result = await CommonTasks.Desynthesize(bagSlot, maxWait);
 						if (result.HasFlag(DesynthesisResult.Failure))
 						{
-							Logger.Instance.Error("An error has occured during desynthesis. Result was {0}", result);
+							Logger.Instance.Error(Localization.Localization.SalvageDialog, result);
 							break;
 						}
 					}

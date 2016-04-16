@@ -58,7 +58,7 @@
 			Navigator.NavigationProvider = this;
 			CurrentPath = new FlightPath(Vector3.Zero, Vector3.Zero, flightNavigationArgs);
 
-			logger.Verbose("Replacing Navigator with Flight Navigator.");
+			logger.Verbose(Localization.Localization.FlightEnabledNavigator_Enabled);
 		}
 
 		public FlightPath CurrentPath { get; internal set; }
@@ -82,7 +82,7 @@
 			if (!disposed)
 			{
 				disposed = true;
-				logger.Verbose("Putting original Navigator back!");
+				logger.Verbose(Localization.Localization.FlightEnabledNavigator_Dispose);
 				Navigator.NavigationProvider = innerNavigator;
 				pathGeneratorStopwatch.Stop();
 				playerMover.Dispose();
@@ -162,7 +162,7 @@
 			}
 
 			logger.Error(
-				"Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.");
+				Localization.Localization.FlightEnabledNavigator_NoPath);
 			Clear();
 
 			Navigator.NavigationProvider = innerNavigator;
@@ -172,7 +172,7 @@
 				() =>
 				{
 					Thread.Sleep(10000);
-					logger.Info("Resetting NavigationProvider to Flight Navigator.");
+					logger.Info(Localization.Localization.FlightEnabledNavigator_ResetNavigatonProvider);
 					Navigator.NavigationProvider = this;
 				});
 
@@ -185,20 +185,20 @@
 			{
 				case GeneratePathResult.Success:
 					logger.Info(
-						"Generated path to {0} using {1} hops in {2} ms",
+						Localization.Localization.FlightEnabledNavigator_PathGenerated,
 						finalDestination,
 						CurrentPath.Count,
 						pathGeneratorStopwatch.Elapsed);
 					break;
 				case GeneratePathResult.SuccessUseExisting:
 					logger.Info(
-						"Found existing path to {0} using {1} hops in {2} ms",
+						Localization.Localization.FlightEnabledNavigator_PathFound,
 						finalDestination,
 						CurrentPath.Count,
 						pathGeneratorStopwatch.Elapsed);
 					break;
 				case GeneratePathResult.Failed:
-					logger.Error("No viable path found to {0} from {1}", finalDestination, origin);
+					logger.Error(Localization.Localization.FlightEnabledNavigator_PathNotViable, finalDestination, origin);
 					break;
 			}
 
@@ -222,7 +222,7 @@
 							CurrentPath.Current,
 							DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
-						logger.Warn("Collision detected! Generating new path!");
+						logger.Warn(Localization.Localization.FlightEnabledNavigator_CollisionDetected);
 						Clear();
 						return MoveResult.GeneratingPath;
 					}
@@ -240,7 +240,7 @@
 
 			if (!CurrentPath.Next())
 			{
-				logger.Info("Navigation reached current destination. Within " + location.Distance(finalDestination));
+				logger.Info(Localization.Localization.FlightEnabledNavigator_DestinationReached + location.Distance(finalDestination));
 				Clear();
 
 				return MoveResult.ReachedDestination;
@@ -252,7 +252,7 @@
 			}
 
 			logger.Verbose(
-				"Moving to next hop: {0}{1} D: {2}",
+				Localization.Localization.FlightEnabledNavigator_HopMoving,
 				CurrentPath.Current,
 				name,
 				location.Distance(CurrentPath.Current));
@@ -260,7 +260,7 @@
 			    && (CurrentPath.Index%5 == 0 || CurrentPath.Index == CurrentPath.Count - 1))
 			{
 				logger.Info(
-					"Moving to next hop [{0}]: {1}{2} D: {3}",
+					Localization.Localization.FlightEnabledNavigator_HopMoving2,
 					CurrentPath.Index + 1,
 					CurrentPath.Current,
 					name,

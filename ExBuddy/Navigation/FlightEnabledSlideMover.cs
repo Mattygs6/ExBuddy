@@ -42,7 +42,11 @@
 
 		private Task landingTask;
 
+		private object landingTaskLock = new object();
+
 		private Vector3 lastDestination;
+
+		private object takeoffTaskLock = new object();
 
 		private Task takeoffTask;
 
@@ -98,53 +102,59 @@
 
 				if (takeoffTask == null)
 				{
-					Logger.Info(Localization.Localization.FlightEnabledSlideMover_TakeoffStart);
-					takeoffTask = Task.Factory.StartNew(
-						() =>
+					lock (takeoffTaskLock)
+					{
+						if (takeoffTask == null)
 						{
-							try
-							{
-								while (!MovementManager.IsFlying && Behaviors.ShouldContinue && IsMovingTowardsLocation)
+							Logger.Info(Localization.Localization.FlightEnabledSlideMover_TakeoffStart);
+							takeoffTask = Task.Factory.StartNew(
+								() =>
 								{
-									if (takeoffStopwatch.ElapsedMilliseconds > 10000)
+									try
 									{
-										Logger.Error(Localization.Localization.FlightEnabledSlideMover_TakeoffFailed);
-										InnerMover.MoveStop();
+										while (!MovementManager.IsFlying && Behaviors.ShouldContinue && IsMovingTowardsLocation)
+										{
+											if (takeoffStopwatch.ElapsedMilliseconds > 10000)
+											{
+												Logger.Error(Localization.Localization.FlightEnabledSlideMover_TakeoffFailed);
+												InnerMover.MoveStop();
+												IsTakingOff = false;
+												return;
+											}
+
+											if (coroutine == null || coroutine.IsFinished)
+											{
+												Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffNew);
+												coroutine = new Coroutine(() => CommonTasks.TakeOff());
+											}
+
+											if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
+											{
+												Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffResumed);
+												coroutine.Resume();
+											}
+
+											Thread.Sleep(66);
+										}
+									}
+									finally
+									{
+										if (!IsMovingTowardsLocation)
+										{
+											Logger.Warn(Localization.Localization.FlightEnabledSlideMover_TakeoffCancelled, takeoffStopwatch.Elapsed);
+										}
+										else
+										{
+											Logger.Info(Localization.Localization.FlightEnabledSlideMover_Takeoff, takeoffStopwatch.Elapsed);
+										}
+
+										takeoffStopwatch.Reset();
 										IsTakingOff = false;
-										return;
+										takeoffTask = null;
 									}
-
-									if (coroutine == null || coroutine.IsFinished)
-									{
-										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffNew);
-										coroutine = new Coroutine(() => CommonTasks.TakeOff());
-									}
-
-									if (!coroutine.IsFinished && !MovementManager.IsFlying && Behaviors.ShouldContinue)
-									{
-										Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_TakeoffResumed);
-										coroutine.Resume();
-									}
-
-									Thread.Sleep(33);
-								}
-							}
-							finally
-							{
-								if (!IsMovingTowardsLocation)
-								{
-									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_TakeoffCancelled, takeoffStopwatch.Elapsed);
-								}
-								else
-								{
-									Logger.Info(Localization.Localization.FlightEnabledSlideMover_Takeoff, takeoffStopwatch.Elapsed);
-								}
-
-								takeoffStopwatch.Reset();
-								IsTakingOff = false;
-								takeoffTask = null;
-							}
-						});
+								});
+						}
+					}
 				}
 			}
 			else
@@ -169,83 +179,89 @@
 
 				if (landingTask == null)
 				{
-					Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandStart);
-					landingTask = Task.Factory.StartNew(
-						() =>
+					lock (landingTaskLock)
+					{
+						if (landingTask == null)
 						{
-							try
-							{
-								while (MovementManager.IsFlying && Behaviors.ShouldContinue && !IsMovingTowardsLocation)
+							Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandStart);
+							landingTask = Task.Factory.StartNew(
+								() =>
 								{
-									if (landingStopwatch.ElapsedMilliseconds < 2000)
+									try
 									{
-										// TODO: possible check to see if floor is more than 80 or 100 below us to not bother? or check for last destination and compare the Y value of the floor.
-										MovementManager.StartDescending();
-									}
-									else
-									{
-										if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
+										while (MovementManager.IsFlying && Behaviors.ShouldContinue && !IsMovingTowardsLocation)
 										{
-											Logger.Error(Localization.Localization.FlightEnabledSlideMover_LandFailed);
-											InnerMover.MoveStop();
-											return;
-										}
-
-										if (landingCoroutine == null || landingCoroutine.IsFinished)
-										{
-											var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
-											MovementManager.StopDescending();
-											MovementManager.Jump();
-											landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
-											Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandNew, move);
-										}
-
-										if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
-										{
-											Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_LandResumed);
-											while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
-											       && !IsMovingTowardsLocation)
+											if (landingStopwatch.ElapsedMilliseconds < 2000)
 											{
-												landingCoroutine.Resume();
-												Thread.Sleep(66);
+												// TODO: possible check to see if floor is more than 80 or 100 below us to not bother? or check for last destination and compare the Y value of the floor.
+												MovementManager.StartDescending();
 											}
-										}
+											else
+											{
+												if (totalLandingStopwatch.ElapsedMilliseconds > 10000)
+												{
+													Logger.Error(Localization.Localization.FlightEnabledSlideMover_LandFailed);
+													InnerMover.MoveStop();
+													return;
+												}
 
-										if (MovementManager.IsFlying)
-										{
-											landingStopwatch.Restart();
+												if (landingCoroutine == null || landingCoroutine.IsFinished)
+												{
+													var move = Core.Player.Location.AddRandomDirection2D(10).GetFloor(8);
+													MovementManager.StopDescending();
+													MovementManager.Jump();
+													landingCoroutine = new Coroutine(() => move.MoveToNoMount(false, 0.8f));
+													Logger.Info(Localization.Localization.FlightEnabledSlideMover_LandNew, move);
+												}
+
+												if (!landingCoroutine.IsFinished && MovementManager.IsFlying)
+												{
+													Logger.Verbose(Localization.Localization.FlightEnabledSlideMover_LandResumed);
+													while (!landingCoroutine.IsFinished && MovementManager.IsFlying && Behaviors.ShouldContinue
+														   && !IsMovingTowardsLocation)
+													{
+														landingCoroutine.Resume();
+														Thread.Sleep(66);
+													}
+												}
+
+												if (MovementManager.IsFlying)
+												{
+													landingStopwatch.Restart();
+												}
+											}
+
+											Thread.Sleep(33);
 										}
 									}
+									finally
+									{
+										if (IsMovingTowardsLocation)
+										{
+											Logger.Warn(Localization.Localization.FlightEnabledSlideMover_LandCancelled, totalLandingStopwatch.Elapsed);
+											InnerMover.MoveStop();
+										}
+										else
+										{
+											Logger.Info(Localization.Localization.ExFlyTo_Landing, totalLandingStopwatch.Elapsed);
+										}
 
-									Thread.Sleep(33);
-								}
-							}
-							finally
-							{
-								if (IsMovingTowardsLocation)
-								{
-									Logger.Warn(Localization.Localization.FlightEnabledSlideMover_LandCancelled, totalLandingStopwatch.Elapsed);
-									InnerMover.MoveStop();
-								}
-								else
-								{
-									Logger.Info(Localization.Localization.ExFlyTo_Landing, totalLandingStopwatch.Elapsed);
-								}
+										totalLandingStopwatch.Reset();
+										landingStopwatch.Reset();
 
-								totalLandingStopwatch.Reset();
-								landingStopwatch.Reset();
+										if (Coroutine.Current != landingCoroutine && landingCoroutine != null)
+										{
+											landingCoroutine.Dispose();
+										}
 
-								if (Coroutine.Current != landingCoroutine && landingCoroutine != null)
-								{
-									landingCoroutine.Dispose();
-								}
+										landingCoroutine = null;
 
-								landingCoroutine = null;
-
-								IsLanding = false;
-								landingTask = null;
-							}
-						});
+										IsLanding = false;
+										landingTask = null;
+									}
+								});
+						}
+					}
 				}
 			}
 			else

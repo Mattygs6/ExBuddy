@@ -276,10 +276,11 @@
 
 		public static string DynamicToString<T>(this T obj, params string[] propertiesToSkip) where T : class
 		{
+			var type = typeof(T);
 			var properties =
-				obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+				type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 			var stringBuilder = new StringBuilder();
-			stringBuilder.AppendFormat("{0}: {{ ", obj.GetType().Name);
+			stringBuilder.AppendFormat("{0}: {{ ", type.Name);
 			var propertyInfoArray = properties;
 			foreach (var propertyInfo in propertyInfoArray)
 			{

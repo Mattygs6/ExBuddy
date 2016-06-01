@@ -12,11 +12,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using Buddy.Coroutines;
 	using Clio.XmlEngine;
 	using ExBuddy.Attributes;
+	using ExBuddy.Data;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.OrderBotTags.Behaviors.Objects;
 	using ExBuddy.OrderBotTags.Objects;
-	using ExBuddy.Providers;
 	using ExBuddy.Windows;
 	using ff14bot;
 	using ff14bot.Behavior;
@@ -156,7 +156,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			StatusText = Localization.Localization.ExTurnInCollectable_TurnIn;
 
-			var itemName = item.Item.EnglishName;
+			var itemName = item.Item.CurrentLocaleName;
 
 			if (!await masterpieceSupply.TurnInAndHandOver(index, item))
 			{
@@ -440,16 +440,13 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return false;
 			}
 
-			var provider = MasterPieceSupplyDataProvider.Instance;
+			var provider = SqlData.Instance;
 
-			if (provider.IsValid)
+			var i = provider.GetIndexByItemId(item.RawItemId);
+			if (i.HasValue)
 			{
-				var i = provider.GetIndexByItemName(item.EnglishName);
-				if (i.HasValue)
-				{
-					index = i.Value;
-					return false;
-				}
+				index = i.Value;
+				return false;
 			}
 
 			switch (item.RawItemId)
@@ -581,11 +578,20 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				foreach (var collectable in Collectables)
 				{
-					item =
-						slots.FirstOrDefault(
-							i =>
-								i.Collectability >= collectable.Value && i.Collectability <= collectable.MaxValueForTurnIn
-								&& string.Equals(collectable.Name, i.EnglishName, StringComparison.InvariantCultureIgnoreCase));
+					var bagslots = slots.Where(i =>
+						i.Collectability >= collectable.Value && i.Collectability <= collectable.MaxValueForTurnIn).ToArray();
+
+					if (collectable.Id > 0)
+					{
+						item =
+							bagslots.FirstOrDefault(i => i.RawItemId == collectable.Id);
+					}
+
+					item = item ??
+						bagslots.FirstOrDefault(
+							i => string.Equals(collectable.LocalName, i.Name, StringComparison.InvariantCultureIgnoreCase)) ??
+						bagslots.FirstOrDefault(
+							i => string.Equals(collectable.Name, i.EnglishName, StringComparison.InvariantCultureIgnoreCase));
 
 					if (item != null)
 					{

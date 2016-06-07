@@ -415,7 +415,7 @@
 				if (Items.Count > 0)
 				{
 					if (
-						SetGatherItemByItemName(
+						SetGatherItem(
 							windowItems.OrderByDescending(i => i.SlotIndex).Where(i => i.IsFilled && !i.IsUnknown && i.ItemId < 20).ToArray()))
 					{
 						return true;
@@ -438,7 +438,7 @@
 
 			if (DiscoverUnknowns)
 			{
-				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
+				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex);
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -450,7 +450,7 @@
 
 			if (Items.Count > 0)
 			{
-				if (SetGatherItemByItemName(windowItems))
+				if (SetGatherItem(windowItems))
 				{
 					return true;
 				}
@@ -1482,16 +1482,26 @@
 			}
 		}
 
-		private bool SetGatherItemByItemName(ICollection<GatheringItem> windowItems)
+		private bool SetGatherItem(ICollection<GatheringItem> windowItems)
 		{
 			foreach (var item in Items)
 			{
-				GatherItem =
-					windowItems.FirstOrDefault(
-						i =>
-							i.IsFilled && !i.IsUnknown
-							&& string.Equals(item.Name, i.ItemData.EnglishName, StringComparison.InvariantCultureIgnoreCase)
-							&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+				var items = windowItems.Where(i => i.IsFilled && !i.IsUnknown).ToArray();
+
+				if (item.Id > 0)
+				{
+					GatherItem =
+						items.FirstOrDefault(i => i.ItemData.Id == item.Id
+						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+				}
+
+				GatherItem = GatherItem ??
+					items.FirstOrDefault(
+						i => string.Equals(item.LocalName, i.ItemData.CurrentLocaleName, StringComparison.InvariantCultureIgnoreCase)
+						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0)) ??
+					items.FirstOrDefault(
+						i => string.Equals(item.Name, i.ItemData.EngName, StringComparison.InvariantCultureIgnoreCase)
+						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
 
 				if (GatherItem != null)
 				{

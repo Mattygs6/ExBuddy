@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
+    <Compile Include="Data\MasterpieceSupplyDutyResult.cs" />
+    <Compile Include="Data\RequiredItemResult.cs" />
+    <Compile Include="Data\SqlData.cs" />
     <Compile Include="Helpers\ConditionTimer.cs" />
     <Compile Include="Localization\Localization.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -201,6 +204,8 @@
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />
+    <None Include="Data\ExBuddy.s3db" />
+    <None Include="Data\ExBuddy_CN.s3db" />
     <None Include="Data\locationIndex.json" />
     <None Include="Data\weatherRateIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />

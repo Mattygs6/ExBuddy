@@ -5,7 +5,7 @@
 
 	public static class RequestOffsets
 	{
-		[Offset("Search B9 ? ? ? ? C7 45 ? ? ? ? ? E8 ? ? ? ? 8B 7D 0C Add 1 Read32")] [Offset64("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 48 0F BF CF  Add 3 TraceRelative")] public static IntPtr ItemBasePtr;
+		[Offset("Search B9 ? ? ? ? C7 45 ? ? ? ? ? E8 ? ? ? ? 8B 7D 0C Add 1 Read32")] [Offset64("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 48 0F BF CF Add 3 TraceRelative")] public static IntPtr ItemBasePtr;
 
 #if RB_X64
         public static int ItemSize = 0x90;
@@ -17,7 +17,7 @@
 	public static class ScripsOffsets
 	{
 		// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
-		[Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")] [Offset64("Search 46 89 BC EA ? ? ? ?  Add 4 TraceRelative")] public static IntPtr BasePtr;
+		[Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")] [Offset64("Search 42 89 B4 F2 ? ? ? ? Add 4 TraceRelative")] public static IntPtr BasePtr;
 
 #if RB_X64
         public static int BlueGathererOffset = 0x10;

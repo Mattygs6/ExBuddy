@@ -1,17 +1,15 @@
 ﻿namespace ExBuddy.Interfaces
 {
-	using System.Collections.Generic;
-
-	using ExBuddy.Plugins.Skywatcher;
+	using System;
 
 	public interface IWeatherProvider
 	{
-		IEnumerable<WeatherData> CurrentWeatherData { get; }
-
-		IList<WeatherData> WeatherData { get; }
-
 		void Disable();
 
 		void Enable();
+
+		int? GetCurrentWeatherByZone(int zoneId);
+
+		int? GetForecastByZone(int zoneId, TimeSpan timeSpan);
 	}
 }

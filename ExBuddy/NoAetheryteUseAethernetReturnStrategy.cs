@@ -5,15 +5,11 @@ namespace ExBuddy
 {
 	using System.Linq;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.Logging;
-
 	using ff14bot.Behavior;
 	using ff14bot.Managers;
 	using ff14bot.RemoteWindows;
@@ -23,7 +19,7 @@ namespace ExBuddy
 		public NoAetheryteUseAethernetReturnStrategy()
 		{
 			InteractDistance = 8.0f;
-			AethernetText = "Aethernet.";
+			AethernetText = Localization.Localization.NoAetheryteUseAethernetReturn_AethernetText;
 		}
 
 		public string AethernetText { get; set; }
@@ -35,6 +31,12 @@ namespace ExBuddy
 		#region IAetheryteId Members
 
 		public uint AetheryteId { get; set; }
+
+		#endregion
+
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
 
 		#endregion
 
@@ -54,7 +56,7 @@ namespace ExBuddy
 		{
 			if (BotManager.Current.EnglishName != "Fate Bot")
 			{
-				return await this.InitialLocation.MoveTo();
+				return await InitialLocation.MoveTo();
 			}
 
 			await Coroutine.Sleep(1000);
@@ -100,12 +102,6 @@ namespace ExBuddy
 
 			return true;
 		}
-
-		#endregion
-
-		#region IZoneId Members
-
-		public ushort ZoneId { get; set; }
 
 		#endregion
 	}

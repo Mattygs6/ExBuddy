@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!DOCTYPE Profile [
 <!-- 
 
@@ -69,7 +70,7 @@ CulDelineation
 	<Name>ExBuddy: Turn in Collectables</Name>
 	<KillRadius>50</KillRadius>
 	<Order>
-		<ExLog Color="#FFC0CB" Name="ExBuddy" Message="Turning in collectables "/>
+		<ExLog Color="#FFC0CB" Name="ExBuddy" Message="Turning in collectables " />
 		<!-- if forcePurchase="true" it will go purchase items even if no turn ins available -->
 		<ExTurnInCollectables location="Idyllshire" forcePurchase="False">
 			<ShopPurchases>

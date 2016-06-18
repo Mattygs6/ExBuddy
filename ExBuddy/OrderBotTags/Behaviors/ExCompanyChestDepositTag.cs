@@ -7,18 +7,14 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
 	using ExBuddy.OrderBotTags.Behaviors.Objects;
 	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
@@ -51,18 +47,12 @@
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.DarkGray;
-			}
+			get { return Colors.DarkGray; }
 		}
 
 		private uint[] Ids
 		{
-			get
-			{
-				return ids ?? (ids = ItemIds.Select(Convert.ToUInt32).ToArray());
-			}
+			get { return ids ?? (ids = ItemIds.Select(Convert.ToUInt32).ToArray()); }
 		}
 
 		protected override void DoReset()
@@ -74,7 +64,7 @@
 		{
 			if (interactTimeout.Elapsed.TotalSeconds > Timeout)
 			{
-				Logger.Error("Timeout while depositing items into free company chest.");
+				Logger.Error(Localization.Localization.ExCompanyChestDeposit_Timeout);
 				isDone = true;
 				return true;
 			}
@@ -85,7 +75,7 @@
 			}
 
 			// Movement
-			if (Me.Distance(freeCompanyChestNpc.Location) > 3.5)
+			if (ExProfileBehavior.Me.Distance(freeCompanyChestNpc.Location) > 3.5)
 			{
 				StatusText = "Moving to Npc -> " + freeCompanyChestNpc.NpcId;
 
@@ -101,7 +91,7 @@
 			var freeCompanyChest = new FreeCompanyChest();
 
 			// Interact
-			if (Core.Target == null && Me.Distance(freeCompanyChestNpc.Location) <= 3.5)
+			if (Core.Target == null && ExProfileBehavior.Me.Distance(freeCompanyChestNpc.Location) <= 3.5)
 			{
 				await freeCompanyChestNpc.Interact();
 				await freeCompanyChest.Refresh(2000);
@@ -132,7 +122,7 @@
 						chestBagSlots.Where(bs => bs.IsFilled)
 							.GroupBy(bs => bs.TrueItemId)
 							.Select(
-								g => new { g.Key, BagSlots = g.Where(bs => !bs.IsFullStack(true)).OrderByDescending(bs => bs.Count).ToList() })
+								g => new {g.Key, BagSlots = g.Where(bs => !bs.IsFullStack(true)).OrderByDescending(bs => bs.Count).ToList()})
 							.ToArray();
 
 					foreach (var bagGroup in bagGroups.Where(g => g.BagSlots.Count > 1))
@@ -198,7 +188,7 @@
 						InventoryManager.FilledInventoryAndArmory.Where(
 							bs => itemId == bs.RawItemId && bs.SpiritBond < float.Epsilon && !bs.Item.Untradeable)
 							.GroupBy(bs => bs.TrueItemId)
-							.Select(g => new { g.Key, BagSlots = g.OrderBy(bs => bs.Count).ToList() })
+							.Select(g => new {g.Key, BagSlots = g.OrderBy(bs => bs.Count).ToList()})
 							.ToArray();
 
 					var chestSlots =
@@ -211,7 +201,7 @@
 									bag => bag.Where(bagSlot => !bagSlot.IsFilled || (itemId == bagSlot.RawItemId && !bagSlot.IsFullStack(true))))
 								.OrderByDescending(bs => bs.Count));
 
-					var groups = chestSlots.GroupBy(bs => bs.TrueItemId).Select(g => new { g.Key, BagSlots = g.ToArray() }).ToArray();
+					var groups = chestSlots.GroupBy(bs => bs.TrueItemId).Select(g => new {g.Key, BagSlots = g.ToArray()}).ToArray();
 
 					foreach (var sourceBags in myBagSlots)
 					{
@@ -257,7 +247,7 @@
 		{
 			interactTimeout.Stop();
 
-			if (FreeCompanyChest.IsOpen)
+			if (Window<FreeCompanyChest>.IsOpen)
 			{
 				FreeCompanyChest.Close();
 			}
@@ -281,9 +271,9 @@
 				"Moving {0} {1} from [{2},{3}] to [{4},{5}]",
 				Math.Min(99 - destination.Count, source.Count),
 				source.IsHighQuality ? source.EnglishName + " HQ" : source.EnglishName,
-				(int)source.BagId,
+				(int) source.BagId,
 				source.Slot,
-				(int)destination.BagId,
+				(int) destination.BagId,
 				destination.Slot);
 
 			source.Move(destination);

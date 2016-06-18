@@ -1,27 +1,23 @@
-﻿using ExBuddy.Logging;
-
-namespace ExBuddy.Windows
+﻿namespace ExBuddy.Windows
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using System.Runtime.InteropServices;
 	using System.Threading.Tasks;
-
-	using ExBuddy.Agents;
-	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
-
-	using ff14bot;
+	using ExBuddy.Logging;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
 	using ff14bot.Managers;
 
 	public sealed class SalvageDialog : Window<SalvageDialog>
 	{
-		public SalvageDialog() : base("SalvageDialog") { }
+		public SalvageDialog()
+			: base("SalvageDialog") {}
 
-
-		public static async Task<bool> DesynthesizeAllItems(IEnumerable<BagSlot> bagSlots, ushort maxWait = 5000, bool desynthUniqueUntradeable = false)
+		public static async Task<bool> DesynthesizeAllItems(
+			IEnumerable<BagSlot> bagSlots,
+			ushort maxWait = 5000,
+			bool desynthUniqueUntradeable = false)
 		{
 			foreach (var bagSlot in bagSlots)
 			{
@@ -30,23 +26,21 @@ namespace ExBuddy.Windows
 					continue;
 				}
 
-			    if (bagSlot != null)
-			    {
-                    var startingId = bagSlot.TrueItemId;
+				if (bagSlot != null)
+				{
+					var startingId = bagSlot.TrueItemId;
 
-                    //Check to make sure the bagslots contents doesn't change
-                    while (bagSlot.TrueItemId == startingId && bagSlot.Count > 0)
-                    {
-                        var result = await CommonTasks.Desynthesize(bagSlot, maxWait);
-                        if (result.HasFlag(DesynthesisResult.Failure))
-                        {
-                            Logger.Instance.Error("An error has occured during desynthesis. Result was {0}", result);
-                            break;
-                        }
-
-                    }
-                }
-
+					//Check to make sure the bagslots contents doesn't change
+					while (bagSlot.TrueItemId == startingId && bagSlot.Count > 0)
+					{
+						var result = await CommonTasks.Desynthesize(bagSlot, maxWait);
+						if (result.HasFlag(DesynthesisResult.Failure))
+						{
+							Logger.Instance.Error(Localization.Localization.SalvageDialog, result);
+							break;
+						}
+					}
+				}
 
 				await Behaviors.Sleep(500);
 			}
@@ -54,17 +48,39 @@ namespace ExBuddy.Windows
 			return true;
 		}
 
-		public static async Task<bool> DesynthesizeByItemId(uint itemId, ushort maxWait = 5000, bool includeArmory = true, bool nqOnly = false, bool desynthesizeUniqueUntradeable = true)
+		public static async Task<bool> DesynthesizeByItemId(
+			uint itemId,
+			ushort maxWait = 5000,
+			bool includeArmory = true,
+			bool nqOnly = false,
+			bool desynthesizeUniqueUntradeable = true)
 		{
 			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
-			return await DesynthesizeAllItems(slots.Where(i => i.RawItemId == itemId && (!nqOnly || i.TrueItemId == itemId)), maxWait, desynthesizeUniqueUntradeable);
+			return
+				await
+					DesynthesizeAllItems(
+						slots.Where(i => i.RawItemId == itemId && (!nqOnly || i.TrueItemId == itemId)),
+						maxWait,
+						desynthesizeUniqueUntradeable);
 		}
 
-		public static async Task<bool> DesynthesizeByRepairClass(ClassJobType classJobType,ushort maxWait = 5000, bool includeArmory = true, bool nqOnly = false, bool desynthesizeUniqueUntradeable = false)
+		public static async Task<bool> DesynthesizeByRepairClass(
+			ClassJobType classJobType,
+			ushort maxWait = 5000,
+			bool includeArmory = true,
+			bool nqOnly = false,
+			bool desynthesizeUniqueUntradeable = false)
 		{
 			var slots = includeArmory ? InventoryManager.FilledInventoryAndArmory : InventoryManager.FilledSlots;
-			return await DesynthesizeAllItems(slots.Where(i => i.Item != null && classJobType == (ClassJobType)i.Item.RepairClass && (!nqOnly || (!i.IsHighQuality && !i.IsCollectable))), maxWait, desynthesizeUniqueUntradeable);
+			return
+				await
+					DesynthesizeAllItems(
+						slots.Where(
+							i =>
+								i.Item != null && classJobType == (ClassJobType) i.Item.RepairClass
+								&& (!nqOnly || (!i.IsHighQuality && !i.IsCollectable))),
+						maxWait,
+						desynthesizeUniqueUntradeable);
 		}
-
 	}
 }

@@ -1,0 +1,693 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Cordinal_NullSpellData" xml:space="preserve">
+    <value>Unable to resolve cordial data, if this continues, please report logs to ExMatt.</value>
+  </data>
+  <data name="EnableFlight_PluginName" xml:space="preserve">
+    <value>Enable Flight</value>
+  </data>
+  <data name="ExCompanyChestDeposit_Timeout" xml:space="preserve">
+    <value>Timeout while depositing items into free company chest.</value>
+  </data>
+  <data name="ExDisablePlugins_Disabled" xml:space="preserve">
+    <value>Plugin {0} already disabled.</value>
+  </data>
+  <data name="ExDisablePlugins_Disabling" xml:space="preserve">
+    <value>Disabling Plugins: </value>
+  </data>
+  <data name="ExDisablePlugins_Disabling2" xml:space="preserve">
+    <value>Disabling Plugin {0}</value>
+  </data>
+  <data name="ExEnablePlugins_Enabled" xml:space="preserve">
+    <value>Plugin {0} already enabled.</value>
+  </data>
+  <data name="ExEnablePlugins_Enabling" xml:space="preserve">
+    <value>Enabling Plugins: </value>
+  </data>
+  <data name="ExEnablePlugins_Enabling2" xml:space="preserve">
+    <value>Enabling Plugin {0}</value>
+  </data>
+  <data name="ExFish_AmissFish" xml:space="preserve">
+    <value>The fish are amiss at all of the FishSpots.</value>
+  </data>
+  <data name="ExFish_AmissFish2" xml:space="preserve">
+    <value>The fish sense something amiss. Perhaps it is time to try another location.</value>
+  </data>
+  <data name="ExFish_AmissFish3" xml:space="preserve">
+    <value>The fish sense something amiss!</value>
+  </data>
+  <data name="ExFish_BaitSelectError" xml:space="preserve">
+    <value>An error has occurred during bait selection.</value>
+  </data>
+  <data name="ExFish_BlackList" xml:space="preserve">
+    <value>This zone has been blacklisted, please fish somewhere else and then restart the profile.</value>
+  </data>
+  <data name="ExFish_CannotFindBait" xml:space="preserve">
+    <value>Error finding '{0}', doesn't match any item in the database.</value>
+  </data>
+  <data name="ExFish_ChangeSpots" xml:space="preserve">
+    <value>Changing FishSpots...</value>
+  </data>
+  <data name="ExFish_CheckWeather" xml:space="preserve">
+    <value>Waiting for the proper weather...</value>
+  </data>
+  <data name="ExFish_Collecting" xml:space="preserve">
+    <value>Collecting {0} -&gt; Value: {1}, Required: {2}</value>
+  </data>
+  <data name="ExFish_CollectorsGlove" xml:space="preserve">
+    <value>Casting Collector's Glove</value>
+  </data>
+  <data name="ExFish_Declining" xml:space="preserve">
+    <value>Declining {0} -&gt; Value: {1}, Required: {2}</value>
+  </data>
+  <data name="ExFish_Fish" xml:space="preserve">
+    <value>Fished {0} of {1} fish at this FishSpot.</value>
+  </data>
+  <data name="ExFish_FishRegex" xml:space="preserve">
+    <value>You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!</value>
+  </data>
+  <data name="ExFish_InitFishSpot" xml:space="preserve">
+    <value>Will fish for </value>
+  </data>
+  <data name="ExFish_InitFishSpot2" xml:space="preserve">
+    <value> fish before moving again.</value>
+  </data>
+  <data name="ExFish_IsNotBait" xml:space="preserve">
+    <value>Error: '{0}' is not considered bait.</value>
+  </data>
+  <data name="ExFish_Mooch" xml:space="preserve">
+    <value>Mooching, this is mooch {0} of {1} mooches.</value>
+  </data>
+  <data name="ExFish_Mooch2" xml:space="preserve">
+    <value>Mooching, this will be the only mooch.</value>
+  </data>
+  <data name="ExFish_NoCordial" xml:space="preserve">
+    <value>No Cordial avilable, buy more</value>
+  </data>
+  <data name="ExFish_NoSenceOfFish" xml:space="preserve">
+    <value>You do not sense any fish here.</value>
+  </data>
+  <data name="ExFish_NoSenceOfFish2" xml:space="preserve">
+    <value>You do not sense any fish here, trying next location.</value>
+  </data>
+  <data name="ExFish_NotHaveBait" xml:space="preserve">
+    <value>You do not have the specified bait:</value>
+  </data>
+  <data name="ExFish_Patience" xml:space="preserve">
+    <value>Patience activated</value>
+  </data>
+  <data name="ExFish_Release" xml:space="preserve">
+    <value>Released </value>
+  </data>
+  <data name="ExFish_ResetCount" xml:space="preserve">
+    <value>Resetting fish count...</value>
+  </data>
+  <data name="ExFish_ResetMooch" xml:space="preserve">
+    <value>Resetting mooch level.</value>
+  </data>
+  <data name="ExFish_Sit" xml:space="preserve">
+    <value>Sitting </value>
+  </data>
+  <data name="ExFish_Snagging" xml:space="preserve">
+    <value>Toggle Snagging</value>
+  </data>
+  <data name="ExFish_SuffleSpots" xml:space="preserve">
+    <value>Shuffled fish spots</value>
+  </data>
+  <data name="ExFish_TugType" xml:space="preserve">
+    <value>{0} TugType detected. Using {1}</value>
+  </data>
+  <data name="ExFish_UseBait" xml:space="preserve">
+    <value>Using bait -&gt; </value>
+  </data>
+  <data name="ExFish_UseCordial" xml:space="preserve">
+    <value>Using Cordial -&gt; Waiting (sec): {0}, CurrentGP: {1}</value>
+  </data>
+  <data name="ExFish_UseCordialWhenAvailable" xml:space="preserve">
+    <value>Using cordial when it becomes available</value>
+  </data>
+  <data name="ExFlyTo_Deviating" xml:space="preserve">
+    <value>Deviating from course to waypoint: {0}</value>
+  </data>
+  <data name="ExFlyTo_Distance" xml:space="preserve">
+    <value>Already in range -&gt; Start: {0}, End: {1}</value>
+  </data>
+  <data name="ExFlyTo_ExsistingPath" xml:space="preserve">
+    <value>Using existing FlightPath {0} from {1} to {2}</value>
+  </data>
+  <data name="ExFlyTo_GenPath" xml:space="preserve">
+    <value>Generating Path</value>
+  </data>
+  <data name="ExFlyTo_Landing" xml:space="preserve">
+    <value>Landing took {0} ms</value>
+  </data>
+  <data name="ExFlyTo_MoveToWaypoint" xml:space="preserve">
+    <value>Moving to waypoint: {0}</value>
+  </data>
+  <data name="ExFlyTo_MoveToWaypoint2" xml:space="preserve">
+    <value>Moving to waypoint [{0}]: {1}</value>
+  </data>
+  <data name="ExFlyTo_NewPath" xml:space="preserve">
+    <value>Building new FlightPath {0} from {1} to {2}</value>
+  </data>
+  <data name="ExFlyTo_NoViablePath" xml:space="preserve">
+    <value>No viable path computed for {0}.</value>
+  </data>
+  <data name="ExGather_BlackListNode" xml:space="preserve">
+    <value>Blacklisting node so that we don't retarget -&gt; </value>
+  </data>
+  <data name="ExGather_DisabledCordial" xml:space="preserve">
+    <value>Cordial not enabled.  To enable cordial use, add the 'cordialType' attribute with value 'Auto', 'Cordial', or 'HiCordial'</value>
+  </data>
+  <data name="ExGather_DisabledCordialBeforeGather" xml:space="preserve">
+    <value>Before gather cordial not enabled.  To enable, add the 'cordialTime' attribute with value 'BeforeGather', 'IfNeeded', 'IfNeededOrAfter', or 'Auto'</value>
+  </data>
+  <data name="ExGather_Distance" xml:space="preserve">
+    <value>Using a distance of greater than 3.5 is not supported, change the value and restart the profile.</value>
+  </data>
+  <data name="ExGather_ExecutePoiLogic" xml:space="preserve">
+    <value>Something happened during gathering and we did not complete the sequence</value>
+  </data>
+  <data name="ExGather_Finished" xml:space="preserve">
+    <value>Finished gathering from {0} with {1} GP at {2} ET</value>
+  </data>
+  <data name="ExGather_FinishedLoop" xml:space="preserve">
+    <value>Finished {0} of {1} loops.</value>
+  </data>
+  <data name="ExGather_FullInventory" xml:space="preserve">
+    <value>Inventory is full and no shards/crystals/clusters to gather. Gathering complete.</value>
+  </data>
+  <data name="ExGather_GatherSpotSet" xml:space="preserve">
+    <value>GatherSpot set -&gt; </value>
+  </data>
+  <data name="ExGather_GPRecover" xml:space="preserve">
+    <value>GP recovering faster than cordial cooldown, waiting for GP. Seconds: {0}</value>
+  </data>
+  <data name="ExGather_NodeIsGone" xml:space="preserve">
+    <value>Node is gone</value>
+  </data>
+  <data name="ExGather_NotEnoughGP" xml:space="preserve">
+    <value>Not enough gp to use rotation, cancelling gather.</value>
+  </data>
+  <data name="ExGather_NotEnoughTime" xml:space="preserve">
+    <value>Not enough time to gather, will still make an attempt.</value>
+  </data>
+  <data name="ExGather_NothingToGather" xml:space="preserve">
+    <value>Unable to find an item to gather, moving on.</value>
+  </data>
+  <data name="ExGather_NothingToGather2" xml:space="preserve">
+    <value>could not find item by slot or name, gathering</value>
+  </data>
+  <data name="ExGather_NothingToGather3" xml:space="preserve">
+    <value>instead.</value>
+  </data>
+  <data name="ExGather_Rotationbaseoff" xml:space="preserve">
+    <value>Estimating rotation based off {0}</value>
+  </data>
+  <data name="ExGather_RotationbaseoffGatherIncrease" xml:space="preserve">
+    <value>Estimating rotation based off GatherIncrease: '{0}'</value>
+  </data>
+  <data name="ExGather_RotationEstimate" xml:space="preserve">
+    <value>Rotation Estimate -&gt; Old: {0} , New: {1}</value>
+  </data>
+  <data name="ExGather_RotationNotChange" xml:space="preserve">
+    <value>Rotation did not change</value>
+  </data>
+  <data name="ExGather_RotationOverride" xml:space="preserve">
+    <value>Rotation Override -&gt; Old: {0} , New: {1}</value>
+  </data>
+  <data name="ExGather_RotationOverriding" xml:space="preserve">
+    <value>Item to gather is unknown, we are overriding the rotation to ensure we can collect it.</value>
+  </data>
+  <data name="ExGather_RotationReset" xml:space="preserve">
+    <value>Rotation reset -&gt; </value>
+  </data>
+  <data name="ExGather_SearchForNodes" xml:space="preserve">
+    <value>Searching for nodes</value>
+  </data>
+  <data name="ExGather_SkipFurthestNodes" xml:space="preserve">
+    <value>Skip furthest nodes in hotspot. We only want 1.</value>
+  </data>
+  <data name="ExGather_SkipNode" xml:space="preserve">
+    <value>Skipping this node, no items we want to gather.</value>
+  </data>
+  <data name="ExGather_WaitForGp" xml:space="preserve">
+    <value>we should never be here, report error with info GP: {0}, WaitForGp: {1}</value>
+  </data>
+  <data name="ExGather_WithoutMiniumGP" xml:space="preserve">
+    <value>Gathering without the minimum recommended GP for the rotation</value>
+  </data>
+  <data name="ExGather_Zone" xml:space="preserve">
+    <value>ZoneId [{0}], Calling Location {1}</value>
+  </data>
+  <data name="ExMoveTo_Move" xml:space="preserve">
+    <value>Moving to {0}{1}, {2}</value>
+  </data>
+  <data name="ExMoveTo_Random" xml:space="preserve">
+    <value>Using random location -&gt; {0}</value>
+  </data>
+  <data name="ExPickupGuildLeve_Move" xml:space="preserve">
+    <value>Moving to Npc -&gt; </value>
+  </data>
+  <data name="ExPickupGuildLeve_Pickup" xml:space="preserve">
+    <value>Picking up Leve -&gt; </value>
+  </data>
+  <data name="ExPickupGuildLeve_Pickup2" xml:space="preserve">
+    <value>Picking up Leve: </value>
+  </data>
+  <data name="ExPurify_Dismount" xml:space="preserve">
+    <value>Could not dismount.</value>
+  </data>
+  <data name="ExPurify_GetCondition" xml:space="preserve">
+    <value>Did not meet the condition to Purify, [{0}]</value>
+  </data>
+  <data name="ExPurify_Land" xml:space="preserve">
+    <value>Unable to land, can't reduce unless we land!</value>
+  </data>
+  <data name="ExSalvage_GetCondition" xml:space="preserve">
+    <value>Did not meet the condition to salvage, [{0}]</value>
+  </data>
+  <data name="ExSalvage_Land" xml:space="preserve">
+    <value>Unable to land, can't salvage unless we land!</value>
+  </data>
+  <data name="ExTurnInCollectable_AttemptingTurnin" xml:space="preserve">
+    <value>Attempting to turn in item {0} -&gt; 0x{1}</value>
+  </data>
+  <data name="ExTurnInCollectable_ErrorClassType" xml:space="preserve">
+    <value>Error, could not resolve class type for item:</value>
+  </data>
+  <data name="ExTurnInCollectable_FailedPurchaseMorDhona" xml:space="preserve">
+    <value>Unable to purchase item {0} in MorDhona, set location to Idyllshire.</value>
+  </data>
+  <data name="ExTurnInCollectable_InteractingTimeout" xml:space="preserve">
+    <value>Timeout interacting with npc.</value>
+  </data>
+  <data name="ExTurnInCollectable_Move" xml:space="preserve">
+    <value>Moving to Npc -&gt; </value>
+  </data>
+  <data name="ExTurnInCollectable_NoItemToPurchase" xml:space="preserve">
+    <value>No items to purchase</value>
+  </data>
+  <data name="ExTurnInCollectable_NpcInteract" xml:space="preserve">
+    <value>Interacting with Npc -&gt; </value>
+  </data>
+  <data name="ExTurnInCollectable_Purchase" xml:space="preserve">
+    <value>Purchasing items</value>
+  </data>
+  <data name="ExTurnInCollectable_PurchaseComplete" xml:space="preserve">
+    <value>Purchases complete.</value>
+  </data>
+  <data name="ExTurnInCollectable_Purchased" xml:space="preserve">
+    <value>Purchased item {0} for {1} {2} scrips at {3} ET; Remaining Scrips: {4}</value>
+  </data>
+  <data name="ExTurnInCollectable_PurchaseTimeout" xml:space="preserve">
+    <value>Timeout during purchase of {0}</value>
+  </data>
+  <data name="ExTurnInCollectable_ScripsRemaining" xml:space="preserve">
+    <value>Scrips remaining for shop {0} -&gt; Count: {1}</value>
+  </data>
+  <data name="ExTurnInCollectable_ShopPurchase" xml:space="preserve">
+    <value>Inventory for {0} -&gt; Count: {1}</value>
+  </data>
+  <data name="ExTurnInCollectable_TargetingTimeout" xml:space="preserve">
+    <value>Timeout targeting npc.</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnIn" xml:space="preserve">
+    <value>Turning in items</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInBlackList" xml:space="preserve">
+    <value>Don't turn in this item for 3 minutes</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInError" xml:space="preserve">
+    <value>An error has occured while turning in the item</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInSuccessful" xml:space="preserve">
+    <value>Turned in {0} at {1} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_CheckTransport" xml:space="preserve">
+    <value>Checking for transport window.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_CollectReward" xml:space="preserve">
+    <value>Collecting reward on {0} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_Complete" xml:space="preserve">
+    <value>Completed on {0} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_Move" xml:space="preserve">
+    <value>Moving to Npc -&gt; </value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoItemToTurnin" xml:space="preserve">
+    <value>No items to turn in. Settings -&gt; HqOnly: {0}, NqOnly: {1}, ItemId: {2}</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoMoreQuests" xml:space="preserve">
+    <value>No more quests to turn in.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoMoveQuests2" xml:space="preserve">
+    <value>Looks like we don't have any quests to turn in.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoRewardsLeft" xml:space="preserve">
+    <value>No rewards left, turn-ins complete.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NothingToTurnin" xml:space="preserve">
+    <value>We don't have any completed quests left to turn in.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_OpenWindow" xml:space="preserve">
+    <value>Looks like no windows are open, lets clear our target and try again.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_SelectTransport" xml:space="preserve">
+    <value>Selecting transport option.</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnIn" xml:space="preserve">
+    <value>Turning in items</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnInHq" xml:space="preserve">
+    <value>Turned in HQ {0} on {1} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurninMore" xml:space="preserve">
+    <value>Turning in more items on {0} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnInNq" xml:space="preserve">
+    <value>Turned in {0} on {1} ET</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurninTimeout" xml:space="preserve">
+    <value>Timeout while turning in leve.</value>
+  </data>
+  <data name="ExUseAethernet_SelectLine" xml:space="preserve">
+    <value>Selecting line </value>
+  </data>
+  <data name="ExUseAethernet_SelectLineTimeout" xml:space="preserve">
+    <value>Timeout, SelectString window did not open.</value>
+  </data>
+  <data name="SkyWatcher_CheckEnabled" xml:space="preserve">
+    <value>Skywatcher is not enabled in plugins.  Enable it and restart the bot.</value>
+  </data>
+  <data name="DefaultReturnStrategy_Default" xml:space="preserve">
+    <value>Default: Death Location: {0}, AetheryteId: {1}</value>
+  </data>
+  <data name="ExGather_Cordial" xml:space="preserve">
+    <value>Using cordial when it becomes available</value>
+  </data>
+  <data name="ExGather_CordialNotAvailable" xml:space="preserve">
+    <value>No Cordial avilable, buy more</value>
+  </data>
+  <data name="ExGather_CordialUse" xml:space="preserve">
+    <value>Using Cordial -&gt; Waiting (sec): {0}, CurrentGP: {1}</value>
+  </data>
+  <data name="ExGather_CordialUsing" xml:space="preserve">
+    <value>Using </value>
+  </data>
+  <data name="ExGather_DistanceHotSpot" xml:space="preserve">
+    <value>Distance to furthest vector in hotspot -&gt; </value>
+  </data>
+  <data name="ExGather_DistanceObject" xml:space="preserve">
+    <value>Distance to furthest visible game object -&gt; </value>
+  </data>
+  <data name="ExGather_GatherStart" xml:space="preserve">
+    <value>Started gathering from {0} with {1}/{2} GP at {3} ET</value>
+  </data>
+  <data name="ExGather_GatherWindow" xml:space="preserve">
+    <value>Gathering Window didn't open: Retrying. {0}/5</value>
+  </data>
+  <data name="ExGather_GatherWindow2" xml:space="preserve">
+    <value>Gathering Window didn't open: Re-attempting to move into place. {0}/5</value>
+  </data>
+  <data name="ExGather_GPWait" xml:space="preserve">
+    <value>Waiting for GP</value>
+  </data>
+  <data name="ExGather_GPWaitDetailed" xml:space="preserve">
+    <value>Waiting for GP -&gt; Seconds: {0}, Current GP: {1}, WaitForGP: {2}</value>
+  </data>
+  <data name="ExGather_MoveToHotSpot" xml:space="preserve">
+    <value>Moving to hotspot {0}{1}</value>
+  </data>
+  <data name="ExGather_NoAvailableNode" xml:space="preserve">
+    <value>Could not find any nodes and can not confirm hotspot is empty via object detection, trying again from center of hotspot.</value>
+  </data>
+  <data name="ExGather_NodeBlacklist" xml:space="preserve">
+    <value>Node on blacklist, waiting until we move out of range or it clears.</value>
+  </data>
+  <data name="ExGather_NodeBlacklistRemoved" xml:space="preserve">
+    <value>Node removed from blacklist.</value>
+  </data>
+  <data name="ExGather_NodeInteract" xml:space="preserve">
+    <value>Interacting with node</value>
+  </data>
+  <data name="ExGather_NodeReset" xml:space="preserve">
+    <value>Node Reset, Reason: Ran out of range</value>
+  </data>
+  <data name="ExGather_NodeSet" xml:space="preserve">
+    <value>Node set -&gt; </value>
+  </data>
+  <data name="ExGather_NoTypeSpecified" xml:space="preserve">
+    <value>Unable to get types, Loading Known Rotations.</value>
+  </data>
+  <data name="ExGather_RotationLoad" xml:space="preserve">
+    <value>Loaded Rotation -&gt; {0}, GP: {1}, Time: {2}</value>
+  </data>
+  <data name="ExGather_RotationNotFound" xml:space="preserve">
+    <value>Could not find rotation, using RegularNode instead.</value>
+  </data>
+  <data name="ExGather_RotationUse" xml:space="preserve">
+    <value>Using rotation -&gt; </value>
+  </data>
+  <data name="ExGather_TnGEphemeral" xml:space="preserve">
+    <value>TouchAndGo strategy override, not waiting for GP unless we are on an ephemeral node</value>
+  </data>
+  <data name="ExGather_TnGOverride" xml:space="preserve">
+    <value>TouchAndGo override, maxTimeout being set between 2 and 16 seconds</value>
+  </data>
+  <data name="ExGather_TnGSeconds" xml:space="preserve">
+    <value>TouchAndGo strategy override, not waiting for GP unless it is less than 16 seconds</value>
+  </data>
+  <data name="NoAetheryteUseAethernetReturn_AethernetText" xml:space="preserve">
+    <value>Aethernet.</value>
+  </data>
+  <data name="RetainerMaid_NoNearestSummoningBell" xml:space="preserve">
+    <value>Could not find nearby summoning bell</value>
+  </data>
+  <data name="RetainerMaid_PluginName" xml:space="preserve">
+    <value>RetainerMaid</value>
+  </data>
+  <data name="Skywatcher_PluginName" xml:space="preserve">
+    <value>Skywatcher</value>
+  </data>
+  <data name="Window_Attempting" xml:space="preserve">
+    <value>Attempting to close the [{0}] window</value>
+  </data>
+  <data name="Window_Closed" xml:space="preserve">
+    <value>The [{0}] window has been closed.</value>
+  </data>
+  <data name="Window_invalid" xml:space="preserve">
+    <value>The [{0}] window was not valid, it was either not open or closed on its own.</value>
+  </data>
+  <data name="Window_UnexpectedResult" xml:space="preserve">
+    <value>Unexpected result while closing [{0}]</value>
+  </data>
+  <data name="Window_WaitToClose" xml:space="preserve">
+    <value>Waiting {0} ms for [{1}] window to close</value>
+  </data>
+  <data name="MasterPieceSupply_CannotTurnIn" xml:space="preserve">
+    <value>[MasterPieceSupply] Can't turn in '{0}' today, the current turn in is '{1}'</value>
+  </data>
+  <data name="MasterPieceSupply_CollectabilityValueNotEnough" xml:space="preserve">
+    <value>[MasterPieceSupply] Collectability value '{0}' is too low or we can't turn in {1} today.</value>
+  </data>
+  <data name="MasterPieceSupply_FullScrips" xml:space="preserve">
+    <value>[MasterPieceSupply] Not turning in '{0}', full on scrips.</value>
+  </data>
+  <data name="PurifyDialog" xml:space="preserve">
+    <value>An error has occured during aetherial reduction. Result was {0}</value>
+  </data>
+  <data name="SalvageDialog" xml:space="preserve">
+    <value>"An error has occured during desynthesis. Result was {0}"</value>
+  </data>
+  <data name="FlightEnabledNavigator_CollisionDetected" xml:space="preserve">
+    <value>Collision detected! Generating new path!</value>
+  </data>
+  <data name="FlightEnabledNavigator_DestinationReached" xml:space="preserve">
+    <value>Navigation reached current destination. Within</value>
+  </data>
+  <data name="FlightEnabledNavigator_Dispose" xml:space="preserve">
+    <value>Putting original Navigator back!</value>
+  </data>
+  <data name="FlightEnabledNavigator_Enabled" xml:space="preserve">
+    <value>Replacing Navigator with Flight Navigator.</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving" xml:space="preserve">
+    <value>Moving to next hop: {0}{1} D: {2}</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving2" xml:space="preserve">
+    <value>Moving to next hop [{0}]: {1}{2} D: {3}</value>
+  </data>
+  <data name="FlightEnabledNavigator_NoPath" xml:space="preserve">
+    <value>Error encountered trying to find a path. Trying innerNavigator for 10 seconds before re-enabling flight.</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathFound" xml:space="preserve">
+    <value>Found existing path to {0} using {1} hops in {2} ms</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathGenerated" xml:space="preserve">
+    <value>Generated path to {0} using {1} hops in {2} ms</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathNotViable" xml:space="preserve">
+    <value>No viable path found to {0} from {1}</value>
+  </data>
+  <data name="FlightEnabledNavigator_ResetNavigatonProvider" xml:space="preserve">
+    <value>Resetting NavigationProvider to Flight Navigator.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Default" xml:space="preserve">
+    <value>Set default value for flying to false until we can determine if we can fly in this zone.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Land" xml:space="preserve">
+    <value>Landing took {0} ms or less</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandCancelled" xml:space="preserve">
+    <value>Landing cancelled after {0} ms. New destination requested.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandFailed" xml:space="preserve">
+    <value>Landing failed. Passing back control.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandNew" xml:space="preserve">
+    <value>Created new Landing Unstuck Coroutine, moving to {0}</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandResumed" xml:space="preserve">
+    <value>Resumed Landing Unstuck Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandStart" xml:space="preserve">
+    <value>Started Landing Task</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Takeoff" xml:space="preserve">
+    <value>Takeoff took {0} ms or less</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffCancelled" xml:space="preserve">
+    <value>Takeoff cancelled after {0} ms. IPlayerMover.Stop() was called.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffFailed" xml:space="preserve">
+    <value>Takeoff failed. Passing back control.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffNew" xml:space="preserve">
+    <value>Created new Takeoff Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffResumed" xml:space="preserve">
+    <value>Resumed Takeoff Coroutine</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffStart" xml:space="preserve">
+    <value>Started Takeoff Task</value>
+  </data>
+</root>

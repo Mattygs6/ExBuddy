@@ -2,7 +2,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 {
 	public enum ShopItem
 	{
-		#if RB_CN
+#if RB_CN
 		CrpDelineation = -8,
 
 		BsmDelineation = -7,
@@ -39,7 +39,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 
 		BeanPaste = 25
 		
-		#else																								
+		#else
 		CrpDelineation = -10,
 
 		BsmDelineation = -9,
@@ -55,46 +55,46 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 		AlcDelineation = -4,
 
 		CulDelineation = -3,
-		
+
 		CommercialEngineeringManual = -2,
-		
+
 		RedCrafterToken = 0,
 
 		RedGatherToken = 1,
-				
+
 		CommercialSurvivalManual = 5,
-				
+
 		HiCordial = 6,
 
 		BlueToken = 8,
-		
+
 		RedBalloon = 9,
-		
+
 		MagmaWorm = 10,
-		
+
 		FiendWorm = 11,
 
 		BruteLeech = 12,
 
 		CraneFly = 13,
-		
+
 		KukuruPowder = 30,
 
 		BouillonCube = 31,
 
-		BeanSauce = 32, 
+		BeanSauce = 32,
 
 		BeanPaste = 33,
-		
+
 		GoldenApple = 34,
-		
+
 		SolsticeGarlic = 35,
-		
+
 		MatureOliveOil = 36,
-		
+
 		LoaghtanFilet = 37,
-		
-		PowderedMermanHorn = 38,
-		#endif
+
+		PowderedMermanHorn = 38
+#endif
 	}
 }

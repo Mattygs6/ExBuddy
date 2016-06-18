@@ -6,8 +6,8 @@
 	<Order>
 		<While condition="True">
 			<GatherCollectable DiscoverUnknowns="true" AlwaysGather="false" Radius="8"
-								FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
-								CordialType="Cordial">
+			                   FreeRange="true" FreeRangeCondition="Condition.TrueFor(1, TimeSpan.FromMinutes(30))"
+			                   CordialType="Cordial">
 				<Collectables>
 					<!-- 450 -->
 					<Collectable Name="Cuprite" Value="450" />

@@ -1,0 +1,693 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Cordinal_NullSpellData" xml:space="preserve">
+    <value>无法处理强心剂数据,如果错误持续存在请把运行日志反馈给Exmatt.</value>
+  </data>
+  <data name="EnableFlight_PluginName" xml:space="preserve">
+    <value>启用飞行</value>
+  </data>
+  <data name="ExCompanyChestDeposit_Timeout" xml:space="preserve">
+    <value>往部队仓库中存放物品时超时</value>
+  </data>
+  <data name="ExDisablePlugins_Disabled" xml:space="preserve">
+    <value>{0} 插件已禁用</value>
+  </data>
+  <data name="ExDisablePlugins_Disabling" xml:space="preserve">
+    <value>禁用插件:</value>
+  </data>
+  <data name="ExDisablePlugins_Disabling2" xml:space="preserve">
+    <value>禁用插件 {0}</value>
+  </data>
+  <data name="ExEnablePlugins_Enabled" xml:space="preserve">
+    <value>{0} 插件已启用</value>
+  </data>
+  <data name="ExEnablePlugins_Enabling" xml:space="preserve">
+    <value>启用插件:</value>
+  </data>
+  <data name="ExEnablePlugins_Enabling2" xml:space="preserve">
+    <value>启用插件 {0}</value>
+  </data>
+  <data name="ExFish_AmissFish" xml:space="preserve">
+    <value>所有渔点的鱼都警惕了</value>
+  </data>
+  <data name="ExFish_AmissFish2" xml:space="preserve">
+    <value>这里的鱼现在警惕性很高，看来还是换个地点比较好。</value>
+  </data>
+  <data name="ExFish_AmissFish3" xml:space="preserve">
+    <value>这里的鱼现在警惕性很高.</value>
+  </data>
+  <data name="ExFish_BaitSelectError" xml:space="preserve">
+    <value>鱼饵选择时发生了错误</value>
+  </data>
+  <data name="ExFish_BlackList" xml:space="preserve">
+    <value>这个区域的鱼都警惕了,请在其他地图钓一下鱼再重新运行脚本</value>
+  </data>
+  <data name="ExFish_CannotFindBait" xml:space="preserve">
+    <value>无法找到 '{0}', 不与数据库中的任何数据匹配.</value>
+  </data>
+  <data name="ExFish_ChangeSpots" xml:space="preserve">
+    <value>更换渔点</value>
+  </data>
+  <data name="ExFish_CheckWeather" xml:space="preserve">
+    <value>等待正确天气</value>
+  </data>
+  <data name="ExFish_Collecting" xml:space="preserve">
+    <value>确认收藏品： {0} -&gt; 当前价值: {1}, 收藏最低价值: {2}</value>
+  </data>
+  <data name="ExFish_CollectorsGlove" xml:space="preserve">
+    <value>使用「收藏品采集」</value>
+  </data>
+  <data name="ExFish_Declining" xml:space="preserve">
+    <value>取消收藏品 {0} -&gt; 当前价值: {1}, 收藏最低价值: {2}</value>
+  </data>
+  <data name="ExFish_Fish" xml:space="preserve">
+    <value>在这个渔点钓了 {0} 次,一共 {1} 次.</value>
+  </data>
+  <data name="ExFish_FishRegex" xml:space="preserve">
+    <value>[\u4e00-\u9fa5A-Za-z0-9]+成功钓上了|[\u4e00-\u9fa5]+</value>
+  </data>
+  <data name="ExFish_InitFishSpot" xml:space="preserve">
+    <value>在移动换渔点前会再钓</value>
+  </data>
+  <data name="ExFish_InitFishSpot2" xml:space="preserve">
+    <value>次。</value>
+  </data>
+  <data name="ExFish_IsNotBait" xml:space="preserve">
+    <value>错误: '{0}' 不是鱼饵.</value>
+  </data>
+  <data name="ExFish_Mooch" xml:space="preserve">
+    <value>以小钓大, 这是第 {0} 次,一共 {1} 次.</value>
+  </data>
+  <data name="ExFish_Mooch2" xml:space="preserve">
+    <value>以小钓大, 只钓一次</value>
+  </data>
+  <data name="ExFish_NoCordial" xml:space="preserve">
+    <value>没有强心剂了,购买更多的 </value>
+  </data>
+  <data name="ExFish_NoSenceOfFish" xml:space="preserve">
+    <value>这里好像没有鱼在活动……</value>
+  </data>
+  <data name="ExFish_NoSenceOfFish2" xml:space="preserve">
+    <value>这里好像没有鱼在活动,尝试下一个地点</value>
+  </data>
+  <data name="ExFish_NotHaveBait" xml:space="preserve">
+    <value>你没有指定鱼饵:</value>
+  </data>
+  <data name="ExFish_Patience" xml:space="preserve">
+    <value>启用「耐心」</value>
+  </data>
+  <data name="ExFish_Release" xml:space="preserve">
+    <value>放生</value>
+  </data>
+  <data name="ExFish_ResetCount" xml:space="preserve">
+    <value>重置钓鱼计数</value>
+  </data>
+  <data name="ExFish_ResetMooch" xml:space="preserve">
+    <value>重置以小钓大级别</value>
+  </data>
+  <data name="ExFish_Sit" xml:space="preserve">
+    <value>坐下 </value>
+  </data>
+  <data name="ExFish_Snagging" xml:space="preserve">
+    <value>开启「钓组」</value>
+  </data>
+  <data name="ExFish_SuffleSpots" xml:space="preserve">
+    <value>打乱渔点顺序</value>
+  </data>
+  <data name="ExFish_TugType" xml:space="preserve">
+    <value>检测到 {0} 杆. 使用 {1}</value>
+  </data>
+  <data name="ExFish_UseBait" xml:space="preserve">
+    <value>使用鱼饵 -&gt;</value>
+  </data>
+  <data name="ExFish_UseCordial" xml:space="preserve">
+    <value>使用强心剂 -&gt; 等待时间(秒): {0}, 当前采集力: {1}</value>
+  </data>
+  <data name="ExFish_UseCordialWhenAvailable" xml:space="preserve">
+    <value>在强心剂可用时使用强心剂</value>
+  </data>
+  <data name="ExFlyTo_Deviating" xml:space="preserve">
+    <value>偏离航线至路径点: {0}</value>
+  </data>
+  <data name="ExFlyTo_Distance" xml:space="preserve">
+    <value>已在范围中 -&gt; 开始: {0}, 结束: {1}</value>
+  </data>
+  <data name="ExFlyTo_ExsistingPath" xml:space="preserve">
+    <value>使用已有的飞行路径 {0} 起点 {1} 终点 {2}</value>
+  </data>
+  <data name="ExFlyTo_GenPath" xml:space="preserve">
+    <value>建立飞行路径</value>
+  </data>
+  <data name="ExFlyTo_Landing" xml:space="preserve">
+    <value>着陆用了 {0} 毫秒</value>
+  </data>
+  <data name="ExFlyTo_MoveToWaypoint" xml:space="preserve">
+    <value>飞行至路径点: {0}</value>
+  </data>
+  <data name="ExFlyTo_MoveToWaypoint2" xml:space="preserve">
+    <value>飞行至路径点 [{0}]: {1}</value>
+  </data>
+  <data name="ExFlyTo_NewPath" xml:space="preserve">
+    <value>建立新的飞行路径 {0} 起点 {1} 终点 {2}</value>
+  </data>
+  <data name="ExFlyTo_NoViablePath" xml:space="preserve">
+    <value>没有前往 {0} 的可用路径.</value>
+  </data>
+  <data name="ExMoveTo_Move" xml:space="preserve">
+    <value>前往 {0}{1}, {2}</value>
+  </data>
+  <data name="ExMoveTo_Random" xml:space="preserve">
+    <value>使用随机地点 -&gt; {0}</value>
+  </data>
+  <data name="ExPickupGuildLeve_Move" xml:space="preserve">
+    <value>移动至NPC处 -&gt;</value>
+  </data>
+  <data name="ExPickupGuildLeve_Pickup" xml:space="preserve">
+    <value>接受理符任务 -&gt;</value>
+  </data>
+  <data name="ExPickupGuildLeve_Pickup2" xml:space="preserve">
+    <value>接受理符任务: </value>
+  </data>
+  <data name="ExPurify_Dismount" xml:space="preserve">
+    <value>无法下坐骑</value>
+  </data>
+  <data name="ExPurify_GetCondition" xml:space="preserve">
+    <value>不满足精选的条件, [{0}]</value>
+  </data>
+  <data name="ExPurify_Land" xml:space="preserve">
+    <value>无法降落,直到降落后无法精选</value>
+  </data>
+  <data name="ExSalvage_GetCondition" xml:space="preserve">
+    <value>不满足道具分解的条件, [{0}]</value>
+  </data>
+  <data name="ExSalvage_Land" xml:space="preserve">
+    <value>无法降落,直到降落后无法分解道具</value>
+  </data>
+  <data name="ExTurnInCollectable_AttemptingTurnin" xml:space="preserve">
+    <value>尝试提交物品{0} -&gt; 0x{1}</value>
+  </data>
+  <data name="ExTurnInCollectable_ErrorClassType" xml:space="preserve">
+    <value>错误,无法选择道具的职业类别</value>
+  </data>
+  <data name="ExTurnInCollectable_FailedPurchaseMorDhona" xml:space="preserve">
+    <value>无法在摩杜纳购买道具 {0} 设置田园郡为目的地.</value>
+  </data>
+  <data name="ExTurnInCollectable_InteractingTimeout" xml:space="preserve">
+    <value>与NPC互动超时</value>
+  </data>
+  <data name="ExTurnInCollectable_Move" xml:space="preserve">
+    <value>移动至NPC处 -&gt;</value>
+  </data>
+  <data name="ExTurnInCollectable_NoItemToPurchase" xml:space="preserve">
+    <value>没有需要购买的道具</value>
+  </data>
+  <data name="ExTurnInCollectable_NpcInteract" xml:space="preserve">
+    <value>与NPC互动 -&gt;</value>
+  </data>
+  <data name="ExTurnInCollectable_Purchase" xml:space="preserve">
+    <value>购买道具</value>
+  </data>
+  <data name="ExTurnInCollectable_PurchaseComplete" xml:space="preserve">
+    <value>购买完成</value>
+  </data>
+  <data name="ExTurnInCollectable_Purchased" xml:space="preserve">
+    <value>在艾欧泽亚时间{3} 用{1} {2} 票据购买了道具{0}; 剩余票据: {4}</value>
+  </data>
+  <data name="ExTurnInCollectable_PurchaseTimeout" xml:space="preserve">
+    <value>购买{0}超时</value>
+  </data>
+  <data name="ExTurnInCollectable_ScripsRemaining" xml:space="preserve">
+    <value>还需要兑换票据 {0} -&gt; 数量: {1}</value>
+  </data>
+  <data name="ExTurnInCollectable_ShopPurchase" xml:space="preserve">
+    <value>购买了 {0} -&gt; 数量: {1}</value>
+  </data>
+  <data name="ExTurnInCollectable_TargetingTimeout" xml:space="preserve">
+    <value>选择NPC超时</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnIn" xml:space="preserve">
+    <value>提交道具</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInBlackList" xml:space="preserve">
+    <value>3分钟内不提交该道具</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInError" xml:space="preserve">
+    <value>提交道具时发生了错误</value>
+  </data>
+  <data name="ExTurnInCollectable_TurnInSuccessful" xml:space="preserve">
+    <value>在艾欧泽亚时间 {1} 提交了 {0}</value>
+  </data>
+  <data name="ExTurnInGuildLeve_CheckTransport" xml:space="preserve">
+    <value>检查传送窗口</value>
+  </data>
+  <data name="ExTurnInGuildLeve_CollectReward" xml:space="preserve">
+    <value>在艾欧泽亚时间 {0} 获得任务报酬</value>
+  </data>
+  <data name="ExTurnInGuildLeve_Complete" xml:space="preserve">
+    <value>在艾欧泽亚时间 {0} 完成了任务</value>
+  </data>
+  <data name="ExTurnInGuildLeve_Move" xml:space="preserve">
+    <value>移动至NPC处 -&gt;</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoItemToTurnin" xml:space="preserve">
+    <value>没有可以提交的道具. 当前设置 -&gt; 只交Hq: {0}, 只交Nq: {1}, 道具Id: {2}</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoMoreQuests" xml:space="preserve">
+    <value>没有更多可以提交的任务</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoMoveQuests2" xml:space="preserve">
+    <value>好像没有更多任务可以提交了</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NoRewardsLeft" xml:space="preserve">
+    <value>没有额外的报酬了,任务提交完成</value>
+  </data>
+  <data name="ExTurnInGuildLeve_NothingToTurnin" xml:space="preserve">
+    <value>尚未完成任何可以提交的任务</value>
+  </data>
+  <data name="ExTurnInGuildLeve_OpenWindow" xml:space="preserve">
+    <value>好像没有任何窗口打开,清除当前目标再试一次</value>
+  </data>
+  <data name="ExTurnInGuildLeve_SelectTransport" xml:space="preserve">
+    <value>选择传送选项</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnIn" xml:space="preserve">
+    <value>提交道具</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnInHq" xml:space="preserve">
+    <value>在艾欧泽亚时间{1} 提交了HQ {0}</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurninMore" xml:space="preserve">
+    <value>在艾欧泽亚时间 {0} 提交更多道具</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurnInNq" xml:space="preserve">
+    <value>在艾欧泽亚时间{1} 提交了 {0}</value>
+  </data>
+  <data name="ExTurnInGuildLeve_TurninTimeout" xml:space="preserve">
+    <value>提交理符任务超时</value>
+  </data>
+  <data name="ExUseAethernet_SelectLine" xml:space="preserve">
+    <value>选择传送 </value>
+  </data>
+  <data name="ExUseAethernet_SelectLineTimeout" xml:space="preserve">
+    <value>超时,选择窗口未开启</value>
+  </data>
+  <data name="SkyWatcher_CheckEnabled" xml:space="preserve">
+    <value>天气监测插件未启用,请启用并重新运行RB.</value>
+  </data>
+  <data name="DefaultReturnStrategy_Default" xml:space="preserve">
+    <value>默认: 死亡地点: {0}, 以太之光Id: {1}</value>
+  </data>
+  <data name="ExGather_BlackListNode" xml:space="preserve">
+    <value>屏蔽采集物以便不重新选择 -&gt; </value>
+  </data>
+  <data name="ExGather_Cordial" xml:space="preserve">
+    <value>在强心剂可用时使用强心剂</value>
+  </data>
+  <data name="ExGather_CordialNotAvailable" xml:space="preserve">
+    <value>没有强心剂了,购买更多的</value>
+  </data>
+  <data name="ExGather_CordialUse" xml:space="preserve">
+    <value>使用强心剂 -&gt; 等待时间(秒): {0}, 当前采集力: {1}</value>
+  </data>
+  <data name="ExGather_CordialUsing" xml:space="preserve">
+    <value>使用 </value>
+  </data>
+  <data name="ExGather_DisabledCordial" xml:space="preserve">
+    <value>未启用强心剂, 要启用的话请添加'cordialType' 属性,并设置其值为 'Auto', 'Cordial', 或 'HiCordial'</value>
+  </data>
+  <data name="ExGather_DisabledCordialBeforeGather" xml:space="preserve">
+    <value>未启用采集前使用强心剂, 要启用的话请添加'cordialType' 属性,并设置其值为 'Auto', 'Cordial', 或 'HiCordial'</value>
+  </data>
+  <data name="ExGather_Distance" xml:space="preserve">
+    <value>不支持大于3.5的距离设置, 更改数值并重新运行脚本</value>
+  </data>
+  <data name="ExGather_DistanceHotSpot" xml:space="preserve">
+    <value>到热点中最远坐标的距离 -&gt;</value>
+  </data>
+  <data name="ExGather_DistanceObject" xml:space="preserve">
+    <value>到最远可见游戏场景物品的距离 -&gt;</value>
+  </data>
+  <data name="ExGather_ExecutePoiLogic" xml:space="preserve">
+    <value>采集中发生了些什么问题, 没有完成采集循环</value>
+  </data>
+  <data name="ExGather_Finished" xml:space="preserve">
+    <value>在艾欧泽亚时间 {2} 完成了 {0} 的采集,使用采集力 {1} .</value>
+  </data>
+  <data name="ExGather_FinishedLoop" xml:space="preserve">
+    <value>完成了 {0} 次循环,一共 {1} 次.</value>
+  </data>
+  <data name="ExGather_FullInventory" xml:space="preserve">
+    <value>背包已满, 未设置碎晶/水晶/晶簇采集,采集已完成.</value>
+  </data>
+  <data name="ExGather_GatherSpotSet" xml:space="preserve">
+    <value>采集热点设置 -&gt;</value>
+  </data>
+  <data name="ExGather_GatherStart" xml:space="preserve">
+    <value>在艾欧泽亚时间 {3} 开始采集 {0} , 采集力为  {1}/{2}.</value>
+  </data>
+  <data name="ExGather_GatherWindow" xml:space="preserve">
+    <value>采集窗口未打开: 重试中 {0}/5</value>
+  </data>
+  <data name="ExGather_GatherWindow2" xml:space="preserve">
+    <value>采集窗口未打开: 尝试重新进入采集地点 {0}/5</value>
+  </data>
+  <data name="ExGather_GPRecover" xml:space="preserve">
+    <value>采集力恢复比强心剂CD短, 等待采集力, 时长(秒): {0}</value>
+  </data>
+  <data name="ExGather_GPWait" xml:space="preserve">
+    <value>等待采集力</value>
+  </data>
+  <data name="ExGather_GPWaitDetailed" xml:space="preserve">
+    <value>等待采集力 -&gt; 秒数: {0}, 当前采集力: {1}, 需要的采集力: {2}</value>
+  </data>
+  <data name="ExGather_MoveToHotSpot" xml:space="preserve">
+    <value>移动至热点 {0}{1}</value>
+  </data>
+  <data name="ExGather_NoAvailableNode" xml:space="preserve">
+    <value>无法找到任何采集物, 也无法从对象探测中确认热点是否为空, 从热点中心重新尝试.</value>
+  </data>
+  <data name="ExGather_NodeBlacklist" xml:space="preserve">
+    <value>采集物已屏蔽, 等待角色离开范围或采集物消失.</value>
+  </data>
+  <data name="ExGather_NodeBlacklistRemoved" xml:space="preserve">
+    <value>采集物解除屏蔽.</value>
+  </data>
+  <data name="ExGather_NodeInteract" xml:space="preserve">
+    <value>与采集物互动</value>
+  </data>
+  <data name="ExGather_NodeIsGone" xml:space="preserve">
+    <value>采集物消失了</value>
+  </data>
+  <data name="ExGather_NodeReset" xml:space="preserve">
+    <value>重置采集物: 距离太远</value>
+  </data>
+  <data name="ExGather_NodeSet" xml:space="preserve">
+    <value>设置采集物 -&gt;</value>
+  </data>
+  <data name="ExGather_NotEnoughGP" xml:space="preserve">
+    <value>没有足够的采集力来完成循环, 取消采集</value>
+  </data>
+  <data name="ExGather_NotEnoughTime" xml:space="preserve">
+    <value>没有足够的采集时间, 仍然会做尝试</value>
+  </data>
+  <data name="ExGather_NothingToGather" xml:space="preserve">
+    <value>无法找到任何物品来采集, 继续.</value>
+  </data>
+  <data name="ExGather_NothingToGather2" xml:space="preserve">
+    <value>无法找到指定的格数或道具名, 采集 </value>
+  </data>
+  <data name="ExGather_NothingToGather3" xml:space="preserve">
+    <value> 替代.</value>
+  </data>
+  <data name="ExGather_NoTypeSpecified" xml:space="preserve">
+    <value>无法获取采集类别,读取已知的循环.</value>
+  </data>
+  <data name="ExGather_Rotationbaseoff" xml:space="preserve">
+    <value>取消预期循环 {0}</value>
+  </data>
+  <data name="ExGather_RotationbaseoffGatherIncrease" xml:space="preserve">
+    <value>取消预期循环, 收益增加: '{0}'</value>
+  </data>
+  <data name="ExGather_RotationEstimate" xml:space="preserve">
+    <value>预期循环 -&gt; 先前的: {0} , 新的: {1}</value>
+  </data>
+  <data name="ExGather_RotationLoad" xml:space="preserve">
+    <value>读取循环 -&gt; {0}, 采集力: {1}, 时长(秒): {2}</value>
+  </data>
+  <data name="ExGather_RotationNotChange" xml:space="preserve">
+    <value>循环未更改</value>
+  </data>
+  <data name="ExGather_RotationNotFound" xml:space="preserve">
+    <value>无法找到指定循环, 使用'常规作物'替代.</value>
+  </data>
+  <data name="ExGather_RotationOverride" xml:space="preserve">
+    <value>循环重载 -&gt; 先前的: {0} , 新的: {1}</value>
+  </data>
+  <data name="ExGather_RotationOverriding" xml:space="preserve">
+    <value>未知的采集物品, 重载循环以便可以采集收藏品.</value>
+  </data>
+  <data name="ExGather_RotationReset" xml:space="preserve">
+    <value>循环重置 -&gt; </value>
+  </data>
+  <data name="ExGather_RotationUse" xml:space="preserve">
+    <value>使用循环 -&gt; </value>
+  </data>
+  <data name="ExGather_SearchForNodes" xml:space="preserve">
+    <value>寻找采集物</value>
+  </data>
+  <data name="ExGather_SkipFurthestNodes" xml:space="preserve">
+    <value>跳过热点中最远的采集物,只需要一个</value>
+  </data>
+  <data name="ExGather_SkipNode" xml:space="preserve">
+    <value>跳过采集物,没有要采集的道具</value>
+  </data>
+  <data name="ExGather_TnGEphemeral" xml:space="preserve">
+    <value>摸一下就走的循环已重载, 不是限时采集的话就不等待采集力.</value>
+  </data>
+  <data name="ExGather_TnGOverride" xml:space="preserve">
+    <value>摸一下就走的循环已重载,最大超时时长设置为2到16秒.</value>
+  </data>
+  <data name="ExGather_TnGSeconds" xml:space="preserve">
+    <value>摸一下就走的循环已重载,16秒以上不等待采集力</value>
+  </data>
+  <data name="ExGather_WaitForGp" xml:space="preserve">
+    <value>我们不应该来这里, 采集力信息错误: {0}, 需要的采集力: {1}</value>
+  </data>
+  <data name="ExGather_WithoutMiniumGP" xml:space="preserve">
+    <value>在采集力不满足最低需求的时候使用循环采集</value>
+  </data>
+  <data name="ExGather_Zone" xml:space="preserve">
+    <value>地图Id [{0}], Calling Location {1}</value>
+  </data>
+  <data name="NoAetheryteUseAethernetReturn_AethernetText" xml:space="preserve">
+    <value>都市传送网</value>
+  </data>
+  <data name="RetainerMaid_NoNearestSummoningBell" xml:space="preserve">
+    <value>无法找到最近的传唤铃</value>
+  </data>
+  <data name="RetainerMaid_PluginName" xml:space="preserve">
+    <value>雇员管家</value>
+  </data>
+  <data name="Skywatcher_PluginName" xml:space="preserve">
+    <value>天气检测</value>
+  </data>
+  <data name="Window_Attempting" xml:space="preserve">
+    <value>尝试关闭 [{0}] 窗口</value>
+  </data>
+  <data name="Window_Closed" xml:space="preserve">
+    <value>[{0}] 窗口已关闭.</value>
+  </data>
+  <data name="Window_invalid" xml:space="preserve">
+    <value>[{0}] 窗口不可用,窗口未开启或自行关闭了</value>
+  </data>
+  <data name="Window_UnexpectedResult" xml:space="preserve">
+    <value>关闭 [{0}] 发生了未知结果</value>
+  </data>
+  <data name="Window_WaitToClose" xml:space="preserve">
+    <value>等待 {0} 毫秒以便 [{1}] 窗口关闭</value>
+  </data>
+  <data name="MasterPieceSupply_CannotTurnIn" xml:space="preserve">
+    <value>[收藏品提交] 今天无法提交 '{0}' , 当前提交的是 '{1}'</value>
+  </data>
+  <data name="MasterPieceSupply_CollectabilityValueNotEnough" xml:space="preserve">
+    <value>[收藏品提交] 收藏价值 '{0}' 太低或者今天无法提交 {1} .</value>
+  </data>
+  <data name="MasterPieceSupply_FullScrips" xml:space="preserve">
+    <value>[收藏品提交] 不提交 '{0}', 票据已满.</value>
+  </data>
+  <data name="PurifyDialog" xml:space="preserve">
+    <value>精选时发生错误,精选结果为 {0}</value>
+  </data>
+  <data name="SalvageDialog" xml:space="preserve">
+    <value>分解时发生错误,分解结果为 {0}</value>
+  </data>
+  <data name="FlightEnabledNavigator_CollisionDetected" xml:space="preserve">
+    <value>发现障碍物! 建立新的路径</value>
+  </data>
+  <data name="FlightEnabledNavigator_DestinationReached" xml:space="preserve">
+    <value>导航到达当前地点. Within</value>
+  </data>
+  <data name="FlightEnabledNavigator_Dispose" xml:space="preserve">
+    <value>返回地面导航</value>
+  </data>
+  <data name="FlightEnabledNavigator_Enabled" xml:space="preserve">
+    <value>使用飞行导航</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving" xml:space="preserve">
+    <value>移动至下一个中继点: {0}{1} D: {2}</value>
+  </data>
+  <data name="FlightEnabledNavigator_HopMoving2" xml:space="preserve">
+    <value>移动至下一个中继点 [{0}]: {1}{2} D: {3}</value>
+  </data>
+  <data name="FlightEnabledNavigator_NoPath" xml:space="preserve">
+    <value>寻找路线时发生错误,在重新启用飞行导航之前尝试内部导航10秒.</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathFound" xml:space="preserve">
+    <value>在 {2} ms 内发现了前往 {0} 的路径,共个 {1} 中继点</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathGenerated" xml:space="preserve">
+    <value>在 {2} ms 内建立了前往 {0} 的路径,共个 {1} 中继点</value>
+  </data>
+  <data name="FlightEnabledNavigator_PathNotViable" xml:space="preserve">
+    <value>没有从 {0} 至 {1} 的可用路径</value>
+  </data>
+  <data name="FlightEnabledNavigator_ResetNavigatonProvider" xml:space="preserve">
+    <value>重新使用飞行导航</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Default" xml:space="preserve">
+    <value>在确定这片区域可以飞行之前设置不启用飞行.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Land" xml:space="preserve">
+    <value>着陆耗时小于 {0} ms</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandCancelled" xml:space="preserve">
+    <value>在  {0} ms 后取消着陆, 请求了新的目的地.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandFailed" xml:space="preserve">
+    <value>着陆失败, 恢复控制.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandNew" xml:space="preserve">
+    <value>建立新的着陆协同程序移动至 {0}</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandResumed" xml:space="preserve">
+    <value>恢复着陆协同程序</value>
+  </data>
+  <data name="FlightEnabledSlideMover_LandStart" xml:space="preserve">
+    <value>开始着陆</value>
+  </data>
+  <data name="FlightEnabledSlideMover_Takeoff" xml:space="preserve">
+    <value>起飞耗时小于 {0} ms </value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffCancelled" xml:space="preserve">
+    <value>在 {0} ms 后取消起飞, 使角色停止移动.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffFailed" xml:space="preserve">
+    <value>起飞失败, 恢复控制.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffNew" xml:space="preserve">
+    <value>建立新的起飞协同程序.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffResumed" xml:space="preserve">
+    <value>恢复起飞协同程序.</value>
+  </data>
+  <data name="FlightEnabledSlideMover_TakeoffStart" xml:space="preserve">
+    <value>开始起飞</value>
+  </data>
+</root>

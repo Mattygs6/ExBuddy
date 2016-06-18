@@ -8,13 +8,10 @@ namespace ExBuddy.Plugins.EnableFlight
 	using System.IO;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Helpers;
 	using ExBuddy.Navigation;
-
 	using ff14bot;
 	using ff14bot.Behavior;
 	using ff14bot.Enums;
@@ -22,7 +19,6 @@ namespace ExBuddy.Plugins.EnableFlight
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
 	using ff14bot.RemoteWindows;
-
 	using TreeSharp;
 
 	[LoggerName("EnableFlight")]
@@ -38,18 +34,13 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		public override string Name
 		{
-			get
-			{
-				return "EnableFlight";
-			}
+			get { return Localization.Localization.EnableFlight_PluginName; }
 		}
+        
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.LightSteelBlue;
-			}
+			get { return Colors.LightSteelBlue; }
 		}
 
 		public override void OnDisabled()
@@ -154,21 +145,21 @@ namespace ExBuddy.Plugins.EnableFlight
 				var settings = EnableFlightSettings.Instance;
 				navigator = new FlightEnabledNavigator(
 					Navigator.NavigationProvider,
-					new FlightEnabledSlideMover(Navigator.PlayerMover, new FlightMovementArgs { MountId = settings.MountId }),
+					new FlightEnabledSlideMover(Navigator.PlayerMover, new FlightMovementArgs {MountId = settings.MountId}),
 					new FlightNavigationArgs
-						{
-							ForcedAltitude = settings.ForcedAltitude,
-							InverseParabolicMagnitude = settings.InverseParabolicMagnitude,
-							Radius = settings.Radius,
-							Smoothing = settings.Smoothing
-						});
+					{
+						ForcedAltitude = settings.ForcedAltitude,
+						InverseParabolicMagnitude = settings.InverseParabolicMagnitude,
+						Radius = settings.Radius,
+						Smoothing = settings.Smoothing
+					});
 
 				cleanup = bot =>
-					{
-						DoCleanup();
-						DisposeNav();
-						TreeRoot.OnStop -= cleanup;
-					};
+				{
+					DoCleanup();
+					DisposeNav();
+					TreeRoot.OnStop -= cleanup;
+				};
 
 				TreeRoot.OnStop += cleanup;
 
@@ -185,17 +176,14 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		// ReSharper disable once UnusedParameter.Local
 		public EnableFlightSettings(string path)
-			: base(Path.Combine(SettingsPath, "EnableFlight.json")) {}
+			: base(Path.Combine(JsonSettings.SettingsPath, "EnableFlight.json")) {}
 
 		[DefaultValue(6.0f)]
 		public float ForcedAltitude { get; set; }
 
 		public static EnableFlightSettings Instance
 		{
-			get
-			{
-				return instance ?? (instance = new EnableFlightSettings("EnableFlightSettings"));
-			}
+			get { return instance ?? (instance = new EnableFlightSettings("EnableFlightSettings")); }
 		}
 
 		[DefaultValue(5)]

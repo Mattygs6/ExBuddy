@@ -60,12 +60,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OffsetAttribute.cs" />
+    <Compile Include="Data\MasterpieceSupplyDutyResult.cs" />
+    <Compile Include="Data\RequiredItemResult.cs" />
+    <Compile Include="Data\SqlData.cs" />
+    <Compile Include="Helpers\ConditionTimer.cs" />
+    <Compile Include="Localization\Localization.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Localization.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Localization\LocalizationInitializer.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRate.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRateIndex.cs" />
+    <Compile Include="Plugins\Skywatcher\Objects\WeatherRates.cs" />
+    <Compile Include="Plugins\Skywatcher\Providers\LocationProvider.cs" />
+    <Compile Include="Plugins\Skywatcher\Providers\WeatherRateProvider.cs" />
+    <Compile Include="Plugins\Skywatcher\SaintCoinachWeatherProvider.cs" />
     <Compile Include="SecondaryOffsetManager.cs" />
     <Compile Include="Agents\AetherialReduction.cs" />
     <Compile Include="Attributes\LoggerNameAttribute.cs" />
     <Compile Include="ExBuddySettings.cs" />
-    <Compile Include="ExCoroutineAction.cs" />
+    <Compile Include="ExCoroutineAction.cs">
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="GameObjects\Npcs\CustomNpc.cs" />
     <Compile Include="GameObjects\Npcs\FreeCompanyChest.cs" />
     <Compile Include="GameObjects\Npcs\SummoningBell.cs" />
@@ -184,10 +204,10 @@
     <Compile Include="Windows\ShopExchangeCurrency.cs" />
     <Compile Include="Windows\Window{TWindow,TAgent}.cs" />
     <Compile Include="Windows\Window{TWindow}.cs" />
+    <None Include="Data\ExBuddy.s3db" />
+    <None Include="Data\ExBuddy_CN.s3db" />
     <None Include="Data\locationIndex.json" />
-    <None Include="Data\weatherIndex.json" />
     <None Include="Data\weatherRateIndex.json" />
-    <None Include="Data\zoneIndex.json" />
     <None Include="OrderBotTags\Gather\Prototype\SafeCollectAdamantite.cs.proto" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect115GatheringRotation.cs" />
     <Compile Include="OrderBotTags\Gather\Rotations\Collect345GatheringRotation.cs" />
@@ -224,6 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\msd.xml" />
+    <Content Include="Data\msd_cn.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\ExBuddy_[O][ALC][LEVE]_Lanolin+EnchantedElectrumInk-TurnIns.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\TurnInCollectables.xml" />
     <Content Include="OrderBotTags\Behaviors\Examples\UseAethernet.xml" />
@@ -258,6 +279,13 @@
     <None Include="OrderBotTags\Schema\Fish.xsd">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\Localization.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Localization\Localization.zh-CN.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

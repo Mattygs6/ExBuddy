@@ -2,14 +2,10 @@
 {
 	using System.ComponentModel;
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Helpers;
-
 	using ff14bot;
 
 	[XmlElement("StealthApproachGatherSpot")]
@@ -33,11 +29,10 @@
 			var result = true;
 			if (ReturnToStealthLocation)
 			{
-				result &=
-					await StealthLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
+				result &= await StealthLocation.MoveToNoMount(UseMesh, tag.Radius, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
-			if (UnstealthAfter && Core.Player.HasAura((int)AbilityAura.Stealth))
+			if (UnstealthAfter && Core.Player.HasAura((int) AbilityAura.Stealth))
 			{
 				result &= await tag.CastAura(Ability.Stealth);
 			}
@@ -56,19 +51,19 @@
 
 			var result =
 				await
-				StealthLocation.MoveTo(UseMesh,
-					radius: tag.Radius,
-					name: "Stealth Location",
-					stopCallback: tag.MovementStopCallback,
-					dismountAtDestination: true);
+					StealthLocation.MoveTo(
+						UseMesh,
+						radius: tag.Radius,
+						name: "Stealth Location",
+						stopCallback: tag.MovementStopCallback,
+						dismountAtDestination: true);
 
 			if (result)
 			{
 				await Coroutine.Yield();
 				await tag.CastAura(Ability.Stealth, AbilityAura.Stealth);
 
-				result =
-					await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
+				result = await NodeLocation.MoveToNoMount(UseMesh, tag.Distance, tag.Node.EnglishName, tag.MovementStopCallback);
 			}
 
 			return result;

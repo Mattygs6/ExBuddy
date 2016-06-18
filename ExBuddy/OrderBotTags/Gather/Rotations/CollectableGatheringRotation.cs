@@ -1,40 +1,22 @@
-﻿using ff14bot.RemoteWindows;
-
-namespace ExBuddy.OrderBotTags.Gather.Rotations
+﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-
 	using Buddy.Coroutines;
-
 	using ExBuddy.Helpers;
-	using ExBuddy.Windows;
-
 	using ff14bot;
 	using ff14bot.Managers;
+	using ff14bot.RemoteWindows;
 
 	public abstract class CollectableGatheringRotation : GatheringRotation
 	{
-		
-
-		public override bool ShouldForceGather(ExGatherTag tag)
-		{
-			return !tag.IsEphemeral() && !tag.IsUnspoiled();
-		}
-
 		protected int CurrentRarity
 		{
-			get
-			{
-				return GatheringMasterpiece.Rarity;
-			}
+			get { return GatheringMasterpiece.Rarity; }
 		}
 
 		protected bool HasDiscerningEye
 		{
-			get
-			{
-				return Core.Player.HasAura((int)AbilityAura.DiscerningEye);
-			}
+			get { return Core.Player.HasAura((int) AbilityAura.DiscerningEye); }
 		}
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)
@@ -52,20 +34,21 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			tag.StatusText = "Gathering collectable items";
 
 			var rarity = CurrentRarity;
-			
-			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
-			{
 
-				while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0 && Behaviors.ShouldContinue)
+			while (tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining && rarity > 0
+			       && Behaviors.ShouldContinue)
+			{
+				while (!SelectYesNoItem.IsOpen && tag.Node.CanGather && GatheringManager.SwingsRemaining > tag.SwingsRemaining
+				       && rarity > 0 && Behaviors.ShouldContinue)
 				{
 					if (!GatheringMasterpiece.IsOpen)
 					{
-					    await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen);
+						await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen);
 					}
 
 					if (GatheringMasterpiece.IsOpen)
 					{
-                        GatheringMasterpiece.Collect();
+						GatheringMasterpiece.Collect();
 					}
 
 					await Coroutine.Sleep(500);
@@ -79,11 +62,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 					tag.Logger.Info(
 						"Collected item: {0}, value: {1} at {2} ET",
 						tag.GatherItem.ItemData.EnglishName,
-                        SelectYesNoItem.CollectabilityValue,
+						SelectYesNoItem.CollectabilityValue,
 						WorldManager.EorzaTime);
 
-                    SelectYesNoItem.Yes();
-					await Coroutine.Wait(2000, ()=> !SelectYesNoItem.IsOpen);
+					SelectYesNoItem.Yes();
+					await Coroutine.Wait(2000, () => !SelectYesNoItem.IsOpen);
 				}
 
 				var ticks = 0;
@@ -111,8 +94,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 				{
 					return false;
 				}
-			}
-			while (ticks++ < 10 && !await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen) && Behaviors.ShouldContinue);
+			} while (ticks++ < 10 && !await Coroutine.Wait(3000, () => GatheringMasterpiece.IsOpen) && Behaviors.ShouldContinue);
 
 			if (ticks > 10)
 			{
@@ -120,6 +102,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 			}
 
 			return true;
+		}
+
+		public override bool ShouldForceGather(ExGatherTag tag)
+		{
+			return !tag.IsEphemeral() && !tag.IsUnspoiled();
 		}
 
 		protected async Task AppraiseAndRebuff(ExGatherTag tag)

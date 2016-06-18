@@ -2,10 +2,7 @@
 {
 	using System.Collections;
 	using System.Collections.Generic;
-
-	using Clio.Utilities;
 	using Clio.XmlEngine;
-
 	using ExBuddy.Interfaces;
 
 	[XmlElement("Items")]
@@ -17,24 +14,36 @@
 		}
 
 		[XmlElement(XmlEngine.GENERIC_BODY)]
-		private List<INamedItem> Items { get; [UsedImplicitly] set; }
+		private List<INamedItem> Items { get; set; }
 
-		#region ICollection<NamedItem> Members
+		#region IEnumerable Members
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable<INamedItem> Members
+
+		public IEnumerator<INamedItem> GetEnumerator()
+		{
+			return Items.GetEnumerator();
+		}
+
+		#endregion
+
+		#region ICollection<INamedItem> Members
 
 		public int Count
 		{
-			get
-			{
-				return Items.Count;
-			}
+			get { return Items.Count; }
 		}
 
 		public bool IsReadOnly
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public void Add(INamedItem item)
@@ -64,25 +73,7 @@
 
 		#endregion
 
-		#region IEnumerable Members
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
-
-		#region IEnumerable<NamedItem> Members
-
-		public IEnumerator<INamedItem> GetEnumerator()
-		{
-			return Items.GetEnumerator();
-		}
-
-		#endregion
-
-		#region IList<NamedItem> Members
+		#region IList<INamedItem> Members
 
 		public int IndexOf(INamedItem item)
 		{
@@ -96,14 +87,8 @@
 
 		public INamedItem this[int index]
 		{
-			get
-			{
-				return Items[index];
-			}
-			set
-			{
-				Items[index] = value;
-			}
+			get { return Items[index]; }
+			set { Items[index] = value; }
 		}
 
 		public void RemoveAt(int index)

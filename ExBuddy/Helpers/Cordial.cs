@@ -1,10 +1,8 @@
 ﻿namespace ExBuddy.Helpers
 {
 	using System.Linq;
-
 	using ExBuddy.Enumerations;
 	using ExBuddy.Logging;
-
 	using ff14bot.Managers;
 	using ff14bot.Objects;
 
@@ -12,13 +10,13 @@
 	{
 		public static SpellData GetSpellData()
 		{
-			var cordialSpellData = DataManager.GetItem((uint)CordialType.Cordial).BackingAction;
+			var cordialSpellData = DataManager.GetItem((uint) CordialType.Cordial).BackingAction;
 
 			if (cordialSpellData == null)
 			{
 				var item =
 					InventoryManager.FilledSlots.FirstOrDefault(
-						bs => bs.RawItemId == (uint)CordialType.Cordial || bs.RawItemId == (uint)CordialType.HiCordial);
+						bs => bs.RawItemId == (uint) CordialType.Cordial || bs.RawItemId == (uint) CordialType.HiCordial);
 
 				if (item != null)
 				{
@@ -28,7 +26,7 @@
 
 			if (cordialSpellData == null)
 			{
-				Logger.Instance.Error("Unable to resolve cordial data, if this continues, please report logs to ExMatt.");
+				Logger.Instance.Error(Localization.Localization.Cordinal_NullSpellData);
 			}
 
 			return cordialSpellData;
@@ -41,12 +39,12 @@
 
 		public static bool HasCordials()
 		{
-			return DataManager.GetItem((uint)CordialType.Cordial).ItemCount() > 0;
+			return DataManager.GetItem((uint) CordialType.Cordial).ItemCount() > 0;
 		}
 
 		public static bool HasHiCordials()
 		{
-			return DataManager.GetItem((uint)CordialType.HiCordial).ItemCount() > 0;
+			return DataManager.GetItem((uint) CordialType.HiCordial).ItemCount() > 0;
 		}
 	}
 }

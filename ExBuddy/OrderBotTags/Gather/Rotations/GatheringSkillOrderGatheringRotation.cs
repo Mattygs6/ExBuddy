@@ -2,9 +2,7 @@
 {
 	using System.Collections.Generic;
 	using System.Threading.Tasks;
-
 	using ExBuddy.Attributes;
-
 	using ff14bot;
 	using ff14bot.Managers;
 	using ff14bot.Objects;
@@ -17,18 +15,12 @@
 
 		public override GatheringRotationAttribute Attributes
 		{
-			get
-			{
-				return attributes;
-			}
+			get { return attributes; }
 		}
 
 		public override bool CanBeOverriden
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public override async Task<bool> ExecuteRotation(ExGatherTag tag)

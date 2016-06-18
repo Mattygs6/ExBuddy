@@ -55,11 +55,11 @@
 						<GatherRotation>Collect470</GatherRotation>
 						<GatherSpots>
 							<StealthApproachGatherSpot stealthLocation="70.86564, -0.4920825, -858.0936"
-														nodeLocation="72.07767, 0.7522836, -854.5031" />
+							                           nodeLocation="72.07767, 0.7522836, -854.5031" />
 							<StealthApproachGatherSpot stealthLocation="20.53567, -1.213719, -827.198"
-														nodeLocation="25.29292, 0.5668808, -833.7905" />
+							                           nodeLocation="25.29292, 0.5668808, -833.7905" />
 							<StealthApproachGatherSpot stealthLocation="89.52304, -1.827069, -791.0764"
-														nodeLocation="79.63015, 0.5219008, -804.5839" />
+							                           nodeLocation="79.63015, 0.5219008, -804.5839" />
 						</GatherSpots>
 						<HotSpots>
 							<HotSpot Radius="90" XYZ="57.50256, 21.00859, -835.1724" />
@@ -77,11 +77,11 @@
 						<GatherRotation>Unspoiled</GatherRotation>
 						<GatherSpots>
 							<StealthApproachGatherSpot stealthLocation="70.86564, -0.4920825, -858.0936"
-														nodeLocation="72.07767, 0.7522836, -854.5031" />
+							                           nodeLocation="72.07767, 0.7522836, -854.5031" />
 							<StealthApproachGatherSpot stealthLocation="20.53567, -1.213719, -827.198"
-														nodeLocation="25.29292, 0.5668808, -833.7905" />
+							                           nodeLocation="25.29292, 0.5668808, -833.7905" />
 							<StealthApproachGatherSpot stealthLocation="89.52304, -1.827069, -791.0764"
-														nodeLocation="79.63015, 0.5219008, -804.5839" />
+							                           nodeLocation="79.63015, 0.5219008, -804.5839" />
 						</GatherSpots>
 						<HotSpots>
 							<HotSpot Radius="90" XYZ="57.50256, 21.00859, -835.1724" />

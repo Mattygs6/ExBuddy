@@ -53,14 +53,14 @@
 						<LogMessage Message="You need more Sand Leeches!" />
 						<NoCombatMoveTo name="Merchant &amp; Mender" xyz="-279.1685, 8.091489, 381.3083" />
 						<BuyItem itemId="2600" itemCount="198" dialogOption="1" interactDistance="3.0" npcId="1004430"
-								xyz="-279.1685, 8.091489, 381.3083" />
+						         xyz="-279.1685, 8.091489, 381.3083" />
 					</If>
 					<Fish condition="WorldManager.CurrentWeatherId == 14"
-						mooch="2"
-						bait="Sand Leech"
-						patience="Patience2"
-						confirmKey="Return" moveCursorRightKey="Right"
-						minFish="15" maxFish="25">
+					      mooch="2"
+					      bait="Sand Leech"
+					      patience="Patience2"
+					      confirmKey="Return" moveCursorRightKey="Right"
+					      minFish="15" maxFish="25">
 						<Keepers>
 							<Keeper name="Olgoi-Khorkhoi" />
 							<Keeper name="Caravan Eel" />
@@ -121,11 +121,11 @@
 							<TeleportTo name="Moraby Drydocks" aetheryteId="10" />
 						</If>
 						<Fish condition="HasAtLeast(2628, 1)"
-							bait="Yumizuno"
-							patience="Patience2"
-							shuffleFishSpots="true"
-							confirmKey="Return" moveCursorRightKey="Right"
-							minFish="15" maxFish="25">
+						      bait="Yumizuno"
+						      patience="Patience2"
+						      shuffleFishSpots="true"
+						      confirmKey="Return" moveCursorRightKey="Right"
+						      minFish="15" maxFish="25">
 							<Keepers>
 								<Keeper name="Silver Sovereign" />
 								<Keeper name="Mahi-Mahi" />

@@ -4,9 +4,7 @@
 namespace ExBuddy
 {
 	using System.Threading.Tasks;
-
 	using Clio.Utilities;
-
 	using ExBuddy.Interfaces;
 
 	public class NoAetheryteRunToZoneReturnStrategy : IReturnStrategy
@@ -16,6 +14,12 @@ namespace ExBuddy
 		#region IAetheryteId Members
 
 		public uint AetheryteId { get; set; }
+
+		#endregion
+
+		#region IZoneId Members
+
+		public ushort ZoneId { get; set; }
 
 		#endregion
 
@@ -32,12 +36,6 @@ namespace ExBuddy
 		{
 			return true;
 		}
-
-		#endregion
-
-		#region IZoneId Members
-
-		public ushort ZoneId { get; set; }
 
 		#endregion
 	}

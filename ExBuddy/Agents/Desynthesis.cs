@@ -1,9 +1,7 @@
-﻿using ExBuddy.Offsets;
-
-namespace ExBuddy.Agents
+﻿namespace ExBuddy.Agents
 {
 	using System;
-
+	using ExBuddy.Offsets;
 	using ff14bot;
 
 	public sealed class Desynthesis : Agent<Desynthesis>
@@ -13,10 +11,7 @@ namespace ExBuddy.Agents
 
 		public IntPtr CurrentBagSlot
 		{
-			get
-			{
-				return Core.Memory.Read<IntPtr>(Pointer + DesynthesisOffsets.CurrentBagSlotOffset);
-			}
+			get { return Core.Memory.Read<IntPtr>(Pointer + DesynthesisOffsets.CurrentBagSlotOffset); }
 		}
 	}
 }

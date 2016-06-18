@@ -6,10 +6,23 @@
 	{
 		public FlightNavigationArgs()
 		{
-			this.Radius = 2.7f;
-			this.InverseParabolicMagnitude = 6;
-			this.Smoothing = 0.2f;
-			this.ForcedAltitude = 8.0f;
+			Radius = 2.7f;
+			InverseParabolicMagnitude = 6;
+			Smoothing = 0.2f;
+			ForcedAltitude = 8.0f;
+		}
+
+		public override string ToString()
+		{
+			return string.Concat(
+				"R->",
+				Radius,
+				"IPM->",
+				InverseParabolicMagnitude,
+				"S->",
+				Smoothing,
+				"Alt->",
+				ForcedAltitude);
 		}
 
 		#region IFlightNavigationArgs Members
@@ -23,18 +36,5 @@
 		public float Smoothing { get; set; }
 
 		#endregion
-
-		public override string ToString()
-		{
-			return string.Concat(
-				"R->",
-				this.Radius,
-				"IPM->",
-				this.InverseParabolicMagnitude,
-				"S->",
-				this.Smoothing,
-				"Alt->",
-				this.ForcedAltitude);
-		}
 	}
 }

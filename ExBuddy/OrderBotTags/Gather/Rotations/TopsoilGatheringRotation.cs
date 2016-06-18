@@ -2,10 +2,8 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System;
 	using System.Linq;
-
 	using ExBuddy.Attributes;
 	using ExBuddy.Interfaces;
-
 	using ff14bot.Managers;
 
 	[GatheringRotation("Topsoil", 8)]
@@ -28,7 +26,7 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 
 			// Dont' override if we can gather dark matter clusters and they are on our list.
 			if (tag.Items.Any(i => i.Name.Equals("Dark Matter Cluster", StringComparison.InvariantCultureIgnoreCase))
-				&& GatheringManager.GatheringWindowItems.Any(i => i.ItemId == 10335))
+			    && GatheringManager.GatheringWindowItems.Any(i => i.ItemId == 10335))
 			{
 				return -1;
 			}

@@ -1,4 +1,6 @@
-﻿#pragma warning disable 1998
+﻿
+#pragma warning disable 1998
+
 namespace ExBuddy.OrderBotTags.Behaviors
 {
 	using System;
@@ -6,11 +8,8 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows.Media;
-
 	using Clio.XmlEngine;
-
 	using ExBuddy.Attributes;
-
 	using ff14bot.Managers;
 
 	[LoggerName("ExEnablePlugins")]
@@ -24,10 +23,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		protected override Color Info
 		{
-			get
-			{
-				return Colors.PaleGreen;
-			}
+			get { return Colors.PaleGreen; }
 		}
 
 		private IList<string> NamesList
@@ -36,10 +32,12 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				if (Names == null)
 				{
-					return new string[] { };
+					return new string[] {};
 				}
 
-				return namesList ?? (namesList = Names.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
+				return namesList
+				       ??
+				       (namesList = Names.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray());
 			}
 		}
 
@@ -56,7 +54,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				return;
 			}
 
-			StatusText = "Enabling Plugins: " + Names;
+			StatusText = Localization.Localization.ExEnablePlugins_Enabling + Names;
 			Logger.Info("Enabling Plugins: " + Names);
 			foreach (var plugin in
 				PluginManager.Plugins.Where(p => NamesList.Contains(p.Plugin.Name, StringComparer.InvariantCultureIgnoreCase)))
@@ -65,11 +63,11 @@ namespace ExBuddy.OrderBotTags.Behaviors
 				{
 					if (plugin.Enabled)
 					{
-						Logger.Info("Plugin {0} already enabled.", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExEnablePlugins_Enabled, plugin.Plugin.Name);
 					}
 					else
 					{
-						Logger.Info("Enabling Plugin {0}", plugin.Plugin.Name);
+						Logger.Info(Localization.Localization.ExEnablePlugins_Enabling2, plugin.Plugin.Name);
 						plugin.Enabled = true;
 					}
 				}

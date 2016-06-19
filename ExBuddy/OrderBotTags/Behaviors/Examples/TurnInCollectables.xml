@@ -5,9 +5,12 @@
 
 		Idyllshire
 
-BlueToken
-RedCrafterToken
+BlueGatherToken
 RedGatherToken
+GoblinDice
+BlueCrafterToken
+RedCrafterToken
+GoblinCup
 HiCordial
 CommercialSurvivalManual
 CommercialEngineeringManual
@@ -25,6 +28,8 @@ SolsticeGarlic
 MatureOliveOil
 LoaghtanFilet
 PowderedMermanHorn
+HeavensEgg
+CarbonFiber
 CrpDelineation
 BsmDelineation
 ArmDelineation
@@ -36,9 +41,12 @@ CulDelineation
 
  -->
 
-<!ENTITY BlueToken_Count "0">
-<!ENTITY RedCrafterToken_Count "999">
+<!ENTITY BlueGatherToken_Count "0">
 <!ENTITY RedGatherToken_Count "0">
+<!ENTITY GoblinDice_Count "0">
+<!ENTITY BlueCrafterToken_Count "0">
+<!ENTITY RedCrafterToken_Count "0">
+<!ENTITY GoblinCup_Count "0">
 <!ENTITY HiCordial_Count "0">
 <!ENTITY CommercialSurvivalManual_Count "0">
 <!ENTITY CommercialEngineeringManual_Count "0">
@@ -56,6 +64,8 @@ CulDelineation
 <!ENTITY MatureOliveOil_Count "0">
 <!ENTITY LoaghtanFilet_Count "0">
 <!ENTITY PowderedMermanHorn_Count "0">
+<!ENTITY HeavensEgg_Count "0">
+<!ENTITY CarbonFiber_Count "0">
 <!ENTITY CrpDelineation_Count "0">
 <!ENTITY BsmDelineation_Count "0">
 <!ENTITY ArmDelineation_Count "0">
@@ -70,13 +80,15 @@ CulDelineation
 	<Name>ExBuddy: Turn in Collectables</Name>
 	<KillRadius>50</KillRadius>
 	<Order>
-		<ExLog Color="#FFC0CB" Name="ExBuddy" Message="Turning in collectables " />
-		<!-- if forcePurchase="true" it will go purchase items even if no turn ins available -->
-		<ExTurnInCollectables location="Idyllshire" forcePurchase="False">
+		<ExLog Color="#FFC0CB" Name="ExBuddy" Message="Turning in collectables "/>
+		<ExTurnInCollectables location="Idyllshire" forcePurchase="True">
 			<ShopPurchases>
-				<ShopPurchase shopItem="BlueToken" maxCount="&BlueToken_Count;" />
-				<ShopPurchase shopItem="RedCrafterToken" maxCount="&RedCrafterToken_Count;" />
+				<ShopPurchase shopItem="BlueGatherToken" maxCount="&BlueGatherToken_Count;" />
 				<ShopPurchase shopItem="RedGatherToken" maxCount="&RedGatherToken_Count;" />
+				<ShopPurchase shopItem="GoblinDice" maxCount="&GoblinDice_Count;" />
+				<ShopPurchase shopItem="BlueCrafterToken" maxCount="&BlueCrafterToken_Count;" />
+				<ShopPurchase shopItem="RedCrafterToken" maxCount="&RedCrafterToken_Count;" />
+				<ShopPurchase shopItem="GoblinCup" maxCount="&GoblinCup_Count;" />
 				<ShopPurchase shopItem="HiCordial" maxCount="&HiCordial_Count;" />
 				<ShopPurchase shopItem="CommercialSurvivalManual" maxCount="&CommercialSurvivalManual_Count;" />
 				<ShopPurchase shopItem="CommercialEngineeringManual" maxCount="&CommercialEngineeringManual_Count;" />
@@ -94,6 +106,8 @@ CulDelineation
 				<ShopPurchase shopItem="MatureOliveOil" maxCount="&MatureOliveOil_Count;" />
 				<ShopPurchase shopItem="LoaghtanFilet" maxCount="&LoaghtanFilet_Count;" />
 				<ShopPurchase shopItem="PowderedMermanHorn" maxCount="&PowderedMermanHorn_Count;" />
+				<ShopPurchase shopItem="HeavensEgg" maxCount="&HeavensEgg_Count;" />
+				<ShopPurchase shopItem="CarbonFiber" maxCount="&CarbonFiber_Count;" />
 				<ShopPurchase shopItem="CrpDelineation" maxCount="&CrpDelineation_Count;" />
 				<ShopPurchase shopItem="BsmDelineation" maxCount="&BsmDelineation_Count;" />
 				<ShopPurchase shopItem="ArmDelineation" maxCount="&ArmDelineation_Count;" />

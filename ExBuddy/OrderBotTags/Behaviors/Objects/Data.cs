@@ -389,14 +389,26 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 					Cost = 45,
 					Yield = 1
 				}
+				
 			},
 			{
 				ShopItem.RedCrafterToken,
 				new ShopItemInfo
 				{
-					Index = 0,
+					Index = 1 - (int) ShopItem.RedCrafterToken,
 					ShopType = ShopType.RedCrafter,
 					ItemId = 12838,
+					Cost = 50,
+					Yield = 1
+				}
+			},
+			{
+				ShopItem.GoblinCup,
+				new ShopItemInfo
+				{
+					Index = -1 + (int) ShopItem.GoblinCup,
+					ShopType = ShopType.RedCrafter,
+					ItemId = 14104,
 					Cost = 50,
 					Yield = 1
 				}
@@ -405,9 +417,20 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 				ShopItem.RedGatherToken,
 				new ShopItemInfo
 				{
-					Index = 0,
+					Index = 2 - (int) ShopItem.RedGatherToken,
 					ShopType = ShopType.RedGatherer,
 					ItemId = 12840,
+					Cost = 50,
+					Yield = 1
+				}
+			},
+			{
+				ShopItem.GoblinDice,
+				new ShopItemInfo
+				{	
+					Index = -2 + (int) ShopItem.GoblinDice,
+					ShopType = ShopType.RedGatherer,
+					ItemId = 14105,
 					Cost = 50,
 					Yield = 1
 				}
@@ -435,14 +458,14 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 				}
 			},
 			{
-				ShopItem.BlueToken,
+				ShopItem.BlueGatherToken,
 				new ShopItemInfo
 				{
-					Index = (int) ShopItem.BlueToken,
+					Index = (int) ShopItem.BlueGatherToken,
 					ShopType = ShopType.BlueGatherer,
 					ItemId = 12841,
-					Cost = 250,
-					Yield = 5
+					Cost = 50,
+					Yield = 1
 				}
 			},
 			{
@@ -498,6 +521,17 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 					ItemId = 12712,
 					Cost = 60,
 					Yield = 50
+				}
+			},
+			{
+				ShopItem.BlueCrafterToken,
+				new ShopItemInfo
+				{
+					Index = (int) ShopItem.BlueCrafterToken,
+					ShopType = ShopType.BlueCrafter,
+					ItemId = 12839,
+					Cost = 50,
+					Yield = 1
 				}
 			},
 			{
@@ -597,6 +631,28 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 					ItemId = 14937,
 					Cost = 60,
 					Yield = 5
+				}
+			},
+				{
+				ShopItem.HeavensEgg,
+				new ShopItemInfo
+				{
+					Index = (int) ShopItem.HeavensEgg,
+					ShopType = ShopType.BlueCrafter,
+					ItemId = 15652,
+					Cost = 50,
+					Yield = 3
+				}
+			},
+			{
+				ShopItem.CarbonFiber,
+				new ShopItemInfo
+				{
+					Index = (int) ShopItem.CarbonFiber,
+					ShopType = ShopType.BlueCrafter,
+					ItemId = 5339,
+					Cost = 50,
+					Yield = 1
 				}
 			}
 #endif

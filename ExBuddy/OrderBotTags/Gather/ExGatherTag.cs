@@ -292,7 +292,7 @@
             {
                 foreach (var item in ItemNames)
                 {
-                    Items.Add(new GatherItem { Name = item, Condition = "True" });
+                    Items.Add(new GatherItem { Name = item, LocalName= item, Condition = "True" });
                 }
             }
 

@@ -64,6 +64,7 @@
     <Compile Include="Data\RequiredItemResult.cs" />
     <Compile Include="Data\SqlData.cs" />
     <Compile Include="Helpers\ConditionTimer.cs" />
+    <Compile Include="Interfaces\IConditionNamedItem.cs" />
     <Compile Include="Localization\Localization.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -71,6 +72,7 @@
     </Compile>
     <Compile Include="Localization\LocalizationInitializer.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
+    <Compile Include="OrderBotTags\Objects\BaseGatherItem.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\WeatherRate.cs" />

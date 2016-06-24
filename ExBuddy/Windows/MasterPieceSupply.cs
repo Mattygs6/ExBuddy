@@ -92,13 +92,17 @@
 				Request.HandOver();
 
 				await Behaviors.Wait(interval, () => !Request.IsOpen || SelectYesno.IsOpen);
-			}
 
-			if (SelectYesno.IsOpen)
-			{
-				Logger.Instance.Warn(Localization.Localization.MasterPieceSupply_FullScrips, bagSlot.EnglishName);
-				return false;
-			}
+                if (SelectYesno.IsOpen && Memory.Scrips.WeeklyRedGatherer == 450)
+                {
+                    Logger.Instance.Warn(Localization.Localization.MasterPieceSupply_FullScrips, bagSlot.EnglishName);
+                    return false;
+                }else
+                {
+                    SelectYesno.ClickYes();
+                    await Behaviors.Wait(interval, () => !SelectYesno.IsOpen);
+                }
+            }
 
 			return !Request.IsOpen;
 		}

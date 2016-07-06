@@ -276,7 +276,7 @@
 
 		public static string DynamicToString<T>(this T obj, params string[] propertiesToSkip) where T : class
 		{
-			var type = typeof(T);
+			var type = obj.GetType();
 			var properties =
 				type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 			var stringBuilder = new StringBuilder();

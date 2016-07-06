@@ -27,6 +27,8 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 
 		BlueGatherToken = 8,
 
+		BlueToken = BlueGatherToken,
+
 		BruteLeech = 12,
 
 		CraneFly = 13,
@@ -73,6 +75,8 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 		BlueCrafterToken = 25, /* OK 3.3 */
 
 		BlueGatherToken = 7, /* OK 3.3 */
+
+		BlueToken = BlueGatherToken,
 
 		RedBalloon = 9, /* OK 3.3 */
 

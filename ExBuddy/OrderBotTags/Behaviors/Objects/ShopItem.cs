@@ -28,8 +28,10 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 		CommercialSurvivalManual = 5,
 
 		HiCordial = 6,
+        
+		BlueGatherToken = 7,
 
-		BlueToken = 8,
+		BlueToken = BlueGatherToken,
 
 		RedBalloon = 9,
 

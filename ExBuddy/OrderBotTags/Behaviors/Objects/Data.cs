@@ -233,8 +233,8 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
                                                                                         		Index = (int) ShopItem.BlueToken,
                                                                                         		ShopType = ShopType.BlueGatherer,
                                                                                         		ItemId = 12841,
-                                                                                        		Cost = 50,
-                                                                                        		Yield = 1
+                                                                                        		Cost = 250,
+                                                                                        		Yield = 5
                                                                                         	}
                                                                                         },
                                                                                         {

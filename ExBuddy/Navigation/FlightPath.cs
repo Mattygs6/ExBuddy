@@ -14,6 +14,8 @@ namespace ExBuddy.Navigation
 	using Clio.Utilities;
 	using ExBuddy.Helpers;
 	using ExBuddy.Interfaces;
+	using ExBuddy.Logging;
+
 	using ff14bot.Managers;
 
 	public class StraightOrParabolicFlightPath : FlightPath
@@ -340,6 +342,7 @@ namespace ExBuddy.Navigation
 									ClearQueuedFlightPoints();
 
 									uncorrectedErrors++;
+									Logger.Instance.Error("Uncorrected Errors: " + uncorrectedErrors);
 									break;
 								}
 

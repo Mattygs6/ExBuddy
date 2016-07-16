@@ -62,7 +62,7 @@
 
 			var side = range / Math.Sqrt(3);
 
-			if (!(minDistance < side))
+			if (minDistance.HasValue && !(minDistance.Value < side))
 			{
 				throw new ArgumentException("minDistance must be less than the side");
 			}

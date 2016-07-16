@@ -60,7 +60,7 @@
 				throw new ArgumentException("range must be greater than 0");
 			}
 
-			var side = range / Math.Sqrt(3);
+			var side = sphereType == SphereType.None ? (range/ Math.Sqrt(2)) : (range / Math.Sqrt(3));
 
 			if (minDistance.HasValue && !(minDistance.Value < side))
 			{

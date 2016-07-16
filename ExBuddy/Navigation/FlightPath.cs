@@ -254,7 +254,7 @@ namespace ExBuddy.Navigation
 
 		protected virtual async Task<bool> Build()
 		{
-			const int MaxUncorrectedErrors = 5;
+			const int MaxUncorrectedErrors = 10;
 			var uncorrectedErrors = 0;
 			var from = Start;
 			var target = End;
@@ -307,11 +307,12 @@ namespace ExBuddy.Navigation
 						if (result.HasFlag(CollisionFlags.Error))
 						{
 							var alternateCount = 0;
-							// Go in random direction up to the distance of a normal waypoint.
-							var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint);
+							// Go in random direction up to double the distance of a normal waypoint.
+							var alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint * 2);
 							while (WorldManager.Raycast(previousWaypoint, alternateWaypoint, out hit) && Behaviors.ShouldContinue)
 							{
-								if (alternateCount > 20)
+								alternateCount++;
+								if (alternateCount > 10)
 								{
 									if (uncorrectedErrors >= MaxUncorrectedErrors)
 									{
@@ -323,7 +324,7 @@ namespace ExBuddy.Navigation
 
 									foreach (var fp in queuedFlightPoints)
 									{
-										MemoryCache.Default.Add(fp.Location.ToString(), fp, DateTimeOffset.Now + TimeSpan.FromSeconds(30));
+										MemoryCache.Default.Add(fp.GetCacheKey(), fp, DateTimeOffset.Now + TimeSpan.FromSeconds(180));
 									}
 
 									previousWaypoint = from = this.Last();
@@ -342,11 +343,10 @@ namespace ExBuddy.Navigation
 									break;
 								}
 
-								alternateWaypoint = previousWaypoint.AddRandomDirection(10);
-								alternateCount++;
+								alternateWaypoint = previousWaypoint.AddRandomDirection(distancePerWaypoint * 2);
 							}
 
-							if (alternateCount > 20)
+							if (alternateCount > 10)
 							{
 								continue;
 							}
@@ -356,7 +356,7 @@ namespace ExBuddy.Navigation
 
 						var preHeightCorrect = new FlightPoint {Location = deviationWaypoint, IsDeviation = true};
 						MemoryCache.Default.Add(
-							preHeightCorrect.Location.ToString(),
+							preHeightCorrect.GetCacheKey(),
 							preHeightCorrect,
 							DateTimeOffset.Now + TimeSpan.FromSeconds(10));
 
@@ -365,9 +365,9 @@ namespace ExBuddy.Navigation
 
 						var flightPoint = new FlightPoint {Location = deviationWaypoint, IsDeviation = true};
 						MemoryCache.Default.Add(
-							flightPoint.Location.ToString(),
+							flightPoint.GetCacheKey(),
 							flightPoint,
-							DateTimeOffset.Now + TimeSpan.FromSeconds(10));
+							DateTimeOffset.Now + TimeSpan.FromSeconds(30));
 
 						QueueFlightPoint(flightPoint);
 
@@ -429,7 +429,7 @@ namespace ExBuddy.Navigation
 		{
 			queuedFlightPoints.Enqueue(flightPoint);
 
-			if (queuedFlightPoints.Count == 8)
+			while (queuedFlightPoints.Count > 8)
 			{
 				Add(queuedFlightPoints.Dequeue());
 			}

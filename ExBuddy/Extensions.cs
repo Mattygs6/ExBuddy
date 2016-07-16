@@ -53,67 +53,95 @@
 		////		12784	//Manasail
 		////	};
 
-		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f, SphereType sphereType = SphereType.Full)
+		public static Vector3 AddRandomDirection(this Vector3 vector, float range = 2.0f, SphereType sphereType = SphereType.Full, float? minDistance = null)
 		{
+			if (!(range > 0))
+			{
+				throw new ArgumentException("range must be greater than 0");
+			}
+
 			var side = range / Math.Sqrt(3);
-			var minY = sphereType.HasFlag(SphereType.BottomHalf) ? -side : 0;
-			var maxY = sphereType.HasFlag(SphereType.TopHalf) ? side : 0;
+
+			if (!(minDistance < side))
+			{
+				throw new ArgumentException("minDistance must be less than the side");
+			}
+
+			var requiredDistance = minDistance.GetValueOrDefault((float)side / 4);
+
+			Func<double> getY;
+			if (sphereType == SphereType.Full)
+			{
+				getY = () => GetRandomWithAbsoluteValueRange(requiredDistance, side);
+			}
+			else if (sphereType == SphereType.BottomHalf)
+			{
+				getY = () => MathEx.Random(-side, -requiredDistance);
+			}
+			else if (sphereType == SphereType.TopHalf)
+			{
+				getY = () => MathEx.Random(requiredDistance, side);
+			}
+			else
+			{
+				getY = () => default(double);
+			}
 
 			var random = new Vector3(
-				vector.X + (float) MathEx.Random(-side, side),
-				vector.Y + (float) MathEx.Random(minY, maxY),
-				vector.Z + (float) MathEx.Random(-side, side));
+				vector.X + (float)GetRandomWithAbsoluteValueRange(requiredDistance, side),
+				vector.Y + (float)getY(),
+				vector.Z + (float)GetRandomWithAbsoluteValueRange(requiredDistance, side));
 
 			Vector3 hit;
 			var ticks = 0;
-			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
+			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 60)
 			{
 				random = new Vector3(
-					vector.X + (float) MathEx.Random(-side, side),
-					vector.Y + (float)MathEx.Random(minY, maxY),
-					vector.Z + (float) MathEx.Random(-side, side));
+					vector.X + (float)GetRandomWithAbsoluteValueRange(requiredDistance, side),
+					vector.Y + (float)getY(),
+					vector.Z + (float)GetRandomWithAbsoluteValueRange(requiredDistance, side));
 			}
 
-			if (ticks > 200)
+			if (ticks > 60)
 			{
 				Logger.Instance.Error("Attempted to add Random Direction from {0} but failed", vector);
 
 				return vector;
 			}
 
-			Logger.Instance.Info("Adding Random Direction.  from {0} to {1}", vector, random);
+			Logger.Instance.Info("Adding Random Direction: from {0} to {1}", vector, random);
 
 			return random;
 		}
 
-		public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f)
+		private static double GetRandomWithAbsoluteValueRange(double min, double max)
 		{
-			var side = range/Math.Sqrt(2);
-			var random = new Vector3(
-				vector.X + (float) MathEx.Random(-side, side),
-				vector.Y,
-				vector.Z + (float) MathEx.Random(-side, side));
-
-			Vector3 hit;
-			var ticks = 0;
-			while (WorldManager.Raycast(vector, random, out hit) && ticks++ < 200)
+			if (min < 0)
 			{
-				random = new Vector3(
-					vector.X + (float) MathEx.Random(-side, side),
-					vector.Y,
-					vector.Z + (float) MathEx.Random(-side, side));
+				throw new ArgumentException("min must not be less than 0");
 			}
 
-			if (ticks > 200)
+			if (!(min < max))
 			{
-				Logger.Instance.Error("Attempted to add Random Direction2D from {0} but failed", vector);
-
-				return vector;
+				throw new ArgumentException("min must be less than max");
 			}
 
-			Logger.Instance.Info("Adding Random Direction2D.  from {0} to {1}", vector, random);
+			var low = min - max;
+			var high = max - min;
 
-			return random;
+			var random = MathEx.Random(low, high);
+
+			if (random.CompareTo(0) >= 0)
+			{
+				return random + min;
+			}
+
+			return random - min;
+		}
+
+		public static Vector3 AddRandomDirection2D(this Vector3 vector, float range = 2.0f, float? minDistance = null)
+		{
+			return AddRandomDirection(vector, range, SphereType.None, minDistance);
 		}
 
 		/// <summary>
@@ -190,7 +218,7 @@
 			{
 				// TODO: maybe check for number that != 0
 				return string.Equals(input, bool.TrueString, StringComparison.OrdinalIgnoreCase)
-				       || string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
+					   || string.Equals(input, "1", StringComparison.OrdinalIgnoreCase);
 			}
 
 			return null;
@@ -200,7 +228,7 @@
 		{
 			Vector3 hit;
 			Vector3 distances;
-			var side = radius/(float) Math.Sqrt(2);
+			var side = radius / (float)Math.Sqrt(2);
 
 			var vectorSouthEast = new Vector3(vector.X + side, vector.Y, vector.Z + side);
 			var vectorNorthEast = new Vector3(vector.X + side, vector.Y, vector.Z - side);
@@ -215,7 +243,7 @@
 
 			float average;
 			var sd = StandardDeviation(
-				new[] {myGround, southEastGround, northEastGround, southWestGround, northWestGround},
+				new[] { myGround, southEastGround, northEastGround, southWestGround, northWestGround },
 				out average);
 
 			return vector;
@@ -299,7 +327,7 @@
 					continue;
 				}
 
-				if (typeof (IEnumerable).IsAssignableFrom(propertyInfo.PropertyType) && propertyInfo.PropertyType != typeof (string))
+				if (typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType) && propertyInfo.PropertyType != typeof(string))
 				{
 					var enumerableValue = value as IEnumerable;
 					if (enumerableValue == null)
@@ -391,7 +419,7 @@
 
 		public static object GetDefaultValue(this Type type)
 		{
-			if (type == null || !type.IsValueType || type == typeof (void) || type.ContainsGenericParameters)
+			if (type == null || !type.IsValueType || type == typeof(void) || type.ContainsGenericParameters)
 			{
 				return null;
 			}
@@ -489,14 +517,14 @@
 		public static bool IsDoneMoving(this MoveResult moveResult)
 		{
 			return moveResult == MoveResult.Done || moveResult == MoveResult.ReachedDestination
-			       || moveResult == MoveResult.Failed || moveResult == MoveResult.Failure
-			       || moveResult == MoveResult.PathGenerationFailed;
+				   || moveResult == MoveResult.Failed || moveResult == MoveResult.Failure
+				   || moveResult == MoveResult.PathGenerationFailed;
 		}
 
 		public static bool IsFullStack(this BagSlot bagSlot, bool includeNonStackable = false)
 		{
 			return bagSlot != null && bagSlot.Item != null && bagSlot.IsFilled
-			       && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1));
+				   && (bagSlot.Count == bagSlot.Item.StackSize && (includeNonStackable || bagSlot.Item.StackSize > 1));
 		}
 
 		public static bool IsGround(this Vector3 vector, float range = 3.0f)
@@ -541,7 +569,7 @@
 				return false;
 			}
 
-			var side = range/(float) Math.Sqrt(2);
+			var side = range / (float)Math.Sqrt(2);
 
 			var vector1 = new Vector3(vector.X + side, vector.Y, vector.Z + side);
 			var vector2 = new Vector3(vector.X + side, vector.Y, vector.Z - side);
@@ -597,13 +625,13 @@
 			}
 
 			if (gatheringItem.Chance == 40
-			    && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance15])
+				&& lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance15])
 			{
 				return true;
 			}
 
 			if (gatheringItem.Chance == 75
-			    && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance50])
+				&& lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance50])
 			{
 				return true;
 			}
@@ -625,10 +653,10 @@
 						{
 							provider.GetBytes(box);
 						}
-							// ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-						while (!(box[0] < n*(byte.MaxValue/n)));
+						// ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+						while (!(box[0] < n * (byte.MaxValue / n)));
 
-						var k = box[0]%n;
+						var k = box[0] % n;
 						n--;
 						var value = list[k];
 						list[k] = list[n];
@@ -669,7 +697,7 @@
 		}
 
 #if RB_X64
-        public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params ulong[] param)
+		public static SendActionResult TrySendAction(this AtkAddonControl window, int pairCount, params ulong[] param)
 		{
 			if (window == null || !window.IsValid)
 			{
@@ -717,10 +745,10 @@
 		{
 			average = values.Average();
 			var a = average;
-			var sumOfSquaresOfDiffs = values.Select(v => (v - a)*(v - a)).Sum();
-			var sd = Math.Sqrt(sumOfSquaresOfDiffs/values.Count);
+			var sumOfSquaresOfDiffs = values.Select(v => (v - a) * (v - a)).Sum();
+			var sd = Math.Sqrt(sumOfSquaresOfDiffs / values.Count);
 
-			return (float) sd;
+			return (float)sd;
 		}
 	}
 }

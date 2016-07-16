@@ -1,6 +1,8 @@
 ﻿namespace ExBuddy.Navigation
 {
 	using System;
+	using System.Globalization;
+
 	using Clio.Utilities;
 
 	public struct FlightPoint
@@ -21,6 +23,15 @@
 			           && Math.Abs(other.Location.Z - Location.Z) < float.Epsilon);
 		}
 
+		public string GetCacheKey()
+		{
+			var x = this.Location.X.ToString("F2", CultureInfo.InvariantCulture);
+			var y = this.Location.Y.ToString("F2", CultureInfo.InvariantCulture);
+			var z= this.Location.Z.ToString("F2", CultureInfo.InvariantCulture);
+
+			return string.Concat(x, ',', y, ',', z);
+		}
+
 		public static implicit operator Vector3(FlightPoint flightPoint)
 		{
 			return flightPoint.Location;
@@ -33,7 +44,7 @@
 
 		public override string ToString()
 		{
-			return Location + (IsDeviation ? " *D*" : string.Empty);
+			return Location + (IsDeviation ? " σ" : string.Empty);
 		}
 	}
 }

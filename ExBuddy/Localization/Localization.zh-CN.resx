@@ -181,7 +181,7 @@
     <value>在这个渔点钓了 {0} 次,一共 {1} 次.</value>
   </data>
   <data name="ExFish_FishRegex" xml:space="preserve">
-    <value>[\u4e00-\u9fa5A-Za-z0-9]+成功钓上了|[\u4e00-\u9fa5]+</value>
+    <value>[\u4e00-\u9fa5A-Za-z0-9·]+成功钓上了|[\u4e00-\u9fa5]+</value>
   </data>
   <data name="ExFish_InitFishSpot" xml:space="preserve">
     <value>在移动换渔点前会再钓</value>

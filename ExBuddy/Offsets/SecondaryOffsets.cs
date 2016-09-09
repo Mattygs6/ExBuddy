@@ -17,7 +17,7 @@
 	public static class ScripsOffsets
 	{
 		// TODO: Real data is a struct with 2 vals, uint ItemId and 4byte val
-		[Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")] [Offset64("Search 42 89 B4 F2 ? ? ? ? Add 4 TraceRelative")] public static IntPtr BasePtr;
+		[Offset("Search 89 0C C5 ? ? ? ? 5F Add 3 Read32")] [Offset64("Search 48 8D 0D ? ? ? ? 8B D7 E8 ? ? ? ? 03 C6 Add 3 TraceRelative Add 4")] public static IntPtr BasePtr;
 
 #if RB_X64
         public static int BlueGathererOffset = 0x10;

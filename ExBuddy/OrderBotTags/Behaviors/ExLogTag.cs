@@ -55,7 +55,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 		public override string ToString()
 		{
-			return "ExLogTag";
+		    return "ExLogTag LineNumber:" + LineNumber;
 		}
 
 		protected override async Task<bool> Main()

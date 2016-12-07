@@ -26,6 +26,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 	using ff14bot.Navigation;
 	using ff14bot.NeoProfiles;
 	using ff14bot.RemoteWindows;
+    using ShopExchangeCurrency = ExBuddy.Windows.ShopExchangeCurrency;
 
 	[LoggerName("ExTurnInCollectables")]
 	[XmlElement("ExTurnInCollectables")]

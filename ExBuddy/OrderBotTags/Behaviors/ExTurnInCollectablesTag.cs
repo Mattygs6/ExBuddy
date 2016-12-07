@@ -30,7 +30,6 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 	[LoggerName("ExTurnInCollectables")]
 	[XmlElement("ExTurnInCollectables")]
-	[XmlElement("TurnInCollectables")]
 	public class ExTurnInCollectablesTag : ExProfileBehavior
 	{
 		private uint index;

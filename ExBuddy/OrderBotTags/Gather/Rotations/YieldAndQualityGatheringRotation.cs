@@ -1,15 +1,15 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather.Rotations
 {
 	using System.Threading.Tasks;
-	using Attributes;
-	using Enumerations;
-	using Helpers;
-	using Interfaces;
+	using ExBuddy.Attributes;
+	using ExBuddy.Enumerations;
+	using ExBuddy.Helpers;
+	using ExBuddy.Interfaces;
 	using ff14bot;
 	using ff14bot.Managers;
-    	
+
 	//Name, RequiredTime, RequiredGpBreakpoints
-	[GatheringRotation("YieldAndQuality", 25, 700, 650, 600, 500, 0)]
+	[GatheringRotation("YieldAndQuality", 22, 600, 500, 0)]
 	public class YieldAndQualityGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members
@@ -50,21 +50,9 @@
 					if (Core.Player.CurrentGP >= 100)
 					{
 						await tag.Cast(Ability.IncreaseGatherQuality10);
-
-                        if (Core.Player.CurrentGP >= 100 && tag.GatherItem.Chance < 95)
-                        {
-                            await tag.Cast(Ability.IncreaseGatherChance15);
-                        }
-                        else
-                        {
-                            if (Core.Player.CurrentGP >= 50 && tag.GatherItem.Chance < 100)
-                            {
-                                await tag.Cast(Ability.IncreaseGatherChance5);
-                            }
-                        }
-
-                        return await base.ExecuteRotation(tag);
 					}
+
+					return await base.ExecuteRotation(tag);
 				}
 			}
 

@@ -95,6 +95,18 @@
 			return result;
 		}
 
+		public static bool IsSpiritBondDone(int id)
+		{
+			foreach (BagSlot slot in InventoryManager.EquippedItems)
+			{
+				if(slot.RawItemId  == id && slot.SpiritBond == 100) 
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public static bool TrueFor(int id, TimeSpan span)
 		{
 			ConditionTimer timer;

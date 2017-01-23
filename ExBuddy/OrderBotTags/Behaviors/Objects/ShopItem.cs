@@ -1,7 +1,7 @@
 namespace ExBuddy.OrderBotTags.Behaviors.Objects
 {
-	public enum ShopItem
-	{
+    public enum ShopItem
+    {
 #if RB_CN
 		CrpDelineation = -10,
 
@@ -61,74 +61,162 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
 
 		PowderedMermanHorn = 38
 		
-		#else
-		CrpDelineation = -10, /* OK 3.3 */
+#else
+        #region BlueCrafter
+        BlueCrafterToken = 0,
 
-		BsmDelineation = -9, /* OK 3.3 */
- 
-		ArmDelineation = -8, /* OK 3.3 */
+        CommercialEngineeringManual = 1,
 
-		GsmDelineation = -7, /* OK 3.3 */
+        SweetCreamMilk = 2,
 
-		LtwDelineation = -6, /* OK 3.3 */
+        StoneCheese = 3,
 
-		WvrDelineation = -5, /* OK 3.3 */
+        HeavensEgg = 4,
 
-		AlcDelineation = -4, /* OK 3.3 */
+        CarbonFiber = 5,
 
-		CulDelineation = -3, /* OK 3.3 */
+        LoaghtanFilet = 6,
 
-		CommercialEngineeringManual = -2, /* OK 3.3 */
+        GoldenApple = 7,
 
-		RedCrafterToken = 1, /* OK 3.3 */
-		
-		GoblinCup = 3, /* OK 3.3 */
-		
-		RedGatherToken = 2, /* OK 3.3 */
-		
-		GoblinDice = 4, /* OK 3.3 */
+        SolsticeGarlic = 8,
 
-		CommercialSurvivalManual = 5, /* OK 3.3 */
+        MatureOliveOil = 9,
 
-		HiCordial = 6, /* OK 3.3 */
-		
-		BlueCrafterToken = 25, /* OK 3.3 */
+        PowderedMermanHorn = 10,
 
-		BlueGatherToken = 7, /* OK 3.3 */
+        BouillonCube = 11,
 
-		BlueToken = BlueGatherToken,
+        BeanSauce = 12,
 
-		RedBalloon = 9, /* OK 3.3 */
+        BeanPaste = 13,
 
-		MagmaWorm = 10, /* OK 3.3 */
+        KukuruPowder = 14,
 
-		FiendWorm = 11, /* OK 3.3 */
+        AdeptsHat = 15,
 
-		BruteLeech = 12, /* OK 3.3 */
+        AdeptsGown = 16,
 
-		CraneFly = 13, /* OK 3.3 */
+        AdeptsGloves = 17,
 
-		KukuruPowder = 32, /* OK 3.3 */
+        AdeptsHose = 18,
 
-		BouillonCube = 33, /* OK 3.3 */
+        AdeptsThighboots = 19,
 
-		BeanSauce = 34, /* OK 3.3 */
+        CrpDelineation = 20,
 
-		BeanPaste = 35, /* OK 3.3 */
+        BsmDelineation = 21,
 
-		GoldenApple = 36, /* OK 3.3 */
+        ArmDelineation = 22,
 
-		SolsticeGarlic = 37, /* OK 3.3 */
+        GsmDelineation = 23,
 
-		MatureOliveOil = 38, /* OK 3.3 */
+        LtwDelineation = 24,
 
-		LoaghtanFilet = 39, /* OK 3.3 */
+        WvrDelineation = 25,
 
-		PowderedMermanHorn = 40, /* OK 3.3 */
-		
-		HeavensEgg = 41, /* OK 3.3 */
-		
-		CarbonFiber = 42 /* OK 3.3 */
+        AlcDelineation = 26,
+
+        CulDelineation = 27,
+        #endregion
+
+        #region RedCrafter
+        RedCrafterToken = -5,
+
+        GoblinCup = -4,
+
+        CompetenceIV = -3,
+
+        CunningIV = -2,
+
+        CommandIV = -1,
+        #endregion
+
+        #region BlueGatherer
+        BlueGatherToken = -40,
+
+        BlueToken = BlueGatherToken,
+
+        HiCordial = -39,
+
+        CommercialSurvivalManual = -38,
+
+        TrailblazersScarf = -37,
+
+        TrailblazersVest = -36,
+
+        TrailblazersWristguards = -35,
+
+        TrailblazersSlops = -34,
+
+        TrailblazersShoes = -33,
+
+        BruteLeech = -32,
+
+        CraneFly = -31,
+
+        FiendWorm = -30,
+
+        MagmaWorm = -29,
+
+        RedBalloon = -28,
+
+        CrownTrout = -27,
+
+        CrownTroutHQ = -26,
+
+        RetributionStaff = -25,
+
+        RetributionStaffHQ = -24,
+
+        ThiefBetta = -23,
+
+        ThiefBettaHQ = -22,
+
+        GoldsmithCrab = -21,
+
+        GoldsmithCrabHQ = -20,
+
+        Pterodactyl = -19,
+
+        PterodactylHQ = -18,
+
+        Eurhinosaur = -17,
+
+        EurhinosaurHQ = -16,
+
+        GemMarimo = -15,
+
+        GemMarimoHQ = -14,
+
+        Sphalerite = -13,
+
+        SphaleriteHQ = -12,
+
+        WindSilk = -11,
+
+        CloudCottonBoll = -10,
+
+        CloudCottonBollHQ = -9,
+
+        DinosaurLeather = -8,
+
+        RoyalMistletoe = -7,
+
+        RoyalMistletoeHQ = -6,
+        #endregion
+
+        #region RedGatherer
+        RedGatherToken = -45,
+
+        GoblinDice = -44,
+
+        GuerdonIV = -43,
+
+        GuileIV = -42,
+
+        GraspIV = -41
+        #endregion
 #endif
-	}
+    }
 }

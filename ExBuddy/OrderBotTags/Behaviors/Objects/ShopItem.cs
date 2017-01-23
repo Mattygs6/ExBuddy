@@ -3,64 +3,64 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
     public enum ShopItem
     {
 #if RB_CN
-		CrpDelineation = -10,
+        CrpDelineation = -10,
 
-		BsmDelineation = -9,
+        BsmDelineation = -9,
 
-		ArmDelineation = -8,
+        ArmDelineation = -8,
 
-		GsmDelineation = -7,
+        GsmDelineation = -7,
 
-		LtwDelineation = -6,
+        LtwDelineation = -6,
 
-		WvrDelineation = -5,
+        WvrDelineation = -5,
 
-		AlcDelineation = -4,
+        AlcDelineation = -4,
 
-		CulDelineation = -3,
+        CulDelineation = -3,
 
-		CommercialEngineeringManual = -2,
+        CommercialEngineeringManual = -2,
 
-		RedCrafterToken = 0,
+        RedCrafterToken = 0,
 
-		RedGatherToken = 1,
+        RedGatherToken = 1,
 
-		CommercialSurvivalManual = 5,
+        CommercialSurvivalManual = 5,
 
-		HiCordial = 6,
-        
-		BlueGatherToken = 7,
+        HiCordial = 6,
 
-		BlueToken = BlueGatherToken,
+        BlueGatherToken = 7,
 
-		RedBalloon = 9,
+        BlueToken = BlueGatherToken,
 
-		MagmaWorm = 10,
+        RedBalloon = 9,
 
-		FiendWorm = 11,
+        MagmaWorm = 10,
 
-		BruteLeech = 12,
+        FiendWorm = 11,
 
-		CraneFly = 13,
+        BruteLeech = 12,
 
-		KukuruPowder = 30,
+        CraneFly = 13,
 
-		BouillonCube = 31,
+        KukuruPowder = 30,
 
-		BeanSauce = 32,
+        BouillonCube = 31,
 
-		BeanPaste = 33,
+        BeanSauce = 32,
 
-		GoldenApple = 34,
+        BeanPaste = 33,
 
-		SolsticeGarlic = 35,
+        GoldenApple = 34,
 
-		MatureOliveOil = 36,
+        SolsticeGarlic = 35,
 
-		LoaghtanFilet = 37,
+        MatureOliveOil = 36,
 
-		PowderedMermanHorn = 38
-		
+        LoaghtanFilet = 37,
+
+        PowderedMermanHorn = 38
+
 #else
         #region BlueCrafter
         BlueCrafterToken = 0,

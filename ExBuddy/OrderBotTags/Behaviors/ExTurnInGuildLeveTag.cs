@@ -193,7 +193,7 @@
 
 				IEnumerable<BagSlot> itemSlots =
 					InventoryManager.FilledInventoryAndArmory.Where(
-						bs => bs.RawItemId == itemId && !Blacklist.Contains((uint) bs.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
+						bs => bs.RawItemId == itemId && !Blacklist.Contains((uint) bs.Pointer.ToInt64(), BlacklistFlags.Loot)).ToArray();
 
 				if (HqOnly)
 				{

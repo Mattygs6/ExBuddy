@@ -163,7 +163,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 			{
 				Logger.Error(Localization.Localization.ExTurnInCollectable_TurnInError);
 				Blacklist.Add(
-					(uint) item.Pointer.ToInt32(),
+					(uint) item.Pointer.ToInt64(),
 					BlacklistFlags.Loot,
 					TimeSpan.FromMinutes(3),
                     Localization.Localization.ExTurnInCollectable_TurnInBlackList);
@@ -569,7 +569,7 @@ namespace ExBuddy.OrderBotTags.Behaviors
 
 			var slots =
 				InventoryManager.FilledInventoryAndArmory.Where(
-					i => !Blacklist.Contains((uint) i.Pointer.ToInt32(), BlacklistFlags.Loot)).ToArray();
+					i => !Blacklist.Contains((uint) i.Pointer.ToInt64(), BlacklistFlags.Loot)).ToArray();
 
 			if (Collectables == null)
 			{

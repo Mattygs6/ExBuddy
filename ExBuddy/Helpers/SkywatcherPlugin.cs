@@ -38,11 +38,11 @@
 			return timeleft;
 		}
 
-		public static int GetIntervalNumber()
+		public static double GetIntervalNumber()
 		{
 			var interval = ((DateTime.UtcNow.ToUniversalTime().AddHours(8) - EorzeaStartTime).TotalSeconds/1400);
 
-			return Convert.ToInt32(interval);
+			return Convert.ToInt64(interval);
 		}
 
 		public static double GetTimeTillNextInterval()

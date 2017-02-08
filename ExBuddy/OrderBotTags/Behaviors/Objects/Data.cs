@@ -1178,7 +1178,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
                 new ShopItemInfo
                 {
                     Index = 45 + (int) ShopItem.GuerdonIV,
-                    ShopType = ShopType.RedCrafter,
+                    ShopType = ShopType.RedGatherer,
                     ItemId = 5687,
                     Cost = 50,
                     Yield = 1
@@ -1189,7 +1189,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
                 new ShopItemInfo
                 {
                     Index = 45 + (int) ShopItem.GuileIV,
-                    ShopType = ShopType.RedCrafter,
+                    ShopType = ShopType.RedGatherer,
                     ItemId = 5692,
                     Cost = 50,
                     Yield = 1
@@ -1200,7 +1200,7 @@ namespace ExBuddy.OrderBotTags.Behaviors.Objects
                 new ShopItemInfo
                 {
                     Index = 45 + (int) ShopItem.GraspIV,
-                    ShopType = ShopType.RedCrafter,
+                    ShopType = ShopType.RedGatherer,
                     ItemId = 5697,
                     Cost = 50,
                     Yield = 1

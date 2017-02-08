@@ -556,7 +556,7 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		private int amissfish;
 
-		private int fishlimit;
+		private double fishlimit;
 
 		private double sitRoll = 1.0;
 

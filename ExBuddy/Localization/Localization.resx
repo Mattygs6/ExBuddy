@@ -181,7 +181,7 @@
     <value>Fished {0} of {1} fish at this FishSpot.</value>
   </data>
   <data name="ExFish_FishRegex" xml:space="preserve">
-    <value>You land an{0,1} (.+) measuring (\d{1,4}\.\d) ilms!</value>
+    <value>You land(?: a| an)? (.+) measuring (\d{1,4}\.\d) ilms!</value>
   </data>
   <data name="ExFish_InitFishSpot" xml:space="preserve">
     <value>Will fish for </value>

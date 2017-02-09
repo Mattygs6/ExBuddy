@@ -1,36 +1,36 @@
 ﻿namespace ExBuddy.OrderBotTags.Gather
 {
-	using System;
-	using System.Collections.Generic;
-	using System.ComponentModel;
-	using System.Linq;
-	using System.Reflection;
-	using System.Threading.Tasks;
-	using System.Windows.Media;
-	using Buddy.Coroutines;
-	using Clio.Utilities;
-	using Clio.XmlEngine;
-	using ExBuddy.Attributes;
-	using ExBuddy.Enumerations;
-	using ExBuddy.Helpers;
-	using ExBuddy.Interfaces;
-	using ExBuddy.OrderBotTags.Behaviors;
-	using ExBuddy.OrderBotTags.Gather.GatherSpots;
-	using ExBuddy.OrderBotTags.Gather.Rotations;
-	using ExBuddy.OrderBotTags.Objects;
-	using ExBuddy.Windows;
-	using ff14bot;
-	using ff14bot.Behavior;
-	using ff14bot.Enums;
-	using ff14bot.Helpers;
-	using ff14bot.Managers;
-	using ff14bot.Navigation;
-	using ff14bot.NeoProfiles;
-	using ff14bot.Objects;
-	using ff14bot.RemoteWindows;
-	using TreeSharp;
+    using Buddy.Coroutines;
+    using Clio.Utilities;
+    using Clio.XmlEngine;
+    using ExBuddy.Attributes;
+    using ExBuddy.Enumerations;
+    using ExBuddy.Helpers;
+    using ExBuddy.Interfaces;
+    using ExBuddy.OrderBotTags.Behaviors;
+    using ExBuddy.OrderBotTags.Gather.GatherSpots;
+    using ExBuddy.OrderBotTags.Gather.Rotations;
+    using ExBuddy.OrderBotTags.Objects;
+    using ExBuddy.Windows;
+    using ff14bot;
+    using ff14bot.Behavior;
+    using ff14bot.Enums;
+    using ff14bot.Helpers;
+    using ff14bot.Managers;
+    using ff14bot.Navigation;
+    using ff14bot.NeoProfiles;
+    using ff14bot.Objects;
+    using ff14bot.RemoteWindows;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using System.Windows.Media;
+    using TreeSharp;
 
-	[LoggerName("ExGather")]
+    [LoggerName("ExGather")]
 	[XmlElement("ExGather")]
 	[XmlElement("GatherCollectable")]
 	public sealed class ExGatherTag : ExProfileBehavior
@@ -91,7 +91,7 @@
 		[Obsolete("Use Items instead.")]
 		public List<Collectable> Collectables { get; set; }
 
-		[DefaultValue(CordialTime.IfNeeded)]
+        [DefaultValue(CordialTime.IfNeeded)]
 		[XmlAttribute("CordialTime")]
 		public CordialTime CordialTime { get; set; }
 
@@ -147,7 +147,7 @@
 		[XmlAttribute("GatherStrategy")]
 		public GatherStrategy GatherStrategy { get; set; }
 
-		[XmlElement("HotSpots")]
+        [XmlElement("HotSpots")]
 		public IndexedList<HotSpot> HotSpots { get; set; }
 
 		[XmlElement("ItemNames")]
@@ -176,9 +176,6 @@
 
 		[XmlAttribute("SpawnTimeout")]
 		public int SpawnTimeout { get; set; }
-
-		[XmlAttribute("SpellDelay")]
-		public int SpellDelay { get; set; }
 
 		[XmlAttribute("SwingsRemaining")]
 		public byte SwingsRemaining { get; set; }
@@ -288,27 +285,27 @@
 			if (Items == null)
 			{
 				Items = new NamedItemCollection();
-
-#pragma warning disable 618
-				if (ItemNames != null)
-				{
-					foreach (var item in ItemNames)
-					{
-						Items.Add(new GatherItem {Name = item});
-					}
-				}
-
-				if (Collectables != null)
-				{
-					foreach (var collectable in Collectables)
-					{
-						Items.Add(collectable);
-					}
-				}
-#pragma warning restore 618
 			}
+            
+#pragma warning disable 618
+            if (ItemNames != null)
+            {
+                foreach (var item in ItemNames)
+                {
+                    Items.Add(new GatherItem { Name = item, LocalName= item, Condition = "True" });
+                }
+            }
 
-			if (string.IsNullOrWhiteSpace(Name))
+            if (Collectables != null)
+            {
+                foreach (var collectable in Collectables)
+                {
+                    Items.Add(collectable);
+                }
+            }
+#pragma warning restore 618
+
+            if (string.IsNullOrWhiteSpace(Name))
 			{
 				if (Items.Count > 0)
 				{
@@ -333,26 +330,6 @@
 			return CordialSpellData.Cooldown.TotalSeconds < withinSeconds && CordialTime > CordialTime.None
 			       && ((CordialType == CordialType.Cordial && Cordial.HasCordials())
 			           || CordialType > CordialType.Cordial && Cordial.HasAnyCordials());
-		}
-
-		internal async Task<bool> Cast(uint id)
-		{
-			return await Actions.Cast(id, SpellDelay);
-		}
-
-		internal async Task<bool> Cast(Ability id)
-		{
-			return await Actions.Cast(id, SpellDelay);
-		}
-
-		internal async Task<bool> CastAura(uint spellId, int auraId = -1)
-		{
-			return await Actions.CastAura(spellId, SpellDelay, auraId);
-		}
-
-		internal async Task<bool> CastAura(Ability ability, AbilityAura auraId = AbilityAura.None)
-		{
-			return await Actions.CastAura(ability, SpellDelay, auraId);
 		}
 
 		internal async Task<bool> CloseGatheringWindow()
@@ -381,9 +358,22 @@
 			       || Node.EnglishName.IndexOf("legendary", StringComparison.InvariantCultureIgnoreCase) >= 0;
 		}
 
-		internal bool MovementStopCallback(float distance, float radius)
+        int last = DateTime.Now.Millisecond;
+
+        internal bool MovementStopCallback(float distance, float radius)
 		{
-			return distance <= radius || !WhileFunc() || ExProfileBehavior.Me.IsDead;
+            int now = DateTime.Now.Millisecond;
+
+            // it's usefull when WhileCondition is too complex
+            if(now - last > 3000)
+            {
+                last = now;
+                return distance <= radius || !WhileFunc() ||ExProfileBehavior.Me.IsDead;
+            } else
+            {
+    			return distance <= radius || ExProfileBehavior.Me.IsDead;
+            }
+
 		}
 
 		internal void ResetInternal()
@@ -438,7 +428,7 @@
 
 			if (DiscoverUnknowns)
 			{
-				var items = new[] { 0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U }.Select(GatheringManager.GetGatheringItemByIndex);
+				var items = new[] {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U}.Select(GatheringManager.GetGatheringItemByIndex).ToArray();
 
 				GatherItem = items.FirstOrDefault(i => i.IsUnknownChance() && i.Amount > 0);
 
@@ -832,7 +822,7 @@
 				return;
 			}
 
-			CollectableItem = Items.OfType<Collectable>().FirstOrDefault();
+			CollectableItem = Items.OfType<Collectable>().Where(i => i.ConditionResult).FirstOrDefault();
 
 			if (CollectableItem != null)
 			{
@@ -947,13 +937,14 @@
 				IEnumerable<GatheringPointObject> nodes =
 					GameObjectManager.GetObjectsOfType<GatheringPointObject>().Where(gpo => gpo.CanGather).ToArray();
 
-				if (GatherStrategy == GatherStrategy.TouchAndGo && HotSpots != null)
+                if (GatherStrategy == GatherStrategy.TouchAndGo && HotSpots != null)
 				{
 					if (GatherObjects != null)
 					{
-						nodes = nodes.Where(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
+						nodes = nodes.Where(gpo => (GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase) 
+                        || GatherObjects.Contains(gpo.Name, StringComparer.InvariantCultureIgnoreCase)));
 					}
-
+                    
 					foreach (var node in
 						nodes.Where(gpo => HotSpots.CurrentOrDefault.WithinHotSpot2D(gpo.Location))
 							.OrderBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
@@ -990,9 +981,14 @@
 					Node =
 						nodes.OrderBy(
 							gpo =>
-								GatherObjects.FindIndex(i => string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)))
+								GatherObjects.FindIndex(i => (string.Equals(gpo.EnglishName, i, StringComparison.InvariantCultureIgnoreCase)
+                                || string.Equals(gpo.Name,i,StringComparison.InvariantCultureIgnoreCase)
+                                )))
 							.ThenBy(gpo => gpo.Location.Distance2D(ExProfileBehavior.Me.Location))
-							.FirstOrDefault(gpo => GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase));
+							.FirstOrDefault(gpo => 
+                                (GatherObjects.Contains(gpo.EnglishName, StringComparer.InvariantCultureIgnoreCase)
+                                || GatherObjects.Contains(gpo.Name, StringComparer.InvariantCultureIgnoreCase))
+                                );
 				}
 				else
 				{
@@ -1484,32 +1480,32 @@
 
 		private bool SetGatherItem(ICollection<GatheringItem> windowItems)
 		{
-			foreach (var item in Items)
-			{
-				var items = windowItems.Where(i => i.IsFilled && !i.IsUnknown).ToArray();
+			foreach (var item in Items.Where(i => i.ConditionResult))
+            {
+                var items = windowItems.Where(i => i.IsFilled && !i.IsUnknown).ToArray();
 
-				if (item.Id > 0)
-				{
-					GatherItem =
-						items.FirstOrDefault(i => i.ItemData.Id == item.Id
-						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
-				}
+                if (item.Id > 0)
+                {
+                    GatherItem =
+                        items.FirstOrDefault(i => i.ItemData.Id == item.Id
+                        && (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+                }
 
-				GatherItem = GatherItem ??
-					items.FirstOrDefault(
-						i => string.Equals(item.LocalName, i.ItemData.CurrentLocaleName, StringComparison.InvariantCultureIgnoreCase)
-						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0)) ??
-					items.FirstOrDefault(
-						i => string.Equals(item.Name, i.ItemData.EngName, StringComparison.InvariantCultureIgnoreCase)
-						&& (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
+                GatherItem = GatherItem ??
+                    items.FirstOrDefault(
+                        i => string.Equals(item.LocalName, i.ItemData.CurrentLocaleName, StringComparison.InvariantCultureIgnoreCase)
+                        && (!i.ItemData.Unique || i.ItemData.ItemCount() == 0)) ??
+                    items.FirstOrDefault(
+                        i => string.Equals(item.Name, i.ItemData.EngName, StringComparison.InvariantCultureIgnoreCase)
+                        && (!i.ItemData.Unique || i.ItemData.ItemCount() == 0));
 
-				if (GatherItem != null)
-				{
-					// We don't need to check null...since it will be null anyway.
-					CollectableItem = item as Collectable;
-					return true;
-				}
-			}
+                if (GatherItem != null)
+                {
+                    // We don't need to check null...since it will be null anyway.
+                    CollectableItem = item as Collectable;
+                    return true;
+                }
+            }
 
 			return false;
 		}
@@ -1642,5 +1638,6 @@
 				get { return RealSecondsTillStartGathering/3; }
 			}
 		}
-	}
+        
+    }
 }

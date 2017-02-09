@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!DOCTYPE Profile [
+  <!ENTITY HardsilverOre "99">
+  <!ENTITY RawChrysolite "99">
+  <!ENTITY WyrmObsidian "99">
+]>
 <Profile>
 	<Name>Hardsilver Ore</Name>
 	<KillRadius>50</KillRadius>
@@ -45,9 +50,11 @@
 				<GatherObjects>
 					<GatherObject>Mineral Deposit</GatherObject>
 				</GatherObjects>
-				<ItemNames>
-					<ItemName>Hardsilver Ore</ItemName>
-				</ItemNames>
+        <Items>
+          <GatherItem Name="Hardsilver Ore" LocalName="硬银矿" Condition="ItemCount(12535) &lt; &HardsilverOre;" />
+          <GatherItem Name="Raw Chrysolite" LocalName="贵橄榄石原石" Condition="ItemCount(12558) &lt; &RawChrysolite;" />
+          <GatherItem Name="Wyrm Obsidian" LocalName="真龙黑曜石" Condition="ItemCount(5127) &lt; &WyrmObsidian;" />
+        </Items>
 				<GatherRotation>regularnode</GatherRotation>
 				<GatherSpots>
 				</GatherSpots>

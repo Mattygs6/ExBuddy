@@ -774,7 +774,7 @@
 
 			if (ExProfileBehavior.Me.ClassLevel < 46
 			    || ExProfileBehavior.Me.HasAura(
-				    (int)
+				    (uint)
 					    (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
 						    ? AbilityAura.TruthOfMountains
 						    : AbilityAura.TruthOfForests)))
@@ -1311,7 +1311,7 @@
 				await CloseGatheringWindow();
 				ResetInternal();
 
-				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || Actionmanager.CanMount == 0);
+				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || ActionManager.CanMount == 0);
 				return false;
 			}
 
@@ -1547,7 +1547,7 @@
 						{
 							if (ExProfileBehavior.Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 							{
-								Actionmanager.Dismount();
+								ActionManager.Dismount();
 								return false;
 							}
 

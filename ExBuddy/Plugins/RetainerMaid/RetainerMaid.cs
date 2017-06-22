@@ -77,7 +77,6 @@
 		public override void OnButtonPress()
 		{
 			// go to summon object, interact, do the things.
-			INavigationProvider navigator;
 			if (!TreeRoot.IsRunning) {}
 
 			// For now, going to just build the logic here!

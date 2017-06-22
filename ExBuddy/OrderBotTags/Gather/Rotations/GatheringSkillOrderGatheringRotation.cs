@@ -32,9 +32,9 @@
 				// Ignoring times to cast.... no skills would ever be cast more than once.
 				SpellData spellData;
 
-				if (!Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellName, out spellData))
+				if (!ActionManager.CurrentActions.TryGetValue(gatheringSkill.SpellName, out spellData))
 				{
-					Actionmanager.CurrentActions.TryGetValue(gatheringSkill.SpellId, out spellData);
+					ActionManager.CurrentActions.TryGetValue(gatheringSkill.SpellId, out spellData);
 				}
 
 				if (spellData == null)

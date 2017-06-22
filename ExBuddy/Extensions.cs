@@ -198,8 +198,6 @@
 
 		public static Vector3 CorrectLanding(this Vector3 vector, float radius = 2.7f)
 		{
-			Vector3 hit;
-			Vector3 distances;
 			var side = radius/(float) Math.Sqrt(2);
 
 			var vectorSouthEast = new Vector3(vector.X + side, vector.Y, vector.Z + side);
@@ -590,7 +588,7 @@
 				return true;
 			}
 
-			var lastSpellId = Actionmanager.LastSpellId;
+			var lastSpellId = ActionManager.LastSpellId;
 			if (gatheringItem.Chance == 30 && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance5])
 			{
 				return true;

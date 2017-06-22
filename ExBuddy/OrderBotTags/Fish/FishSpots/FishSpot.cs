@@ -65,12 +65,12 @@
 
 		public virtual async Task<bool> MoveFromLocation(ExFishTag tag)
 		{
-			return true;
+			return await Task.FromResult(true);
 		}
 
 		public virtual async Task<bool> MoveToLocation(ExFishTag tag)
 		{
-			return true;
+			return await Task.FromResult(true);
 		}
 
 		#endregion

@@ -56,7 +56,7 @@ namespace ExBuddy.Helpers
 				}
 				else
 				{
-					Actionmanager.Dismount();
+					ActionManager.Dismount();
 				}
 
 				await Wait(interval, () => !Core.Player.IsMounted);
@@ -312,7 +312,7 @@ namespace ExBuddy.Helpers
 				}
 			}
 
-			return Actionmanager.CanMount == 0;
+			return ActionManager.CanMount == 0;
 		}
 
 		public static async Task Sleep(int interval)
@@ -329,13 +329,13 @@ namespace ExBuddy.Helpers
 
 		public static async Task<bool> Sprint(int timeout = 500)
 		{
-			if (Actionmanager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000
+			if (ActionManager.IsSprintReady && !Core.Player.IsCasting && !Core.Player.IsMounted && Core.Player.CurrentTP == 1000
 			    && MovementManager.IsMoving)
 			{
-				Actionmanager.Sprint();
+				ActionManager.Sprint();
 
 				// Maybe use MovementManager speed.
-				await Coroutine.Wait(500, () => !Actionmanager.IsSprintReady);
+				await Coroutine.Wait(500, () => !ActionManager.IsSprintReady);
 			}
 
 			return true;

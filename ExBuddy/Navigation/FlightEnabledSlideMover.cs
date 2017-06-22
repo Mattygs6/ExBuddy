@@ -93,7 +93,7 @@
 
 		public void EnsureFlying()
 		{
-			if (!MovementManager.IsFlying && Actionmanager.CanMount == 0)
+			if (!MovementManager.IsFlying && ActionManager.CanMount == 0)
 			{
 				if (!takeoffStopwatch.IsRunning)
 				{
@@ -278,7 +278,7 @@
 		internal static bool ShouldFlyInternal(Vector3 destination)
 		{
 			return MovementManager.IsFlying
-			       || (Actionmanager.CanMount == 0
+			       || (ActionManager.CanMount == 0
 			           &&
 			           ((destination.Distance3D(GameObjectManager.LocalPlayer.Location) >=
 			             CharacterSettings.Instance.MountDistance)

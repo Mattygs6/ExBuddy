@@ -6,9 +6,11 @@ namespace ExBuddy.OrderBotTags.Gather.Rotations
 	using ExBuddy.Interfaces;
 	using ff14bot;
 	using ff14bot.Managers;
-
-	//Name, RequiredTime, RequiredGpBreakpoints
-	[GatheringRotation("Elemental", 0)]
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
+    //Name, RequiredTime, RequiredGpBreakpoints
+    [GatheringRotation("Elemental", 0)]
 	public class ElementalGatheringRotation : SmartGatheringRotation, IGetOverridePriority
 	{
 		#region IGetOverridePriority Members

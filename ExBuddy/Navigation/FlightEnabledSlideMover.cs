@@ -18,8 +18,10 @@
 	using ff14bot.Navigation;
 	using ff14bot.NeoProfiles;
 	using ff14bot.Settings;
-
-	[LoggerName("FlightMover")]
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
+    [LoggerName("FlightMover")]
 	public class FlightEnabledSlideMover : LogColors, IFlightEnabledPlayerMover
 	{
 		private static Func<Vector3, bool> shouldFlyToFunc = ShouldFlyInternal;

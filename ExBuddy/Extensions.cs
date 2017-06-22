@@ -20,8 +20,11 @@
 	using ff14bot.Managers;
 	using ff14bot.Objects;
 	using GreyMagic;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	[Flags]
+    [Flags]
 	public enum SphereType
 	{
 		None = 0,

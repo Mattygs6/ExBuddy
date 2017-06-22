@@ -13,8 +13,11 @@
 	using ff14bot.Navigation;
 	using ff14bot.RemoteWindows;
 	using PurifyDialog = ExBuddy.Windows.PurifyDialog;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	[LoggerName("ExPurify")]
+    [LoggerName("ExPurify")]
 	[XmlElement("ExPurify")]
 	[XmlElement("ExReduce")]
 	public class ExPurifyTag : ExProfileBehavior

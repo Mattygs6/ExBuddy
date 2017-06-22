@@ -26,7 +26,11 @@ namespace ExBuddy.OrderBotTags.Fish
 	using TreeSharp;
 	using Action = TreeSharp.Action;
 
-	[LoggerName("ExFish")]
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
+
+    [LoggerName("ExFish")]
 	[XmlElement("ExFish")]
 	[XmlElement("Fish")]
 	public class ExFishTag : ExProfileBehavior

@@ -17,8 +17,11 @@ namespace ExBuddy.Helpers
 	using ff14bot.Managers;
 	using ff14bot.Navigation;
 	using ff14bot.Settings;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	public static class Behaviors
+    public static class Behaviors
 	{
 		public static readonly Func<float, float, bool> DontStopInRange = (d, r) => false;
 

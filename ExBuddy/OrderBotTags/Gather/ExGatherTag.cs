@@ -29,8 +29,11 @@
 	using ff14bot.Objects;
 	using ff14bot.RemoteWindows;
 	using TreeSharp;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	[LoggerName("ExGather")]
+    [LoggerName("ExGather")]
 	[XmlElement("ExGather")]
 	[XmlElement("GatherCollectable")]
 	public sealed class ExGatherTag : ExProfileBehavior
@@ -774,8 +777,12 @@
 
 			if (ExProfileBehavior.Me.ClassLevel < 46
 			    || ExProfileBehavior.Me.HasAura(
-				    (uint)
-					    (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
+#if RB_CN
+                    (int)
+#else
+                    (uint)
+#endif
+                        (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
 						    ? AbilityAura.TruthOfMountains
 						    : AbilityAura.TruthOfForests)))
 			{

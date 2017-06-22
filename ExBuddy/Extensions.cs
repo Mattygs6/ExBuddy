@@ -700,7 +700,7 @@
 				window.SendAction(pairCount, param);
 				return SendActionResult.Success;
 			}
-			catch (InjectionException ex)
+			catch (Exception ex)
 			{
 				Logger.Instance.Error(ex.Message);
 				return SendActionResult.InjectionError;

@@ -20,8 +20,9 @@ namespace ExBuddy.Plugins.EnableFlight
 	using ff14bot.Navigation;
 	using ff14bot.RemoteWindows;
 	using TreeSharp;
+    using ff14bot.Pathing.Service_Navigation;
 
-	[LoggerName("EnableFlight")]
+    [LoggerName("EnableFlight")]
 	public class EnableFlight : ExBotPlugin<EnableFlight>
 	{
 		private BotEvent cleanup;
@@ -73,10 +74,10 @@ namespace ExBuddy.Plugins.EnableFlight
 
 		private void DisposeNav()
 		{
-			var nav = Navigator.NavigationProvider as GaiaNavigator;
+			var nav = Navigator.NavigationProvider as ServiceNavigationProvider;
 			if (nav != null)
 			{
-				Logger.Info("Disposing the GaiaNavigator");
+				Logger.Info("Disposing the ServiceNavigationProvider");
 				try
 				{
 					nav.Dispose();

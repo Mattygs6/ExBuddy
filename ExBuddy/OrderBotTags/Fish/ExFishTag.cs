@@ -26,7 +26,11 @@ namespace ExBuddy.OrderBotTags.Fish
 	using TreeSharp;
 	using Action = TreeSharp.Action;
 
-	[LoggerName("ExFish")]
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
+
+    [LoggerName("ExFish")]
 	[XmlElement("ExFish")]
 	[XmlElement("Fish")]
 	public class ExFishTag : ExProfileBehavior
@@ -453,7 +457,7 @@ namespace ExBuddy.OrderBotTags.Fish
 						{
 							if (ExProfileBehavior.Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 							{
-								Actionmanager.Dismount();
+								ActionManager.Dismount();
 								return false;
 							}
 
@@ -1055,12 +1059,12 @@ namespace ExBuddy.OrderBotTags.Fish
 
 		internal bool CanDoAbility(Abilities ability)
 		{
-			return Actionmanager.CanCast((uint) ability, ExProfileBehavior.Me);
+			return ActionManager.CanCast((uint) ability, ExProfileBehavior.Me);
 		}
 
 		internal bool DoAbility(Abilities ability)
 		{
-			return Actionmanager.DoAction((uint) ability, ExProfileBehavior.Me);
+			return ActionManager.DoAction((uint) ability, ExProfileBehavior.Me);
 		}
 
 		#endregion

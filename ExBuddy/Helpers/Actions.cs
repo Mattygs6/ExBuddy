@@ -6,8 +6,11 @@ namespace ExBuddy.Helpers
 	using ff14bot;
 	using ff14bot.Managers;
 	using ff14bot.Objects;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	internal static class Actions
+    internal static class Actions
 	{
 		internal static async Task<bool> Cast(uint id, int delay)
 		{
@@ -19,12 +22,12 @@ namespace ExBuddy.Helpers
 				await Coroutine.Wait(3500, () => !GatheringManager.ShouldPause(spellData));
 			}
 
-			var result = Actionmanager.DoAction(id, Core.Player);
+			var result = ActionManager.DoAction(id, Core.Player);
 
 			var ticks = 0;
 			while (result == false && ticks++ < 5 && Behaviors.ShouldContinue)
 			{
-				result = Actionmanager.DoAction(id, Core.Player);
+				result = ActionManager.DoAction(id, Core.Player);
 				await Coroutine.Yield();
 			}
 
@@ -62,7 +65,11 @@ namespace ExBuddy.Helpers
 		internal static async Task<bool> CastAura(uint spellId, int delay, int auraId = -1)
 		{
 			var result = false;
-			if (auraId == -1 || !Core.Player.HasAura(auraId))
+			if (auraId == -1 || !Core.Player.HasAura(
+#if !RB_CN
+                (uint)
+#endif
+                auraId))
 			{
 				SpellData spellData;
 				if (GatheringManager.ShouldPause(spellData = DataManager.SpellCache[spellId]))
@@ -70,11 +77,11 @@ namespace ExBuddy.Helpers
 					await Coroutine.Wait(3500, () => !GatheringManager.ShouldPause(DataManager.SpellCache[spellId]));
 				}
 
-				result = Actionmanager.DoAction(spellId, Core.Player);
+				result = ActionManager.DoAction(spellId, Core.Player);
 				var ticks = 0;
 				while (result == false && ticks++ < 5 && Behaviors.ShouldContinue)
 				{
-					result = Actionmanager.DoAction(spellId, Core.Player);
+					result = ActionManager.DoAction(spellId, Core.Player);
 					await Coroutine.Yield();
 				}
 
@@ -88,7 +95,11 @@ namespace ExBuddy.Helpers
 				}
 
 				//Wait till we have the aura
-				await Coroutine.Wait(3500, () => Core.Player.HasAura(auraId));
+				await Coroutine.Wait(3500, () => Core.Player.HasAura(
+#if !RB_CN
+                    (uint)
+#endif
+                    auraId));
 				if (delay > 0)
 				{
 					await Coroutine.Sleep(delay);
@@ -104,7 +115,7 @@ namespace ExBuddy.Helpers
 
 		internal static async Task<bool> CastAura(Ability ability, int delay, AbilityAura aura = AbilityAura.None)
 		{
-			return await CastAura(Abilities.Map[Core.Player.CurrentJob][ability], delay, (int) aura);
+			return await CastAura(Abilities.Map[Core.Player.CurrentJob][ability], delay, (int)aura);
 		}
 	}
 }

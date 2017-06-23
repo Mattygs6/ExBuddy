@@ -20,8 +20,11 @@
 	using ff14bot.Managers;
 	using ff14bot.Objects;
 	using GreyMagic;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	[Flags]
+    [Flags]
 	public enum SphereType
 	{
 		None = 0,
@@ -198,8 +201,6 @@
 
 		public static Vector3 CorrectLanding(this Vector3 vector, float radius = 2.7f)
 		{
-			Vector3 hit;
-			Vector3 distances;
 			var side = radius/(float) Math.Sqrt(2);
 
 			var vectorSouthEast = new Vector3(vector.X + side, vector.Y, vector.Z + side);
@@ -590,7 +591,7 @@
 				return true;
 			}
 
-			var lastSpellId = Actionmanager.LastSpellId;
+			var lastSpellId = ActionManager.LastSpellId;
 			if (gatheringItem.Chance == 30 && lastSpellId == Abilities.Map[Core.Player.CurrentJob][Ability.IncreaseGatherChance5])
 			{
 				return true;
@@ -700,7 +701,7 @@
 				window.SendAction(pairCount, param);
 				return SendActionResult.Success;
 			}
-			catch (InjectionException ex)
+			catch (Exception ex)
 			{
 				Logger.Instance.Error(ex.Message);
 				return SendActionResult.InjectionError;

@@ -4,8 +4,11 @@
 	using ExBuddy.Enumerations;
 	using ExBuddy.Helpers;
 	using ff14bot.Managers;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	public sealed class Bait : Window<Bait>
+    public sealed class Bait : Window<Bait>
 	{
 		public Bait()
 			: base("Bait") {}
@@ -18,7 +21,7 @@
 		{
 			if (!IsValid)
 			{
-				Actionmanager.DoAction(288, GameObjectManager.LocalPlayer);
+				ActionManager.DoAction(288, GameObjectManager.LocalPlayer);
 				await Refresh(maxWait);
 				await Behaviors.Sleep(maxWait);
 			}

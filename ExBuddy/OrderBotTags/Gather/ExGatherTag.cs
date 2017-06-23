@@ -29,8 +29,11 @@
 	using ff14bot.Objects;
 	using ff14bot.RemoteWindows;
 	using TreeSharp;
+#if RB_CN
+    using ActionManager = ff14bot.Managers.Actionmanager;
+#endif
 
-	[LoggerName("ExGather")]
+    [LoggerName("ExGather")]
 	[XmlElement("ExGather")]
 	[XmlElement("GatherCollectable")]
 	public sealed class ExGatherTag : ExProfileBehavior
@@ -774,8 +777,12 @@
 
 			if (ExProfileBehavior.Me.ClassLevel < 46
 			    || ExProfileBehavior.Me.HasAura(
-				    (int)
-					    (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
+#if RB_CN
+                    (int)
+#else
+                    (uint)
+#endif
+                        (ExProfileBehavior.Me.CurrentJob == ClassJobType.Miner
 						    ? AbilityAura.TruthOfMountains
 						    : AbilityAura.TruthOfForests)))
 			{
@@ -1311,7 +1318,7 @@
 				await CloseGatheringWindow();
 				ResetInternal();
 
-				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || Actionmanager.CanMount == 0);
+				await Coroutine.Wait(2000, () => ExProfileBehavior.Me.InCombat || ActionManager.CanMount == 0);
 				return false;
 			}
 
@@ -1547,7 +1554,7 @@
 						{
 							if (ExProfileBehavior.Me.IsMounted && CordialSpellData.Cooldown.TotalSeconds < 2)
 							{
-								Actionmanager.Dismount();
+								ActionManager.Dismount();
 								return false;
 							}
 

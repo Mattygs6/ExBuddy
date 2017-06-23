@@ -13,7 +13,7 @@
             if (Core.Player.CurrentGP > 399)
             {
                 await Wait();
-                Actionmanager.DoAction(293U, Core.Player);
+                ActionManager.DoAction(293U, Core.Player);
             }
             
             return await base.ExecuteRotation(tag);

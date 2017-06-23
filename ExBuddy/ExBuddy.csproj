@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;RB_CN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -43,7 +43,7 @@
       <HintPath>..\Assembly\Quest Behaviors_1537820551.dll</HintPath>
     </Reference>
     <Reference Include="RebornBuddy">
-      <HintPath>..\Assembly\RebornBuddy.exe</HintPath>
+      <HintPath>D:\code\qqmoreCN\RebornBuddy.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,6 +70,7 @@
       <DependentUpon>Localization.resx</DependentUpon>
     </Compile>
     <Compile Include="Localization\LocalizationInitializer.cs" />
+    <Compile Include="Navigation\FlightEnabledNavigatorCN.cs" />
     <Compile Include="Offsets\SecondaryOffsets.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\Location.cs" />
     <Compile Include="Plugins\Skywatcher\Objects\LocationIndex.cs" />
@@ -159,7 +160,7 @@
     <Compile Include="Helpers\ObjectCache{T}.cs" />
     <Compile Include="Helpers\ReflectionHelper.cs" />
     <Compile Include="DefaultReturnStrategy.cs" />
-    <Compile Include="Navigation\FlightEnabledNavigator.cs" />
+    <Compile Include="Navigation\FlightEnabledNavigatorbeta.cs" />
     <Compile Include="Navigation\FlightEnabledSlideMover.cs" />
     <Compile Include="Navigation\FlightPath.cs" />
     <Compile Include="Navigation\FlightPoint.cs" />

@@ -413,7 +413,13 @@
 			var windowItems = GatheringManager.GatheringWindowItems.ToArray();
 
 			// TODO: move method to common so we use it on fish too
-			if (InventoryItemCount() >= 100)
+			if (InventoryItemCount() >=
+#if RB_CN
+				100
+#else
+				140
+#endif
+			)
 			{
 				if (Items.Count > 0)
 				{

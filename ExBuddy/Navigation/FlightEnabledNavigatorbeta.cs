@@ -1,4 +1,5 @@
-﻿namespace ExBuddy.Navigation
+﻿#if RB_64
+namespace ExBuddy.Navigation
 {
 	using System;
 	using System.Collections.Generic;
@@ -392,3 +393,4 @@
 		#endregion
 	}
 }
+#endif

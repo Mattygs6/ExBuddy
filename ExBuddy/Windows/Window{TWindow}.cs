@@ -147,12 +147,7 @@
 			return await Coroutine.Wait(timeoutMs, () => Refresh().IsValid == valid);
 		}
 
-#if RB_X64
         public virtual SendActionResult TrySendAction(int pairCount, params ulong[] param)
-#else
-		public virtual SendActionResult TrySendAction(int pairCount, params uint[] param)
-#endif
-
 		{
 			return Control.TrySendAction(pairCount, param);
 		}

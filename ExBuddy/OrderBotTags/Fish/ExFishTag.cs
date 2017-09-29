@@ -925,10 +925,19 @@ namespace ExBuddy.OrderBotTags.Fish
 		{
 			get
 			{
-				return new Decorator(
-					// TODO: Log reason for quit.
-					ret => InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems) >= 100,
-					IsDoneAction);
+				var itemCount = InventoryManager.FilledSlots.Count(c => c.BagId != InventoryBagId.KeyItems);
+				bool inventoryIsFull = itemCount >=
+#if RB_CN
+				100
+#else
+				140
+#endif
+;
+				// TODO: Log reason for quit.
+				if (inventoryIsFull)
+					Logger.Warn("Inventary is full: {0}", itemCount);
+
+				return new Decorator(ret => inventoryIsFull, IsDoneAction);
 			}
 		}
 
